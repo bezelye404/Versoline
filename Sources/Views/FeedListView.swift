@@ -398,9 +398,9 @@ struct FeedItemRow: View {
             HStack(alignment: .top, spacing: 8) {
                 // Unread indicator
                 Circle()
-                    .fill(item.isRead ? .clear : .blue)
-                    .frame(width: 8, height: 8)
-                    .padding(.top, isCompactListMode ? 4 : 5)
+                    .fill(item.isRead ? Color.clear : Color.accentColor)
+                    .frame(width: 7, height: 7)
+                    .padding(.top, isCompactListMode ? 4 : 6)
 
                 VStack(alignment: .leading, spacing: isCompactListMode ? 2 : 4) {
                     HStack(spacing: 6) {
@@ -412,15 +412,16 @@ struct FeedItemRow: View {
                         if item.isBookmarked {
                             Image(systemName: "star.fill")
                                 .font(.caption2)
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(Color.accentColor)
                         }
                     }
 
                     if !isCompactListMode && !item.snippet.isEmpty {
                         Text(item.snippet)
                             .font(.caption)
-                            .foregroundStyle(.tertiary)
+                            .foregroundStyle(.secondary)
                             .lineLimit(2)
+                            .lineSpacing(2)
                     }
 
                     HStack(spacing: 8) {
@@ -429,8 +430,8 @@ struct FeedItemRow: View {
                                 FaviconView(hostOrURL: feedURL ?? item.link, size: 12)
                                 Text(feedTitle)
                             }
-                            .font(.caption2)
-                            .foregroundStyle(.blue.opacity(0.8))
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.secondary)
                         }
 
                         if let author = item.author, !author.isEmpty {
@@ -461,21 +462,22 @@ struct FeedItemRow: View {
                                 if isDownloaded {
                                     Image(systemName: "arrow.down.circle.fill")
                                         .font(.system(size: 8))
-                                        .foregroundStyle(.green)
+                                        .foregroundStyle(Color.green)
                                 }
                             }
                             .font(.caption2.weight(.medium))
                             .foregroundStyle(isPlayingThis ? Color.accentColor : Color.secondary)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 1.5)
-                            .background(isPlayingThis ? Color.accentColor.opacity(0.15) : Color.secondary.opacity(0.08))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(isPlayingThis ? Color.accentColor.opacity(0.12) : Color.secondary.opacity(0.08))
                             .clipShape(Capsule())
                         }
                     }
+                    .padding(.top, 1)
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, isCompactListMode ? 2 : 4)
         .contentShape(Rectangle())
     }
 }

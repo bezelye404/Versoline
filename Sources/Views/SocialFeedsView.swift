@@ -106,11 +106,11 @@ struct SocialFeedsView: View {
             HStack(spacing: 12) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.red.opacity(0.12))
+                        .fill(Color.primary.opacity(0.06))
                         .frame(width: 40, height: 40)
                     Image(systemName: "play.rectangle.fill")
                         .font(.system(size: 20))
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Color.accentColor)
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -235,7 +235,6 @@ struct SocialFeedsView: View {
                     .padding(.horizontal, 12)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(.red)
                 .disabled(youtubeInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isResolvingYouTube)
             }
         }
@@ -249,11 +248,11 @@ struct SocialFeedsView: View {
             HStack(spacing: 12) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.orange.opacity(0.12))
+                        .fill(Color.primary.opacity(0.06))
                         .frame(width: 40, height: 40)
                     Image(systemName: "bubble.left.and.bubble.right.fill")
                         .font(.system(size: 20))
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(Color.accentColor)
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -302,13 +301,13 @@ struct SocialFeedsView: View {
             if let error = redditError {
                 HStack(spacing: 6) {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(Color.accentColor)
                     Text(error)
                         .font(.caption)
                         .foregroundStyle(.primary)
                 }
                 .padding(8)
-                .background(Color.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 6))
+                .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 6))
             }
 
             // Action Button
@@ -330,7 +329,6 @@ struct SocialFeedsView: View {
                     .padding(.horizontal, 12)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(.orange)
                 .disabled(currentRedditIdentifier.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isAddingReddit)
             }
         }

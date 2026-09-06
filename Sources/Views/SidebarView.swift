@@ -139,8 +139,10 @@ struct SidebarView: View {
                 showDiscover = true
             } label: {
                 Label("Discover Feeds", systemImage: "safari")
+                    .foregroundStyle(.primary)
             }
             .buttonStyle(.plain)
+            .padding(.vertical, 2)
         }
     }
 

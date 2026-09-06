@@ -33,6 +33,96 @@
     ]
   },
   {
+    "category": "📺 YouTube Kanalları",
+    "feeds": [
+      {
+        "title": "Marques Brownlee (MKBHD)",
+        "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCBJycsmduP4de561TX9dbvg"
+      },
+      {
+        "title": "Veritasium",
+        "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCHnyfMqiRRG1u-2MsSQLbXA"
+      },
+      {
+        "title": "Kurzgesagt – In a Nutshell",
+        "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCsXVk37bltHxD1rDPwtNM8Q"
+      },
+      {
+        "title": "Fireship",
+        "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCsBjURrPoezykLs9EqgamOA"
+      },
+      {
+        "title": "Barış Özcan",
+        "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCv6jcPwFaju4hk2L88exX_A"
+      },
+      {
+        "title": "Apple",
+        "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCE_M8A5KAOGYWv4WC95PQXg"
+      },
+      {
+        "title": "Linus Tech Tips",
+        "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCXuqSBlHAE6Xw-yeJA0Tunw"
+      },
+      {
+        "title": "TED",
+        "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCAuUUnT6oDeKwE6v1NGQxug"
+      },
+      {
+        "title": "BBC News",
+        "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC16niRr50-MSBwiO3YDb3RA"
+      },
+      {
+        "title": "Vox",
+        "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCLXo7UDZvByw2ixzpQCufnA"
+      }
+    ]
+  },
+  {
+    "category": "💬 Popüler Subreddit'ler",
+    "feeds": [
+      {
+        "title": "r/apple",
+        "url": "https://www.reddit.com/r/apple/.rss"
+      },
+      {
+        "title": "r/technology",
+        "url": "https://www.reddit.com/r/technology/.rss"
+      },
+      {
+        "title": "r/swift",
+        "url": "https://www.reddit.com/r/swift/.rss"
+      },
+      {
+        "title": "r/programming",
+        "url": "https://www.reddit.com/r/programming/.rss"
+      },
+      {
+        "title": "r/worldnews",
+        "url": "https://www.reddit.com/r/worldnews/.rss"
+      },
+      {
+        "title": "r/science",
+        "url": "https://www.reddit.com/r/science/.rss"
+      },
+      {
+        "title": "r/gadgets",
+        "url": "https://www.reddit.com/r/gadgets/.rss"
+      },
+      {
+        "title": "r/gaming",
+        "url": "https://www.reddit.com/r/gaming/.rss"
+      },
+      {
+        "title": "r/design",
+        "url": "https://www.reddit.com/r/design/.rss"
+      },
+      {
+        "title": "r/Turkey",
+        "url": "https://www.reddit.com/r/Turkey/.rss"
+      }
+    ]
+  },
+  {
     "category": "🇹🇷 Bilim",
     "feeds": [
       {

@@ -13,6 +13,9 @@ struct CuratedFeedCategory: Identifiable, Hashable, Codable, Sendable {
 
     var iconName: String {
         let lower = category.lowercased()
+        if lower.contains("podcast") { return "mic.fill" }
+        if lower.contains("youtube") || lower.contains("video") { return "play.rectangle.fill" }
+        if lower.contains("reddit") || lower.contains("subreddit") { return "bubble.left.and.bubble.right.fill" }
         if lower.contains("bilim") || lower.contains("science") { return "atom" }
         if lower.contains("teknoloji") || lower.contains("technology") { return "laptopcomputer" }
         if lower.contains("gündem") || lower.contains("haber") || lower.contains("news") { return "newspaper" }

@@ -102,14 +102,15 @@ struct ArticleDetailView: View {
 
     @ViewBuilder
     private func articleHeader(item: FeedItem) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            // Title & Offline indicator
-            HStack(alignment: .top, spacing: 10) {
+        VStack(alignment: .leading, spacing: 14) {
+            // Upper Tier: Title & Offline indicator
+            HStack(alignment: .top, spacing: 12) {
                 Text(item.title)
                     .font(.title2.weight(.semibold))
                     .textSelection(.enabled)
+                    .lineSpacing(3)
 
-                Spacer()
+                Spacer(minLength: 8)
 
                 if !networkMonitor.isConnected {
                     HStack(spacing: 4) {
@@ -125,44 +126,22 @@ struct ArticleDetailView: View {
                 }
             }
 
-            // Metadata row & Toolbar Actions
-            HStack(spacing: 12) {
+            // Lower Tier: Metadata (Feed, Author, Date, Reading Time) & Clean Action Toolbar
+            ViewThatFits(in: .horizontal) {
+                // Wide window: single row
                 HStack(spacing: 12) {
-                    if let feedTitle = currentFeed?.title {
-                        HStack(spacing: 6) {
-                            FaviconView(hostOrURL: currentFeed?.url ?? item.link, size: 14)
-                            Text(feedTitle)
-                        }
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    }
+                    metadataBadges(item: item)
 
-                    if let author = item.author, !author.isEmpty {
-                        Label(author, systemImage: "person")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+                    Spacer(minLength: 16)
 
-                    if let date = item.pubDate {
-                        Label(formattedDate(date), systemImage: "calendar")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    // Reading Time
-                    let readingTime = calculateReadingTime(item: item)
-                    Label(readingTime, systemImage: "clock")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    actionToolbar(item: item)
                 }
-                .lineLimit(1)
-                .truncationMode(.tail)
 
-                Spacer(minLength: 12)
-
-                // Actions
-                actionToolbar(item: item)
-                    .fixedSize(horizontal: true, vertical: false)
+                // Narrow window: two rows
+                VStack(alignment: .leading, spacing: 10) {
+                    metadataBadges(item: item)
+                    actionToolbar(item: item)
+                }
             }
 
             // Podcast Episode Card
@@ -170,7 +149,42 @@ struct ArticleDetailView: View {
                 podcastEpisodeCard(item: item)
             }
         }
-        .padding(16)
+        .padding(.horizontal, 20)
+        .padding(.top, 16)
+        .padding(.bottom, 12)
+    }
+
+    @ViewBuilder
+    private func metadataBadges(item: FeedItem) -> some View {
+        HStack(spacing: 12) {
+            if let feedTitle = currentFeed?.title {
+                HStack(spacing: 6) {
+                    FaviconView(hostOrURL: currentFeed?.url ?? item.link, size: 14)
+                    Text(feedTitle)
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            }
+
+            if let author = item.author, !author.isEmpty {
+                Label(author, systemImage: "person")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            if let date = item.pubDate {
+                Label(formattedDate(date), systemImage: "calendar")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            let readingTime = calculateReadingTime(item: item)
+            Label(readingTime, systemImage: "clock")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .lineLimit(1)
+        .truncationMode(.tail)
     }
 
     // MARK: - Podcast Episode Card
@@ -327,12 +341,12 @@ struct ArticleDetailView: View {
                 .padding(.top, 2)
             }
         }
-        .padding(12)
-        .background(Color.accentColor.opacity(0.06))
+        .padding(14)
+        .background(Color(nsColor: .controlBackgroundColor))
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .overlay(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.accentColor.opacity(0.18), lineWidth: 1)
+                .stroke(Color.primary.opacity(0.08), lineWidth: 1)
         )
     }
 
