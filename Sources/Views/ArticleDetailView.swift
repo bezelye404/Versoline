@@ -3,6 +3,7 @@ import SwiftUI
 struct ArticleDetailView: View {
 
     @Environment(FeedStore.self) private var store
+    @AppStorage("readerFontSize") private var readerFontSize = 16
     let selectedItem: FeedItem?
 
     // Always read fresh data from store
@@ -70,6 +71,25 @@ struct ArticleDetailView: View {
                 Spacer()
 
                 HStack(spacing: 8) {
+                    // Font size controls
+                    Button {
+                        if readerFontSize > 12 { readerFontSize -= 2 }
+                    } label: {
+                        Text("A-")
+                    }
+                    .buttonStyle(.borderless)
+                    .controlSize(.small)
+                    .disabled(readerFontSize <= 12)
+
+                    Button {
+                        if readerFontSize < 28 { readerFontSize += 2 }
+                    } label: {
+                        Text("A+")
+                    }
+                    .buttonStyle(.borderless)
+                    .controlSize(.small)
+                    .disabled(readerFontSize >= 28)
+
                     // Bookmark toggle
                     Button {
                         store.toggleBookmark(item)
@@ -134,7 +154,7 @@ struct ArticleDetailView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
-            WebView(html: contentHTML)
+            WebView(html: contentHTML, fontSize: readerFontSize)
         }
     }
 
