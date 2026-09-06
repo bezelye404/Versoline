@@ -12,14 +12,18 @@ struct CuratedFeedCategory: Identifiable, Hashable, Codable, Sendable {
     let feeds: [CuratedFeed]
 
     var iconName: String {
-        switch category.lowercased() {
-        case "news": return "newspaper"
-        case "sports": return "sportscourt"
-        case "technology": return "laptopcomputer"
-        case "business": return "chart.line.uptrend.xyaxis"
-        case "politics": return "building.columns"
-        case "gaming": return "gamecontroller"
-        default: return "dot.radiowaves.up.forward"
-        }
+        let lower = category.lowercased()
+        if lower.contains("bilim") || lower.contains("science") { return "atom" }
+        if lower.contains("teknoloji") || lower.contains("technology") { return "laptopcomputer" }
+        if lower.contains("gündem") || lower.contains("haber") || lower.contains("news") { return "newspaper" }
+        if lower.contains("spor") || lower.contains("sports") { return "sportscourt" }
+        if lower.contains("ekonomi") || lower.contains("finans") || lower.contains("business") { return "chart.line.uptrend.xyaxis" }
+        if lower.contains("iş") { return "briefcase" }
+        if lower.contains("kültür") || lower.contains("sanat") { return "paintpalette" }
+        if lower.contains("eğlence") || lower.contains("oyun") || lower.contains("gaming") { return "gamecontroller" }
+        if lower.contains("savunma") { return "shield.fill" }
+        if lower.contains("yaşam") { return "heart.fill" }
+        if lower.contains("politika") || lower.contains("politics") { return "building.columns" }
+        return "dot.radiowaves.up.forward"
     }
 }

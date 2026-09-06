@@ -1,6 +1,1440 @@
 [
   {
-    "category": "News",
+    "category": "🇹🇷 Bilim",
+    "feeds": [
+      {
+        "title": "Arkeofili",
+        "url": "https://arkeofili.com/feed/"
+      },
+      {
+        "title": "Bilim ve Gelecek",
+        "url": "https://bilimvegelecek.com.tr/index.php/feed/"
+      },
+      {
+        "title": "Bilimoloji",
+        "url": "https://www.bilimoloji.com/feed/"
+      },
+      {
+        "title": "Bilimup",
+        "url": "https://www.bilimup.com/rss.xml"
+      },
+      {
+        "title": "Evrim Ağacı",
+        "url": "https://evrimagaci.org/rss.xml"
+      },
+      {
+        "title": "Tarihli Bilim",
+        "url": "https://www.tarihlibilim.com/feed/"
+      },
+      {
+        "title": "Tarihten Yazılar",
+        "url": "https://tarihtenyazilar.com/feed/"
+      },
+      {
+        "title": "Gerçek Bilim",
+        "url": "https://www.gercekbilim.com/feed/"
+      },
+      {
+        "title": "Gelecek Bilimde",
+        "url": "https://gelecekbilimde.net/feed/"
+      },
+      {
+        "title": "Herkese Bilim Teknoloji",
+        "url": "https://www.herkesebilimteknoloji.com/feed"
+      },
+      {
+        "title": "Independent Bilim",
+        "url": "https://www.indyturk.com/taxonomy/term/48791/%2A/feed"
+      },
+      {
+        "title": "Matematiksel",
+        "url": "https://www.matematiksel.org/feed"
+      },
+      {
+        "title": "Moletik",
+        "url": "https://moletik.com/feed/"
+      },
+      {
+        "title": "Sarkaç",
+        "url": "https://sarkac.org/feed/"
+      }
+    ]
+  },
+  {
+    "category": "🇹🇷 Teknoloji",
+    "feeds": [
+      {
+        "title": "Campaign Türkiye",
+        "url": "https://www.campaigntr.com/feed/"
+      },
+      {
+        "title": "CHIP Online",
+        "url": "https://www.chip.com.tr/rss"
+      },
+      {
+        "title": "ÇözümPark",
+        "url": "https://www.cozumpark.com/feed/"
+      },
+      {
+        "title": "Dijitaliyidir",
+        "url": "https://dijitaliyidir.com/feed/"
+      },
+      {
+        "title": "Digital Report",
+        "url": "https://digitalreport.com.tr/feed/"
+      },
+      {
+        "title": "Donanım Haber",
+        "url": "https://www.donanimhaber.com/rss/tum/"
+      },
+      {
+        "title": "Donanım Günlüğü",
+        "url": "https://donanimgunlugu.com/feed"
+      },
+      {
+        "title": "FounderN",
+        "url": "https://foundern.com/feed/"
+      },
+      {
+        "title": "Geç Bunları",
+        "url": "https://gecbunlari.com/feed/"
+      },
+      {
+        "title": "Hangisi Alınmalı",
+        "url": "https://hangisialinmali.com/feed/"
+      },
+      {
+        "title": "Hardware Plus",
+        "url": "https://hwp.com.tr/feed"
+      },
+      {
+        "title": "Investing Teknoloji",
+        "url": "https://tr.investing.com/rss/news_288.rss"
+      },
+      {
+        "title": "İndir",
+        "url": "https://www.indir.com/haber/feed/"
+      },
+      {
+        "title": "LOG",
+        "url": "https://www.log.com.tr/feed/"
+      },
+      {
+        "title": "Megabayt",
+        "url": "https://www.megabayt.com/rss/news"
+      },
+      {
+        "title": "NTV Teknoloji",
+        "url": "https://www.ntv.com.tr/teknoloji.rss"
+      },
+      {
+        "title": "Samsung Newsroom Türkiye",
+        "url": "https://news.samsung.com/tr/feed"
+      },
+      {
+        "title": "ShiftDelete",
+        "url": "https://shiftdelete.net/feed"
+      },
+      {
+        "title": "Sihirli Elma",
+        "url": "https://www.sihirlielma.com/feed/"
+      },
+      {
+        "title": "Sordum",
+        "url": "https://www.sordum.net/feed/"
+      },
+      {
+        "title": "Tech Dergi",
+        "url": "https://www.techdergi.net/feed/"
+      },
+      {
+        "title": "Techolay",
+        "url": "https://techolay.net/feed/"
+      },
+      {
+        "title": "Technopat",
+        "url": "https://www.technopat.net/feed/"
+      },
+      {
+        "title": "TechTurco",
+        "url": "https://www.techturco.com/rss"
+      },
+      {
+        "title": "TeknoBurada",
+        "url": "https://www.teknoburada.net/feed/"
+      },
+      {
+        "title": "Teknodiot",
+        "url": "https://teknodiot.com/feed/"
+      },
+      {
+        "title": "Teknolojioku",
+        "url": "https://www.teknolojioku.com/export/rss"
+      },
+      {
+        "title": "Teloji",
+        "url": "https://teloji.com/feed/"
+      },
+      {
+        "title": "Tam İndir",
+        "url": "https://feeds.feedburner.com/tamindir/stream"
+      },
+      {
+        "title": "Türk İnternet",
+        "url": "https://turk-internet.com/feed/"
+      },
+      {
+        "title": "Upcorn",
+        "url": "https://upcorn.co/feed/"
+      },
+      {
+        "title": "VoiceTekno",
+        "url": "https://voicetekno.com/feed/"
+      },
+      {
+        "title": "Webmasto",
+        "url": "https://webmasto.com/feed"
+      },
+      {
+        "title": "Webtekno",
+        "url": "https://www.webtekno.com/rss.xml"
+      },
+      {
+        "title": "Webrazzi",
+        "url": "https://webrazzi.com/feed"
+      },
+      {
+        "title": "Webrazzi Teknoloji",
+        "url": "https://webrazzi.com/kategori/teknoloji/feed"
+      },
+      {
+        "title": "Webrazzi Yapay Zeka",
+        "url": "https://webrazzi.com/kategori/yapay-zeka/feed"
+      }
+    ]
+  },
+  {
+    "category": "🇹🇷 Eğlence",
+    "feeds": [
+      {
+        "title": "22 Dakika",
+        "url": "https://22dakika.org/feed/"
+      },
+      {
+        "title": "Atarita",
+        "url": "https://www.atarita.com/feed/"
+      },
+      {
+        "title": "Altyazı",
+        "url": "https://altyazi.net/feed/"
+      },
+      {
+        "title": "Bağımsız Sinema",
+        "url": "https://www.bagimsizsinema.com/feed"
+      },
+      {
+        "title": "Beyaz Perde",
+        "url": "https://www.beyazperde.com/rss/haberler.xml"
+      },
+      {
+        "title": "Bilimkurgu Kulübü",
+        "url": "https://www.bilimkurgukulubu.com/feed/"
+      },
+      {
+        "title": "Ekşi Şeyler",
+        "url": "https://news.google.com/rss/search?q=site:eksiseyler.com+when:7d&hl=tr&gl=TR&ceid=TR:tr"
+      },
+      {
+        "title": "Fanzade",
+        "url": "https://fanzade.com/feed/"
+      },
+      {
+        "title": "Fantastik Canavarlar",
+        "url": "https://fantastikcanavarlar.com/feed/"
+      },
+      {
+        "title": "Geekyapar",
+        "url": "https://geekyapar.com/feed/"
+      },
+      {
+        "title": "IGN Türkiye",
+        "url": "https://tr.ign.com/feed.xml"
+      },
+      {
+        "title": "Kayıp Rıhtım",
+        "url": "https://kayiprihtim.com/feed/"
+      },
+      {
+        "title": "Keşif Asya",
+        "url": "https://kesifasya.com/feed/"
+      },
+      {
+        "title": "ListeList",
+        "url": "https://listelist.com/feed/"
+      },
+      {
+        "title": "Marjinal Sinema",
+        "url": "https://marjinalsinema.com/feed/"
+      },
+      {
+        "title": "Merlin'in Kazanı",
+        "url": "https://www.merlininkazani.com/feed/"
+      },
+      {
+        "title": "Mister Noob",
+        "url": "https://www.misternoob.com/feed/"
+      },
+      {
+        "title": "Mixmag Turkey",
+        "url": "https://mixmag.com.tr/rss.xml"
+      },
+      {
+        "title": "Mobidictum",
+        "url": "https://mobidictum.com/tr/feed/"
+      },
+      {
+        "title": "Onedio",
+        "url": "https://onedio.com/Publisher/publisher-daily.rss"
+      },
+      {
+        "title": "Oyungezer",
+        "url": "https://oyungezer.com.tr/rss"
+      },
+      {
+        "title": "Öteki Sinema",
+        "url": "https://www.otekisinema.com/feed/"
+      },
+      {
+        "title": "Sofos",
+        "url": "https://blog.sofos.com.tr/feed/"
+      },
+      {
+        "title": "Sinetopya",
+        "url": "https://sinetopya.com/rss/"
+      },
+      {
+        "title": "The Geyik",
+        "url": "https://www.thegeyik.com/feed/"
+      },
+      {
+        "title": "Tourens",
+        "url": "https://tourens.com/feed/"
+      },
+      {
+        "title": "Turkmmo",
+        "url": "https://www.turkmmo.com/feed"
+      },
+      {
+        "title": "Turuncu Levye",
+        "url": "https://www.turunculevye.com/feed/"
+      }
+    ]
+  },
+  {
+    "category": "🇹🇷 Kültür ve Sanat",
+    "feeds": [
+      {
+        "title": "10layn",
+        "url": "https://10layn.com/feed/"
+      },
+      {
+        "title": "2yaka",
+        "url": "https://2yaka.org/feed/"
+      },
+      {
+        "title": "Artdog",
+        "url": "https://artdogistanbul.com/feed/"
+      },
+      {
+        "title": "Artkolik",
+        "url": "https://www.artkolik.net/feed"
+      },
+      {
+        "title": "Argonotlar",
+        "url": "https://argonotlar.com/feed/"
+      },
+      {
+        "title": "Arkitera",
+        "url": "https://www.arkitera.com/feed/"
+      },
+      {
+        "title": "Bant Mag",
+        "url": "https://bantmag.com/feed/"
+      },
+      {
+        "title": "Binbir Kitap",
+        "url": "https://binbirkitap.net/feed/"
+      },
+      {
+        "title": "Bir Baba Indie",
+        "url": "https://www.birbabaindie.com/feed/"
+      },
+      {
+        "title": "Cafrande",
+        "url": "https://www.cafrande.org/feed/"
+      },
+      {
+        "title": "Cazkolik",
+        "url": "https://cazkolik.com/rss.xml"
+      },
+      {
+        "title": "Çekiçle Felsefe",
+        "url": "https://cekiclefelsefe.com/feed/"
+      },
+      {
+        "title": "DeliKasap",
+        "url": "https://www.delikasap.org/feed/"
+      },
+      {
+        "title": "Edebi Bülten",
+        "url": "https://edebibulten.com/feed/"
+      },
+      {
+        "title": "Edebiyat Burada",
+        "url": "https://edebiyatburada.com/feed/"
+      },
+      {
+        "title": "Edebiyat Haber",
+        "url": "https://www.edebiyathaber.net/feed/"
+      },
+      {
+        "title": "Eventmag",
+        "url": "https://eventmag.co/feed/"
+      },
+      {
+        "title": "Fikir Turu",
+        "url": "https://fikirturu.com/feed/"
+      },
+      {
+        "title": "Kayıp Rıhtım Haftalık Kitap Önerisi",
+        "url": "https://kayiprihtim.com/category/kayip-rihtim/kayip-rihtim-oneriyor/feed/"
+      },
+      {
+        "title": "Kilikya Dergisi",
+        "url": "https://dergipark.org.tr/tr/pub/kilikya/rss/lastissue/tr"
+      },
+      {
+        "title": "Kitap Haber",
+        "url": "https://www.kitaphaber.com.tr/feed"
+      },
+      {
+        "title": "Görünüm Dergisi",
+        "url": "https://dergipark.org.tr/tr/pub/gorunum/rss/lastissue/tr"
+      },
+      {
+        "title": "Gazete Sanat",
+        "url": "https://www.gazetesanat.com/feed"
+      },
+      {
+        "title": "Hafta",
+        "url": "https://www.hafta.com.tr/rss.xml"
+      },
+      {
+        "title": "İşin Detayı Kültür Sanat",
+        "url": "https://www.isindetayi.com/rss/kultur-sanat"
+      },
+      {
+        "title": "Manifold",
+        "url": "https://manifold.press/rss"
+      },
+      {
+        "title": "Mesail",
+        "url": "https://www.mesail.org/feed/"
+      },
+      {
+        "title": "Mitoloji",
+        "url": "https://mitoloji.org.tr/feed/"
+      },
+      {
+        "title": "Mürekkep Haber",
+        "url": "https://www.murekkephaber.com/rss.xml"
+      },
+      {
+        "title": "Nouvart",
+        "url": "https://www.nouvart.net/feed/"
+      },
+      {
+        "title": "Öncül",
+        "url": "https://onculanalitikfelsefe.com/feed/"
+      },
+      {
+        "title": "Play Tuşu",
+        "url": "https://playtusu.com/feed/"
+      },
+      {
+        "title": "Rotka",
+        "url": "https://www.rotka.org/feed/"
+      },
+      {
+        "title": "Tarihistan",
+        "url": "https://www.tarihistan.org/rss"
+      },
+      {
+        "title": "Terrabayt",
+        "url": "https://terrabayt.com/feed"
+      },
+      {
+        "title": "Vesaire",
+        "url": "https://vesaire.press/feed/"
+      },
+      {
+        "title": "Yedikıta",
+        "url": "https://yedikita.com.tr/feed/"
+      }
+    ]
+  },
+  {
+    "category": "🇹🇷 Spor",
+    "feeds": [
+      {
+        "title": "A Spor",
+        "url": "https://www.aspor.com.tr/rss/anasayfa.xml"
+      },
+      {
+        "title": "Basket Dergisi",
+        "url": "https://basketdergisi.com/feed"
+      },
+      {
+        "title": "Duhuliye",
+        "url": "https://www.duhuliye.com/rss"
+      },
+      {
+        "title": "Fotomaç",
+        "url": "https://www.fotomac.com.tr/rss/anasayfa.xml"
+      },
+      {
+        "title": "Fotomaç Son 24 Saat",
+        "url": "https://www.fotomac.com.tr/rss/son24saat.xml"
+      },
+      {
+        "title": "Fotomaç Süper Lig",
+        "url": "https://www.fotomac.com.tr/rss/SuperLig.xml"
+      },
+      {
+        "title": "Fotomaç Beşiktaş",
+        "url": "https://www.fotomac.com.tr/rss/Besiktas.xml"
+      },
+      {
+        "title": "Fotomaç Fenerbahçe",
+        "url": "https://www.fotomac.com.tr/rss/Fenerbahce.xml"
+      },
+      {
+        "title": "Fotomaç Galatasaray",
+        "url": "https://www.fotomac.com.tr/rss/Galatasaray.xml"
+      },
+      {
+        "title": "Fotomaç Trabzonspor",
+        "url": "https://www.fotomac.com.tr/rss/Trabzonspor.xml"
+      },
+      {
+        "title": "Fotomaç Bursaspor",
+        "url": "https://www.fotomac.com.tr/rss/Bursaspor.xml"
+      },
+      {
+        "title": "Fotomaç Basketbol",
+        "url": "https://www.fotomac.com.tr/rss/Basketbol.xml"
+      },
+      {
+        "title": "Fotospor",
+        "url": "https://www.fotospor.com/feed/rss_sondakika.xml"
+      },
+      {
+        "title": "Futboo",
+        "url": "https://www.futboo.com/rss.xml"
+      },
+      {
+        "title": "Kontraspor",
+        "url": "https://kontraspor.com/rss"
+      },
+      {
+        "title": "NTV Spor Anasayfa",
+        "url": "https://www.ntvspor.net/rss/anasayfa"
+      },
+      {
+        "title": "NTV Spor Basketbol",
+        "url": "https://www.ntvspor.net/rss/kategori/basketbol"
+      },
+      {
+        "title": "NTV Spor Diğer Sporlar",
+        "url": "https://www.ntvspor.net/rss/kategori/diger-sporlar"
+      },
+      {
+        "title": "NTV Spor Dünyadan Futbol",
+        "url": "https://www.ntvspor.net/rss/kategori/dunyadan-futbol"
+      },
+      {
+        "title": "NTV Spor Futbol",
+        "url": "https://www.ntvspor.net/rss/kategori/futbol"
+      },
+      {
+        "title": "NTV Spor Motor Sporları",
+        "url": "https://www.ntvspor.net/rss/kategori/motor-sporlari"
+      },
+      {
+        "title": "NTV Spor Olimpiyat",
+        "url": "https://www.ntvspor.net/rss/kategori/olimpiyat"
+      },
+      {
+        "title": "NTV Spor Tenis",
+        "url": "https://www.ntvspor.net/rss/kategori/tenis"
+      },
+      {
+        "title": "NTV Spor Voleybol",
+        "url": "https://www.ntvspor.net/rss/kategori/voleybol"
+      },
+      {
+        "title": "Orta Çizgi",
+        "url": "https://ortacizgi.com/feed"
+      },
+      {
+        "title": "Sabah Spor",
+        "url": "https://www.sabah.com.tr/rss/spor.xml"
+      },
+      {
+        "title": "Sözcü 2024 Paris Olimpiyatları",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-2024-paris-olimpiyatlari"
+      },
+      {
+        "title": "Sözcü Basketbol",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-basketbol"
+      },
+      {
+        "title": "Sözcü Diğer Sporlar",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-diger-sporlar"
+      },
+      {
+        "title": "Sözcü Dünyadan Futbol",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-dunyadan-spor"
+      },
+      {
+        "title": "Sözcü Futbol",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-futbol"
+      },
+      {
+        "title": "Sözcü Spor",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-spor"
+      },
+      {
+        "title": "Sözcü Voleybol",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-voleybol"
+      },
+      {
+        "title": "Türkiyede ve Dünyada Golf",
+        "url": "https://www.turkiyedevedunyadagolf.com.tr/feed/"
+      }
+    ]
+  },
+  {
+    "category": "🇹🇷 Gündem",
+    "feeds": [
+      {
+        "title": "10Haber",
+        "url": "https://10haber.net/feed/"
+      },
+      {
+        "title": "ABC Haber",
+        "url": "https://abcgazetesi.com.tr/rss"
+      },
+      {
+        "title": "A Haber",
+        "url": "https://www.ahaber.com.tr/rss/gundem.xml"
+      },
+      {
+        "title": "Açık Gazete",
+        "url": "https://www.acikgazete.com/feed/"
+      },
+      {
+        "title": "Akşam",
+        "url": "https://www.aksam.com.tr/rss/rss.asp"
+      },
+      {
+        "title": "Anadolu Ajansı",
+        "url": "https://www.aa.com.tr/tr/rss/default?cat=guncel"
+      },
+      {
+        "title": "Agos",
+        "url": "https://www.agos.com.tr/rss"
+      },
+      {
+        "title": "Ajans Kamu",
+        "url": "https://www.ajanskamu.net/service/rss.php"
+      },
+      {
+        "title": "Artı Gerçek",
+        "url": "https://artigercek.com/service/rss.php"
+      },
+      {
+        "title": "Aydınlık",
+        "url": "https://www.aydinlik.com.tr/feed"
+      },
+      {
+        "title": "Aykırı",
+        "url": "https://www.aykiri.com.tr/rss.xml"
+      },
+      {
+        "title": "Ayandon",
+        "url": "https://www.ayandon.com.tr/rss.xml"
+      },
+      {
+        "title": "BBC Türkçe",
+        "url": "https://feeds.bbci.co.uk/turkce/rss.xml"
+      },
+      {
+        "title": "Bengütürk",
+        "url": "https://www.benguturk.com/rss"
+      },
+      {
+        "title": "Beyaz Gazete",
+        "url": "https://beyazgazete.com/rss/guncel.xml"
+      },
+      {
+        "title": "BHA",
+        "url": "https://bha.net.tr/rss"
+      },
+      {
+        "title": "Bianet",
+        "url": "https://bianet.org/biamag.rss"
+      },
+      {
+        "title": "Bir Gazete",
+        "url": "https://www.birgazete.com/feed"
+      },
+      {
+        "title": "BirGün",
+        "url": "https://www.birgun.net/rss/home"
+      },
+      {
+        "title": "CNN Türk",
+        "url": "https://www.cnnturk.com/feed/rss/all/news"
+      },
+      {
+        "title": "Cumhuriyet",
+        "url": "https://www.cumhuriyet.com.tr/rss/son_dakika.xml"
+      },
+      {
+        "title": "CGTN Türk",
+        "url": "https://www.cgtnturk.com/rss"
+      },
+      {
+        "title": "Demokrat Haber",
+        "url": "https://www.demokrathaber.org/rss"
+      },
+      {
+        "title": "Diken",
+        "url": "https://www.diken.com.tr/feed/"
+      },
+      {
+        "title": "Diriliş Postası",
+        "url": "https://www.dirilispostasi.com/rss"
+      },
+      {
+        "title": "Diyanet Haber",
+        "url": "https://www.diyanethaber.com.tr/rss"
+      },
+      {
+        "title": "Dijital Gaste",
+        "url": "https://www.dijitalgaste.com/rss"
+      },
+      {
+        "title": "dikGAZETE",
+        "url": "https://www.dikgazete.com/xml/rss.xml"
+      },
+      {
+        "title": "Doğru Haber",
+        "url": "https://dogruhaber.com.tr/rss"
+      },
+      {
+        "title": "Dokuz8 Haber",
+        "url": "https://dokuz8haber.net/rss.xml"
+      },
+      {
+        "title": "Dünya",
+        "url": "https://www.dunya.com/rss?dunya"
+      },
+      {
+        "title": "DW Haber",
+        "url": "https://rss.dw.com/rdf/rss-tur-all"
+      },
+      {
+        "title": "En Politik",
+        "url": "https://www.enpolitik.com/rss.xml"
+      },
+      {
+        "title": "Elips Haber",
+        "url": "https://www.elipshaber.com/rss"
+      },
+      {
+        "title": "Ekonomim",
+        "url": "https://www.ekonomim.com/export/rss"
+      },
+      {
+        "title": "Ekol TV",
+        "url": "https://www.ekoltv.com.tr/service/rss.php"
+      },
+      {
+        "title": "En Son Haber",
+        "url": "https://www.ensonhaber.com/rss/ensonhaber.xml"
+      },
+      {
+        "title": "Evrensel",
+        "url": "https://www.evrensel.net/rss/haber.xml"
+      },
+      {
+        "title": "F5 Haber",
+        "url": "https://www.f5haber.com/export/rss"
+      },
+      {
+        "title": "Fayn",
+        "url": "https://www.fayn.press/rss/"
+      },
+      {
+        "title": "Gazete Duvar",
+        "url": "https://www.gazeteduvar.com.tr/export/rss"
+      },
+      {
+        "title": "Gazete Emek",
+        "url": "https://www.gazeteemek.net/rss"
+      },
+      {
+        "title": "Gazete.net",
+        "url": "https://gazete.net/rss"
+      },
+      {
+        "title": "Gazete Pencere",
+        "url": "https://www.gazetepencere.com/service/rss.php"
+      },
+      {
+        "title": "Gazete Zebra",
+        "url": "https://www.gazetezebra.com.tr/rss"
+      },
+      {
+        "title": "Gerçek Gündem",
+        "url": "https://www.gercekgundem.com/rss"
+      },
+      {
+        "title": "Google News",
+        "url": "https://news.google.com/rss?hl=tr&gl=TR&ceid=TR:tr"
+      },
+      {
+        "title": "GZT",
+        "url": "https://www.gzt.com/rss"
+      },
+      {
+        "title": "Haber 3",
+        "url": "https://www.haber3.com/rss"
+      },
+      {
+        "title": "Haber 7",
+        "url": "https://i12.haber7.net/sondakika/newsstand/latest.xml"
+      },
+      {
+        "title": "Haber",
+        "url": "https://www.haber.com/rss"
+      },
+      {
+        "title": "Haberler",
+        "url": "https://rss.haberler.com/RssNew.aspx"
+      },
+      {
+        "title": "Haber Global",
+        "url": "https://haberglobal.com.tr/rss"
+      },
+      {
+        "title": "Habertürk",
+        "url": "https://www.haberturk.com/rss"
+      },
+      {
+        "title": "Haberet",
+        "url": "https://www.haberet.com/export/rss"
+      },
+      {
+        "title": "Halk TV",
+        "url": "https://halktv.com.tr/service/rss.php"
+      },
+      {
+        "title": "Haberport",
+        "url": "https://www.haberport.com/rss/latest-posts"
+      },
+      {
+        "title": "Haberiniz",
+        "url": "https://haberiniz.com.tr/feed/"
+      },
+      {
+        "title": "Harici",
+        "url": "https://harici.com.tr/feed/"
+      },
+      {
+        "title": "Hukuki Haber",
+        "url": "https://www.hukukihaber.net/rss"
+      },
+      {
+        "title": "Hürriyet",
+        "url": "https://www.hurriyet.com.tr/rss/anasayfa"
+      },
+      {
+        "title": "İfade Özgürlüğü Derneği",
+        "url": "https://ifade.org.tr/engelliweb/feed/"
+      },
+      {
+        "title": "İklim Haber",
+        "url": "https://www.iklimhaber.org/feed/"
+      },
+      {
+        "title": "Independent Türkçe",
+        "url": "https://www.indyturk.com/rss.xml"
+      },
+      {
+        "title": "İnternet Haber",
+        "url": "https://www.internethaber.com/rss"
+      },
+      {
+        "title": "İstiklal",
+        "url": "https://www.istiklal.com.tr/service/rss.php"
+      },
+      {
+        "title": "İşin Detayı",
+        "url": "https://www.isindetayi.com/rss/gundem"
+      },
+      {
+        "title": "İşçi Haber",
+        "url": "https://www.iscihaber.net/rss/news"
+      },
+      {
+        "title": "İlke TV",
+        "url": "https://ilketv.com.tr/feed/"
+      },
+      {
+        "title": "Journo",
+        "url": "https://journo.com.tr/feed"
+      },
+      {
+        "title": "Kagi",
+        "url": "https://news.kagi.com/world_tr.xml"
+      },
+      {
+        "title": "Karar",
+        "url": "https://www.karar.com/service/rss.php"
+      },
+      {
+        "title": "Kamudan Haber",
+        "url": "https://www.kamudanhaber.net/rss"
+      },
+      {
+        "title": "Kısa Dalga",
+        "url": "https://kisadalga.net/service/rss.php"
+      },
+      {
+        "title": "Korkusuz",
+        "url": "https://www.korkusuz.com.tr/feeds/rss"
+      },
+      {
+        "title": "KRT TV",
+        "url": "https://www.krttv.com.tr/rss"
+      },
+      {
+        "title": "Lotus News",
+        "url": "https://www.lotusnews.com.tr/rss"
+      },
+      {
+        "title": "Medya Gazete",
+        "url": "https://www.medyagazete.com/rss/genel-0"
+      },
+      {
+        "title": "Medya Tilkisi",
+        "url": "https://www.medyatilkisi.com.tr/rss"
+      },
+      {
+        "title": "Milli Gazete",
+        "url": "https://www.milligazete.com.tr/rss"
+      },
+      {
+        "title": "Mynet",
+        "url": "https://www.mynet.com/haber/rss/sondakika"
+      },
+      {
+        "title": "Muhalif",
+        "url": "https://www.muhalif.com.tr/rss/genel-0"
+      },
+      {
+        "title": "NewsLab Turkey",
+        "url": "https://www.newslabturkey.org/feed/"
+      },
+      {
+        "title": "Notbir",
+        "url": "https://notbir.com.tr/rss.xml"
+      },
+      {
+        "title": "OdaTV",
+        "url": "https://www.odatv.com/rss.xml"
+      },
+      {
+        "title": "Perspektif",
+        "url": "https://www.perspektif.online/feed/"
+      },
+      {
+        "title": "Polemik Haber",
+        "url": "https://www.polemikhaber.com/rss"
+      },
+      {
+        "title": "Radikal",
+        "url": "https://www.radikal.com.tr/feed/"
+      },
+      {
+        "title": "Sabah",
+        "url": "https://www.sabah.com.tr/rss/gundem.xml"
+      },
+      {
+        "title": "Serbestiyet",
+        "url": "https://serbestiyet.com/feed/"
+      },
+      {
+        "title": "Sözcü",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-sozcu"
+      },
+      {
+        "title": "Sözcü Astroloji",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-astroloji"
+      },
+      {
+        "title": "Sözcü Bilim ve Teknoloji",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-bilim-teknoloji"
+      },
+      {
+        "title": "Sözcü Eğitim",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-egitim"
+      },
+      {
+        "title": "Sözcü Gündem",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-gundem"
+      },
+      {
+        "title": "Sözcü Günün İçinden",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-gunun-icinden"
+      },
+      {
+        "title": "Sözcü Hayat",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-hayat"
+      },
+      {
+        "title": "Sözcü İlan",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-ilan"
+      },
+      {
+        "title": "Sözcü Kültür Sanat",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-kultur-sanat"
+      },
+      {
+        "title": "Sözcü Magazin",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-magazin"
+      },
+      {
+        "title": "Sözcü Otomotiv",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-otomotiv"
+      },
+      {
+        "title": "Sözcü Resmi İlanlar",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-resmi-ilanlar"
+      },
+      {
+        "title": "Sözcü Sağlık",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-saglik"
+      },
+      {
+        "title": "Sözcü Son Dakika",
+        "url": "https://www.sozcu.com.tr/feeds-son-dakika"
+      },
+      {
+        "title": "Sözcü Yazarlar",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-yazar"
+      },
+      {
+        "title": "Sözcü Yaşam",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-yasam"
+      },
+      {
+        "title": "Son Mühür",
+        "url": "https://www.sonmuhur.com/rss"
+      },
+      {
+        "title": "soL Haber",
+        "url": "https://haber.sol.org.tr/rss.xml"
+      },
+      {
+        "title": "Sputnik",
+        "url": "https://anlatilaninotesi.com.tr/export/rss2/archive/index.xml"
+      },
+      {
+        "title": "Star",
+        "url": "https://www.star.com.tr/rss/rss.asp"
+      },
+      {
+        "title": "TamgaTürk",
+        "url": "https://www.tamgaturk.com/rss.xml"
+      },
+      {
+        "title": "Teyit",
+        "url": "https://teyit.org/feed?lang=tr"
+      },
+      {
+        "title": "Tele1",
+        "url": "https://www.tele1.com.tr/rss"
+      },
+      {
+        "title": "Tele2",
+        "url": "https://www.tele2haber.com/rss"
+      },
+      {
+        "title": "Timeturk",
+        "url": "https://www.timeturk.com/rss/"
+      },
+      {
+        "title": "Türkiye Gazetesi",
+        "url": "https://www.turkiyegazetesi.com.tr/feed"
+      },
+      {
+        "title": "Türkgün",
+        "url": "https://www.turkgun.com/rss/news"
+      },
+      {
+        "title": "TürkInform",
+        "url": "https://turkinform.com.tr/rss"
+      },
+      {
+        "title": "TRT Haber",
+        "url": "https://www.trthaber.com/sondakika.rss"
+      },
+      {
+        "title": "TGRT Haber",
+        "url": "https://www.tgrthaber.com/rss/manset"
+      },
+      {
+        "title": "Ulusal Kanal",
+        "url": "https://www.ulusal.com.tr/rss"
+      },
+      {
+        "title": "Ulusal Post",
+        "url": "https://www.ulusalpost.com/service/rss.php"
+      },
+      {
+        "title": "Uyan32",
+        "url": "https://www.uyan32.com/rss"
+      },
+      {
+        "title": "Veryansın TV",
+        "url": "https://www.veryansintv.com/feed"
+      },
+      {
+        "title": "Yeni Akit",
+        "url": "https://www.yeniakit.com.tr/rss/haber/gundem"
+      },
+      {
+        "title": "Yeni Asır Gazetesi",
+        "url": "https://www.yeniasir.com.tr/rss/anasayfa.xml"
+      },
+      {
+        "title": "Yeniçağ Gazetesi",
+        "url": "https://www.yenicaggazetesi.com.tr/service/rss.php"
+      },
+      {
+        "title": "Yeni Şafak",
+        "url": "https://www.yenisafak.com/rss?xml=gundem"
+      },
+      {
+        "title": "Yeni Yaşam Gazetesi",
+        "url": "https://yeniyasamgazetesi9.com/feed/"
+      },
+      {
+        "title": "Yaşadıkça",
+        "url": "https://yasadikca.com/feed/"
+      },
+      {
+        "title": "Yeşil Gazete",
+        "url": "https://yesilgazete.org/feed/"
+      },
+      {
+        "title": "Yurt Gazetesi",
+        "url": "https://www.yurtgazetesi.com.tr/service/rss.php"
+      },
+      {
+        "title": "Yurtsever",
+        "url": "https://yurtsever.org.tr/feed"
+      }
+    ]
+  },
+  {
+    "category": "🇹🇷 Savunma ve Sanayi",
+    "feeds": [
+      {
+        "title": "C4 Defence",
+        "url": "https://www.c4defence.com/tr/feed/"
+      },
+      {
+        "title": "DefenceTurk",
+        "url": "https://www.defenceturk.net/feed"
+      },
+      {
+        "title": "Mavi Savunma",
+        "url": "https://mavisavunma.com/feed/"
+      },
+      {
+        "title": "Sanayi Gazetesi",
+        "url": "https://sanayigazetesi.com.tr/kategori/savunma-haberleri/feed/"
+      },
+      {
+        "title": "Savunma Sanayi Gazetesi",
+        "url": "https://savunmasanayigazetesi.com.tr/feed/"
+      },
+      {
+        "title": "SavunmaSanayiST",
+        "url": "https://www.savunmasanayist.com/feed/"
+      },
+      {
+        "title": "SavunmaTR",
+        "url": "https://www.savunmatr.com/feed/"
+      }
+    ]
+  },
+  {
+    "category": "🇹🇷 Ekonomi ve Finans",
+    "feeds": [
+      {
+        "title": "Bloomberg HT",
+        "url": "https://www.bloomberght.com/rss"
+      },
+      {
+        "title": "CNBC-e",
+        "url": "https://www.cnbce.com/rss"
+      },
+      {
+        "title": "Döviz",
+        "url": "https://www.doviz.com/news/rss"
+      },
+      {
+        "title": "Ekonomi Gazetesi",
+        "url": "https://www.ekonomigazetesi.com/rss.xml"
+      },
+      {
+        "title": "Forbes Türkiye",
+        "url": "https://www.forbes.com.tr/rss"
+      },
+      {
+        "title": "Foreks",
+        "url": "https://www.foreks.com/rss/"
+      },
+      {
+        "title": "Investing Genel",
+        "url": "https://tr.investing.com/rss/market_overview.rss"
+      },
+      {
+        "title": "Investing Kripto",
+        "url": "https://tr.investing.com/rss/302.rss"
+      },
+      {
+        "title": "Investing Döviz",
+        "url": "https://tr.investing.com/rss/forex.rss"
+      },
+      {
+        "title": "Investing Hisse Senedi",
+        "url": "https://tr.investing.com/rss/stock.rss"
+      },
+      {
+        "title": "Investing Emtia",
+        "url": "https://tr.investing.com/rss/commodities.rss"
+      },
+      {
+        "title": "Investing Tahvil",
+        "url": "https://tr.investing.com/rss/bonds.rss"
+      },
+      {
+        "title": "Investing Haberler",
+        "url": "https://tr.investing.com/rss/news.rss"
+      },
+      {
+        "title": "NTV Para",
+        "url": "https://www.ntv.com.tr/ntvpara.rss"
+      },
+      {
+        "title": "NTV Ekonomi",
+        "url": "https://www.ntv.com.tr/ekonomi.rss"
+      },
+      {
+        "title": "Sözcü Borsa",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-borsa"
+      },
+      {
+        "title": "Sözcü Ekonomi",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-ekonomi"
+      },
+      {
+        "title": "Sözcü Emlak",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-emlak"
+      },
+      {
+        "title": "Sözcü Emtia",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-emtia"
+      },
+      {
+        "title": "Sözcü Finans",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-finans"
+      },
+      {
+        "title": "Sözcü Kripto",
+        "url": "https://www.sozcu.com.tr/feeds-rss-category-kripto"
+      }
+    ]
+  },
+  {
+    "category": "🇹🇷 İş Dünyası",
+    "feeds": [
+      {
+        "title": "Borsanın Gündemi",
+        "url": "https://www.borsaningundemi.com/rss"
+      },
+      {
+        "title": "Finans Gündem",
+        "url": "https://www.finansingundemi.com/rss"
+      },
+      {
+        "title": "Halka Arz",
+        "url": "https://halkarz.com/feed/"
+      },
+      {
+        "title": "İşin Detayı",
+        "url": "https://www.isindetayi.com/rss"
+      },
+      {
+        "title": "İşin Detayı Borsa",
+        "url": "https://www.isindetayi.com/rss/borsa"
+      },
+      {
+        "title": "İşin Detayı Ekonomi",
+        "url": "https://www.isindetayi.com/rss/ekonomi"
+      },
+      {
+        "title": "İşin Detayı Finans",
+        "url": "https://www.isindetayi.com/rss/finans"
+      },
+      {
+        "title": "İşin Detayı Gayrimenkul",
+        "url": "https://www.isindetayi.com/rss/gayrimenkul"
+      },
+      {
+        "title": "İşin Detayı İş Dünyası",
+        "url": "https://www.isindetayi.com/rss/is-dunyasi"
+      },
+      {
+        "title": "İşin Detayı Lojistik",
+        "url": "https://www.isindetayi.com/rss/lojistik"
+      },
+      {
+        "title": "İşin Detayı Şirket Haberleri",
+        "url": "https://www.isindetayi.com/rss/sirket-haberleri"
+      },
+      {
+        "title": "Midas",
+        "url": "https://www.getmidas.com/feed/"
+      },
+      {
+        "title": "Mynet Finans",
+        "url": "https://www.mynet.com/rss/publisher-finans.rss"
+      },
+      {
+        "title": "Paranın Yönü",
+        "url": "https://www.paraninyonu.com.tr/rss.xml"
+      },
+      {
+        "title": "Webrazzi Yatırım",
+        "url": "https://webrazzi.com/kategori/yatirim/feed"
+      }
+    ]
+  },
+  {
+    "category": "🇹🇷 Yaşam",
+    "feeds": [
+      {
+        "title": "Anne Kaz",
+        "url": "https://www.annekaz.com/feed"
+      },
+      {
+        "title": "DMAX Blog",
+        "url": "https://www.dmax.com.tr/feed/blog"
+      },
+      {
+        "title": "Elle Türkiye",
+        "url": "https://www.elle.com.tr/rss"
+      },
+      {
+        "title": "Elele",
+        "url": "https://www.elele.com.tr/export/rss"
+      },
+      {
+        "title": "İşin Detayı Gastronomi",
+        "url": "https://www.isindetayi.com/rss/gastronomi"
+      },
+      {
+        "title": "Gardırop Magazin",
+        "url": "https://www.gardiropmagazin.com/feed/"
+      },
+      {
+        "title": "İşin Detayı Moda",
+        "url": "https://www.isindetayi.com/rss/moda"
+      },
+      {
+        "title": "İşin Detayı Sağlık",
+        "url": "https://www.isindetayi.com/rss/saglik"
+      },
+      {
+        "title": "İşin Detayı Turizm",
+        "url": "https://www.isindetayi.com/rss/turizm"
+      },
+      {
+        "title": "İşin Detayı Yaşam",
+        "url": "https://www.isindetayi.com/rss/yasam"
+      },
+      {
+        "title": "Istanbul Life",
+        "url": "https://istanbullife.com.tr/feed/"
+      },
+      {
+        "title": "Live To Bloom",
+        "url": "https://livetobloom.com/feed/"
+      },
+      {
+        "title": "Martı Dergisi",
+        "url": "https://www.martidergisi.com/feed/"
+      },
+      {
+        "title": "Marie Claire",
+        "url": "https://www.marieclaire.com.tr/feed/"
+      },
+      {
+        "title": "Medium Türkçe Yayın",
+        "url": "https://medium.com/feed/t%C3%BCrkiye"
+      },
+      {
+        "title": "Medium Türkiye Yayını",
+        "url": "https://mediumturkiye.com/feed"
+      },
+      {
+        "title": "NTV Yaşam",
+        "url": "https://www.ntv.com.tr/yasam.rss"
+      },
+      {
+        "title": "Outdoor Türkiye",
+        "url": "https://www.outdoorturkiye.com.tr/feed/"
+      },
+      {
+        "title": "Uplifers",
+        "url": "https://www.uplifers.com/feed/"
+      },
+      {
+        "title": "PlumeMag",
+        "url": "https://www.plumemag.com/feed/"
+      }
+    ]
+  },
+  {
+    "category": "🇬🇧 News",
     "feeds": [
       {
         "title": "CNN – Top Stories",
@@ -19,10 +1453,6 @@
         "url": "https://www.yahoo.com/news/rss/topstories"
       },
       {
-        "title": "Washington Post",
-        "url": "http://feeds.washingtonpost.com/rss/world"
-      },
-      {
         "title": "Vox – All",
         "url": "https://www.vox.com/rss/index.xml"
       },
@@ -39,12 +1469,12 @@
         "url": "http://rss.cnn.com/rss/cnn_world.rss"
       },
       {
-        "title": "ABC News –  Top stories",
+        "title": "ABC News –  Top stories",
         "url": "http://abcnews.go.com/abcnews/topstories"
       },
       {
         "title": "Reuters – Top stories",
-        "url": "https://www.reutersagency.com/feed/?taxonomy=best-topics&post_type=best"
+        "url": "https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US"
       },
       {
         "title": "Drudge Report",
@@ -77,7 +1507,7 @@
     ]
   },
   {
-    "category": "Sports",
+    "category": "🇬🇧 Sports",
     "feeds": [
       {
         "title": "BBC Sports",
@@ -89,39 +1519,35 @@
       },
       {
         "title": "NBA.com",
-        "url": "http://www.nba.com/rss/nba_rss.xml"
+        "url": "https://www.espn.com/espn/rss/nba/news"
       },
       {
         "title": "NFL.com",
-        "url": "http://www.nfl.com/rss/rsslanding?searchString=home"
+        "url": "https://www.espn.com/espn/rss/nfl/news"
       },
       {
         "title": "Yahoo Sports",
-        "url": "https://sports.yahoo.com/rss"
+        "url": "https://sports.yahoo.com/rss/"
       },
       {
         "title": "Yahoo Sports - NBA",
-        "url": "https://sports.yahoo.com/nba/rss"
+        "url": "https://sports.yahoo.com/nba/rss/"
       },
       {
         "title": "Yahoo Sports - MLB",
-        "url": "https://sports.yahoo.com/mlb/rss"
+        "url": "https://sports.yahoo.com/mlb/rss/"
       },
       {
         "title": "Yahoo Sports - NFL",
-        "url": "https://sports.yahoo.com/nfl/rss"
+        "url": "https://sports.yahoo.com/nfl/rss/"
       },
       {
         "title": "Yahoo Sports - NCAAB",
-        "url": "https://sports.yahoo.com/ncaab/rss"
+        "url": "https://sports.yahoo.com/ncaab/rss/"
       },
       {
         "title": "Yahoo Sports - NHL",
-        "url": "https://sports.yahoo.com/nhl/rss"
-      },
-      {
-        "title": "Yahoo Sports - UFC",
-        "url": "https://sports.yahoo.com/ufc/rss"
+        "url": "https://sports.yahoo.com/nhl/rss/"
       },
       {
         "title": "BBC Sports – World edition",
@@ -145,28 +1571,16 @@
       },
       {
         "title": "Fifa.com",
-        "url": "http://www.fifa.com/rss/index.xml"
-      },
-      {
-        "title": "NU Sports",
-        "url": "http://nusports.com/rss_feeds.aspx"
-      },
-      {
-        "title": "Sport1.de",
-        "url": "https://www.sport1.de/news.rss"
+        "url": "https://www.fifa.com/rss/index.xml"
       },
       {
         "title": "TriathlonMag",
         "url": "https://www.triathlonmag.com.au/rss"
-      },
-      {
-        "title": "ISSF-sports.org",
-        "url": "https://www.issf-sports.org/rss/news.html"
       }
     ]
   },
   {
-    "category": "Technology",
+    "category": "🇬🇧 Technology",
     "feeds": [
       {
         "title": "Techcrunch",
@@ -182,15 +1596,11 @@
       },
       {
         "title": "MacWorld",
-        "url": "http://rss.macworld.com/macworld/feeds/main"
+        "url": "https://www.macworld.com/feed"
       },
       {
         "title": "PCWorld",
-        "url": "http://feeds.pcworld.com/pcworld/latestnews"
-      },
-      {
-        "title": "Techworld",
-        "url": "http://www.techworld.com/news/rss"
+        "url": "https://www.pcworld.com/feed"
       },
       {
         "title": "LifeHacker",
@@ -198,7 +1608,7 @@
       },
       {
         "title": "ReadWriteWeb",
-        "url": "http://feeds.feedburner.com/readwriteweb"
+        "url": "https://readwrite.com/feed/"
       },
       {
         "title": "Engadget.com",
@@ -206,15 +1616,15 @@
       },
       {
         "title": "ReadWrite",
-        "url": "http://readwrite.com/feed/"
+        "url": "https://readwrite.com/feed/"
       },
       {
         "title": "Mashable",
         "url": "http://feeds.mashable.com/Mashable"
       },
       {
-        "title": "O’Reilly Radar",
-        "url": "http://feeds.feedburner.com/oreilly/radar/atom"
+        "title": "O'Reilly Radar",
+        "url": "https://www.oreilly.com/radar/feed/index.xml"
       },
       {
         "title": "Gizmodo",
@@ -223,14 +1633,6 @@
       {
         "title": "Technology Review",
         "url": "https://www.technologyreview.com/topnews.rss"
-      },
-      {
-        "title": "VentureBeat",
-        "url": "https://venturebeat.com/2013/09/05/venturebeat-rss/"
-      },
-      {
-        "title": "Recode.net",
-        "url": "http://www.recode.net/rss/index.xml"
       },
       {
         "title": "Computer World",
@@ -251,7 +1653,7 @@
     ]
   },
   {
-    "category": "Business",
+    "category": "🇬🇧 Business",
     "feeds": [
       {
         "title": "Atlantic Business Channel",
@@ -259,7 +1661,7 @@
       },
       {
         "title": "Entrepeneur.com",
-        "url": "http://feeder.co/add-feed?url=feeds.feedburner.com/entrepreneur/latest"
+        "url": "https://www.entrepreneur.com/latest.rss"
       },
       {
         "title": "Harvard Business",
@@ -267,15 +1669,11 @@
       },
       {
         "title": "Freakonomics",
-        "url": "http://freakonomics.com//feed/"
+        "url": "https://freakonomics.com/feed/"
       },
       {
         "title": "The Big Picture",
         "url": "http://feeds.feedburner.com/TheBigPicture"
-      },
-      {
-        "title": "Venture Beat",
-        "url": "http://feeds.feedburner.com/venturebeat/SZYF"
       },
       {
         "title": "Fortune",
@@ -316,15 +1714,11 @@
     ]
   },
   {
-    "category": "Politics",
+    "category": "🇬🇧 Politics",
     "feeds": [
       {
         "title": "Slate.com – Politics",
         "url": "http://www.slate.com/articles/news_and_politics/politics.teaser.all.10.rss/"
-      },
-      {
-        "title": "World Affair Journal",
-        "url": "http://www.worldaffairsjournal.org/essay-feed.xml"
       },
       {
         "title": "Fox News – Politics",
@@ -336,7 +1730,7 @@
       },
       {
         "title": "Reuters – Politcs",
-        "url": "http://feeds.reuters.com/Reuters/PoliticsNews"
+        "url": "https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US"
       },
       {
         "title": "USA Today – Politics",
@@ -348,7 +1742,7 @@
       },
       {
         "title": "Wallstreet Journal – Politics",
-        "url": "http://online.wsj.com/xml/rss/3_7087.xml"
+        "url": "https://feeds.a.dj.com/rss/WSJcomUSBusiness.xml"
       },
       {
         "title": "The Nation",
@@ -356,7 +1750,7 @@
       },
       {
         "title": "Daily Signal",
-        "url": "http://dailysignal.com//feed/"
+        "url": "https://dailysignal.com/feed/"
       },
       {
         "title": "MSNBC",
@@ -365,15 +1759,11 @@
       {
         "title": "Politico",
         "url": "https://www.politico.com/rss/politics.xml"
-      },
-      {
-        "title": "Realwire",
-        "url": "https://www.realwire.com/rss/feeds.asp?cat=Politics"
       }
     ]
   },
   {
-    "category": "Gaming",
+    "category": "🇬🇧 Gaming",
     "feeds": [
       {
         "title": "Gamespot",
@@ -384,16 +1774,8 @@
         "url": "http://www.nintendolife.com/feeds/latest"
       },
       {
-        "title": "JoyStiq",
-        "url": "http://www.joystiq.com/rss.xml"
-      },
-      {
-        "title": "Indiegames.com",
-        "url": "http://www.indiegames.com/atom.xml"
-      },
-      {
         "title": "Arstechnica – Gaming",
-        "url": "http://feeds.arstechnica.com/arstechnica/gaming/"
+        "url": "https://feeds.arstechnica.com/arstechnica/index"
       },
       {
         "title": "Polygon",
@@ -401,7 +1783,7 @@
       },
       {
         "title": "Touch Arcade",
-        "url": "http://toucharcade.com/feed/"
+        "url": "https://toucharcade.com/feed/"
       },
       {
         "title": "Game Informer",
@@ -441,7 +1823,7 @@
       },
       {
         "title": "Videogamer.com",
-        "url": "http://feeds.videogamer.com/rss/allupdates.xml"
+        "url": "https://www.videogamer.com/feed/"
       },
       {
         "title": "Pushsquare",

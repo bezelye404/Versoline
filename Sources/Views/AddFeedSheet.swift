@@ -38,6 +38,7 @@ struct AddFeedSheet: View {
 
     // Catalog state
     @State private var searchText: String = ""
+    @State private var selectedLanguage: String? = nil // nil = All, "tr" = Türkçe, "en" = English
     @State private var selectedCategory: String? = nil
     @State private var addingFeedURLs: Set<String> = []
 
@@ -48,9 +49,21 @@ struct AddFeedSheet: View {
         _selectedTab = State(initialValue: initialTab)
     }
 
+    private var availableCategories: [CuratedFeedCategory] {
+        if let lang = selectedLanguage {
+            let prefix = lang == "tr" ? "🇹🇷" : "🇬🇧"
+            return curatedManager.categories.filter { $0.category.hasPrefix(prefix) }
+        }
+        return curatedManager.categories
+    }
+
     private var filteredCuratedFeeds: [(category: String, feed: CuratedFeed)] {
         let all = curatedManager.allFeeds()
         return all.filter { item in
+            if let lang = selectedLanguage {
+                let prefix = lang == "tr" ? "🇹🇷" : "🇬🇧"
+                if !item.category.hasPrefix(prefix) { return false }
+            }
             if let cat = selectedCategory, item.category != cat {
                 return false
             }
@@ -249,19 +262,52 @@ struct AddFeedSheet: View {
                         .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
                 )
 
+                // Language Selector Pills
+                HStack(spacing: 8) {
+                    languageFilterChip(
+                        title: String(localized: "All"),
+                        count: curatedManager.totalFeedCount,
+                        isSelected: selectedLanguage == nil
+                    ) {
+                        selectedLanguage = nil
+                        selectedCategory = nil
+                    }
+
+                    let trCount = curatedManager.categories.filter { $0.category.hasPrefix("🇹🇷") }.reduce(0) { $0 + $1.feeds.count }
+                    languageFilterChip(
+                        title: "🇹🇷 Türkçe",
+                        count: trCount,
+                        isSelected: selectedLanguage == "tr"
+                    ) {
+                        selectedLanguage = "tr"
+                        selectedCategory = nil
+                    }
+
+                    let enCount = curatedManager.categories.filter { $0.category.hasPrefix("🇬🇧") }.reduce(0) { $0 + $1.feeds.count }
+                    languageFilterChip(
+                        title: "🇬🇧 English",
+                        count: enCount,
+                        isSelected: selectedLanguage == "en"
+                    ) {
+                        selectedLanguage = "en"
+                        selectedCategory = nil
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
                 // Category Pills
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 6) {
                         categoryFilterChip(
                             title: String(localized: "All"),
-                            count: curatedManager.totalFeedCount,
+                            count: availableCategories.reduce(0) { $0 + $1.feeds.count },
                             icon: "square.grid.2x2",
                             isSelected: selectedCategory == nil
                         ) {
                             selectedCategory = nil
                         }
 
-                        ForEach(curatedManager.categories) { cat in
+                        ForEach(availableCategories) { cat in
                             categoryFilterChip(
                                 title: localizedCategory(cat.category),
                                 count: cat.feeds.count,
@@ -468,27 +514,59 @@ struct AddFeedSheet: View {
         }
     }
 
-    private func iconForCategory(_ category: String) -> String {
-        switch category.lowercased() {
-        case "news": return "newspaper"
-        case "sports": return "sportscourt"
-        case "technology": return "laptopcomputer"
-        case "business": return "chart.line.uptrend.xyaxis"
-        case "politics": return "building.columns"
-        case "gaming": return "gamecontroller"
-        default: return "dot.radiowaves.up.forward"
+    private func languageFilterChip(title: String, count: Int, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                Text(title)
+                    .font(.caption.weight(isSelected ? .semibold : .regular))
+                Text("(\(count))")
+                    .font(.caption2)
+                    .foregroundStyle(isSelected ? .white.opacity(0.8) : .secondary)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(
+                isSelected ? Color.accentColor : Color(nsColor: .controlBackgroundColor),
+                in: RoundedRectangle(cornerRadius: 6)
+            )
+            .foregroundStyle(isSelected ? Color.white : Color.primary)
+            .overlay(
+                RoundedRectangle(cornerRadius: 6)
+                    .strokeBorder(isSelected ? Color.clear : Color.primary.opacity(0.12), lineWidth: 1)
+            )
         }
+        .buttonStyle(.plain)
+    }
+
+    private func iconForCategory(_ category: String) -> String {
+        let lower = category.lowercased()
+        if lower.contains("bilim") || lower.contains("science") { return "atom" }
+        if lower.contains("teknoloji") || lower.contains("technology") { return "laptopcomputer" }
+        if lower.contains("gündem") || lower.contains("haber") || lower.contains("news") { return "newspaper" }
+        if lower.contains("spor") || lower.contains("sports") { return "sportscourt" }
+        if lower.contains("ekonomi") || lower.contains("finans") || lower.contains("business") { return "chart.line.uptrend.xyaxis" }
+        if lower.contains("iş") { return "briefcase" }
+        if lower.contains("kültür") || lower.contains("sanat") { return "paintpalette" }
+        if lower.contains("eğlence") || lower.contains("oyun") || lower.contains("gaming") { return "gamecontroller" }
+        if lower.contains("savunma") { return "shield.fill" }
+        if lower.contains("yaşam") { return "heart.fill" }
+        if lower.contains("politika") || lower.contains("politics") { return "building.columns" }
+        return "dot.radiowaves.up.forward"
     }
 
     private func localizedCategory(_ category: String) -> String {
-        switch category.lowercased() {
+        let clean = category
+            .replacingOccurrences(of: "🇹🇷 ", with: "")
+            .replacingOccurrences(of: "🇬🇧 ", with: "")
+
+        switch clean.lowercased() {
         case "news": return String(localized: "News")
         case "sports": return String(localized: "Sports")
         case "technology": return String(localized: "Technology")
         case "business": return String(localized: "Business")
         case "politics": return String(localized: "Politics")
         case "gaming": return String(localized: "Gaming")
-        default: return category
+        default: return clean
         }
     }
 }
