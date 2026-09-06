@@ -48,7 +48,7 @@ final class CuratedFeedManager {
         }
     }
 
-    // MARK: - Silent Remote Sync with Local Cache
+    // MARK: - Silent Remote Sync with Local Cache & ETag
 
     func checkForRemoteUpdates() {
         guard !isUpdatingFromRemote else { return }
@@ -56,29 +56,53 @@ final class CuratedFeedManager {
 
         let targetURL = Self.remoteManifestURL
         let cacheDest = cacheFileURL
+        let storedETag = UserDefaults.standard.string(forKey: "CuratedFeeds_LastETag")
 
         Task.detached(priority: .utility) {
             var request = URLRequest(url: targetURL, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15)
             request.setValue("easyRSS/1.0", forHTTPHeaderField: "User-Agent")
+            if let storedETag, !storedETag.isEmpty {
+                request.setValue(storedETag, forHTTPHeaderField: "If-None-Match")
+            }
 
             guard let (data, response) = try? await URLSession.shared.data(for: request),
-                  let httpResponse = response as? HTTPURLResponse,
-                  httpResponse.statusCode == 200,
-                  let remoteCategories = try? JSONDecoder().decode([CuratedFeedCategory].self, from: data),
-                  !remoteCategories.isEmpty else {
+                  let httpResponse = response as? HTTPURLResponse else {
                 await MainActor.run {
                     CuratedFeedManager.shared.isUpdatingFromRemote = false
                 }
                 return
             }
 
-            // Write atomic cache to disk
-            try? data.write(to: cacheDest, options: .atomic)
+            // 304 Not Modified: Cache is already up to date, 0 bytes needed
+            if httpResponse.statusCode == 304 {
+                await MainActor.run {
+                    CuratedFeedManager.shared.isUpdatingFromRemote = false
+                }
+                return
+            }
 
-            await MainActor.run {
-                CuratedFeedManager.shared.categories = remoteCategories
-                CuratedFeedManager.shared.isUpdatingFromRemote = false
-                AppLogger.shared.log("Updated curated feed catalog with \(remoteCategories.count) categories from remote manifest", level: .info, category: .network)
+            // 200 OK: New content received
+            if httpResponse.statusCode == 200,
+               let remoteCategories = try? JSONDecoder().decode([CuratedFeedCategory].self, from: data),
+               !remoteCategories.isEmpty {
+
+                // Persist new ETag if provided
+                if let newETag = httpResponse.value(forHTTPHeaderField: "Etag") ?? httpResponse.value(forHTTPHeaderField: "ETag") {
+                    UserDefaults.standard.set(newETag, forKey: "CuratedFeeds_LastETag")
+                }
+
+                // Write atomic cache to disk
+                try? data.write(to: cacheDest, options: .atomic)
+
+                await MainActor.run {
+                    CuratedFeedManager.shared.categories = remoteCategories
+                    CuratedFeedManager.shared.isUpdatingFromRemote = false
+                    AppLogger.shared.log("Updated curated feed catalog with \(remoteCategories.count) categories from remote CDN", level: .info, category: .network)
+                }
+            } else {
+                await MainActor.run {
+                    CuratedFeedManager.shared.isUpdatingFromRemote = false
+                }
             }
         }
     }

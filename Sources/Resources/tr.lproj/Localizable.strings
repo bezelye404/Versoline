@@ -96,11 +96,11 @@
 "List View Options" = "Liste Görünüm Seçenekleri";
 "Select an article from the list on the left to read." = "Okumak için soldaki listeden bir makale seçin.";
 
-/* Curated Catalog (rss.md) */
+/* Curated Catalog */
 "Custom URL" = "Özel URL";
-"Curated Catalog (rss.md)" = "Önerilen Katalog (rss.md)";
-"Browse Curated Feeds (rss.md)" = "Önerilen Akışlara Göz At (rss.md)";
-"Browse Curated Feeds (rss.md)..." = "Önerilen Akışlara Göz At (rss.md)...";
+"Curated Catalog" = "Önerilen Katalog";
+"Browse Curated Catalog" = "Önerilen Kataloğa Göz At";
+"Browse Curated Catalog..." = "Önerilen Kataloğa Göz At...";
 "Search 100+ feeds..." = "100+ feed içinde ara...";
 "All" = "Tümü";
 "Added" = "Eklendi";
@@ -111,7 +111,7 @@
 "Business" = "İş & Ekonomi";
 "Politics" = "Politika";
 "Gaming" = "Oyun";
-"Curated from rss.md (by @joshuawalcher)" = "rss.md üzerinden derlenmiştir (@joshuawalcher)";
+"Curated Feed Catalog" = "Önerilen Akış Kataloğu";
 "Over 100+ popular feeds in Tech, News, Gaming & more" = "Teknoloji, Haber, Spor, Oyun ve daha fazlasında 100'den fazla popüler feed";
 "More Options & OPML" = "Daha Fazla Seçenek & OPML";
 

@@ -96,11 +96,11 @@
 "List View Options" = "List View Options";
 "Select an article from the list on the left to read." = "Select an article from the list on the left to read.";
 
-/* Curated Catalog (rss.md) */
+/* Curated Catalog */
 "Custom URL" = "Custom URL";
-"Curated Catalog (rss.md)" = "Curated Catalog (rss.md)";
-"Browse Curated Feeds (rss.md)" = "Browse Curated Feeds (rss.md)";
-"Browse Curated Feeds (rss.md)..." = "Browse Curated Feeds (rss.md)...";
+"Curated Catalog" = "Curated Catalog";
+"Browse Curated Catalog" = "Browse Curated Catalog";
+"Browse Curated Catalog..." = "Browse Curated Catalog...";
 "Search 100+ feeds..." = "Search 100+ feeds...";
 "All" = "All";
 "Added" = "Added";
@@ -111,7 +111,7 @@
 "Business" = "Business";
 "Politics" = "Politics";
 "Gaming" = "Gaming";
-"Curated from rss.md (by @joshuawalcher)" = "Curated from rss.md (by @joshuawalcher)";
+"Curated Feed Catalog" = "Curated Feed Catalog";
 "Over 100+ popular feeds in Tech, News, Gaming & more" = "Over 100+ popular feeds in Tech, News, Gaming & more";
 "More Options & OPML" = "More Options & OPML";
 

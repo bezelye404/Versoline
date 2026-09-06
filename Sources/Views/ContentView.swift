@@ -67,7 +67,7 @@ struct ContentView: View {
                         addFeedTab = .curatedCatalog
                         showAddFeed = true
                     } label: {
-                        Label("Browse Curated Feeds (rss.md)...", systemImage: "sparkles.rectangle.stack")
+                        Label("Browse Curated Catalog...", systemImage: "sparkles.rectangle.stack")
                     }
 
                     Button {

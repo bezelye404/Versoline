@@ -467,7 +467,7 @@ struct AddFeedSheet: View {
 
             // Catalog Footer
             HStack {
-                Text(String(localized: "Curated from rss.md (by @joshuawalcher)"))
+                Text(String(localized: "Curated Feed Catalog"))
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
 
