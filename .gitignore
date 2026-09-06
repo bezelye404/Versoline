@@ -1,21 +1,23 @@
 # ==============================================================================
 # easyRSS - .gitignore
-# Swift / macOS / Xcode & Kişisel Veri Güvenliği Kuralları
 # ==============================================================================
 
-# ------------------------------------------------------------------------------
-# 1. Kişisel Veriler, Abonelikler & Gizlilik (Personal Data & Privacy)
-# ------------------------------------------------------------------------------
-# Kullanıcıya ait feed listeleri, OPML yedekleri ve test verileri
+# 1. Kişisel Veriler, Akışlar & Gizlilik (Personal Data & Privacy)
 *.opml
 *.xml.backup
+*.json.backup
 data.json
 *.data
 *.sqlite
 *.sqlite3
 *.db
+*.store
+*.log
+*.crash
+*.ips
+logs/
 
-# Çevresel değişkenler, anahtarlar, kimlik doğrulama ve sertifikalar
+# Kimlik Doğrulama, Anahtarlar & Çevresel Değişkenler
 .env
 .env.*
 *.key
@@ -26,49 +28,36 @@ data.json
 *.p12
 *.mobileprovision
 *.keychain
+*.token
+*.secret
 
-# Loglar, çökme raporları ve hata ayıklama çıktıları
-*.log
-*.crash
-*.ips
-logs/
-
-# Geçici / Yedek dosyalar
+# Geçici & Yedek Dosyalar
 *.tmp
+*.dmg
 *.temp
 *.bak
 *.swp
 *~
 
-# ------------------------------------------------------------------------------
-# 2. Swift & Swift Package Manager (SPM)
-# ------------------------------------------------------------------------------
-.swiftpm/
+# 2. Swift Package Manager & Xcode Derleme Kalıntıları
 .build/
 Packages/
 Package.pins
 Package.resolved
-
-# ------------------------------------------------------------------------------
-# 3. Xcode & Derleme Çıktıları (Xcode Build Artifacts)
-# ------------------------------------------------------------------------------
+.swiftpm/
+xcuserdata/
+*.xcuserdatad
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcuserstate
+UserInterfaceState.xcuserstate
 build/
 DerivedData/
 *.moved-aside
-*.xcuserstate
-UserInterfaceState.xcuserstate
-xcuserdata/
-*.xcworkspace/xcuserdata/
-*.xcodeproj/xcuserdata/
-*.xcuserdata/
-
-# Test ve profil çıktıları
 *.xcresult
 *.xccoverage
 
-# ------------------------------------------------------------------------------
-# 4. macOS Sistem Dosyaları (macOS Artifacts)
-# ------------------------------------------------------------------------------
+# 3. macOS Sistem Dosyaları
 .DS_Store
 .DS_Store?
 ._*
@@ -77,12 +66,13 @@ xcuserdata/
 Icon?
 ehthumbs.db
 
-# ------------------------------------------------------------------------------
-# 5. IDE & Editör Yapılandırmaları (VS Code, JetBrains, Antigravity, vb.)
-# ------------------------------------------------------------------------------
+# 4. Editörler & Geliştirme Araçları
 .vscode/
 .idea/
 *.sublime-project
 *.sublime-workspace
 .agents/
 .gemini/
+.cursor/
+.claude/
+
