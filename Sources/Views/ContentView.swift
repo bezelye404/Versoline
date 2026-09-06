@@ -7,6 +7,7 @@ struct ContentView: View {
     @State private var selectedSidebarItem: SidebarItem?
     @State private var selectedArticle: FeedItem?
     @State private var showAddFeed = false
+    @State private var addFeedTab: AddFeedTab = .customURL
     @State private var showConsole = false
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @AppStorage("isCompactListMode") private var isCompactListMode = false
@@ -50,6 +51,7 @@ struct ContentView: View {
                 .help("List View Options")
 
                 Button {
+                    addFeedTab = .customURL
                     showAddFeed = true
                 } label: {
                     Label("Add Feed", systemImage: "plus")
@@ -57,6 +59,15 @@ struct ContentView: View {
                 .help("Add new feed")
 
                 Menu {
+                    Button {
+                        addFeedTab = .curatedCatalog
+                        showAddFeed = true
+                    } label: {
+                        Label("Browse Curated Feeds (rss.md)...", systemImage: "sparkles.rectangle.stack")
+                    }
+
+                    Divider()
+
                     Button {
                         importOPML()
                     } label: {
@@ -72,7 +83,7 @@ struct ContentView: View {
                 } label: {
                     Label("More", systemImage: "ellipsis.circle")
                 }
-                .help("Import/Export OPML")
+                .help("More Options & OPML")
 
                 Button {
                     showConsole = true
@@ -84,7 +95,7 @@ struct ContentView: View {
             }
         }
         .sheet(isPresented: $showAddFeed) {
-            AddFeedSheet()
+            AddFeedSheet(initialTab: addFeedTab)
         }
         .sheet(isPresented: $showConsole) {
             ConsoleView()

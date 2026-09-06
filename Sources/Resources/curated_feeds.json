@@ -1,0 +1,452 @@
+[
+  {
+    "category": "News",
+    "feeds": [
+      {
+        "title": "CNN – Top Stories",
+        "url": "http://rss.cnn.com/rss/cnn_topstories.rss"
+      },
+      {
+        "title": "Time Magazine – Top Stories",
+        "url": "http://feeds.feedburner.com/time/topstories"
+      },
+      {
+        "title": "NYTimes – Homepage",
+        "url": "http://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"
+      },
+      {
+        "title": "Yahoo News – Latest news and headlines",
+        "url": "https://www.yahoo.com/news/rss/topstories"
+      },
+      {
+        "title": "Washington Post",
+        "url": "http://feeds.washingtonpost.com/rss/world"
+      },
+      {
+        "title": "Vox – All",
+        "url": "https://www.vox.com/rss/index.xml"
+      },
+      {
+        "title": "BBC News – World",
+        "url": "http://feeds.bbci.co.uk/news/world/rss.xml"
+      },
+      {
+        "title": "Huffington Post",
+        "url": "https://www.huffingtonpost.com/section/front-page/feed"
+      },
+      {
+        "title": "CNN – World news",
+        "url": "http://rss.cnn.com/rss/cnn_world.rss"
+      },
+      {
+        "title": "ABC News –  Top stories",
+        "url": "http://abcnews.go.com/abcnews/topstories"
+      },
+      {
+        "title": "Reuters – Top stories",
+        "url": "https://www.reutersagency.com/feed/?taxonomy=best-topics&post_type=best"
+      },
+      {
+        "title": "Drudge Report",
+        "url": "http://www.drudgereportfeed.com/rss.xml"
+      },
+      {
+        "title": "Market Watch – Top stories",
+        "url": "http://www.marketwatch.com/rss/topstories/"
+      },
+      {
+        "title": "Salon.com",
+        "url": "https://www.salon.com/feed/"
+      },
+      {
+        "title": "New Yorker – Everything",
+        "url": "http://www.newyorker.com/services/rss/feeds/everything.xml"
+      },
+      {
+        "title": "Daily Mail – Latest stories",
+        "url": "http://www.dailymail.co.uk/articles.rss"
+      },
+      {
+        "title": "New York Post",
+        "url": "https://nypost.com/feed/"
+      },
+      {
+        "title": "Fox News Science",
+        "url": "http://feeds.foxnews.com/foxnews/scitech"
+      }
+    ]
+  },
+  {
+    "category": "Sports",
+    "feeds": [
+      {
+        "title": "BBC Sports",
+        "url": "http://feeds.bbci.co.uk/sport/rss.xml?edition=int"
+      },
+      {
+        "title": "ESPN",
+        "url": "http://www.espn.com/espn/rss/news"
+      },
+      {
+        "title": "NBA.com",
+        "url": "http://www.nba.com/rss/nba_rss.xml"
+      },
+      {
+        "title": "NFL.com",
+        "url": "http://www.nfl.com/rss/rsslanding?searchString=home"
+      },
+      {
+        "title": "Yahoo Sports",
+        "url": "https://sports.yahoo.com/rss"
+      },
+      {
+        "title": "Yahoo Sports - NBA",
+        "url": "https://sports.yahoo.com/nba/rss"
+      },
+      {
+        "title": "Yahoo Sports - MLB",
+        "url": "https://sports.yahoo.com/mlb/rss"
+      },
+      {
+        "title": "Yahoo Sports - NFL",
+        "url": "https://sports.yahoo.com/nfl/rss"
+      },
+      {
+        "title": "Yahoo Sports - NCAAB",
+        "url": "https://sports.yahoo.com/ncaab/rss"
+      },
+      {
+        "title": "Yahoo Sports - NHL",
+        "url": "https://sports.yahoo.com/nhl/rss"
+      },
+      {
+        "title": "Yahoo Sports - UFC",
+        "url": "https://sports.yahoo.com/ufc/rss"
+      },
+      {
+        "title": "BBC Sports – World edition",
+        "url": "http://newsrss.bbc.co.uk/rss/sportonline_world_edition/front_page/rss.xml"
+      },
+      {
+        "title": "We the sports guys",
+        "url": "https://www.westhesportsguy.com/feeds/posts/default"
+      },
+      {
+        "title": "Fox Sports",
+        "url": "https://api.foxsports.com/v1/rss?partnerKey=zBaFxRyGKCfxBagJG9b8pqLyndmvo7UU"
+      },
+      {
+        "title": "Talk Sports",
+        "url": "https://talksport.com/rss/sports-news/all/feed"
+      },
+      {
+        "title": "CBS Sports",
+        "url": "https://rss.cbssports.com/rss/headlines/"
+      },
+      {
+        "title": "Fifa.com",
+        "url": "http://www.fifa.com/rss/index.xml"
+      },
+      {
+        "title": "NU Sports",
+        "url": "http://nusports.com/rss_feeds.aspx"
+      },
+      {
+        "title": "Sport1.de",
+        "url": "https://www.sport1.de/news.rss"
+      },
+      {
+        "title": "TriathlonMag",
+        "url": "https://www.triathlonmag.com.au/rss"
+      },
+      {
+        "title": "ISSF-sports.org",
+        "url": "https://www.issf-sports.org/rss/news.html"
+      }
+    ]
+  },
+  {
+    "category": "Technology",
+    "feeds": [
+      {
+        "title": "Techcrunch",
+        "url": "http://feeds.feedburner.com/Techcrunch"
+      },
+      {
+        "title": "Wired",
+        "url": "http://feeds.wired.com/wired/index"
+      },
+      {
+        "title": "NYTimes – Technology",
+        "url": "http://feeds.nytimes.com/nyt/rss/Technology"
+      },
+      {
+        "title": "MacWorld",
+        "url": "http://rss.macworld.com/macworld/feeds/main"
+      },
+      {
+        "title": "PCWorld",
+        "url": "http://feeds.pcworld.com/pcworld/latestnews"
+      },
+      {
+        "title": "Techworld",
+        "url": "http://www.techworld.com/news/rss"
+      },
+      {
+        "title": "LifeHacker",
+        "url": "https://lifehacker.com/rss"
+      },
+      {
+        "title": "ReadWriteWeb",
+        "url": "http://feeds.feedburner.com/readwriteweb"
+      },
+      {
+        "title": "Engadget.com",
+        "url": "http://www.engadget.com/rss-full.xml"
+      },
+      {
+        "title": "ReadWrite",
+        "url": "http://readwrite.com/feed/"
+      },
+      {
+        "title": "Mashable",
+        "url": "http://feeds.mashable.com/Mashable"
+      },
+      {
+        "title": "O’Reilly Radar",
+        "url": "http://feeds.feedburner.com/oreilly/radar/atom"
+      },
+      {
+        "title": "Gizmodo",
+        "url": "https://gizmodo.com/rss"
+      },
+      {
+        "title": "Technology Review",
+        "url": "https://www.technologyreview.com/topnews.rss"
+      },
+      {
+        "title": "VentureBeat",
+        "url": "https://venturebeat.com/2013/09/05/venturebeat-rss/"
+      },
+      {
+        "title": "Recode.net",
+        "url": "http://www.recode.net/rss/index.xml"
+      },
+      {
+        "title": "Computer World",
+        "url": "http://www.computerworld.com/index.rss"
+      },
+      {
+        "title": "MakeUsOf",
+        "url": "http://feeds.feedburner.com/Makeuseof"
+      },
+      {
+        "title": "CNet.com",
+        "url": "http://www.cnet.com/rss/news"
+      },
+      {
+        "title": "HowToGeek",
+        "url": "http://feeds.howtogeek.com/HowToGeek"
+      }
+    ]
+  },
+  {
+    "category": "Business",
+    "feeds": [
+      {
+        "title": "Atlantic Business Channel",
+        "url": "http://feeds.feedburner.com/AtlanticBusinessChannel"
+      },
+      {
+        "title": "Entrepeneur.com",
+        "url": "http://feeder.co/add-feed?url=feeds.feedburner.com/entrepreneur/latest"
+      },
+      {
+        "title": "Harvard Business",
+        "url": "http://feeds.harvardbusiness.org/harvardbusiness/"
+      },
+      {
+        "title": "Freakonomics",
+        "url": "http://freakonomics.com//feed/"
+      },
+      {
+        "title": "The Big Picture",
+        "url": "http://feeds.feedburner.com/TheBigPicture"
+      },
+      {
+        "title": "Venture Beat",
+        "url": "http://feeds.feedburner.com/venturebeat/SZYF"
+      },
+      {
+        "title": "Fortune",
+        "url": "http://fortune.com/feed/"
+      },
+      {
+        "title": "Economist",
+        "url": "http://www.economist.com/rss/the_world_this_week_rss.xml"
+      },
+      {
+        "title": "The Non-Profit Times",
+        "url": "http://www.thenonprofittimes.com/feed/"
+      },
+      {
+        "title": "SBN Online",
+        "url": "http://www.sbnonline.com/feed/"
+      },
+      {
+        "title": "McKinsey",
+        "url": "https://www.mckinsey.com/insights/rss.aspx"
+      },
+      {
+        "title": "Home Business Mag",
+        "url": "https://homebusinessmag.com/feed/"
+      },
+      {
+        "title": "Business Insider",
+        "url": "http://feeds2.feedburner.com/businessinsider"
+      },
+      {
+        "title": "Calculated Risk",
+        "url": "http://feeds.feedburner.com/CalculatedRisk"
+      },
+      {
+        "title": "Huffington Post – Business",
+        "url": "https://www.huffingtonpost.com/section/business/feed"
+      }
+    ]
+  },
+  {
+    "category": "Politics",
+    "feeds": [
+      {
+        "title": "Slate.com – Politics",
+        "url": "http://www.slate.com/articles/news_and_politics/politics.teaser.all.10.rss/"
+      },
+      {
+        "title": "World Affair Journal",
+        "url": "http://www.worldaffairsjournal.org/essay-feed.xml"
+      },
+      {
+        "title": "Fox News – Politics",
+        "url": "http://feeds.foxnews.com/foxnews/politics"
+      },
+      {
+        "title": "CNN Politics",
+        "url": "http://rss.cnn.com/rss/cnn_allpolitics.rss"
+      },
+      {
+        "title": "Reuters – Politcs",
+        "url": "http://feeds.reuters.com/Reuters/PoliticsNews"
+      },
+      {
+        "title": "USA Today – Politics",
+        "url": "http://rssfeeds.usatoday.com/TP-OnPolitics"
+      },
+      {
+        "title": "Washington Examiner",
+        "url": "http://www.washingtonexaminer.com/rss/politics"
+      },
+      {
+        "title": "Wallstreet Journal – Politics",
+        "url": "http://online.wsj.com/xml/rss/3_7087.xml"
+      },
+      {
+        "title": "The Nation",
+        "url": "https://www.thenation.com/feed/?post_type=article"
+      },
+      {
+        "title": "Daily Signal",
+        "url": "http://dailysignal.com//feed/"
+      },
+      {
+        "title": "MSNBC",
+        "url": "http://www.msnbc.com/feeds/latest"
+      },
+      {
+        "title": "Politico",
+        "url": "https://www.politico.com/rss/politics.xml"
+      },
+      {
+        "title": "Realwire",
+        "url": "https://www.realwire.com/rss/feeds.asp?cat=Politics"
+      }
+    ]
+  },
+  {
+    "category": "Gaming",
+    "feeds": [
+      {
+        "title": "Gamespot",
+        "url": "https://www.gamespot.com/feeds/mashup/"
+      },
+      {
+        "title": "Nintendo Life",
+        "url": "http://www.nintendolife.com/feeds/latest"
+      },
+      {
+        "title": "JoyStiq",
+        "url": "http://www.joystiq.com/rss.xml"
+      },
+      {
+        "title": "Indiegames.com",
+        "url": "http://www.indiegames.com/atom.xml"
+      },
+      {
+        "title": "Arstechnica – Gaming",
+        "url": "http://feeds.arstechnica.com/arstechnica/gaming/"
+      },
+      {
+        "title": "Polygon",
+        "url": "https://www.polygon.com/rss/index.xml"
+      },
+      {
+        "title": "Touch Arcade",
+        "url": "http://toucharcade.com/feed/"
+      },
+      {
+        "title": "Game Informer",
+        "url": "http://www.gameinformer.com/p/rss.aspx"
+      },
+      {
+        "title": "Xbox.com – News",
+        "url": "http://news.xbox.com/feed"
+      },
+      {
+        "title": "/r/gamers – Reddit",
+        "url": "https://www.reddit.com/r/gamers/.rss"
+      },
+      {
+        "title": "vg247",
+        "url": "http://www.vg247.com/feed/"
+      },
+      {
+        "title": "My Nintendo News",
+        "url": "https://mynintendonews.com/feed"
+      },
+      {
+        "title": "Rock Paper Shotgun",
+        "url": "https://www.rockpapershotgun.com/feed"
+      },
+      {
+        "title": "pcgamesn.com",
+        "url": "https://www.pcgamesn.com/rss"
+      },
+      {
+        "title": "Operation Sports",
+        "url": "http://www.operationsports.com/rss.xml"
+      },
+      {
+        "title": "Kotaku",
+        "url": "https://kotaku.com/rss"
+      },
+      {
+        "title": "Videogamer.com",
+        "url": "http://feeds.videogamer.com/rss/allupdates.xml"
+      },
+      {
+        "title": "Pushsquare",
+        "url": "http://www.pushsquare.com/feeds/latest"
+      }
+    ]
+  }
+]
