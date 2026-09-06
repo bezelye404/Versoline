@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import AVFoundation
 
 struct ArticleDetailView: View {
 
@@ -20,7 +21,8 @@ struct ArticleDetailView: View {
     @State private var extractedReaderHTML: String? = nil
     @State private var isLoadingReaderMode = false
     @State private var isSpeaking = false
-    @State private var speechSynthesizer = NSSpeechSynthesizer()
+    @State private var speechSynthesizer = AVSpeechSynthesizer()
+    @State private var speechDelegate = ArticleSpeechDelegate()
 
     private let networkMonitor = NetworkMonitor.shared
 
@@ -387,7 +389,7 @@ struct ArticleDetailView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
-                if let url = URL(string: item.link) {
+                if URL(string: item.link) != nil {
                     Button(String(localized: "Open in Web View")) {
                         activeViewMode = .inAppBrowser
                     }
@@ -432,14 +434,21 @@ struct ArticleDetailView: View {
             stopSpeech()
         } else {
             let textToRead = cleanTextForSpeech(item: item)
-            speechSynthesizer.startSpeaking(textToRead)
+            guard !textToRead.isEmpty else { return }
+            speechDelegate.onFinish = { [self] in
+                self.isSpeaking = false
+            }
+            speechSynthesizer.delegate = speechDelegate
+            let utterance = AVSpeechUtterance(string: textToRead)
+            utterance.rate = AVSpeechUtteranceDefaultSpeechRate
+            speechSynthesizer.speak(utterance)
             isSpeaking = true
         }
     }
 
     private func stopSpeech() {
         if isSpeaking {
-            speechSynthesizer.stopSpeaking()
+            speechSynthesizer.stopSpeaking(at: .immediate)
             isSpeaking = false
         }
     }
@@ -472,5 +481,24 @@ struct ArticleDetailView: View {
 
     private func formattedDate(_ date: Date) -> String {
         Self.articleDateFormatter.string(from: date)
+    }
+}
+
+// MARK: - AVSpeechSynthesizer Delegate
+
+@MainActor
+final class ArticleSpeechDelegate: NSObject, AVSpeechSynthesizerDelegate {
+    var onFinish: (@MainActor () -> Void)?
+
+    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        Task { @MainActor in
+            self.onFinish?()
+        }
+    }
+
+    nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+        Task { @MainActor in
+            self.onFinish?()
+        }
     }
 }

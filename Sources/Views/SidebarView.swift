@@ -39,7 +39,7 @@ struct SidebarView: View {
                 Button {
                     showDiscover = true
                 } label: {
-                    Label("Discover Feeds", systemImage: "compass")
+                    Label("Discover Feeds", systemImage: "safari")
                 }
                 .buttonStyle(.plain)
             }
@@ -123,7 +123,7 @@ struct SidebarView: View {
                 Button {
                     showDiscover = true
                 } label: {
-                    Label("Discover Feeds", systemImage: "compass")
+                    Label("Discover Feeds", systemImage: "safari")
                 }
                 .help("Discover curated feeds")
 

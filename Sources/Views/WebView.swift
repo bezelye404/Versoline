@@ -222,7 +222,8 @@ struct WebView: NSViewRepresentable {
         """
     }
 
-    class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
+    @MainActor
+    final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         var isHTMLMode: Bool
         var lastLoadedHTML: String?
         var lastLoadedURL: URL?
@@ -255,7 +256,7 @@ struct WebView: NSViewRepresentable {
         func webView(
             _ webView: WKWebView,
             decidePolicyFor navigationAction: WKNavigationAction,
-            decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
+            decisionHandler: @escaping @MainActor @Sendable (WKNavigationActionPolicy) -> Void
         ) {
             if isHTMLMode {
                 // Reader Mode: Clicking external article links opens in user's default browser
@@ -286,7 +287,7 @@ struct WebView: NSViewRepresentable {
             _ webView: WKWebView,
             runJavaScriptAlertPanelWithMessage message: String,
             initiatedByFrame frame: WKFrameInfo,
-            completionHandler: @escaping () -> Void
+            completionHandler: @escaping @MainActor @Sendable () -> Void
         ) {
             completionHandler()
         }
@@ -296,7 +297,7 @@ struct WebView: NSViewRepresentable {
             _ webView: WKWebView,
             runJavaScriptConfirmPanelWithMessage message: String,
             initiatedByFrame frame: WKFrameInfo,
-            completionHandler: @escaping (Bool) -> Void
+            completionHandler: @escaping @MainActor @Sendable (Bool) -> Void
         ) {
             completionHandler(false)
         }
@@ -307,7 +308,7 @@ struct WebView: NSViewRepresentable {
             runJavaScriptTextInputPanelWithPrompt prompt: String,
             defaultText: String?,
             initiatedByFrame frame: WKFrameInfo,
-            completionHandler: @escaping (String?) -> Void
+            completionHandler: @escaping @MainActor @Sendable (String?) -> Void
         ) {
             completionHandler(nil)
         }
