@@ -1,6 +1,6 @@
 # easyRSS
 
-A native RSS, podcast, and social feed reader built for macOS. Written in Swift and SwiftUI with zero third-party dependencies.
+A swiss-knife RSS reader built for macOS. Written in Swift and SwiftUI with zero third-party dependencies.
 
 ---
 
