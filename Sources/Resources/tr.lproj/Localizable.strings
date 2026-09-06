@@ -1,0 +1,80 @@
+/* Common */
+"Add" = "Ekle";
+"Cancel" = "İptal";
+"Save" = "Kaydet";
+"Delete" = "Sil";
+"Rename" = "Yeniden Adlandır";
+"Error" = "Hata";
+"OK" = "Tamam";
+
+/* Sidebar */
+"Library" = "Kütüphane";
+"All Articles" = "Tüm Makaleler";
+"Bookmarks" = "Favoriler";
+"Folders" = "Klasörler";
+"Add Folder" = "Klasör Ekle";
+"New Folder" = "Yeni Klasör";
+"Add new folder" = "Yeni klasör ekle";
+"Folder Name" = "Klasör Adı";
+"Folder Name:" = "Klasör Adı:";
+"Move to Folder" = "Klasöre Taşı";
+"No Folder" = "Klasör Yok";
+"Delete Feed" = "Akışı Sil";
+"Remove from Folder" = "Klasörden Çıkar";
+"Rename" = "Yeniden Adlandır";
+"Delete Folder" = "Klasörü Sil";
+"Feeds" = "Feed'ler";
+"Uncategorized" = "Kategorisiz";
+"No feeds added yet" = "Henüz feed eklenmemiş";
+"Enter a name for the new folder." = "Yeni klasör için bir ad girin.";
+"Rename Folder" = "Klasörü Yeniden Adlandır";
+
+/* Toolbar */
+"Mark All as Read" = "Tümünü Okundu İşaretle";
+"Mark All as Unread" = "Tümünü Okunmadı İşaretle";
+"Import OPML..." = "OPML İçe Aktar...";
+"Export OPML..." = "OPML Dışa Aktar...";
+"Add Feed" = "Akış Ekle";
+"Refresh" = "Yenile";
+"Share" = "Paylaş";
+"Refresh all feeds" = "Tüm akışları yenile";
+"Add new feed" = "Yeni akış ekle";
+"More" = "Daha Fazla";
+"Import/Export OPML" = "OPML İçe/Dışa Aktar";
+"Select OPML File" = "OPML Dosyası Seç";
+"Error reading OPML file: %@" = "OPML dosyası okunamadı: %@";
+"Export OPML" = "OPML Dışa Aktar";
+"Error saving OPML file: %@" = "OPML dosyası kaydedilemedi: %@";
+
+/* Add Feed Sheet */
+"Add New Feed" = "Yeni Akış Ekle";
+"RSS or Atom Link:" = "RSS veya Atom Bağlantısı:";
+"e.g. https://news.ycombinator.com/rss" = "Örn: https://news.ycombinator.com/rss";
+"Suggested Feeds" = "Önerilen Akışlar";
+"Invalid URL" = "Geçersiz URL";
+"Please enter a valid URL." = "Lütfen geçerli bir bağlantı girin.";
+"Enter an RSS or Atom feed URL." = "RSS veya Atom feed URL'si girin.";
+"Feed URL" = "Feed URL";
+"Example Feeds" = "Örnek Feed'ler";
+
+
+/* Feed List & Article */
+"Mark as Read" = "Okundu İşaretle";
+"Mark as Unread" = "Okunmadı İşaretle";
+"Remove Bookmark" = "Favorilerden Çıkar";
+"Add Bookmark" = "Favorilere Ekle";
+"Open in Browser" = "Tarayıcıda Aç";
+"Loading..." = "Yükleniyor...";
+"No results found" = "Sonuç bulunamadı";
+"No articles matching \"%@\"." = "\"%@\" ile eşleşen makale yok.";
+"Search Articles" = "Makale Ara";
+"Welcome" = "Hoş geldiniz";
+"Select a feed or category from the sidebar." = "Soldaki listeden bir feed veya kategori seçin.";
+"No articles yet. Start by adding a feed." = "Henüz makale yok. Feed ekleyerek başlayın.";
+"No bookmarked articles yet." = "Henüz favori makale yok.";
+"No articles in this feed yet." = "Bu feed'de henüz makale yok.";
+"Feed" = "Feed";
+"Select an article" = "Bir makale seçin";
+"Select an article from the list on the left to read." = "Okumak için soldaki listeden bir makale seçin.";
+"Content not available." = "İçerik mevcut değil.";
+

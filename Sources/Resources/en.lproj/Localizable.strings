@@ -1,0 +1,80 @@
+/* Common */
+"Add" = "Add";
+"Cancel" = "Cancel";
+"Save" = "Save";
+"Delete" = "Delete";
+"Rename" = "Rename";
+"Error" = "Error";
+"OK" = "OK";
+
+/* Sidebar */
+"Library" = "Library";
+"All Articles" = "All Articles";
+"Bookmarks" = "Bookmarks";
+"Folders" = "Folders";
+"Add Folder" = "Add Folder";
+"New Folder" = "New Folder";
+"Add new folder" = "Add new folder";
+"Folder Name" = "Folder Name";
+"Folder Name:" = "Folder Name:";
+"Move to Folder" = "Move to Folder";
+"No Folder" = "No Folder";
+"Delete Feed" = "Delete Feed";
+"Remove from Folder" = "Remove from Folder";
+"Rename" = "Rename";
+"Delete Folder" = "Delete Folder";
+"Feeds" = "Feeds";
+"Uncategorized" = "Uncategorized";
+"No feeds added yet" = "No feeds added yet";
+"Enter a name for the new folder." = "Enter a name for the new folder.";
+"Rename Folder" = "Rename Folder";
+
+/* Toolbar */
+"Mark All as Read" = "Mark All as Read";
+"Mark All as Unread" = "Mark All as Unread";
+"Import OPML..." = "Import OPML...";
+"Export OPML..." = "Export OPML...";
+"Add Feed" = "Add Feed";
+"Refresh" = "Refresh";
+"Share" = "Share";
+"Refresh all feeds" = "Refresh all feeds";
+"Add new feed" = "Add new feed";
+"More" = "More";
+"Import/Export OPML" = "Import/Export OPML";
+"Select OPML File" = "Select OPML File";
+"Error reading OPML file: %@" = "Error reading OPML file: %@";
+"Export OPML" = "Export OPML";
+"Error saving OPML file: %@" = "Error saving OPML file: %@";
+
+/* Add Feed Sheet */
+"Add New Feed" = "Add New Feed";
+"RSS or Atom Link:" = "RSS or Atom Link:";
+"e.g. https://news.ycombinator.com/rss" = "e.g. https://news.ycombinator.com/rss";
+"Suggested Feeds" = "Suggested Feeds";
+"Invalid URL" = "Invalid URL";
+"Please enter a valid URL." = "Please enter a valid URL.";
+"Enter an RSS or Atom feed URL." = "Enter an RSS or Atom feed URL.";
+"Feed URL" = "Feed URL";
+"Example Feeds" = "Example Feeds";
+
+
+/* Feed List & Article */
+"Mark as Read" = "Mark as Read";
+"Mark as Unread" = "Mark as Unread";
+"Remove Bookmark" = "Remove Bookmark";
+"Add Bookmark" = "Add Bookmark";
+"Open in Browser" = "Open in Browser";
+"Loading..." = "Loading...";
+"No results found" = "No results found";
+"No articles matching \"%@\"." = "No articles matching \"%@\".";
+"Search Articles" = "Search Articles";
+"Welcome" = "Welcome";
+"Select a feed or category from the sidebar." = "Select a feed or category from the sidebar.";
+"No articles yet. Start by adding a feed." = "No articles yet. Start by adding a feed.";
+"No bookmarked articles yet." = "No bookmarked articles yet.";
+"No articles in this feed yet." = "No articles in this feed yet.";
+"Feed" = "Feed";
+"Select an article" = "Select an article";
+"Select an article from the list on the left to read." = "Select an article from the list on the left to read.";
+"Content not available." = "Content not available.";
+

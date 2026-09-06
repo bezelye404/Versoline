@@ -1,0 +1,88 @@
+# ==============================================================================
+# easyRSS - .gitignore
+# Swift / macOS / Xcode & Kişisel Veri Güvenliği Kuralları
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Kişisel Veriler, Abonelikler & Gizlilik (Personal Data & Privacy)
+# ------------------------------------------------------------------------------
+# Kullanıcıya ait feed listeleri, OPML yedekleri ve test verileri
+*.opml
+*.xml.backup
+data.json
+*.data
+*.sqlite
+*.sqlite3
+*.db
+
+# Çevresel değişkenler, anahtarlar, kimlik doğrulama ve sertifikalar
+.env
+.env.*
+*.key
+*.pem
+*.cer
+*.crt
+*.p8
+*.p12
+*.mobileprovision
+*.keychain
+
+# Loglar, çökme raporları ve hata ayıklama çıktıları
+*.log
+*.crash
+*.ips
+logs/
+
+# Geçici / Yedek dosyalar
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# ------------------------------------------------------------------------------
+# 2. Swift & Swift Package Manager (SPM)
+# ------------------------------------------------------------------------------
+.build/
+Packages/
+Package.pins
+Package.resolved
+# Package.resolved SPM projesine göre paylaşılabileceği gibi, yerel override'lar için:
+.swiftpm/xcode/xcuserdata/
+.swiftpm/configuration/
+
+# ------------------------------------------------------------------------------
+# 3. Xcode & Derleme Çıktıları (Xcode Build Artifacts)
+# ------------------------------------------------------------------------------
+build/
+DerivedData/
+*.moved-aside
+*.xcuserstate
+xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+
+# Test ve profil çıktıları
+*.xcresult
+*.xccoverage
+
+# ------------------------------------------------------------------------------
+# 4. macOS Sistem Dosyaları (macOS Artifacts)
+# ------------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+
+# ------------------------------------------------------------------------------
+# 5. IDE & Editör Yapılandırmaları (VS Code, JetBrains, Antigravity, vb.)
+# ------------------------------------------------------------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.agents/
+.gemini/
