@@ -216,6 +216,12 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         }
     }
 
+    func parser(_ parser: XMLParser, foundCDATA CDATABlock: Data) {
+        if let string = String(data: CDATABlock, encoding: .utf8) ?? String(data: CDATABlock, encoding: .isoLatin1) {
+            self.parser(parser, foundCharacters: string)
+        }
+    }
+
     func parser(
         _ parser: XMLParser,
         didEndElement elementName: String,
@@ -224,24 +230,27 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
     ) {
         switch elementName.lowercased() {
         case "item", "entry":
+            let cleanTitle = currentTitle.strippingHTML()
+            let cleanAuthor = currentAuthor.strippingHTML()
+            let cleanDesc = currentDescription.decodingHTMLEntities().trimmingCharacters(in: .whitespacesAndNewlines)
+            let cleanContent = currentContent.decodingHTMLEntities().trimmingCharacters(in: .whitespacesAndNewlines)
+
             let item = FeedItem(
                 feedId: feedId,
-                title: currentTitle.trimmingCharacters(in: .whitespacesAndNewlines),
+                title: cleanTitle.isEmpty ? currentLink.trimmingCharacters(in: .whitespacesAndNewlines) : cleanTitle,
                 link: currentLink.trimmingCharacters(in: .whitespacesAndNewlines),
-                itemDescription: currentDescription.trimmingCharacters(in: .whitespacesAndNewlines),
+                itemDescription: cleanDesc,
                 pubDate: parseDate(currentPubDate.trimmingCharacters(in: .whitespacesAndNewlines)),
-                author: currentAuthor.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                    ? nil
-                    : currentAuthor.trimmingCharacters(in: .whitespacesAndNewlines),
+                author: cleanAuthor.isEmpty ? nil : cleanAuthor,
                 isRead: false,
-                content: currentContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                    ? nil
-                    : currentContent.trimmingCharacters(in: .whitespacesAndNewlines)
+                content: cleanContent.isEmpty ? nil : cleanContent
             )
             items.append(item)
             isInsideItem = false
 
         case "channel", "feed":
+            feedTitle = feedTitle.strippingHTML()
+            feedDescription = feedDescription.strippingHTML()
             isInsideChannel = false
 
         case "image":

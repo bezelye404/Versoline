@@ -68,8 +68,8 @@ final class CuratedFeedManager {
             for linkMatch in linkMatches {
                 guard linkMatch.numberOfRanges >= 3 else { continue }
                 var url = (sectionHTML as NSString).substring(with: linkMatch.range(at: 1)).trimmingCharacters(in: .whitespacesAndNewlines)
-                var title = (sectionHTML as NSString).substring(with: linkMatch.range(at: 2)).trimmingCharacters(in: .whitespacesAndNewlines)
-                title = title.replacingOccurrences(of: "&rsquo;", with: "'").replacingOccurrences(of: "&amp;", with: "&")
+                let rawTitle = (sectionHTML as NSString).substring(with: linkMatch.range(at: 2))
+                let title = rawTitle.strippingHTML()
 
                 if url.hasPrefix("http://www.feeder.co/add-feed?url=") {
                     url = String(url.dropFirst("http://www.feeder.co/add-feed?url=".count))

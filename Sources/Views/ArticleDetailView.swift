@@ -123,38 +123,43 @@ struct ArticleDetailView: View {
             }
 
             // Metadata row & Toolbar Actions
-            HStack(spacing: 14) {
-                if let feedTitle = currentFeed?.title {
-                    HStack(spacing: 6) {
-                        FaviconView(hostOrURL: currentFeed?.url ?? item.link, size: 14)
-                        Text(feedTitle)
+            HStack(spacing: 12) {
+                HStack(spacing: 12) {
+                    if let feedTitle = currentFeed?.title {
+                        HStack(spacing: 6) {
+                            FaviconView(hostOrURL: currentFeed?.url ?? item.link, size: 14)
+                            Text(feedTitle)
+                        }
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                     }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                }
 
-                if let author = item.author, !author.isEmpty {
-                    Label(author, systemImage: "person")
+                    if let author = item.author, !author.isEmpty {
+                        Label(author, systemImage: "person")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    if let date = item.pubDate {
+                        Label(formattedDate(date), systemImage: "calendar")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    // Reading Time
+                    let readingTime = calculateReadingTime(item: item)
+                    Label(readingTime, systemImage: "clock")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+                .lineLimit(1)
+                .truncationMode(.tail)
 
-                if let date = item.pubDate {
-                    Label(formattedDate(date), systemImage: "calendar")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                // Reading Time
-                let readingTime = calculateReadingTime(item: item)
-                Label(readingTime, systemImage: "clock")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-
-                Spacer()
+                Spacer(minLength: 12)
 
                 // Actions
                 actionToolbar(item: item)
+                    .fixedSize(horizontal: true, vertical: false)
             }
         }
         .padding(16)
@@ -167,12 +172,12 @@ struct ArticleDetailView: View {
         HStack(spacing: 8) {
             // Flexible 3-Way Reading Mode Selector
             Picker("", selection: $activeViewMode) {
-                Label(String(localized: "Feed"), systemImage: "doc.text").tag(ReadingViewMode.feed)
-                Label(String(localized: "Reader"), systemImage: "sparkles").tag(ReadingViewMode.reader)
-                Label(String(localized: "Web"), systemImage: "globe").tag(ReadingViewMode.inAppBrowser)
+                Text(String(localized: "Feed")).tag(ReadingViewMode.feed)
+                Text(String(localized: "Reader")).tag(ReadingViewMode.reader)
+                Text(String(localized: "Web")).tag(ReadingViewMode.inAppBrowser)
             }
             .pickerStyle(.segmented)
-            .frame(maxWidth: 160)
+            .frame(width: 175)
             .onChange(of: activeViewMode) { _, newMode in
                 if newMode == .reader && extractedReaderHTML == nil {
                     loadReaderMode(for: item)
@@ -226,56 +231,52 @@ struct ArticleDetailView: View {
                     }
                 }
             } label: {
-                Label("Appearance", systemImage: "textformat.size")
+                Image(systemName: "textformat.size")
+                    .foregroundStyle(.secondary)
             }
-            .buttonStyle(.borderless)
-            .controlSize(.small)
-            .help("Reader Appearance & Themes")
+            .menuStyle(.borderlessButton)
+            .fixedSize()
+            .help(String(localized: "Appearance"))
 
             // Share Link
             if let url = URL(string: item.link) {
                 ShareLink(item: url, subject: Text(item.title)) {
-                    Label("Share", systemImage: "square.and.arrow.up")
+                    Image(systemName: "square.and.arrow.up")
+                        .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.borderless)
-                .controlSize(.small)
-                .help("Share Article")
+                .help(String(localized: "Share"))
             }
 
             // Bookmark toggle
             Button {
                 store.toggleBookmark(item)
             } label: {
-                Label(
-                    item.isBookmarked ? "Remove Bookmark" : "Add Bookmark",
-                    systemImage: item.isBookmarked ? "star.fill" : "star"
-                )
+                Image(systemName: item.isBookmarked ? "star.fill" : "star")
+                    .foregroundStyle(item.isBookmarked ? .orange : .secondary)
             }
             .buttonStyle(.borderless)
-            .controlSize(.small)
-            .foregroundStyle(item.isBookmarked ? .orange : .secondary)
+            .help(item.isBookmarked ? String(localized: "Remove Bookmark") : String(localized: "Add Bookmark"))
 
             // Read toggle
             Button {
                 store.toggleReadStatus(item)
             } label: {
-                Label(
-                    item.isRead ? "Mark as Unread" : "Mark as Read",
-                    systemImage: item.isRead ? "circle" : "checkmark.circle.fill"
-                )
+                Image(systemName: item.isRead ? "circle" : "checkmark.circle.fill")
+                    .foregroundStyle(item.isRead ? .secondary : Color.accentColor)
             }
             .buttonStyle(.borderless)
-            .controlSize(.small)
+            .help(item.isRead ? String(localized: "Mark as Unread") : String(localized: "Mark as Read"))
 
             // Open in Preferred External Browser
             if let url = URL(string: item.link) {
                 Button {
                     currentExternalBrowser.open(url: url)
                 } label: {
-                    Label(String(format: String(localized: "Open in %@"), currentExternalBrowser.title), systemImage: "arrow.up.right.square")
+                    Image(systemName: "arrow.up.right.square")
+                        .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.borderless)
-                .controlSize(.small)
                 .help(String(format: String(localized: "Open in %@ (Cmd+Return)"), currentExternalBrowser.title))
             }
         }

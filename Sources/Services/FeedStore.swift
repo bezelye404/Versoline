@@ -514,8 +514,22 @@ final class FeedStore {
             decoder.dateDecodingStrategy = .iso8601
             let storage = try decoder.decode(StorageData.self, from: data)
             self.feeds = storage.feeds
-            self.items = storage.items
             self.folders = storage.folders ?? []
+
+            var sanitizedItems: [UUID: [FeedItem]] = [:]
+            for (feedId, feedItems) in storage.items {
+                sanitizedItems[feedId] = feedItems.map { item in
+                    var cleaned = item
+                    if cleaned.title.contains("&") || cleaned.title.contains("<") {
+                        cleaned.title = cleaned.title.strippingHTML()
+                    }
+                    if cleaned.itemDescription.contains("&") {
+                        cleaned.itemDescription = cleaned.itemDescription.decodingHTMLEntities()
+                    }
+                    return cleaned
+                }
+            }
+            self.items = sanitizedItems
             let totalItemsCount = self.items.values.reduce(0) { $0 + $1.count }
             AppLogger.shared.log(
                 "Loaded database: \(feeds.count) feeds, \(folders.count) folders, \(totalItemsCount) articles",
