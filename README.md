@@ -1,6 +1,6 @@
 # easyRSS
 
-A swiss-knife RSS reader built for macOS. Written in Swift and SwiftUI with zero third-party dependencies.
+A very lightweight, swiss-knife RSS reader built for macOS. Written in Swift and SwiftUI with zero third-party dependencies.
 
 ---
 
@@ -72,6 +72,7 @@ xcodebuild -project EasyRSS.xcodeproj -scheme EasyRSS -configuration Release bui
 ## Credits
 
 Feed collections in the curated catalog are sourced from:
+
 - [@joshuawalcher](https://github.com/joshuawalcher) — [joshuawalcher/rssfeeds](https://github.com/joshuawalcher/rssfeeds)
 - [@bakinazik](https://github.com/bakinazik) — [bakinazik/rss](https://github.com/bakinazik/rss)
 
