@@ -43,15 +43,11 @@ logs/
 # ------------------------------------------------------------------------------
 # 2. Swift & Swift Package Manager (SPM)
 # ------------------------------------------------------------------------------
+.swiftpm/
 .build/
 Packages/
 Package.pins
 Package.resolved
-# SwiftPM Xcode kullanıcı ayarları ve geçici durumlar
-.swiftpm/xcode/xcuserdata/
-.swiftpm/xcode/package.xcworkspace/xcuserdata/
-.swiftpm/**/xcuserdata/
-.swiftpm/configuration/
 
 # ------------------------------------------------------------------------------
 # 3. Xcode & Derleme Çıktıları (Xcode Build Artifacts)
