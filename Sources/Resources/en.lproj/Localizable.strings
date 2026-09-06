@@ -213,3 +213,34 @@
 "Could not reach podcast search directory." = "Could not reach podcast search directory.";
 "%d episodes" = "%d episodes";
 
+/* Advanced Podcast & Audio Features */
+"Downloaded" = "Downloaded";
+"Downloaded Episodes" = "Downloaded Episodes";
+"No downloaded podcast episodes." = "No downloaded podcast episodes.";
+"Download Episode" = "Download Episode";
+"Remove Download" = "Remove Download";
+"Play Next" = "Play Next";
+"Add to Queue" = "Add to Queue";
+"Up Next" = "Up Next";
+"Clear Queue" = "Clear Queue";
+"Queue is empty" = "Queue is empty";
+"Sleep Timer" = "Sleep Timer";
+"Off" = "Off";
+"15 Minutes" = "15 Minutes";
+"30 Minutes" = "30 Minutes";
+"45 Minutes" = "45 Minutes";
+"60 Minutes" = "60 Minutes";
+"End of Episode" = "End of Episode";
+"Share at Timestamp" = "Share at Timestamp";
+"Chapters" = "Chapters";
+
+/* Smart Folders & Feed Health */
+"Smart Stream" = "Smart Stream";
+"Smart Folder Rules" = "Smart Folder Rules";
+"Set Smart Rules..." = "Set Smart Rules...";
+"Edit Smart Rules..." = "Edit Smart Rules...";
+"Feed Health" = "Feed Health";
+"Feed Health Diagnostics" = "Feed Health Diagnostics";
+"Scan Feeds" = "Scan Feeds";
+"Remove All Broken Feeds" = "Remove All Broken Feeds";
+

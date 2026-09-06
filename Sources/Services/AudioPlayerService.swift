@@ -23,6 +23,15 @@ final class AudioPlayerService {
     var isBuffering: Bool = false
     var errorMessage: String?
 
+    // Playback Queue (Up Next)
+    var queue: [FeedItem] = []
+
+    // Sleep Timer
+    var sleepTimerRemainingSeconds: Int? = nil
+    var sleepTimerTotalSeconds: Int? = nil
+    private var sleepTimerTask: Task<Void, Never>?
+    private var preFadeVolume: Float = 1.0
+
     // Supported playback speeds
     static let availableRates: [Float] = [0.75, 1.0, 1.25, 1.5, 2.0]
 
@@ -41,7 +50,7 @@ final class AudioPlayerService {
     // MARK: - Playback Control
 
     func play(item: FeedItem, feedTitle: String? = nil, store: FeedStore) {
-        guard let urlString = item.audioURL, let url = URL(string: urlString) else {
+        guard let urlString = item.audioURL, let streamURL = URL(string: urlString) else {
             errorMessage = "Invalid audio stream URL."
             return
         }
@@ -67,7 +76,16 @@ final class AudioPlayerService {
         duration = 0.0
         isBuffering = true
 
-        let playerItem = AVPlayerItem(url: url)
+        // Check if offline local download exists
+        let playbackURL: URL
+        if let localURL = PodcastDownloadService.shared.localFileURL(for: item.id) {
+            playbackURL = localURL
+            AppLogger.shared.log("Streaming from offline downloaded file: \(item.title)", level: .info, category: .storage)
+        } else {
+            playbackURL = streamURL
+        }
+
+        let playerItem = AVPlayerItem(url: playbackURL)
         let newPlayer = AVPlayer(playerItem: playerItem)
         newPlayer.volume = volume
         self.player = newPlayer
@@ -147,7 +165,7 @@ final class AudioPlayerService {
     }
 
     func togglePlayPause() {
-        guard let player else { return }
+        guard player != nil else { return }
         if isPlaying {
             pause()
         } else {
@@ -201,6 +219,7 @@ final class AudioPlayerService {
 
     func close() {
         pause()
+        cancelSleepTimer()
         persistCurrentProgress()
         cleanupObservers()
         player = nil
@@ -211,19 +230,114 @@ final class AudioPlayerService {
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
     }
 
+    // MARK: - Playback Queue (Up Next)
+
+    func addToQueue(_ item: FeedItem) {
+        guard item.isPodcast, !queue.contains(where: { $0.id == item.id }) else { return }
+        queue.append(item)
+    }
+
+    func playNext(_ item: FeedItem) {
+        guard item.isPodcast else { return }
+        queue.removeAll(where: { $0.id == item.id })
+        queue.insert(item, at: 0)
+    }
+
+    func removeFromQueue(at index: Int) {
+        guard queue.indices.contains(index) else { return }
+        queue.remove(at: index)
+    }
+
+    func clearQueue() {
+        queue.removeAll()
+    }
+
+    // MARK: - Sleep Timer with Fade-Out
+
+    func startSleepTimer(minutes: Int) {
+        cancelSleepTimer()
+        let seconds = minutes * 60
+        sleepTimerTotalSeconds = seconds
+        sleepTimerRemainingSeconds = seconds
+        preFadeVolume = volume
+        runSleepTimer()
+    }
+
+    func startSleepTimerUntilEndOfEpisode() {
+        cancelSleepTimer()
+        let remaining = max(1, Int(duration - currentTime))
+        sleepTimerTotalSeconds = remaining
+        sleepTimerRemainingSeconds = remaining
+        preFadeVolume = volume
+        runSleepTimer()
+    }
+
+    func cancelSleepTimer() {
+        sleepTimerTask?.cancel()
+        sleepTimerTask = nil
+        sleepTimerRemainingSeconds = nil
+        sleepTimerTotalSeconds = nil
+        if volume != preFadeVolume {
+            volume = preFadeVolume
+        }
+    }
+
+    private func runSleepTimer() {
+        sleepTimerTask = Task { @MainActor in
+            while let current = sleepTimerRemainingSeconds, current > 0 {
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                guard !Task.isCancelled else { return }
+                let newRemaining = current - 1
+                self.sleepTimerRemainingSeconds = newRemaining
+
+                // Smooth fade out in the last 5 seconds
+                if newRemaining <= 5 && newRemaining > 0 {
+                    let fadeFraction = Float(newRemaining) / 5.0
+                    self.volume = self.preFadeVolume * fadeFraction
+                } else if newRemaining == 0 {
+                    self.pause()
+                    self.volume = self.preFadeVolume
+                    self.sleepTimerRemainingSeconds = nil
+                    self.sleepTimerTotalSeconds = nil
+                    AppLogger.shared.log("Sleep timer expired - playback paused with audio fade-out", level: .info, category: .ui)
+                    break
+                }
+            }
+        }
+    }
+
+    // MARK: - Timestamp Share Text
+
+    func shareURLString(for item: FeedItem) -> String {
+        let secs = Int(currentTime)
+        if secs > 0 && currentEpisode?.id == item.id {
+            return "\(item.link)#t=\(secs)"
+        }
+        return item.link
+    }
+
     // MARK: - Handlers & Observers
 
     @objc private func playerItemDidReachEnd(_ notification: Notification) {
         guard let episode = currentEpisode else { return }
-        isPlaying = false
-        currentTime = 0.0
-        lastSavedPosition = 0.0
         feedStore?.updatePlaybackProgress(
             for: episode.id,
             feedId: episode.feedId,
             position: 0.0,
             isFinished: true
         )
+
+        // Check if there is an episode queued up in Up Next!
+        if !queue.isEmpty, let store = feedStore {
+            let nextItem = queue.removeFirst()
+            AppLogger.shared.log("Episode ended. Auto-advancing to queued episode: \(nextItem.title)", level: .info, category: .ui)
+            play(item: nextItem, feedTitle: nil, store: store)
+            return
+        }
+
+        isPlaying = false
+        currentTime = 0.0
+        lastSavedPosition = 0.0
         updateNowPlayingInfo()
         AppLogger.shared.log("Finished playing episode: \(episode.title)", level: .info, category: .ui)
     }

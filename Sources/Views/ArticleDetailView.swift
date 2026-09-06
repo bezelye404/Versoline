@@ -228,10 +228,38 @@ struct ArticleDetailView: View {
                     .help(String(localized: "Skip forward 15 seconds"))
                 }
 
+                // Offline Download Button
+                let downloadService = PodcastDownloadService.shared
+                let isDownloaded = downloadService.isDownloaded(item.id)
+                let isDownloading = downloadService.activeDownloads[item.id] != nil
+
+                Button {
+                    if isDownloaded {
+                        downloadService.deleteDownload(for: item.id)
+                    } else if !isDownloading {
+                        downloadService.downloadEpisode(item)
+                    }
+                } label: {
+                    if isDownloading {
+                        ProgressView()
+                            .controlSize(.small)
+                    } else {
+                        Image(systemName: isDownloaded ? "arrow.down.circle.fill" : "arrow.down.circle")
+                            .font(.system(size: 14))
+                            .foregroundStyle(isDownloaded ? Color.green : Color.secondary)
+                    }
+                }
+                .buttonStyle(.plain)
+                .help(isDownloaded ? String(localized: "Downloaded (Click to delete)") : String(localized: "Download Episode for Offline Listening"))
+
                 Spacer()
 
                 // Metadata Badges: Duration & File Size
                 HStack(spacing: 8) {
+                    if isPlaying {
+                        EqualizerWaveformView(isPlaying: true, barWidth: 2, maxHeight: 12)
+                    }
+
                     if let duration = item.formattedDuration {
                         Label(duration, systemImage: "headphones")
                             .font(.caption2.weight(.medium))
@@ -262,6 +290,46 @@ struct ArticleDetailView: View {
                 ProgressView(value: item.progressFraction, total: 1.0)
                     .tint(Color.accentColor.opacity(0.7))
             }
+
+            // Clickable Chapter Timestamps
+            let chapters = parseChapters(from: item.itemDescription + " " + (item.content ?? ""))
+            if !chapters.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(String(localized: "Chapters & Timestamps"))
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(.secondary)
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 6) {
+                            ForEach(chapters) { ch in
+                                Button {
+                                    if player.currentEpisode?.id != item.id {
+                                        player.play(item: item, feedTitle: currentFeed?.title, store: store)
+                                    }
+                                    player.seek(to: ch.seconds)
+                                } label: {
+                                    HStack(spacing: 4) {
+                                        Text(ch.timestamp)
+                                            .font(.caption2.monospacedDigit().weight(.semibold))
+                                            .foregroundStyle(Color.accentColor)
+                                        Text(ch.title)
+                                            .font(.caption2)
+                                            .foregroundStyle(.primary)
+                                            .lineLimit(1)
+                                    }
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.secondary.opacity(0.08))
+                                    .clipShape(Capsule())
+                                }
+                                .buttonStyle(.plain)
+                                .help(String(format: String(localized: "Jump to %@"), ch.timestamp))
+                            }
+                        }
+                    }
+                }
+                .padding(.top, 2)
+            }
         }
         .padding(12)
         .background(Color.accentColor.opacity(0.06))
@@ -282,6 +350,40 @@ struct ArticleDetailView: View {
             return String(format: "%d:%02d:%02d", hours, minutes, secs)
         } else {
             return String(format: "%d:%02d", minutes, secs)
+        }
+    }
+
+    private func parseChapters(from text: String) -> [PodcastChapter] {
+        let pattern = #"(?:^|\s)(?:(\d{1,2}):)?(\d{1,2}):(\d{2})\s*[-–—]?\s*([^\n\r<]{3,60})"#
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: [.anchorsMatchLines]) else { return [] }
+        let ns = text as NSString
+        let matches = regex.matches(in: text, range: NSRange(location: 0, length: ns.length))
+        var chapters: [PodcastChapter] = []
+
+        for match in matches {
+            let hStr = match.range(at: 1).location != NSNotFound ? ns.substring(with: match.range(at: 1)) : nil
+            let mStr = ns.substring(with: match.range(at: 2))
+            let sStr = ns.substring(with: match.range(at: 3))
+            let titleStr = ns.substring(with: match.range(at: 4)).trimmingCharacters(in: .whitespacesAndNewlines)
+
+            let h = Double(hStr ?? "0") ?? 0
+            let m = Double(mStr) ?? 0
+            let s = Double(sStr) ?? 0
+            let totalSeconds = (h * 3600) + (m * 60) + s
+            let timeLabel = h > 0 ? String(format: "%d:%02d:%02d", Int(h), Int(m), Int(s)) : String(format: "%d:%02d", Int(m), Int(s))
+
+            chapters.append(PodcastChapter(timestamp: timeLabel, seconds: totalSeconds, title: titleStr))
+        }
+        return chapters
+    }
+
+    private func shareArticleOrEpisode(item: FeedItem) {
+        let player = AudioPlayerService.shared
+        let urlText = (item.isPodcast && player.currentEpisode?.id == item.id) ? player.shareURLString(for: item) : item.link
+        let shareString = "\(item.title)\n\(urlText)"
+        let picker = NSSharingServicePicker(items: [shareString])
+        if let window = NSApp.keyWindow, let contentView = window.contentView {
+            picker.show(relativeTo: .zero, of: contentView, preferredEdge: .maxY)
         }
     }
 
@@ -325,6 +427,16 @@ struct ArticleDetailView: View {
             }
             .buttonStyle(.borderless)
             .help(isSpeaking ? String(localized: "Stop Reading") : String(localized: "Read Aloud"))
+
+            // Share Article or Episode
+            Button {
+                shareArticleOrEpisode(item: item)
+            } label: {
+                Image(systemName: "square.and.arrow.up")
+                    .foregroundStyle(Color.secondary)
+            }
+            .buttonStyle(.borderless)
+            .help(String(localized: "Share Article or Episode"))
 
             // Appearance Menu (Theme, Font, Size)
             Menu {
@@ -618,4 +730,13 @@ final class ArticleSpeechDelegate: NSObject, AVSpeechSynthesizerDelegate {
             self.onFinish?()
         }
     }
+}
+
+// MARK: - Podcast Chapter Model
+
+struct PodcastChapter: Identifiable, Hashable {
+    let id = UUID()
+    let timestamp: String
+    let seconds: Double
+    let title: String
 }

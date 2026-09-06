@@ -29,7 +29,27 @@ struct EasyRSSApp: App {
                 .environment(store)
         }
 
-        MenuBarExtra("easyRSS", systemImage: "newspaper", isInserted: $showMenuBarIcon) {
+        MenuBarExtra(isInserted: $showMenuBarIcon) {
+            let player = AudioPlayerService.shared
+            if let episode = player.currentEpisode {
+                Text("Now Playing")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(episode.title)
+                    .font(.headline)
+                    .lineLimit(2)
+
+                Button(player.isPlaying ? "Pause Episode" : "Play Episode") {
+                    player.togglePlayPause()
+                }
+
+                Button("Skip Forward 15s") {
+                    player.seek(to: player.currentTime + 15)
+                }
+
+                Divider()
+            }
+
             let unread = store.totalUnreadCount()
             Text("easyRSS")
                 .font(.headline)
@@ -55,6 +75,13 @@ struct EasyRSSApp: App {
 
             Button("Quit easyRSS") {
                 NSApplication.shared.terminate(nil)
+            }
+        } label: {
+            let player = AudioPlayerService.shared
+            if player.isPlaying {
+                Image(systemName: "headphones")
+            } else {
+                Image(systemName: "newspaper")
             }
         }
     }

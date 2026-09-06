@@ -213,3 +213,34 @@
 "Could not reach podcast search directory." = "Podcast arama dizinine ulaşılamadı.";
 "%d episodes" = "%d bölüm";
 
+/* Advanced Podcast & Audio Features */
+"Downloaded" = "İndirilenler";
+"Downloaded Episodes" = "İndirilen Bölümler";
+"No downloaded podcast episodes." = "İndirilmiş podcast bölümü bulunmuyor.";
+"Download Episode" = "Bölümü İndir";
+"Remove Download" = "İndirmeyi Sil";
+"Play Next" = "Sıradakini Oynat";
+"Add to Queue" = "Kuyruğa Ekle";
+"Up Next" = "Sıradaki";
+"Clear Queue" = "Kuyruğu Temizle";
+"Queue is empty" = "Kuyruk boş";
+"Sleep Timer" = "Uyku Zamanlayıcı";
+"Off" = "Kapalı";
+"15 Minutes" = "15 Dakika";
+"30 Minutes" = "30 Dakika";
+"45 Minutes" = "45 Dakika";
+"60 Minutes" = "60 Dakika";
+"End of Episode" = "Bölüm Sonunda";
+"Share at Timestamp" = "Zaman Damgası ile Paylaş";
+"Chapters" = "Bölümler";
+
+/* Smart Folders & Feed Health */
+"Smart Stream" = "Akıllı Akış";
+"Smart Folder Rules" = "Akıllı Klasör Kuralları";
+"Set Smart Rules..." = "Akıllı Kurallar Belirle...";
+"Edit Smart Rules..." = "Akıllı Kuralları Düzenle...";
+"Feed Health" = "Akış Sağlığı";
+"Feed Health Diagnostics" = "Akış Sağlığı Teşhisi";
+"Scan Feeds" = "Akışları Tara";
+"Remove All Broken Feeds" = "Tüm Bozuk Akışları Kaldır";
+

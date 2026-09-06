@@ -19,6 +19,8 @@ struct FeedListView: View {
         case .today: return String(localized: "Today")
         case .bookmarks: return String(localized: "Bookmarks")
         case .podcasts: return String(localized: "Podcasts")
+        case .downloaded: return String(localized: "Downloaded Episodes")
+        case .folder(let id): return store.folders.first(where: { $0.id == id })?.name ?? String(localized: "Folder")
         case .feed(let id): return store.feed(for: id)?.title ?? String(localized: "Feed")
         case nil: return ""
         }
@@ -26,7 +28,7 @@ struct FeedListView: View {
 
     private var showFeedName: Bool {
         switch selection {
-        case .all, .bookmarks, .unread, .today, .podcasts: return true
+        case .all, .bookmarks, .unread, .today, .podcasts, .downloaded, .folder: return true
         default: return false
         }
     }
@@ -51,6 +53,10 @@ struct FeedListView: View {
             base = store.bookmarkedItems()
         case .podcasts:
             base = store.podcastItems()
+        case .downloaded:
+            base = store.downloadedItems()
+        case .folder(let id):
+            base = store.itemsForFolder(id)
         case .feed(let id):
             base = store.itemsForFeed(id)
         case nil:
@@ -289,6 +295,22 @@ struct FeedListView: View {
                 Label("Open in Browser", systemImage: "arrow.up.right.square")
             }
         }
+
+        if item.isPodcast {
+            Divider()
+
+            Button {
+                AudioPlayerService.shared.playNext(item)
+            } label: {
+                Label("Play Next", systemImage: "text.badge.plus")
+            }
+
+            Button {
+                AudioPlayerService.shared.addToQueue(item)
+            } label: {
+                Label("Add to Queue", systemImage: "text.append")
+            }
+        }
     }
 
     // MARK: - Empty State
@@ -330,6 +352,8 @@ struct FeedListView: View {
         case .today: return "clock"
         case .bookmarks: return "star"
         case .podcasts: return "headphones"
+        case .downloaded: return "arrow.down.circle"
+        case .folder: return "folder"
         case .feed: return "newspaper"
         }
     }
@@ -341,6 +365,8 @@ struct FeedListView: View {
         case .today: return String(localized: "No articles from today.")
         case .bookmarks: return String(localized: "No bookmarked articles yet.")
         case .podcasts: return String(localized: "No podcast episodes yet.")
+        case .downloaded: return String(localized: "No downloaded episodes yet.")
+        case .folder: return String(localized: "No articles in this folder yet.")
         case .feed: return String(localized: "No articles in this feed yet.")
         }
     }
@@ -422,10 +448,20 @@ struct FeedItemRow: View {
                         if item.isPodcast {
                             let player = AudioPlayerService.shared
                             let isPlayingThis = player.currentEpisode?.id == item.id && player.isPlaying
+                            let isDownloaded = PodcastDownloadService.shared.isDownloaded(item.id)
                             HStack(spacing: 3) {
-                                Image(systemName: isPlayingThis ? "waveform" : "headphones")
+                                if isPlayingThis {
+                                    EqualizerWaveformView(isPlaying: true, barWidth: 2, maxHeight: 10)
+                                } else {
+                                    Image(systemName: "headphones")
+                                }
                                 if let duration = item.formattedDuration {
                                     Text(duration)
+                                }
+                                if isDownloaded {
+                                    Image(systemName: "arrow.down.circle.fill")
+                                        .font(.system(size: 8))
+                                        .foregroundStyle(.green)
                                 }
                             }
                             .font(.caption2.weight(.medium))

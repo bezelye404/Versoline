@@ -1,10 +1,11 @@
 import SwiftUI
+import AppKit
 
 struct MiniPlayerView: View {
 
     @State private var player = AudioPlayerService.shared
     @Environment(FeedStore.self) private var store
-    @State private var isHovered = false
+    @State private var showQueuePopover = false
 
     private func formatTime(_ seconds: Double) -> String {
         guard seconds.isFinite && !seconds.isNaN && seconds >= 0 else { return "0:00" }
@@ -25,13 +26,21 @@ struct MiniPlayerView: View {
         return "-" + formatTime(remaining)
     }
 
+    private func shareTimestamp(for item: FeedItem) {
+        let text = "\(item.title)\n\(player.shareURLString(for: item))"
+        let picker = NSSharingServicePicker(items: [text])
+        if let window = NSApp.keyWindow, let contentView = window.contentView {
+            picker.show(relativeTo: .zero, of: contentView, preferredEdge: .maxY)
+        }
+    }
+
     var body: some View {
         if let episode = player.currentEpisode {
             VStack(spacing: 0) {
                 Divider()
 
                 HStack(spacing: 16) {
-                    // MARK: - Left: Episode Info & Artwork
+                    // MARK: - Left: Episode Info, Artwork & Equalizer
                     HStack(spacing: 10) {
                         ZStack {
                             RoundedRectangle(cornerRadius: 8)
@@ -48,10 +57,14 @@ struct MiniPlayerView: View {
                         }
 
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(episode.title)
-                                .font(.system(size: 13, weight: .medium))
-                                .lineLimit(1)
-                                .truncationMode(.tail)
+                            HStack(spacing: 6) {
+                                Text(episode.title)
+                                    .font(.system(size: 13, weight: .medium))
+                                    .lineLimit(1)
+                                    .truncationMode(.tail)
+
+                                EqualizerWaveformView(isPlaying: player.isPlaying)
+                            }
 
                             Text(player.currentFeedTitle ?? episode.author ?? String(localized: "Podcast"))
                                 .font(.system(size: 11))
@@ -138,8 +151,8 @@ struct MiniPlayerView: View {
 
                     Spacer(minLength: 8)
 
-                    // MARK: - Right: Speed, Volume & Dismiss
-                    HStack(spacing: 12) {
+                    // MARK: - Right: Tools (Speed, Sleep Timer, Queue, Share, Volume, Close)
+                    HStack(spacing: 10) {
                         // Playback Speed Menu
                         Menu {
                             ForEach(AudioPlayerService.availableRates, id: \.self) { rate in
@@ -166,10 +179,86 @@ struct MiniPlayerView: View {
                         .fixedSize()
                         .help(String(localized: "Playback Speed"))
 
+                        // Sleep Timer Menu
+                        Menu {
+                            Button(String(localized: "Turn Off Timer")) {
+                                player.cancelSleepTimer()
+                            }
+                            Divider()
+                            Button("15 " + String(localized: "minutes")) {
+                                player.startSleepTimer(minutes: 15)
+                            }
+                            Button("30 " + String(localized: "minutes")) {
+                                player.startSleepTimer(minutes: 30)
+                            }
+                            Button("45 " + String(localized: "minutes")) {
+                                player.startSleepTimer(minutes: 45)
+                            }
+                            Button("60 " + String(localized: "minutes")) {
+                                player.startSleepTimer(minutes: 60)
+                            }
+                            Button(String(localized: "End of Episode")) {
+                                player.startSleepTimerUntilEndOfEpisode()
+                            }
+                        } label: {
+                            HStack(spacing: 3) {
+                                Image(systemName: player.sleepTimerRemainingSeconds != nil ? "moon.zzz.fill" : "moon.zzz")
+                                    .font(.system(size: 11))
+                                if let remaining = player.sleepTimerRemainingSeconds {
+                                    Text("\(max(1, remaining / 60))m")
+                                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                                }
+                            }
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 3)
+                            .background(player.sleepTimerRemainingSeconds != nil ? Color.accentColor.opacity(0.18) : Color.secondary.opacity(0.12))
+                            .foregroundStyle(player.sleepTimerRemainingSeconds != nil ? Color.accentColor : Color.secondary)
+                            .clipShape(RoundedRectangle(cornerRadius: 5))
+                        }
+                        .menuStyle(.borderlessButton)
+                        .help(String(localized: "Sleep Timer"))
+
+                        // Up Next Queue Popover
+                        Button {
+                            showQueuePopover.toggle()
+                        } label: {
+                            ZStack(alignment: .topTrailing) {
+                                Image(systemName: "list.bullet")
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(showQueuePopover || !player.queue.isEmpty ? Color.accentColor : Color.secondary)
+
+                                if !player.queue.isEmpty {
+                                    Circle()
+                                        .fill(Color.accentColor)
+                                        .frame(width: 5, height: 5)
+                                        .offset(x: 3, y: -2)
+                                }
+                            }
+                            .padding(4)
+                        }
+                        .buttonStyle(.plain)
+                        .popover(isPresented: $showQueuePopover, arrowEdge: .top) {
+                            QueuePopoverView()
+                                .environment(store)
+                        }
+                        .help(String(localized: "Up Next Queue"))
+
+                        // Share Timestamp Button
+                        Button {
+                            shareTimestamp(for: episode)
+                        } label: {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.system(size: 11))
+                                .foregroundStyle(.secondary)
+                                .padding(4)
+                        }
+                        .buttonStyle(.plain)
+                        .help(String(localized: "Share Episode with Timestamp"))
+
                         // Volume Popover / Slider
                         HStack(spacing: 4) {
                             Image(systemName: player.volume == 0 ? "speaker.slash.fill" : (player.volume < 0.5 ? "speaker.1.fill" : "speaker.3.fill"))
-                                .font(.system(size: 12))
+                                .font(.system(size: 11))
                                 .foregroundStyle(.secondary)
                                 .onTapGesture {
                                     if player.volume > 0 {
@@ -184,7 +273,7 @@ struct MiniPlayerView: View {
                                 in: 0.0...1.0
                             )
                             .controlSize(.mini)
-                            .frame(width: 54)
+                            .frame(width: 48)
                         }
 
                         // Close Player
@@ -200,7 +289,7 @@ struct MiniPlayerView: View {
                         .buttonStyle(.plain)
                         .help(String(localized: "Close Player"))
                     }
-                    .frame(minWidth: 150, alignment: .trailing)
+                    .frame(minWidth: 200, alignment: .trailing)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)

@@ -11,115 +11,15 @@ struct SidebarView: View {
     @State private var newFolderName = ""
     @State private var renamingFolderId: UUID?
     @State private var renameText = ""
+    @State private var editingSmartFolder: Folder?
+    @State private var smartKeywordsText = ""
 
     var body: some View {
         List(selection: $selectedItem) {
-            // Smart Lists
-            Section("Library") {
-                NavigationLink(value: SidebarItem.all) {
-                    Label("All Articles", systemImage: "tray.full")
-                        .badge(store.totalItemCount)
-                }
-
-                NavigationLink(value: SidebarItem.unread) {
-                    Label("Unread", systemImage: "envelope.badge")
-                        .badge(store.totalUnreadCount())
-                }
-
-                NavigationLink(value: SidebarItem.today) {
-                    Label("Today", systemImage: "clock")
-                        .badge(store.todayItemsCount())
-                }
-
-                NavigationLink(value: SidebarItem.bookmarks) {
-                    Label("Bookmarks", systemImage: "star")
-                        .badge(store.bookmarkCount())
-                }
-
-                NavigationLink(value: SidebarItem.podcasts) {
-                    Label("Podcasts", systemImage: "headphones")
-                        .badge(store.podcastCount())
-                }
-
-                Button {
-                    showDiscover = true
-                } label: {
-                    Label("Discover Feeds", systemImage: "safari")
-                }
-                .buttonStyle(.plain)
-            }
-
-            // Folders with feeds
-            ForEach(store.folders) { folder in
-                Section {
-                    ForEach(store.feedsInFolder(folder.id)) { feed in
-                        NavigationLink(value: SidebarItem.feed(feed.id)) {
-                            FeedRow(feed: feed)
-                        }
-                        .contextMenu { feedContextMenu(feed: feed) }
-                    }
-                } header: {
-                    Text(folder.name)
-                        .contextMenu {
-                            Button {
-                                renameText = folder.name
-                                renamingFolderId = folder.id
-                            } label: {
-                                Label("Rename", systemImage: "pencil")
-                            }
-
-                            Button(role: .destructive) {
-                                store.removeFolder(folder.id)
-                            } label: {
-                                Label("Delete Folder", systemImage: "trash")
-                            }
-                        }
-                }
-            }
-
-            // Uncategorized feeds
-            let uncategorized = store.uncategorizedFeeds()
-            if !uncategorized.isEmpty {
-                Section(store.folders.isEmpty ? "Feeds" : "Uncategorized") {
-                    ForEach(uncategorized) { feed in
-                        NavigationLink(value: SidebarItem.feed(feed.id)) {
-                            FeedRow(feed: feed)
-                        }
-                        .contextMenu { feedContextMenu(feed: feed) }
-                    }
-                }
-            }
-
-            // Empty state
-            if store.feeds.isEmpty && store.folders.isEmpty {
-                Section {
-                    VStack(spacing: 12) {
-                        Image(systemName: "newspaper")
-                            .font(.system(size: 36, weight: .light))
-                            .foregroundStyle(.tertiary)
-
-                        Text("No feeds added yet")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-
-                        HStack(spacing: 8) {
-                            Button("Add Feed") {
-                                showAddFeed = true
-                            }
-                            .buttonStyle(.bordered)
-                            .controlSize(.small)
-
-                            Button("Discover") {
-                                showDiscover = true
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .controlSize(.small)
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 24)
-                }
-            }
+            librarySection
+            foldersSection
+            uncategorizedSection
+            emptyStateSection
         }
         .listStyle(.sidebar)
         .navigationTitle("easyRSS")
@@ -178,8 +78,202 @@ struct SidebarView: View {
                 renameText = ""
             }
         }
+        .alert("Smart Folder Rules", isPresented: .init(
+            get: { editingSmartFolder != nil },
+            set: { if !$0 { editingSmartFolder = nil } }
+        )) {
+            TextField("Keywords (comma separated)", text: $smartKeywordsText)
+            Button("Save Rules", action: saveSmartFolderRules)
+            Button("Clear Rules", role: .destructive, action: clearSmartFolderRules)
+            Button("Cancel", role: .cancel) {
+                editingSmartFolder = nil
+                smartKeywordsText = ""
+            }
+        } message: {
+            Text("Enter comma-separated keywords (e.g. apple, swift, ai). Any matching article across all feeds will be aggregated into this folder.")
+        }
         .onChange(of: selectedItem) { _, _ in
             selectedArticle = nil
+        }
+    }
+
+    // MARK: - Sections
+
+    @ViewBuilder
+    private var librarySection: some View {
+        Section("Library") {
+            NavigationLink(value: SidebarItem.all) {
+                Label("All Articles", systemImage: "tray.full")
+                    .badge(store.totalItemCount)
+            }
+
+            NavigationLink(value: SidebarItem.unread) {
+                Label("Unread", systemImage: "envelope.badge")
+                    .badge(store.totalUnreadCount())
+            }
+
+            NavigationLink(value: SidebarItem.today) {
+                Label("Today", systemImage: "clock")
+                    .badge(store.todayItemsCount())
+            }
+
+            NavigationLink(value: SidebarItem.bookmarks) {
+                Label("Bookmarks", systemImage: "star")
+                    .badge(store.bookmarkCount())
+            }
+
+            NavigationLink(value: SidebarItem.podcasts) {
+                Label("Podcasts", systemImage: "headphones")
+                    .badge(store.podcastCount())
+            }
+
+            let downloadedCount = store.downloadedItems().count
+            if downloadedCount > 0 {
+                NavigationLink(value: SidebarItem.downloaded) {
+                    Label("Downloaded", systemImage: "arrow.down.circle")
+                        .badge(downloadedCount)
+                }
+            }
+
+            Button {
+                showDiscover = true
+            } label: {
+                Label("Discover Feeds", systemImage: "safari")
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    @ViewBuilder
+    private var foldersSection: some View {
+        ForEach(store.folders) { folder in
+            Section {
+                FolderStreamRow(folder: folder)
+
+                ForEach(store.feedsInFolder(folder.id)) { feed in
+                    NavigationLink(value: SidebarItem.feed(feed.id)) {
+                        FeedRow(feed: feed)
+                    }
+                    .contextMenu { feedContextMenu(feed: feed) }
+                }
+            } header: {
+                folderHeader(for: folder)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var uncategorizedSection: some View {
+        let uncategorized = store.uncategorizedFeeds()
+        if !uncategorized.isEmpty {
+            Section(store.folders.isEmpty ? "Feeds" : "Uncategorized") {
+                ForEach(uncategorized) { feed in
+                    NavigationLink(value: SidebarItem.feed(feed.id)) {
+                        FeedRow(feed: feed)
+                    }
+                    .contextMenu { feedContextMenu(feed: feed) }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var emptyStateSection: some View {
+        if store.feeds.isEmpty && store.folders.isEmpty {
+            Section {
+                VStack(spacing: 12) {
+                    Image(systemName: "newspaper")
+                        .font(.system(size: 36, weight: .light))
+                        .foregroundStyle(.tertiary)
+
+                    Text("No feeds added yet")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+
+                    HStack(spacing: 8) {
+                        Button("Add Feed") {
+                            showAddFeed = true
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+
+                        Button("Discover") {
+                            showDiscover = true
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.small)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 24)
+            }
+        }
+    }
+
+    // MARK: - Smart Folder Helpers
+
+    private func saveSmartFolderRules() {
+        guard let folder = editingSmartFolder else { return }
+        var parsedKeywords: [String] = []
+        for rawPart in smartKeywordsText.components(separatedBy: ",") {
+            let trimmed = rawPart.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty {
+                parsedKeywords.append(trimmed)
+            }
+        }
+        let finalKeywords: [String]? = parsedKeywords.isEmpty ? nil : parsedKeywords
+        store.updateFolderKeywords(folder.id, keywords: finalKeywords)
+        editingSmartFolder = nil
+        smartKeywordsText = ""
+    }
+
+    private func clearSmartFolderRules() {
+        guard let folder = editingSmartFolder else { return }
+        store.updateFolderKeywords(folder.id, keywords: nil)
+        editingSmartFolder = nil
+        smartKeywordsText = ""
+    }
+
+    // MARK: - Folder Header
+
+    @ViewBuilder
+    private func folderHeader(for folder: Folder) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: folder.isSmartFolder ? "folder.badge.gearshape" : "folder")
+                .foregroundStyle(folder.isSmartFolder ? Color.accentColor : Color.secondary)
+            Text(folder.name)
+                .fontWeight(.medium)
+            if folder.isSmartFolder {
+                Text("Smart")
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundStyle(.tint)
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 1)
+                    .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 3))
+            }
+        }
+        .contextMenu {
+            Button {
+                smartKeywordsText = folder.keywords?.joined(separator: ", ") ?? ""
+                editingSmartFolder = folder
+            } label: {
+                Label(folder.isSmartFolder ? "Edit Smart Rules..." : "Set Smart Rules...", systemImage: "sparkles")
+            }
+
+            Divider()
+
+            Button {
+                renameText = folder.name
+                renamingFolderId = folder.id
+            } label: {
+                Label("Rename", systemImage: "pencil")
+            }
+
+            Button(role: .destructive) {
+                store.removeFolder(folder.id)
+            } label: {
+                Label("Delete Folder", systemImage: "trash")
+            }
         }
     }
 
@@ -239,6 +333,26 @@ struct SidebarView: View {
             store.removeFeed(feed)
         } label: {
             Label("Delete Feed", systemImage: "trash")
+        }
+    }
+}
+
+// MARK: - Folder Stream Row
+
+struct FolderStreamRow: View {
+
+    @Environment(FeedStore.self) private var store
+    let folder: Folder
+
+    var body: some View {
+        NavigationLink(value: SidebarItem.folder(folder.id)) {
+            if folder.isSmartFolder {
+                Label("Smart Stream", systemImage: "sparkles")
+                    .badge(store.itemsForFolder(folder.id).count)
+            } else {
+                Label("All in Folder", systemImage: "tray.2")
+                    .badge(store.itemsForFolder(folder.id).count)
+            }
         }
     }
 }

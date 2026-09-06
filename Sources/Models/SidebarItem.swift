@@ -6,6 +6,8 @@ enum SidebarItem: Hashable, Identifiable {
     case today
     case bookmarks
     case podcasts
+    case downloaded
+    case folder(UUID)
     case feed(UUID)
 
     var id: String {
@@ -15,6 +17,8 @@ enum SidebarItem: Hashable, Identifiable {
         case .today: return "sidebar-today"
         case .bookmarks: return "sidebar-bookmarks"
         case .podcasts: return "sidebar-podcasts"
+        case .downloaded: return "sidebar-downloaded"
+        case .folder(let uuid): return "sidebar-folder-\(uuid.uuidString)"
         case .feed(let uuid): return "sidebar-feed-\(uuid.uuidString)"
         }
     }
