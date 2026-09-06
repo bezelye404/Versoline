@@ -7,7 +7,7 @@ final class ContentBlockerService {
 
     static let shared = ContentBlockerService()
 
-    private let ruleListIdentifier = "EasyRSSContentBlockerRules-v1"
+    private let ruleListIdentifier = "EasyRSSContentBlockerRules-v2"
     private(set) var ruleList: WKContentRuleList?
     private(set) var isReady: Bool = false
 
@@ -29,7 +29,7 @@ final class ContentBlockerService {
         if let cached = await lookupRuleList(store: store) {
             self.ruleList = cached
             self.isReady = true
-            AppLogger.shared.log("Pre-compiled content blocker rules loaded from store cache.", level: .info, category: .system)
+            AppLogger.shared.log("Pre-compiled content blocker rules (v2) loaded from store cache.", level: .info, category: .system)
             return
         }
 
@@ -57,7 +57,7 @@ final class ContentBlockerService {
                     } else if let compiled = compiled {
                         self?.ruleList = compiled
                         self?.isReady = true
-                        AppLogger.shared.log("Successfully compiled native WebKit content blocker rules.", level: .info, category: .system)
+                        AppLogger.shared.log("Successfully compiled native WebKit content blocker rules (v2).", level: .info, category: .system)
                     }
                     continuation.resume()
                 }
@@ -72,6 +72,15 @@ private enum ContentBlockerRules {
 
     static let rulesJSON: String = """
     [
+      {
+        "trigger": {
+          "url-filter": ".*",
+          "resource-type": ["popup"]
+        },
+        "action": {
+          "type": "block"
+        }
+      },
       {
         "trigger": {
           "url-filter": ".*",
@@ -92,6 +101,14 @@ private enum ContentBlockerRules {
             "*popads.net",
             "*propellerads.com",
             "*popcash.net",
+            "*adsterra.com",
+            "*adcash.com",
+            "*clickadu.com",
+            "*exoclick.com",
+            "*hilltopads.com",
+            "*monetag.com",
+            "*mgid.com",
+            "*yektanet.com",
             "*rubiconproject.com",
             "*pubmatic.com",
             "*openx.net",
@@ -108,7 +125,24 @@ private enum ContentBlockerRules {
             "*admatic.com.tr",
             "*medyanet.com.tr",
             "*gemius.pl",
-            "*gemius.com"
+            "*gemius.com",
+            "*connatix.com",
+            "*teads.tv",
+            "*teads.com",
+            "*primis.tech",
+            "*aniview.com",
+            "*vidoomy.com",
+            "*anyclip.com",
+            "*brid.tv",
+            "*casalemedia.com",
+            "*smartadserver.com",
+            "*yieldmo.com",
+            "*triplelift.com",
+            "*sharethrough.com",
+            "*sovrn.com",
+            "*indexexchange.com",
+            "*admiral.com",
+            "*fundingchoicesmessages.google.com"
           ]
         },
         "action": {
@@ -121,7 +155,7 @@ private enum ContentBlockerRules {
         },
         "action": {
           "type": "css-display-none",
-          "selector": ".advertisement, .ad-banner, .adsbygoogle, .taboola-container, #outbrain, div[id^='google_ads_'], div[id^='div-gpt-ad'], div[id^='ad-banner'], .sponsor-post, .dfp-ad, #ad-slot, ins.adsbygoogle, .ad-wrapper, .ad-container"
+          "selector": ".advertisement, .ad-banner, .adsbygoogle, .taboola-container, #outbrain, div[id^='google_ads_'], div[id^='div-gpt-ad'], div[id^='ad-banner'], .sponsor-post, .dfp-ad, #ad-slot, ins.adsbygoogle, .ad-wrapper, .ad-container, [class*='ad-banner'], [class*='ad-modal'], [class*='popup-ad'], [id*='popup-ad'], [class*='newsletter-popup'], [class*='sticky-ad'], [id*='sticky-ad'], [class*='floating-ad'], [class*='ad-interstitial'], [id*='ad-interstitial'], .connatix-slot, .teads-inread, [class*='sponsored-post'], [class*='promoted-content'], [id^='taboola-'], [class^='outbrain-']"
         }
       }
     ]

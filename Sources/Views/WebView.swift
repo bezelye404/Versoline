@@ -47,6 +47,7 @@ struct WebView: NSViewRepresentable {
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.defaultWebpagePreferences.allowsContentJavaScript = true
+        config.preferences.javaScriptCanOpenWindowsAutomatically = false
 
         // Attach Content Blocker ONLY for external live web URLs when enabled
         if url != nil && isContentBlockerEnabled,
@@ -56,6 +57,7 @@ struct WebView: NSViewRepresentable {
 
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
+        webView.uiDelegate = context.coordinator
         applyBackgroundColor(to: webView)
         return webView
     }
@@ -182,7 +184,7 @@ struct WebView: NSViewRepresentable {
         """
     }
 
-    class Coordinator: NSObject, WKNavigationDelegate {
+    class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         var lastLoadedHTML: String?
         var lastLoadedURL: URL?
         var lastFontSize: Int?
@@ -190,6 +192,20 @@ struct WebView: NSViewRepresentable {
         var lastFontFamily: ReaderFontFamily?
         var lastLineHeight: ReaderLineHeight?
         var lastContentBlockerEnabled: Bool?
+
+        // Suppress automatic popup webviews (window.open, target=_blank)
+        func webView(
+            _ webView: WKWebView,
+            createWebViewWith configuration: WKWebViewConfiguration,
+            for navigationAction: WKNavigationAction,
+            windowFeatures: WKWindowFeatures
+        ) -> WKWebView? {
+            if navigationAction.navigationType == .linkActivated,
+               let url = navigationAction.request.url {
+                NSWorkspace.shared.open(url)
+            }
+            return nil
+        }
 
         func webView(
             _ webView: WKWebView,
@@ -199,6 +215,13 @@ struct WebView: NSViewRepresentable {
             if navigationAction.navigationType == .linkActivated,
                let url = navigationAction.request.url {
                 NSWorkspace.shared.open(url)
+                decisionHandler(.cancel)
+            } else if navigationAction.targetFrame == nil {
+                // Popup or unprompted new tab attempt
+                if navigationAction.navigationType == .linkActivated,
+                   let url = navigationAction.request.url {
+                    NSWorkspace.shared.open(url)
+                }
                 decisionHandler(.cancel)
             } else {
                 decisionHandler(.allow)
