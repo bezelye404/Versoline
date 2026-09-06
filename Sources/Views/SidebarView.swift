@@ -127,7 +127,7 @@ struct SidebarView: View {
                     .badge(store.podcastCount())
             }
 
-            let downloadedCount = store.downloadedItems().count
+            let downloadedCount = store.downloadedItemsCount()
             if downloadedCount > 0 {
                 NavigationLink(value: SidebarItem.downloaded) {
                     Label("Downloaded", systemImage: "arrow.down.circle")

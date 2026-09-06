@@ -3,7 +3,7 @@ import AppKit
 
 struct MiniPlayerView: View {
 
-    @State private var player = AudioPlayerService.shared
+    @Bindable private var player = AudioPlayerService.shared
     @Environment(FeedStore.self) private var store
     @State private var showQueuePopover = false
 

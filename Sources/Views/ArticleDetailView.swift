@@ -191,12 +191,8 @@ struct ArticleDetailView: View {
                         Image(systemName: isPlaying ? "pause.fill" : "play.fill")
                             .font(.system(size: 13, weight: .bold))
 
-                        Text(isPlaying ? String(localized: "Pause") : (
-                            isCurrentEpisode ? String(localized: "Resume") : (
-                                (item.playbackPosition > 5 && !item.isFinished) ? String(format: String(localized: "Resume (%@)"), formatDuration(item.playbackPosition)) : String(localized: "Play Episode")
-                            )
-                        ))
-                        .font(.system(size: 12, weight: .semibold))
+                        Text(podcastPlayButtonTitle(for: item, isPlaying: isPlaying, isCurrentEpisode: isCurrentEpisode))
+                            .font(.system(size: 12, weight: .semibold))
                     }
                     .padding(.horizontal, 14)
                     .padding(.vertical, 7)
@@ -340,6 +336,18 @@ struct ArticleDetailView: View {
         )
     }
 
+    private func podcastPlayButtonTitle(for item: FeedItem, isPlaying: Bool, isCurrentEpisode: Bool) -> String {
+        if isPlaying {
+            return String(localized: "Pause")
+        } else if isCurrentEpisode {
+            return String(localized: "Resume")
+        } else if item.playbackPosition > 5 && !item.isFinished {
+            return String(format: String(localized: "Resume (%@)"), formatDuration(item.playbackPosition))
+        } else {
+            return String(localized: "Play Episode")
+        }
+    }
+
     private func formatDuration(_ seconds: Double) -> String {
         guard seconds.isFinite && seconds >= 0 else { return "0:00" }
         let total = Int(seconds)
@@ -353,12 +361,18 @@ struct ArticleDetailView: View {
         }
     }
 
+    private static let chapterRegex = try? NSRegularExpression(
+        pattern: #"(?:^|\s)(?:(\d{1,2}):)?(\d{1,2}):(\d{2})\s*[-–—]?\s*([^\n\r<]{3,60})"#,
+        options: [.anchorsMatchLines]
+    )
+
     private func parseChapters(from text: String) -> [PodcastChapter] {
-        let pattern = #"(?:^|\s)(?:(\d{1,2}):)?(\d{1,2}):(\d{2})\s*[-–—]?\s*([^\n\r<]{3,60})"#
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: [.anchorsMatchLines]) else { return [] }
+        guard let regex = Self.chapterRegex else { return [] }
         let ns = text as NSString
         let matches = regex.matches(in: text, range: NSRange(location: 0, length: ns.length))
+        guard !matches.isEmpty else { return [] }
         var chapters: [PodcastChapter] = []
+        chapters.reserveCapacity(matches.count)
 
         for match in matches {
             let hStr = match.range(at: 1).location != NSNotFound ? ns.substring(with: match.range(at: 1)) : nil
@@ -482,15 +496,7 @@ struct ArticleDetailView: View {
             .fixedSize()
             .help(String(localized: "Appearance"))
 
-            // Share Link
-            if let url = URL(string: item.link) {
-                ShareLink(item: url, subject: Text(item.title)) {
-                    Image(systemName: "square.and.arrow.up")
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.borderless)
-                .help(String(localized: "Share"))
-            }
+
 
             // Bookmark toggle
             Button {
@@ -683,16 +689,14 @@ struct ArticleDetailView: View {
     }
 
     private func cleanTextForSpeech(item: FeedItem) -> String {
-        let raw = item.title + ". " + (item.content ?? item.itemDescription)
-        return raw.replacingOccurrences(of: "<[^>]+>", with: " ", options: .regularExpression)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let content = (item.content ?? item.itemDescription).strippingHTML()
+        return "\(item.title). \(content)".trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     // MARK: - Reading Time Calculation
 
     private func calculateReadingTime(item: FeedItem) -> String {
-        let text = (item.content ?? item.itemDescription)
-            .replacingOccurrences(of: "<[^>]+>", with: " ", options: .regularExpression)
+        let text = (item.content ?? item.itemDescription).strippingHTML()
         let words = text.split(whereSeparator: { $0.isWhitespace }).count
         let minutes = max(1, Int(ceil(Double(words) / 200.0)))
         return String(format: String(localized: "%d min read"), minutes)

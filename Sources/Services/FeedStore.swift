@@ -432,19 +432,26 @@ final class FeedStore {
     func itemsForFolder(_ folderId: UUID) -> [FeedItem] {
         let folder = folders.first(where: { $0.id == folderId })
         let folderFeedIds = Set(feeds.filter { $0.folderId == folderId }.map { $0.id })
-        let directItems = items
-            .filter { folderFeedIds.contains($0.key) }
-            .values.flatMap { $0 }
+        var directItems: [FeedItem] = []
+        for (feedId, feedItems) in items where folderFeedIds.contains(feedId) {
+            directItems.append(contentsOf: feedItems)
+        }
 
         if let keywords = folder?.keywords, !keywords.isEmpty {
             let lowerKeywords = keywords.map { $0.lowercased().trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
-            let matchingItems = allItems().filter { item in
-                let titleLower = item.title.lowercased()
-                let descLower = item.itemDescription.lowercased()
-                return lowerKeywords.contains { kw in titleLower.contains(kw) || descLower.contains(kw) }
+            var seenIDs = Set(directItems.map(\.id))
+            var matchingItems: [FeedItem] = []
+            for list in items.values {
+                for item in list where !seenIDs.contains(item.id) {
+                    let titleLower = item.title.lowercased()
+                    let descLower = item.itemDescription.lowercased()
+                    if lowerKeywords.contains(where: { kw in titleLower.contains(kw) || descLower.contains(kw) }) {
+                        seenIDs.insert(item.id)
+                        matchingItems.append(item)
+                    }
+                }
             }
-            let combined = Array(Set(directItems + matchingItems))
-            return combined.sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
+            directItems.append(contentsOf: matchingItems)
         }
 
         return directItems.sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
@@ -457,10 +464,28 @@ final class FeedStore {
         }
     }
 
+    func downloadedItemsCount() -> Int {
+        let downloadedIDs = PodcastDownloadService.shared.downloadedEpisodeIDs
+        guard !downloadedIDs.isEmpty else { return 0 }
+        var count = 0
+        for list in items.values {
+            for item in list where downloadedIDs.contains(item.id) {
+                count += 1
+            }
+        }
+        return count
+    }
+
     func downloadedItems() -> [FeedItem] {
         let downloadedIDs = PodcastDownloadService.shared.downloadedEpisodeIDs
         guard !downloadedIDs.isEmpty else { return [] }
-        return allItems().filter { downloadedIDs.contains($0.id) }
+        var result: [FeedItem] = []
+        for list in items.values {
+            for item in list where downloadedIDs.contains(item.id) {
+                result.append(item)
+            }
+        }
+        return result.sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
     }
 
     // MARK: - OPML Import/Export

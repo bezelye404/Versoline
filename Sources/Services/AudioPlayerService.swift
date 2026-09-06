@@ -29,18 +29,18 @@ final class AudioPlayerService {
     // Sleep Timer
     var sleepTimerRemainingSeconds: Int? = nil
     var sleepTimerTotalSeconds: Int? = nil
-    private var sleepTimerTask: Task<Void, Never>?
-    private var preFadeVolume: Float = 1.0
+    @ObservationIgnored private var sleepTimerTask: Task<Void, Never>?
+    @ObservationIgnored private var preFadeVolume: Float = 1.0
 
     // Supported playback speeds
     static let availableRates: [Float] = [0.75, 1.0, 1.25, 1.5, 2.0]
 
-    private var player: AVPlayer?
-    private var timeObserverToken: Any?
-    private var statusObserver: NSKeyValueObservation?
-    private weak var feedStore: FeedStore?
-    private var lastSavedPosition: Double = 0.0
-    private var commandsConfigured = false
+    @ObservationIgnored private var player: AVPlayer?
+    @ObservationIgnored private var timeObserverToken: Any?
+    @ObservationIgnored private var statusObserver: NSKeyValueObservation?
+    @ObservationIgnored private weak var feedStore: FeedStore?
+    @ObservationIgnored private var lastSavedPosition: Double = 0.0
+    @ObservationIgnored private var commandsConfigured = false
 
     private init() {
         setupRemoteCommands()

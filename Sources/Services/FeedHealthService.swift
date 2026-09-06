@@ -6,7 +6,7 @@ final class FeedHealthService {
 
     static let shared = FeedHealthService()
 
-    enum HealthStatus: Hashable {
+    enum HealthStatus: Hashable, Sendable {
         case healthy
         case stale(days: Int)
         case broken(reason: String)
@@ -19,7 +19,7 @@ final class FeedHealthService {
         }
     }
 
-    struct FeedHealthReport: Identifiable, Hashable {
+    struct FeedHealthReport: Identifiable, Hashable, Sendable {
         let id: UUID
         let feedTitle: String
         let feedURL: String
@@ -44,55 +44,36 @@ final class FeedHealthService {
         reports = []
         AppLogger.shared.log("Starting Feed Health Diagnostics scan for \(store.feeds.count) feeds...", level: .info, category: .network)
 
+        // Snapshot feed metadata on main thread first
+        let feedSnapshots: [(feed: Feed, latestDate: Date?)] = store.feeds.map { feed in
+            let latestDate = store.itemsForFeed(feed.id).first?.pubDate
+            return (feed, latestDate)
+        }
+
+        let maxConcurrent = 6
         var newReports: [FeedHealthReport] = []
 
-        for feed in store.feeds {
-            let items = store.itemsForFeed(feed.id)
-            let latestDate = items.first?.pubDate
+        await withTaskGroup(of: FeedHealthReport.self) { group in
+            var iterator = feedSnapshots.makeIterator()
 
-            var status: HealthStatus = .healthy
-
-            if let latestDate {
-                let daysOld = Calendar.current.dateComponents([.day], from: latestDate, to: Date()).day ?? 0
-                if daysOld > 180 {
-                    status = .stale(days: daysOld)
+            // Seed initial pool
+            for _ in 0..<maxConcurrent {
+                if let next = iterator.next() {
+                    group.addTask {
+                        await self.checkFeed(next.feed, latestDate: next.latestDate)
+                    }
                 }
             }
 
-            // Quick HTTP validation
-            if let url = URL(string: feed.url) {
-                var request = URLRequest(url: url)
-                request.httpMethod = "HEAD"
-                request.timeoutInterval = 6
-
-                do {
-                    let (_, response) = try await session.data(for: request)
-                    if let http = response as? HTTPURLResponse, !(200...399).contains(http.statusCode) {
-                        status = .broken(reason: "HTTP \(http.statusCode)")
-                    }
-                } catch {
-                    // Fallback to GET with Range 0-512 in case server rejects HEAD
-                    var getReq = URLRequest(url: url)
-                    getReq.setValue("bytes=0-512", forHTTPHeaderField: "Range")
-                    getReq.timeoutInterval = 6
-                    if let (_, getResp) = try? await session.data(for: getReq),
-                       let http = getResp as? HTTPURLResponse, (200...399).contains(http.statusCode) {
-                        // Healthy
-                    } else {
-                        status = .broken(reason: error.localizedDescription)
+            // As each finishes, add the next
+            for await report in group {
+                newReports.append(report)
+                if let next = iterator.next() {
+                    group.addTask {
+                        await self.checkFeed(next.feed, latestDate: next.latestDate)
                     }
                 }
-            } else {
-                status = .broken(reason: "Invalid URL")
             }
-
-            newReports.append(FeedHealthReport(
-                id: feed.id,
-                feedTitle: feed.title,
-                feedURL: feed.url,
-                status: status,
-                lastItemDate: latestDate
-            ))
         }
 
         self.reports = newReports.sorted { (a, b) -> Bool in
@@ -100,6 +81,52 @@ final class FeedHealthService {
         }
         self.isScanning = false
         AppLogger.shared.log("Feed Health Diagnostics complete. \(newReports.filter { $0.status.isProblematic }.count) issues found.", level: .info, category: .network)
+    }
+
+    private func checkFeed(_ feed: Feed, latestDate: Date?) async -> FeedHealthReport {
+        var status: HealthStatus = .healthy
+
+        if let latestDate {
+            let daysOld = Calendar.current.dateComponents([.day], from: latestDate, to: Date()).day ?? 0
+            if daysOld > 180 {
+                status = .stale(days: daysOld)
+            }
+        }
+
+        // Quick HTTP validation
+        if let url = URL(string: feed.url) {
+            var request = URLRequest(url: url)
+            request.httpMethod = "HEAD"
+            request.timeoutInterval = 6
+
+            do {
+                let (_, response) = try await session.data(for: request)
+                if let http = response as? HTTPURLResponse, !(200...399).contains(http.statusCode) {
+                    status = .broken(reason: "HTTP \(http.statusCode)")
+                }
+            } catch {
+                // Fallback to GET with Range 0-512 in case server rejects HEAD
+                var getReq = URLRequest(url: url)
+                getReq.setValue("bytes=0-512", forHTTPHeaderField: "Range")
+                getReq.timeoutInterval = 6
+                if let (_, getResp) = try? await session.data(for: getReq),
+                   let http = getResp as? HTTPURLResponse, (200...399).contains(http.statusCode) {
+                    // Healthy
+                } else {
+                    status = .broken(reason: error.localizedDescription)
+                }
+            }
+        } else {
+            status = .broken(reason: "Invalid URL")
+        }
+
+        return FeedHealthReport(
+            id: feed.id,
+            feedTitle: feed.title,
+            feedURL: feed.url,
+            status: status,
+            lastItemDate: latestDate
+        )
     }
 
     func removeFeed(_ report: FeedHealthReport, store: FeedStore) {
