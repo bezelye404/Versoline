@@ -3,6 +3,7 @@ import SwiftUI
 enum AddFeedTab: String, CaseIterable, Identifiable {
     case customURL
     case curatedCatalog
+    case podcastSearch
 
     var id: String { rawValue }
 
@@ -12,6 +13,8 @@ enum AddFeedTab: String, CaseIterable, Identifiable {
             return String(localized: "Custom URL")
         case .curatedCatalog:
             return String(localized: "Curated Catalog (rss.md)")
+        case .podcastSearch:
+            return String(localized: "Podcast Search")
         }
     }
 
@@ -21,6 +24,8 @@ enum AddFeedTab: String, CaseIterable, Identifiable {
             return "link"
         case .curatedCatalog:
             return "sparkles.rectangle.stack"
+        case .podcastSearch:
+            return "waveform.and.magnifyingglass"
         }
     }
 }
@@ -92,15 +97,18 @@ struct AddFeedSheet: View {
 
             Divider()
 
-            if selectedTab == .customURL {
+            switch selectedTab {
+            case .customURL:
                 customURLView
-            } else {
+            case .curatedCatalog:
                 curatedCatalogView
+            case .podcastSearch:
+                PodcastSearchView()
             }
         }
         .frame(
-            width: selectedTab == .curatedCatalog ? 580 : 460,
-            height: selectedTab == .curatedCatalog ? 520 : 440
+            width: selectedTab == .customURL ? 460 : 640,
+            height: selectedTab == .customURL ? 480 : 560
         )
         .animation(.easeInOut(duration: 0.2), value: selectedTab)
     }
@@ -183,7 +191,56 @@ struct AddFeedSheet: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
-                                .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                                .stroke(Color.secondary.opacity(0.15), lineWidth: 1)
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    // Podcast Search Banner
+                    Button {
+                        selectedTab = .podcastSearch
+                    } label: {
+                        HStack(spacing: 12) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.orange.opacity(0.12))
+                                    .frame(width: 36, height: 36)
+                                Image(systemName: "waveform.and.magnifyingglass")
+                                    .font(.system(size: 16))
+                                    .foregroundStyle(.orange)
+                            }
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                HStack {
+                                    Text(String(localized: "Podcast Search Engine"))
+                                        .font(.subheadline.weight(.semibold))
+                                        .foregroundStyle(.primary)
+
+                                    Spacer()
+
+                                    Text(String(localized: "Finder"))
+                                        .font(.caption2.weight(.medium))
+                                        .foregroundStyle(.orange)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.orange.opacity(0.1), in: Capsule())
+                                }
+
+                                Text(String(localized: "Search millions of podcasts and find RSS feeds"))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                        }
+                        .padding(10)
+                        .background(Color(nsColor: .controlBackgroundColor))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.secondary.opacity(0.15), lineWidth: 1)
                         )
                     }
                     .buttonStyle(.plain)

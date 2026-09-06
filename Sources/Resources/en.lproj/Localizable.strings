@@ -195,3 +195,21 @@
 "Close Player" = "Close Player";
 "Audio" = "Audio";
 
+/* Podcast Search */
+"Podcast Search" = "Podcast Search";
+"Podcast Search Engine" = "Podcast Search Engine";
+"Finder" = "Finder";
+"Find Podcasts..." = "Find Podcasts...";
+"Find Podcasts (Search Engine)..." = "Find Podcasts (Search Engine)...";
+"Search millions of podcasts and find RSS feeds" = "Search millions of podcasts and find RSS feeds";
+"Search podcasts by name, host, or topic..." = "Search podcasts by name, host, or topic...";
+"Popular:" = "Popular:";
+"Searching podcast directory..." = "Searching podcast directory...";
+"No podcasts found" = "No podcasts found";
+"We couldn't find any podcast matching \"%@\"." = "We couldn't find any podcast matching \"%@\".";
+"Copy RSS" = "Copy RSS";
+"Copied!" = "Copied!";
+"Copy RSS Feed URL to clipboard" = "Copy RSS Feed URL to clipboard";
+"Could not reach podcast search directory." = "Could not reach podcast search directory.";
+"%d episodes" = "%d episodes";
+

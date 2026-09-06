@@ -195,3 +195,21 @@
 "Close Player" = "Oynatıcıyı Kapat";
 "Audio" = "Ses";
 
+/* Podcast Search */
+"Podcast Search" = "Podcast Arama";
+"Podcast Search Engine" = "Podcast Arama Motoru";
+"Finder" = "Bulucu";
+"Find Podcasts..." = "Podcast Ara...";
+"Find Podcasts (Search Engine)..." = "Podcast Ara (Arama Motoru)...";
+"Search millions of podcasts and find RSS feeds" = "Milyonlarca podcast ara ve RSS akışını bul";
+"Search podcasts by name, host, or topic..." = "İsim, sunucu veya konuya göre podcast ara...";
+"Popular:" = "Popüler:";
+"Searching podcast directory..." = "Podcast dizininde aranıyor...";
+"No podcasts found" = "Podcast bulunamadı";
+"We couldn't find any podcast matching \"%@\"." = "\"%@\" ile eşleşen bir podcast bulunamadı.";
+"Copy RSS" = "RSS Kopyala";
+"Copied!" = "Kopyalandı!";
+"Copy RSS Feed URL to clipboard" = "Podcast RSS bağlantısını panoya kopyala";
+"Could not reach podcast search directory." = "Podcast arama dizinine ulaşılamadı.";
+"%d episodes" = "%d bölüm";
+

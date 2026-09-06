@@ -6,6 +6,7 @@ struct FeedListView: View {
     let selection: SidebarItem?
     @Binding var selectedArticle: FeedItem?
     @State private var searchText = ""
+    @State private var showPodcastSearch = false
 
     @AppStorage(AppSettingsKeys.enableSingleKeyShortcuts) private var enableSingleKeyShortcuts = true
     @AppStorage(AppSettingsKeys.mutedKeywords) private var mutedKeywordsRaw = ""
@@ -302,6 +303,21 @@ struct FeedListView: View {
             Text(emptyStateText(for: item))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+
+            if item == .podcasts {
+                Button {
+                    showPodcastSearch = true
+                } label: {
+                    Label(String(localized: "Find Podcasts..."), systemImage: "waveform.and.magnifyingglass")
+                        .font(.system(size: 13, weight: .medium))
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.regular)
+                .padding(.top, 4)
+                .sheet(isPresented: $showPodcastSearch) {
+                    AddFeedSheet(initialTab: .podcastSearch)
+                }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationTitle(title)

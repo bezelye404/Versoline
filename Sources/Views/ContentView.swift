@@ -70,6 +70,13 @@ struct ContentView: View {
                         Label("Browse Curated Feeds (rss.md)...", systemImage: "sparkles.rectangle.stack")
                     }
 
+                    Button {
+                        addFeedTab = .podcastSearch
+                        showAddFeed = true
+                    } label: {
+                        Label("Find Podcasts (Search Engine)...", systemImage: "waveform.and.magnifyingglass")
+                    }
+
                     Divider()
 
                     Button {
