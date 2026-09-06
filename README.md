@@ -1,47 +1,74 @@
 # easyRSS
 
-A fast, lightweight, and native RSS reader designed specifically for macOS. Built with Swift and SwiftUI for maximum performance, minimal resource usage, and a seamless desktop experience.
+A native RSS, podcast, and social feed reader built for macOS. Written in Swift and SwiftUI with zero third-party dependencies.
 
 ---
 
-## Overview
+## Features
 
-easyRSS is designed to give you complete control over your news feeds without algorithmic timelines, telemetry, or clutter. It focuses on clean typography, keyboard navigation, and fast offline-first reading.
+### Feeds & Content
 
-### Key Highlights
+- **RSS & Atom**: Supports standard RSS 2.0 and Atom feeds.
+- **YouTube Channels**: Paste any channel handle (`@.........`), channel URL, or channel name to automatically resolve and subscribe to its video feed.
+- **Subreddits & Users**: Add feeds for any subreddit or Reddit user with custom sorting (`hot`, `new`, `top`, `rising`) and time filters.
+- **Podcasts**:
+  - In-app iTunes podcast search engine.
+  - Streaming audio playback with mini player, scrub bar, playback speed (0.75x–2.0x), and sleep timer.
+  - Offline episode download management (`.mp3`).
+  - Chapter and timestamp detection with instant jump.
+- **Curated Catalog**: 460+ verified feeds across tech, news, science, podcasts, and video channels, automatically synced from remote CDN with local caching.
+- **OPML Support**: Import and export OPML 2.0 subscription lists.
 
-- **Pure Native Experience**: Built using SwiftUI and WebKit specifically for macOS (14.0+ Sonoma and later).
-- **Distraction-Free Reader Mode**: Clean typography, customizable font sizes, and customizable themes that strip out unnecessary web clutter.
-- **In-App Web Browser with Native Ad & Popup Blocking**:
-  - Integrated WebKit Content Blocker rule engine targeting over 75 global and regional ad networks.
-  - Hardened JavaScript-level popup, pop-under, and dialog neutralizer.
-  - Completely isolated from local RSS reader content.
-- **Privacy & Local Storage**: No account required, no remote servers, zero tracking. All feeds, bookmarks, and read states are saved locally on your Mac.
-- **OPML 2.0 Compatibility**: Seamlessly import existing feed lists or export your subscriptions anytime.
-- **Offline Capable**: Read previously fetched articles without an active internet connection.
+### Reading Experience
+
+- **Reader Mode**: Distraction-free article view stripping ads, wrappers, and tracking scripts.
+- **Customizable Typography**: 5 themes (System, Light, Sepia, Dark, OLED Black), 4 font families, adjustable font size, and line spacing.
+- **In-App Web Browser**: Optional live WebKit browser mode equipped with a built-in content blocker targeting ad and tracking networks.
+- **Text-to-Speech**: Native system speech synthesis for reading articles aloud.
+- **Smart Folders**: Keyword-based rule engine that dynamically groups matching articles from any feed into folders.
+
+### Power-User & Shortcuts
+
+- **Single-Key Navigation**: Vim-style single-key shortcuts (toggleable in Settings):
+  - `J` / `K`: Next / Previous article
+  - `M`: Toggle Read / Unread
+  - `S`: Toggle Bookmark
+  - `O`: Open in external browser
+- **External Browser Integration**: Open links in Safari, Chrome, Arc, Brave, Firefox, or the system default browser.
 
 ---
 
-### Feeds List
+## Architecture & Privacy
 
-The curated feed collection in [`rss.md`](rss.md) is provided by [@joshuawalcher](https://github.com/joshuawalcher) from [joshuawalcher/rssfeeds](https://github.com/joshuawalcher/rssfeeds).
-
----
-
-### Download & Installation
-
-Download the latest `.dmg` installer from the **[Releases](../../releases)** page.
+- **Zero External Dependencies**: Uses only Apple system frameworks (`SwiftUI`, `WebKit`, `AVFoundation`, `MediaPlayer`, `Network`).
+- **Offline First**: Articles, downloaded episodes, favicons, and feeds are stored locally in `~/Library/Application Support/EasyRSS`.
+- **No Accounts, No Telemetry**: No third-party analytics, no account requirements, and no intermediary servers. Requests are made directly between your Mac and the feed hosts.
 
 ---
 
 ## Requirements
 
-- **Operating System**: macOS 14.0 (Sonoma) or newer
-- **Architecture**: Apple Silicon (M-series) and Intel (x86_64)
-- **Development Toolchain**: Xcode 15.0+ / Swift 5.9+
+- **Operating System**: macOS 15.0 (Sequoia) or newer
+- **Architecture**: Apple Silicon (arm64) & Intel (x86_64)
+- **Build Tools**: Xcode 16.0+ / Swift 6.0, `xcodegen`
+
+---
+
+## Building from Source
+
+```bash
+git clone https://github.com/bezelye404/easyRSS.git
+cd easyRSS
+
+# Generate Xcode project
+xcodegen generate
+
+# Build release binary
+xcodebuild -project EasyRSS.xcodeproj -scheme EasyRSS -configuration Release build
+```
 
 ---
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+MIT License. See [LICENSE](LICENSE) for details.

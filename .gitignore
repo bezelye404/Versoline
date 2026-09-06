@@ -33,6 +33,8 @@ Caches/
 Favicons/
 ReaderCache/
 ContentBlockerCache/
+Downloads/
+curated_feeds_cache.json
 *.contentblocker
 *.rulelist
 
