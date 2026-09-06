@@ -1,5 +1,5 @@
 # ==============================================================================
-# easyRSS - .gitignore (Privacy & Security Focused)
+# easyRSS - .gitignore (Privacy, Security & Apple Developer Focused)
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
@@ -30,12 +30,14 @@ cache/
 Cache/
 caches/
 Caches/
+Favicons/
 
 # ------------------------------------------------------------------------------
 # 2. Kimlik Doğrulama, Sertifikalar, Anahtarlar & Çevresel Değişkenler
 # ------------------------------------------------------------------------------
 .env
 .env.*
+*.env
 *.key
 *.pem
 *.cer
@@ -52,13 +54,17 @@ Caches/
 *Credential*
 
 # ------------------------------------------------------------------------------
-# 3. Geçici, Yedek & Paketleme Dosyaları
+# 3. Geçici, Yedek, Test & Paketleme Dosyaları
 # ------------------------------------------------------------------------------
 *.tmp
 *.temp
 *.bak
 *.swp
 *~
+*.orig
+*.rej
+*.patch
+*.diff
 *.dmg
 *.pkg
 *.app
@@ -66,17 +72,23 @@ Caches/
 *.zip
 *.tar.gz
 *.tgz
+scratch/
+test-results/
+coverage/
 
 # ------------------------------------------------------------------------------
-# 4. Xcode & Swift Package Manager Derleme ve Kullanıcı Verileri
+# 4. Xcode, XcodeGen & Swift Package Manager Derleme Dosyaları
 # ------------------------------------------------------------------------------
 .build/
 build/
 DerivedData/
+derivedData/
 Packages/
 Package.pins
 Package.resolved
 .swiftpm/
+.xcodegen/
+.xcodegen-cache/
 
 # Xcode Kullanıcı Özelleştirmeleri (Kişisel pencere düzenleri, breakpoint'ler vb.)
 xcuserdata/
@@ -89,12 +101,16 @@ UserInterfaceState.xcuserstate
 *.moved-aside
 *.xcresult
 *.xccoverage
+*.xccovreport
+*.xcactivitylog
+*.xcbkptlist
 *.xcarchive
-*.dSYM
+*.dSYM/
 *.dSYM.zip
+*.hmap
 
 # ------------------------------------------------------------------------------
-# 5. macOS Sistem Dosyaları
+# 5. macOS & OS Sistem Dosyaları
 # ------------------------------------------------------------------------------
 .DS_Store
 .DS_Store?
@@ -103,9 +119,13 @@ UserInterfaceState.xcuserstate
 .Trashes
 Icon?
 ehthumbs.db
+Thumbs.db
+Desktop.ini
+.AppleDouble
+.LSOverride
 
 # ------------------------------------------------------------------------------
-# 6. Editörler & Yapay Zeka / Geliştirme Araçları
+# 6. Editörler, Geliştirme Ortamları & Yapay Zeka Araçları
 # ------------------------------------------------------------------------------
 .vscode/
 .idea/
@@ -115,3 +135,17 @@ ehthumbs.db
 .gemini/
 .cursor/
 .claude/
+.antigravity/
+.windsurf/
+.copilot/
+
+# ------------------------------------------------------------------------------
+# 7. Python & Yardımcı Betik Kalıntıları
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+env/

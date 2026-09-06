@@ -19,11 +19,13 @@ targets:
       - path: Sources
         excludes:
           - "Resources/EasyRSS.entitlements"
+          - "Resources/Info.plist"
     settings:
       base:
         PRODUCT_NAME: EasyRSS
         PRODUCT_BUNDLE_IDENTIFIER: com.bezelye.EasyRSS
         GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_FILE: Sources/Resources/Info.plist
         INFOPLIST_KEY_CFBundleDisplayName: EasyRSS
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.news
         INFOPLIST_KEY_NSHumanReadableCopyright: "Copyright © 2026 bezelye404. All rights reserved."
