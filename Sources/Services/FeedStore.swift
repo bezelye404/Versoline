@@ -47,12 +47,17 @@ final class FeedStore {
     // MARK: - Feed Management
 
     func addFeed(url: String, folderId: UUID? = nil) async {
-        let trimmedURL = url.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedURL.isEmpty else { return }
+        var targetURL = url.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !targetURL.isEmpty else { return }
 
-        if feeds.contains(where: { $0.url == trimmedURL }) {
+        // Transparently resolve YouTube or Reddit links to valid RSS feeds
+        if let resolvedURL = await SocialFeedResolver.shared.smartDetectAndResolve(url: targetURL) {
+            targetURL = resolvedURL
+        }
+
+        if feeds.contains(where: { $0.url == targetURL }) {
             errorMessage = String(localized: "This feed has already been added.")
-            AppLogger.shared.log("Feed already added: \(trimmedURL)", level: .warning, category: .ui)
+            AppLogger.shared.log("Feed already added: \(targetURL)", level: .warning, category: .ui)
             return
         }
 
@@ -60,22 +65,22 @@ final class FeedStore {
         errorMessage = nil
 
         let newFeedId = UUID()
-        AppLogger.shared.log("Adding feed: \(trimmedURL)", level: .info, category: .network)
+        AppLogger.shared.log("Adding feed: \(targetURL)", level: .info, category: .network)
 
         do {
-            let result = try await Self.fetchFeed(url: trimmedURL, feedId: newFeedId)
+            let result = try await Self.fetchFeed(url: targetURL, feedId: newFeedId)
 
             guard let result else {
                 errorMessage = String(localized: "Could not parse feed. Please ensure it is a valid RSS/Atom URL.")
-                AppLogger.shared.log("Parse failed for new feed: \(trimmedURL)", level: .error, category: .parser)
+                AppLogger.shared.log("Parse failed for new feed: \(targetURL)", level: .error, category: .parser)
                 isLoading = false
                 return
             }
 
             let feed = Feed(
                 id: newFeedId,
-                title: result.title.isEmpty ? trimmedURL : result.title,
-                url: trimmedURL,
+                title: result.title.isEmpty ? targetURL : result.title,
+                url: targetURL,
                 description: result.description,
                 imageURL: result.imageURL,
                 lastUpdated: Date(),
@@ -90,7 +95,7 @@ final class FeedStore {
         } catch {
             let errorMsg = String(format: String(localized: "Failed to load feed: %@"), error.localizedDescription)
             errorMessage = errorMsg
-            AppLogger.shared.log(errorMsg, level: .error, category: .network, details: trimmedURL)
+            AppLogger.shared.log(errorMsg, level: .error, category: .network, details: targetURL)
             isLoading = false
         }
     }
@@ -144,6 +149,9 @@ final class FeedStore {
                     running += 1
                     group.addTask {
                         do {
+                            if feed.url.lowercased().contains("reddit.com") {
+                                try? await Task.sleep(nanoseconds: 500_000_000)
+                            }
                             let result = try await Self.fetchFeed(url: feed.url, feedId: feed.id)
                             return (feed.id, result)
                         } catch {

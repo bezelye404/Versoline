@@ -78,10 +78,29 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         let startTime = CFAbsoluteTimeGetCurrent()
         await AppLogger.shared.log("Fetching feed: \(feedURL.host ?? url)", level: .info, category: .network, details: url)
 
-        let (data, response) = try await session.data(from: feedURL)
+        var request = URLRequest(url: feedURL)
+        if feedURL.host?.lowercased().contains("reddit.com") == true {
+            request.setValue("EasyRSS/1.0 (macOS; com.bezelye.EasyRSS; build 1) (by /u/EasyRSSApp)", forHTTPHeaderField: "User-Agent")
+        } else {
+            request.setValue("EasyRSS/1.0 (Macintosh; Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko)", forHTTPHeaderField: "User-Agent")
+        }
+
+        let (data, response) = try await session.data(for: request)
 
         if let httpResponse = response as? HTTPURLResponse {
             let elapsed = String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - startTime)
+            if httpResponse.statusCode == 429 {
+                let reset = httpResponse.value(forHTTPHeaderField: "x-ratelimit-reset") ?? ""
+                let resetInfo = reset.isEmpty ? "" : " (Reset: \(reset)s)"
+                let limitMsg = String(localized: "Rate limit reached (HTTP 429). Please wait a moment before trying again.") + resetInfo
+                await AppLogger.shared.log(
+                    "Rate limit 429 returned for \(url). \(limitMsg)",
+                    level: .warning,
+                    category: .network
+                )
+                throw NSError(domain: "EasyRSSNetwork", code: 429, userInfo: [NSLocalizedDescriptionKey: limitMsg])
+            }
+
             if (200...299).contains(httpResponse.statusCode) {
                 await AppLogger.shared.log(
                     "HTTP \(httpResponse.statusCode) (\(data.count) bytes, \(elapsed)) from \(feedURL.host ?? url)",
@@ -226,7 +245,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
                 }
             }
 
-        case "description", "subtitle", "summary":
+        case "description", "subtitle", "summary", "media:description":
             if isInsideItem {
                 currentDescription += trimmed
             } else if isInsideChannel {

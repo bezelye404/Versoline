@@ -2,6 +2,7 @@ import SwiftUI
 
 enum AddFeedTab: String, CaseIterable, Identifiable {
     case customURL
+    case socialFeeds
     case curatedCatalog
     case podcastSearch
 
@@ -11,8 +12,10 @@ enum AddFeedTab: String, CaseIterable, Identifiable {
         switch self {
         case .customURL:
             return String(localized: "Custom URL")
+        case .socialFeeds:
+            return String(localized: "YouTube & Reddit")
         case .curatedCatalog:
-            return String(localized: "Curated Catalog (rss.md)")
+            return String(localized: "Curated Catalog")
         case .podcastSearch:
             return String(localized: "Podcast Search")
         }
@@ -22,6 +25,8 @@ enum AddFeedTab: String, CaseIterable, Identifiable {
         switch self {
         case .customURL:
             return "link"
+        case .socialFeeds:
+            return "play.rectangle.on.rectangle"
         case .curatedCatalog:
             return "sparkles.rectangle.stack"
         case .podcastSearch:
@@ -100,6 +105,8 @@ struct AddFeedSheet: View {
             switch selectedTab {
             case .customURL:
                 customURLView
+            case .socialFeeds:
+                SocialFeedsView()
             case .curatedCatalog:
                 curatedCatalogView
             case .podcastSearch:
@@ -107,8 +114,8 @@ struct AddFeedSheet: View {
             }
         }
         .frame(
-            width: selectedTab == .customURL ? 460 : 640,
-            height: selectedTab == .customURL ? 480 : 560
+            width: selectedTab == .customURL ? 460 : (selectedTab == .socialFeeds ? 560 : 640),
+            height: selectedTab == .customURL ? 510 : (selectedTab == .socialFeeds ? 540 : 560)
         )
         .animation(.easeInOut(duration: 0.2), value: selectedTab)
     }
@@ -227,6 +234,55 @@ struct AddFeedSheet: View {
                                 }
 
                                 Text(String(localized: "Search millions of podcasts and find RSS feeds"))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                        }
+                        .padding(10)
+                        .background(Color(nsColor: .controlBackgroundColor))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.secondary.opacity(0.15), lineWidth: 1)
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    // YouTube & Reddit Feeds Banner
+                    Button {
+                        selectedTab = .socialFeeds
+                    } label: {
+                        HStack(spacing: 12) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.red.opacity(0.12))
+                                    .frame(width: 36, height: 36)
+                                Image(systemName: "play.rectangle.on.rectangle")
+                                    .font(.system(size: 16))
+                                    .foregroundStyle(.red)
+                            }
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                HStack {
+                                    Text(String(localized: "YouTube & Reddit Feeds"))
+                                        .font(.subheadline.weight(.semibold))
+                                        .foregroundStyle(.primary)
+
+                                    Spacer()
+
+                                    Text(String(localized: "Generator"))
+                                        .font(.caption2.weight(.medium))
+                                        .foregroundStyle(.red)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.red.opacity(0.1), in: Capsule())
+                                }
+
+                                Text(String(localized: "Subscribe to channels, playlists, subreddits & users"))
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
