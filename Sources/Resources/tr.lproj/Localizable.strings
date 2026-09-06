@@ -75,6 +75,15 @@
 "No articles in this feed yet." = "Bu feed'de henüz makale yok.";
 "Feed" = "Feed";
 "Select an article" = "Bir makale seçin";
-"Select an article from the list on the left to read." = "Okumak için soldaki listeden bir makale seçin.";
 "Content not available." = "İçerik mevcut değil.";
 
+/* Errors & Messages */
+"This feed has already been added." = "Bu feed zaten eklenmiş.";
+"Could not parse feed. Please ensure it is a valid RSS/Atom URL." = "Feed ayrıştırılamadı. Geçerli bir RSS/Atom URL'si olduğundan emin olun.";
+"Failed to load feed: %@" = "Feed yüklenemedi: %@";
+"Refresh failed: %@" = "Yenileme başarısız: %@";
+
+/* Developer Console */
+"Console" = "Konsol";
+"Developer Console" = "Geliştirici Konsolu";
+"Developer Console (Cmd+Option+C)" = "Geliştirici Konsolu (Cmd+Option+C)";

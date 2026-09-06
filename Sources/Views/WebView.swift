@@ -30,12 +30,24 @@ struct WebView: NSViewRepresentable {
     }
 
     func updateNSView(_ webView: WKWebView, context: Context) {
+        let coordinator = context.coordinator
+
         if let html = html {
-            let styledHTML = wrapInTemplate(html)
-            webView.loadHTMLString(styledHTML, baseURL: nil)
+            // Only reload if content or font size actually changed
+            if coordinator.lastLoadedHTML != html || coordinator.lastFontSize != fontSize {
+                coordinator.lastLoadedHTML = html
+                coordinator.lastFontSize = fontSize
+                coordinator.lastLoadedURL = nil
+                let styledHTML = wrapInTemplate(html)
+                webView.loadHTMLString(styledHTML, baseURL: nil)
+            }
         } else if let url = url {
-            let request = URLRequest(url: url)
-            webView.load(request)
+            if coordinator.lastLoadedURL != url {
+                coordinator.lastLoadedURL = url
+                coordinator.lastLoadedHTML = nil
+                let request = URLRequest(url: url)
+                webView.load(request)
+            }
         }
     }
 
@@ -101,6 +113,10 @@ struct WebView: NSViewRepresentable {
     }
 
     class Coordinator: NSObject, WKNavigationDelegate {
+        var lastLoadedHTML: String?
+        var lastLoadedURL: URL?
+        var lastFontSize: Int?
+
         @MainActor
         func webView(
             _ webView: WKWebView,

@@ -23,6 +23,17 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
     // Atom support
     private var isAtomFeed: Bool = false
 
+    // URLSession with custom User-Agent and timeout
+    private static let session: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 15
+        config.timeoutIntervalForResource = 30
+        config.httpAdditionalHeaders = [
+            "User-Agent": "EasyRSS/1.0 (Macintosh; Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko)"
+        ]
+        return URLSession(configuration: config)
+    }()
+
     init(feedId: UUID) {
         self.feedId = feedId
         super.init()
@@ -54,12 +65,55 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
 
     static func fetchAndParse(url: String, feedId: UUID) async throws -> ParseResult? {
         guard let feedURL = URL(string: url) else {
+            await AppLogger.shared.log("Invalid feed URL: \(url)", level: .error, category: .network)
             throw URLError(.badURL)
         }
 
-        let (data, _) = try await URLSession.shared.data(from: feedURL)
+        let startTime = CFAbsoluteTimeGetCurrent()
+        await AppLogger.shared.log("Fetching feed: \(feedURL.host ?? url)", level: .info, category: .network, details: url)
+
+        let (data, response) = try await session.data(from: feedURL)
+
+        if let httpResponse = response as? HTTPURLResponse {
+            let elapsed = String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - startTime)
+            if (200...299).contains(httpResponse.statusCode) {
+                await AppLogger.shared.log(
+                    "HTTP \(httpResponse.statusCode) (\(data.count) bytes, \(elapsed)) from \(feedURL.host ?? url)",
+                    level: .info,
+                    category: .network
+                )
+            } else {
+                await AppLogger.shared.log(
+                    "HTTP \(httpResponse.statusCode) returned for \(url)",
+                    level: .warning,
+                    category: .network,
+                    details: "Status code: \(httpResponse.statusCode)"
+                )
+            }
+        }
+
+        let parseStart = CFAbsoluteTimeGetCurrent()
         let parser = RSSParser(feedId: feedId)
-        return parser.parse(data: data)
+        let result = parser.parse(data: data)
+        let parseElapsed = String(format: "%.3fs", CFAbsoluteTimeGetCurrent() - parseStart)
+
+        if let result {
+            await AppLogger.shared.log(
+                "Parsed \"\(result.title)\" - \(result.items.count) items in \(parseElapsed)",
+                level: .info,
+                category: .parser,
+                details: "Feed ID: \(feedId)"
+            )
+        } else {
+            await AppLogger.shared.log(
+                "Failed to parse XML from \(url)",
+                level: .error,
+                category: .parser,
+                details: "Data size: \(data.count) bytes"
+            )
+        }
+
+        return result
     }
 
     // MARK: - XMLParserDelegate
@@ -75,7 +129,6 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
 
         switch elementName.lowercased() {
         case "feed":
-            // Atom feed
             isAtomFeed = true
             isInsideChannel = true
 
@@ -97,21 +150,16 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
             }
 
         case "link":
-            // Atom feeds use <link href="..." /> attribute
             if isAtomFeed {
                 if let href = attributeDict["href"] {
                     let rel = attributeDict["rel"] ?? "alternate"
-                    if rel == "alternate" || rel == "" {
+                    if rel == "alternate" || rel.isEmpty {
                         if isInsideItem {
                             currentLink = href
                         }
                     }
                 }
             }
-
-        case "enclosure", "media:content":
-            // Could capture media URL if needed
-            break
 
         default:
             break
@@ -207,44 +255,67 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
     }
 
     func parser(_ parser: XMLParser, parseErrorOccurred parseError: Error) {
-        // Silently handle parse errors — many feeds have minor issues
+        let line = parser.lineNumber
+        let col = parser.columnNumber
+        let errDesc = parseError.localizedDescription
+        Task { @MainActor in
+            AppLogger.shared.log(
+                "XMLParser warning/error at line \(line), col \(col): \(errDesc)",
+                level: .warning,
+                category: .parser
+            )
+        }
     }
 
-    // MARK: - Date Parsing
+    // MARK: - Date Parsing (Cached & High Performance)
 
-    private func parseDate(_ string: String) -> Date? {
-        if string.isEmpty { return nil }
-
-        let formatters: [(String, Bool)] = [
+    private static let cachedDateFormatters: [DateFormatter] = {
+        let formats: [(String, Bool)] = [
             // RSS 2.0 (RFC 822)
             ("EEE, dd MMM yyyy HH:mm:ss Z", true),
             ("EEE, dd MMM yyyy HH:mm:ss zzz", true),
             ("dd MMM yyyy HH:mm:ss Z", true),
+            ("EEE, dd MMM yy HH:mm:ss Z", true),
             // Atom (ISO 8601)
             ("yyyy-MM-dd'T'HH:mm:ssZ", false),
             ("yyyy-MM-dd'T'HH:mm:ss.SSSZ", false),
             ("yyyy-MM-dd'T'HH:mm:ssXXXXX", false),
             ("yyyy-MM-dd", false),
         ]
-
-        for (format, isEnglish) in formatters {
-            let formatter = DateFormatter()
-            formatter.dateFormat = format
+        return formats.map { format, isEnglish in
+            let df = DateFormatter()
+            df.dateFormat = format
             if isEnglish {
-                formatter.locale = Locale(identifier: "en_US_POSIX")
+                df.locale = Locale(identifier: "en_US_POSIX")
             }
+            return df
+        }
+    }()
+
+    private nonisolated(unsafe) static let isoFormatterWithFractional: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return f
+    }()
+
+    private nonisolated(unsafe) static let isoFormatterStandard: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime]
+        return f
+    }()
+
+    private func parseDate(_ string: String) -> Date? {
+        if string.isEmpty { return nil }
+
+        for formatter in Self.cachedDateFormatters {
             if let date = formatter.date(from: string) {
                 return date
             }
         }
 
-        // Try ISO8601DateFormatter as fallback
-        let isoFormatter = ISO8601DateFormatter()
-        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        if let date = isoFormatter.date(from: string) {
+        if let date = Self.isoFormatterWithFractional.date(from: string) {
             return date
         }
-        isoFormatter.formatOptions = [.withInternetDateTime]
-        return isoFormatter.date(from: string)
+        return Self.isoFormatterStandard.date(from: string)
     }
 }

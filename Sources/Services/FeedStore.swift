@@ -28,7 +28,8 @@ final class FeedStore {
         guard !trimmedURL.isEmpty else { return }
 
         if feeds.contains(where: { $0.url == trimmedURL }) {
-            errorMessage = "Bu feed zaten eklenmiş."
+            errorMessage = String(localized: "This feed has already been added.")
+            AppLogger.shared.log("Feed already added: \(trimmedURL)", level: .warning, category: .ui)
             return
         }
 
@@ -36,12 +37,14 @@ final class FeedStore {
         errorMessage = nil
 
         let newFeedId = UUID()
+        AppLogger.shared.log("Adding feed: \(trimmedURL)", level: .info, category: .network)
 
         do {
             let result = try await Self.fetchFeed(url: trimmedURL, feedId: newFeedId)
 
             guard let result else {
-                errorMessage = "Feed parse edilemedi. Geçerli bir RSS/Atom URL'si olduğundan emin olun."
+                errorMessage = String(localized: "Could not parse feed. Please ensure it is a valid RSS/Atom URL.")
+                AppLogger.shared.log("Parse failed for new feed: \(trimmedURL)", level: .error, category: .parser)
                 isLoading = false
                 return
             }
@@ -60,13 +63,17 @@ final class FeedStore {
             items[newFeedId] = result.items
             isLoading = false
             save()
+            AppLogger.shared.log("Successfully added feed \"\(feed.title)\" with \(result.items.count) items", level: .info, category: .storage)
         } catch {
-            errorMessage = "Feed yüklenemedi: \(error.localizedDescription)"
+            let errorMsg = String(format: String(localized: "Failed to load feed: %@"), error.localizedDescription)
+            errorMessage = errorMsg
+            AppLogger.shared.log(errorMsg, level: .error, category: .network, details: trimmedURL)
             isLoading = false
         }
     }
 
     func removeFeed(_ feed: Feed) {
+        AppLogger.shared.log("Removing feed \"\(feed.title)\"", level: .info, category: .storage)
         feeds.removeAll { $0.id == feed.id }
         items.removeValue(forKey: feed.id)
         save()
@@ -75,6 +82,7 @@ final class FeedStore {
     func refreshFeed(_ feed: Feed) async {
         isLoading = true
         errorMessage = nil
+        AppLogger.shared.log("Refreshing single feed: \"\(feed.title)\"", level: .info, category: .network)
 
         do {
             let result = try await Self.fetchFeed(url: feed.url, feedId: feed.id)
@@ -84,42 +92,83 @@ final class FeedStore {
                 return
             }
 
-            // Preserve read and bookmark status
-            let existingItems = items[feed.id] ?? []
-            let readLinks = Set(existingItems.filter { $0.isRead }.map { $0.link })
-            let bookmarkedLinks = Set(existingItems.filter { $0.isBookmarked }.map { $0.link })
-
-            let updatedItems = result.items.map { item in
-                var mutableItem = item
-                if readLinks.contains(item.link) {
-                    mutableItem.isRead = true
-                }
-                if bookmarkedLinks.contains(item.link) {
-                    mutableItem.isBookmarked = true
-                }
-                return mutableItem
-            }
-
-            items[feed.id] = updatedItems
-
-            if let index = feeds.firstIndex(where: { $0.id == feed.id }) {
-                feeds[index].lastUpdated = Date()
-                if !result.title.isEmpty {
-                    feeds[index].title = result.title
-                }
-            }
-
+            applyFeedUpdate(feedId: feed.id, result: result)
             isLoading = false
             save()
         } catch {
-            errorMessage = "Yenileme başarısız: \(error.localizedDescription)"
+            let errorMsg = String(format: String(localized: "Refresh failed: %@"), error.localizedDescription)
+            errorMessage = errorMsg
+            AppLogger.shared.log(errorMsg, level: .error, category: .network, details: feed.url)
             isLoading = false
         }
     }
 
     func refreshAllFeeds() async {
-        for feed in feeds {
-            await refreshFeed(feed)
+        guard !feeds.isEmpty else { return }
+        isLoading = true
+        errorMessage = nil
+        AppLogger.shared.log("Starting concurrent refresh for \(feeds.count) feeds", level: .info, category: .network)
+
+        let feedsToRefresh = self.feeds
+
+        await withTaskGroup(of: (UUID, RSSParser.ParseResult?)?.self) { group in
+            var running = 0
+            var feedIterator = feedsToRefresh.makeIterator()
+
+            while running > 0 || true {
+                // Keep up to 4 concurrent network requests active
+                while running < 4, let feed = feedIterator.next() {
+                    running += 1
+                    group.addTask {
+                        do {
+                            let result = try await Self.fetchFeed(url: feed.url, feedId: feed.id)
+                            return (feed.id, result)
+                        } catch {
+                            await AppLogger.shared.log("Error refreshing \"\(feed.title)\": \(error.localizedDescription)", level: .error, category: .network)
+                            return nil
+                        }
+                    }
+                }
+
+                if running == 0 { break }
+
+                if let finished = await group.next() {
+                    running -= 1
+                    if let (feedId, result) = finished, let result {
+                        self.applyFeedUpdate(feedId: feedId, result: result)
+                    }
+                }
+            }
+        }
+
+        isLoading = false
+        save()
+        AppLogger.shared.log("All feeds refresh finished", level: .info, category: .network)
+    }
+
+    private func applyFeedUpdate(feedId: UUID, result: RSSParser.ParseResult) {
+        let existingItems = items[feedId] ?? []
+        let readLinks = Set(existingItems.filter { $0.isRead }.map { $0.link })
+        let bookmarkedLinks = Set(existingItems.filter { $0.isBookmarked }.map { $0.link })
+
+        let updatedItems = result.items.map { item in
+            var mutableItem = item
+            if readLinks.contains(item.link) {
+                mutableItem.isRead = true
+            }
+            if bookmarkedLinks.contains(item.link) {
+                mutableItem.isBookmarked = true
+            }
+            return mutableItem
+        }
+
+        items[feedId] = updatedItems
+
+        if let index = feeds.firstIndex(where: { $0.id == feedId }) {
+            feeds[index].lastUpdated = Date()
+            if !result.title.isEmpty {
+                feeds[index].title = result.title
+            }
         }
     }
 
@@ -128,11 +177,13 @@ final class FeedStore {
     func addFolder(name: String) {
         let folder = Folder(name: name)
         folders.append(folder)
+        AppLogger.shared.log("Added folder: \"\(name)\"", level: .info, category: .storage)
         save()
     }
 
     func removeFolder(_ folderId: UUID) {
-        // Move feeds out of folder first
+        let folderName = folders.first(where: { $0.id == folderId })?.name ?? folderId.uuidString
+        AppLogger.shared.log("Removed folder: \"\(folderName)\"", level: .info, category: .storage)
         for i in feeds.indices {
             if feeds[i].folderId == folderId {
                 feeds[i].folderId = nil
@@ -144,7 +195,9 @@ final class FeedStore {
 
     func renameFolder(_ folderId: UUID, name: String) {
         if let index = folders.firstIndex(where: { $0.id == folderId }) {
+            let old = folders[index].name
             folders[index].name = name
+            AppLogger.shared.log("Renamed folder \"\(old)\" -> \"\(name)\"", level: .info, category: .storage)
             save()
         }
     }
@@ -285,9 +338,9 @@ final class FeedStore {
 
         isLoading = true
         errorMessage = nil
+        AppLogger.shared.log("Importing OPML with \(opmlFeeds.count) discovered feed links", level: .info, category: .storage)
 
         for opmlFeed in opmlFeeds {
-            // Find or create folder
             var folderId: UUID?
             if let folderName = opmlFeed.folderName, !folderName.isEmpty {
                 if let existing = folders.first(where: { $0.name == folderName }) {
@@ -299,7 +352,6 @@ final class FeedStore {
                 }
             }
 
-            // Skip if feed already exists
             guard !feeds.contains(where: { $0.url == opmlFeed.xmlUrl }) else { continue }
 
             let feedId = UUID()
@@ -319,7 +371,6 @@ final class FeedStore {
                     items[feedId] = result.items
                 }
             } catch {
-                // Add feed entry even if fetch fails
                 let feed = Feed(
                     id: feedId,
                     title: opmlFeed.title,
@@ -332,6 +383,7 @@ final class FeedStore {
 
         isLoading = false
         save()
+        AppLogger.shared.log("OPML import finished. Total feeds now: \(feeds.count)", level: .info, category: .storage)
     }
 
     func generateOPMLString() -> String {
@@ -362,14 +414,18 @@ final class FeedStore {
             let jsonData = try encoder.encode(data)
             let fileURL = saveURL.appendingPathComponent("data.json")
             try jsonData.write(to: fileURL, options: .atomic)
+            AppLogger.shared.log("Saved database to disk (\(jsonData.count) bytes)", level: .debug, category: .storage)
         } catch {
-            print("Kaydetme hatası: \(error)")
+            AppLogger.shared.log("Save error: \(error.localizedDescription)", level: .error, category: .storage)
         }
     }
 
     private func load() {
         let fileURL = saveURL.appendingPathComponent("data.json")
-        guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
+        guard FileManager.default.fileExists(atPath: fileURL.path) else {
+            AppLogger.shared.log("No existing database file found at \(fileURL.path)", level: .info, category: .storage)
+            return
+        }
 
         do {
             let data = try Data(contentsOf: fileURL)
@@ -379,8 +435,14 @@ final class FeedStore {
             self.feeds = storage.feeds
             self.items = storage.items
             self.folders = storage.folders ?? []
+            let totalItemsCount = self.items.values.reduce(0) { $0 + $1.count }
+            AppLogger.shared.log(
+                "Loaded database: \(feeds.count) feeds, \(folders.count) folders, \(totalItemsCount) articles",
+                level: .info,
+                category: .storage
+            )
         } catch {
-            print("Yükleme hatası: \(error)")
+            AppLogger.shared.log("Database load error: \(error.localizedDescription)", level: .error, category: .storage)
         }
     }
 }

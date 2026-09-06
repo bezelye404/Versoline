@@ -7,6 +7,7 @@ struct ContentView: View {
     @State private var selectedSidebarItem: SidebarItem?
     @State private var selectedArticle: FeedItem?
     @State private var showAddFeed = false
+    @State private var showConsole = false
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @AppStorage("isCompactListMode") private var isCompactListMode = false
 
@@ -27,8 +28,7 @@ struct ContentView: View {
             ToolbarItemGroup(placement: .primaryAction) {
                 if store.isLoading {
                     ProgressView()
-                        .scaleEffect(0.7)
-                        .frame(width: 16, height: 16)
+                        .controlSize(.small)
                 }
 
                 Button {
@@ -73,10 +73,21 @@ struct ContentView: View {
                     Label("More", systemImage: "ellipsis.circle")
                 }
                 .help("Import/Export OPML")
+
+                Button {
+                    showConsole = true
+                } label: {
+                    Label("Console", systemImage: "terminal")
+                }
+                .help("Developer Console (Cmd+Option+C)")
+                .keyboardShortcut("c", modifiers: [.command, .option])
             }
         }
         .sheet(isPresented: $showAddFeed) {
             AddFeedSheet()
+        }
+        .sheet(isPresented: $showConsole) {
+            ConsoleView()
         }
         .alert("Error", isPresented: .init(
             get: { store.errorMessage != nil },
