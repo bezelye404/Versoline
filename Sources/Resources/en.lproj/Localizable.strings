@@ -171,3 +171,10 @@
 "Read Aloud" = "Read Aloud";
 "%d min read" = "%d min read";
 
+/* Content Blocker */
+"Content Blocker Active (Click to Disable)" = "Content Blocker Active (Click to Disable)";
+"Content Blocker Disabled (Click to Enable)" = "Content Blocker Disabled (Click to Enable)";
+"Web Browser & Privacy" = "Web Browser & Privacy";
+"Block Ads & Trackers (WebKit Content Blocker)" = "Block Ads & Trackers (WebKit Content Blocker)";
+"Enables native WebKit content blocking for live web browsing. Blocks advertising networks, analytics trackers, and popup scripts while keeping RSS feeds untouched." = "Enables native WebKit content blocking for live web browsing. Blocks advertising networks, analytics trackers, and popup scripts while keeping RSS feeds untouched.";
+

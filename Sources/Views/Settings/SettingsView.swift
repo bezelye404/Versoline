@@ -56,6 +56,7 @@ private struct GeneralSettingsTab: View {
     @AppStorage(AppSettingsKeys.showMenuBarIcon) private var showMenuBarIcon = false
     @AppStorage(AppSettingsKeys.preferredExternalBrowser) private var preferredExternalBrowserRaw = ExternalBrowserOption.systemDefault.rawValue
     @AppStorage(AppSettingsKeys.offlinePrecacheEnabled) private var offlinePrecacheEnabled = false
+    @AppStorage(AppSettingsKeys.isContentBlockerEnabled) private var isContentBlockerEnabled = true
 
     var body: some View {
         Form {
@@ -76,6 +77,13 @@ private struct GeneralSettingsTab: View {
             Section {
                 Toggle("Show Menu Bar Icon", isOn: $showMenuBarIcon)
                 Text("Keeps an easyRSS status icon in your macOS top menu bar with an unread badge.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section("Web Browser & Privacy") {
+                Toggle("Block Ads & Trackers (WebKit Content Blocker)", isOn: $isContentBlockerEnabled)
+                Text("Enables native WebKit content blocking for live web browsing. Blocks advertising networks, analytics trackers, and popup scripts while keeping RSS feeds untouched.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

@@ -10,7 +10,7 @@ struct ContentView: View {
     @State private var addFeedTab: AddFeedTab = .customURL
     @State private var showConsole = false
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
-    @AppStorage("isCompactListMode") private var isCompactListMode = false
+    @AppStorage(AppSettingsKeys.isCompactListMode) private var isCompactListMode = false
 
     // 30 minutes (1800 seconds) auto-refresh timer
     let autoRefreshTimer = Timer.publish(every: 1800, on: .main, in: .common).autoconnect()

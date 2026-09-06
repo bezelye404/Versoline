@@ -171,3 +171,10 @@
 "Read Aloud" = "Sesli Oku";
 "%d min read" = "%d dk okuma";
 
+/* Content Blocker */
+"Content Blocker Active (Click to Disable)" = "İçerik Engelleyici Aktif (Kapatmak için tıkla)";
+"Content Blocker Disabled (Click to Enable)" = "İçerik Engelleyici Devre Dışı (Açmak için tıkla)";
+"Web Browser & Privacy" = "Web Tarayıcı & Gizlilik";
+"Block Ads & Trackers (WebKit Content Blocker)" = "Reklam ve İzleyicileri Engelle (WebKit Content Blocker)";
+"Enables native WebKit content blocking for live web browsing. Blocks advertising networks, analytics trackers, and popup scripts while keeping RSS feeds untouched." = "Canlı web tarayıcısı için yerel WebKit içerik engellemeyi etkinleştirir. RSS akışlarına dokunmadan reklam ağlarını, analitik izleyicilerini ve açılır pencereleri engeller.";
+

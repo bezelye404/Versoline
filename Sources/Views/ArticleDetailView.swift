@@ -12,6 +12,7 @@ struct ArticleDetailView: View {
     @AppStorage(AppSettingsKeys.autoReaderMode) private var autoReaderMode = false
     @AppStorage(AppSettingsKeys.defaultReadingMode) private var defaultReadingModeRaw = ReadingViewMode.reader.rawValue
     @AppStorage(AppSettingsKeys.preferredExternalBrowser) private var preferredExternalBrowserRaw = ExternalBrowserOption.systemDefault.rawValue
+    @AppStorage(AppSettingsKeys.isContentBlockerEnabled) private var isContentBlockerEnabled = true
 
     let selectedItem: FeedItem?
 
@@ -184,6 +185,18 @@ struct ArticleDetailView: View {
                 }
             }
 
+            // 1-Click WebKit Content Blocker Toggle (Web Mode)
+            if activeViewMode == .inAppBrowser {
+                Button {
+                    isContentBlockerEnabled.toggle()
+                } label: {
+                    Image(systemName: isContentBlockerEnabled ? "shield.fill" : "shield.slash")
+                        .foregroundStyle(isContentBlockerEnabled ? Color.accentColor : Color.secondary)
+                }
+                .buttonStyle(.borderless)
+                .help(isContentBlockerEnabled ? String(localized: "Content Blocker Active (Click to Disable)") : String(localized: "Content Blocker Disabled (Click to Enable)"))
+            }
+
             // Text to Speech
             Button {
                 toggleSpeech(item: item)
@@ -324,7 +337,8 @@ struct ArticleDetailView: View {
                 fontSize: readerFontSize,
                 theme: currentTheme,
                 fontFamily: currentFontFamily,
-                lineHeight: currentLineHeight
+                lineHeight: currentLineHeight,
+                isContentBlockerEnabled: isContentBlockerEnabled
             )
         } else {
             feedContentView(item: item)

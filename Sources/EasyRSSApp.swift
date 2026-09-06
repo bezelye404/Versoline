@@ -7,6 +7,12 @@ struct EasyRSSApp: App {
     @State private var store = FeedStore()
     @AppStorage(AppSettingsKeys.showMenuBarIcon) private var showMenuBarIcon = false
 
+    init() {
+        Task { @MainActor in
+            await ContentBlockerService.shared.prepare()
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

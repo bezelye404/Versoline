@@ -177,5 +177,6 @@ struct AppSettingsKeys {
     static let defaultReadingMode = "defaultReadingMode"
     static let preferredExternalBrowser = "preferredExternalBrowser"
     static let offlinePrecacheEnabled = "offlinePrecacheEnabled"
+    static let isContentBlockerEnabled = "isContentBlockerEnabled"
 }
 

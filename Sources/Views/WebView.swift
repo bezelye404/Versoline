@@ -9,6 +9,7 @@ struct WebView: NSViewRepresentable {
     var theme: ReaderTheme = .system
     var fontFamily: ReaderFontFamily = .system
     var lineHeight: ReaderLineHeight = .normal
+    var isContentBlockerEnabled: Bool = false
 
     init(
         html: String,
@@ -23,6 +24,7 @@ struct WebView: NSViewRepresentable {
         self.theme = theme
         self.fontFamily = fontFamily
         self.lineHeight = lineHeight
+        self.isContentBlockerEnabled = false
     }
 
     init(
@@ -30,7 +32,8 @@ struct WebView: NSViewRepresentable {
         fontSize: Int = 16,
         theme: ReaderTheme = .system,
         fontFamily: ReaderFontFamily = .system,
-        lineHeight: ReaderLineHeight = .normal
+        lineHeight: ReaderLineHeight = .normal,
+        isContentBlockerEnabled: Bool = true
     ) {
         self.html = nil
         self.url = url
@@ -38,11 +41,18 @@ struct WebView: NSViewRepresentable {
         self.theme = theme
         self.fontFamily = fontFamily
         self.lineHeight = lineHeight
+        self.isContentBlockerEnabled = isContentBlockerEnabled
     }
 
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.defaultWebpagePreferences.allowsContentJavaScript = true
+
+        // Attach Content Blocker ONLY for external live web URLs when enabled
+        if url != nil && isContentBlockerEnabled,
+           let ruleList = ContentBlockerService.shared.ruleList {
+            config.userContentController.add(ruleList)
+        }
 
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
@@ -67,13 +77,29 @@ struct WebView: NSViewRepresentable {
                 coordinator.lastFontFamily = fontFamily
                 coordinator.lastLineHeight = lineHeight
                 coordinator.lastLoadedURL = nil
+                coordinator.lastContentBlockerEnabled = nil
                 let styledHTML = wrapInTemplate(html)
                 webView.loadHTMLString(styledHTML, baseURL: nil)
             }
         } else if let url = url {
-            if coordinator.lastLoadedURL != url {
+            let blockerStateChanged = coordinator.lastContentBlockerEnabled != isContentBlockerEnabled
+            let urlChanged = coordinator.lastLoadedURL != url
+
+            if blockerStateChanged && !urlChanged && coordinator.lastLoadedURL != nil {
+                coordinator.lastContentBlockerEnabled = isContentBlockerEnabled
+                webView.configuration.userContentController.removeAllContentRuleLists()
+                if isContentBlockerEnabled, let ruleList = ContentBlockerService.shared.ruleList {
+                    webView.configuration.userContentController.add(ruleList)
+                }
+                webView.reload()
+            } else if urlChanged {
                 coordinator.lastLoadedURL = url
                 coordinator.lastLoadedHTML = nil
+                coordinator.lastContentBlockerEnabled = isContentBlockerEnabled
+                webView.configuration.userContentController.removeAllContentRuleLists()
+                if isContentBlockerEnabled, let ruleList = ContentBlockerService.shared.ruleList {
+                    webView.configuration.userContentController.add(ruleList)
+                }
                 let request = URLRequest(url: url)
                 webView.load(request)
             }
@@ -163,6 +189,7 @@ struct WebView: NSViewRepresentable {
         var lastTheme: ReaderTheme?
         var lastFontFamily: ReaderFontFamily?
         var lastLineHeight: ReaderLineHeight?
+        var lastContentBlockerEnabled: Bool?
 
         func webView(
             _ webView: WKWebView,
