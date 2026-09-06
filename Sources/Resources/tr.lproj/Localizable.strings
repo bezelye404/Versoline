@@ -142,3 +142,32 @@
 "Shortcuts" = "Kısayollar";
 "Filters" = "Filtreler";
 "Storage" = "Depolama";
+
+/* Flexible Reading Modes & Discover */
+"Web" = "Web";
+"Discover Feeds" = "Akışları Keşfet";
+"Discover Curated Feeds" = "Önerilen Akışları Keşfet";
+"Search feeds, topics, or domains..." = "Akış, konu veya alan adı ara...";
+"All Sources" = "Tüm Kaynaklar";
+"Turkish" = "Türkçe";
+"English" = "İngilizce";
+"%d feeds available" = "%d akış mevcut";
+"All Topics" = "Tüm Konular";
+"Subscribed" = "Abone Olundu";
+"Subscribe" = "Abone Ol";
+"Clear Filters" = "Filtreleri Temizle";
+"No feeds match your search." = "Aramanızla eşleşen akış bulunamadı.";
+"Offline" = "Çevrimdışı";
+"Offline Mode - Showing cached articles" = "Çevrimdışı Mod - Kaydedilen makaleler gösteriliyor";
+"Offline Mode - Cached content only" = "Çevrimdışı Mod - Yalnızca önbellekteki içerik";
+"Live web page unavailable offline." = "Canlı web sayfası çevrimdışıyken kullanılamaz.";
+"Switching to cached Reader Mode or RSS summary." = "Önbellekteki Okuyucu Moduna veya RSS özetine geçiliyor.";
+"View Cached Reader Mode" = "Önbellekteki Okuyucu Modunu Gör";
+"Extracting article text..." = "Makale metni çıkarılıyor...";
+"Open in Web View" = "Web Görünümünde Aç";
+"Open in %@" = "%@ ile Aç";
+"Open in %@ (Cmd+Return)" = "%@ ile Aç (Cmd+Return)";
+"Stop Reading" = "Okumayı Durdur";
+"Read Aloud" = "Sesli Oku";
+"%d min read" = "%d dk okuma";
+

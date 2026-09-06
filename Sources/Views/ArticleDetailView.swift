@@ -10,12 +10,18 @@ struct ArticleDetailView: View {
     @AppStorage(AppSettingsKeys.readerFontFamily) private var readerFontFamilyRaw = ReaderFontFamily.system.rawValue
     @AppStorage(AppSettingsKeys.readerLineHeight) private var readerLineHeightRaw = ReaderLineHeight.normal.rawValue
     @AppStorage(AppSettingsKeys.autoReaderMode) private var autoReaderMode = false
+    @AppStorage(AppSettingsKeys.defaultReadingMode) private var defaultReadingModeRaw = ReadingViewMode.feed.rawValue
+    @AppStorage(AppSettingsKeys.preferredExternalBrowser) private var preferredExternalBrowserRaw = ExternalBrowserOption.systemDefault.rawValue
 
     let selectedItem: FeedItem?
 
-    @State private var isReaderModeActive = false
+    @State private var activeViewMode: ReadingViewMode = .feed
     @State private var extractedReaderHTML: String? = nil
     @State private var isLoadingReaderMode = false
+    @State private var isSpeaking = false
+    @State private var speechSynthesizer = NSSpeechSynthesizer()
+
+    private let networkMonitor = NetworkMonitor.shared
 
     private var currentTheme: ReaderTheme {
         ReaderTheme(rawValue: readerThemeRaw) ?? .system
@@ -27,6 +33,10 @@ struct ArticleDetailView: View {
 
     private var currentLineHeight: ReaderLineHeight {
         ReaderLineHeight(rawValue: readerLineHeightRaw) ?? .normal
+    }
+
+    private var currentExternalBrowser: ExternalBrowserOption {
+        ExternalBrowserOption(rawValue: preferredExternalBrowserRaw) ?? .systemDefault
     }
 
     // Always read fresh data from store
@@ -49,16 +59,13 @@ struct ArticleDetailView: View {
                     articleContent(item: item)
                 }
                 .onChange(of: item.id) { _, _ in
-                    isReaderModeActive = false
-                    extractedReaderHTML = nil
-                    if autoReaderMode {
-                        loadReaderMode(for: item)
-                    }
+                    resetStateForNewArticle(item: item)
                 }
                 .onAppear {
-                    if autoReaderMode {
-                        loadReaderMode(for: item)
-                    }
+                    resetStateForNewArticle(item: item)
+                }
+                .onDisappear {
+                    stopSpeech()
                 }
             } else {
                 VStack(spacing: 16) {
@@ -77,16 +84,46 @@ struct ArticleDetailView: View {
         }
     }
 
+    private func resetStateForNewArticle(item: FeedItem) {
+        stopSpeech()
+        let defaultMode = ReadingViewMode(rawValue: defaultReadingModeRaw) ?? (autoReaderMode ? .reader : .feed)
+        activeViewMode = defaultMode
+        extractedReaderHTML = ReaderModeExtractor.shared.cachedContent(for: item.link)
+
+        if activeViewMode == .reader && extractedReaderHTML == nil {
+            loadReaderMode(for: item)
+        }
+    }
+
     // MARK: - Article Header
 
     @ViewBuilder
     private func articleHeader(item: FeedItem) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(item.title)
-                .font(.title2.weight(.semibold))
-                .textSelection(.enabled)
+            // Title & Offline indicator
+            HStack(alignment: .top, spacing: 10) {
+                Text(item.title)
+                    .font(.title2.weight(.semibold))
+                    .textSelection(.enabled)
 
-            HStack(spacing: 16) {
+                Spacer()
+
+                if !networkMonitor.isConnected {
+                    HStack(spacing: 4) {
+                        Image(systemName: "wifi.slash")
+                        Text(String(localized: "Offline"))
+                    }
+                    .font(.caption2.weight(.medium))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.secondary.opacity(0.12))
+                    .clipShape(Capsule())
+                    .foregroundStyle(.secondary)
+                }
+            }
+
+            // Metadata row & Toolbar Actions
+            HStack(spacing: 14) {
                 if let feedTitle = currentFeed?.title {
                     HStack(spacing: 6) {
                         FaviconView(hostOrURL: currentFeed?.url ?? item.link, size: 14)
@@ -108,130 +145,226 @@ struct ArticleDetailView: View {
                         .foregroundStyle(.secondary)
                 }
 
+                // Reading Time
+                let readingTime = calculateReadingTime(item: item)
+                Label(readingTime, systemImage: "clock")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
                 Spacer()
 
-                HStack(spacing: 8) {
-                    // Reader Mode Toggle
-                    Button {
-                        toggleReaderMode(item: item)
-                    } label: {
-                        if isLoadingReaderMode {
-                            ProgressView()
-                                .controlSize(.small)
-                        } else {
-                            Image(systemName: isReaderModeActive ? "sparkles" : "sparkle")
-                                .foregroundStyle(isReaderModeActive ? Color.accentColor : Color.secondary)
-                        }
-                    }
-                    .buttonStyle(.borderless)
-                    .help(isReaderModeActive ? "Exit Reader Mode" : "Enter Reader Mode (Cmd+Shift+R)")
-                    .keyboardShortcut("r", modifiers: [.command, .shift])
-
-                    // Appearance Menu (Theme, Font, Size)
-                    Menu {
-                        // Themes
-                        Picker("Theme", selection: $readerThemeRaw) {
-                            ForEach(ReaderTheme.allCases) { theme in
-                                Text(theme.title).tag(theme.rawValue)
-                            }
-                        }
-
-                        Divider()
-
-                        // Fonts
-                        Picker("Font Family", selection: $readerFontFamilyRaw) {
-                            ForEach(ReaderFontFamily.allCases) { font in
-                                Text(font.title).tag(font.rawValue)
-                            }
-                        }
-
-                        // Line Spacing
-                        Picker("Line Spacing", selection: $readerLineHeightRaw) {
-                            ForEach(ReaderLineHeight.allCases) { lh in
-                                Text(lh.title).tag(lh.rawValue)
-                            }
-                        }
-
-                        Divider()
-
-                        // Font size
-                        HStack {
-                            Button("Smaller Font") {
-                                if readerFontSize > 12 { readerFontSize -= 2 }
-                            }
-                            Button("Larger Font") {
-                                if readerFontSize < 32 { readerFontSize += 2 }
-                            }
-                        }
-                    } label: {
-                        Label("Appearance", systemImage: "textformat.size")
-                    }
-                    .buttonStyle(.borderless)
-                    .controlSize(.small)
-                    .help("Reader Appearance & Themes")
-
-                    // Share Link
-                    if let url = URL(string: item.link) {
-                        ShareLink(item: url, subject: Text(item.title)) {
-                            Label("Share", systemImage: "square.and.arrow.up")
-                        }
-                        .buttonStyle(.borderless)
-                        .controlSize(.small)
-                        .help("Share Article")
-                    }
-
-                    // Bookmark toggle
-                    Button {
-                        store.toggleBookmark(item)
-                    } label: {
-                        Label(
-                            item.isBookmarked ? "Remove Bookmark" : "Add Bookmark",
-                            systemImage: item.isBookmarked ? "star.fill" : "star"
-                        )
-                    }
-                    .buttonStyle(.borderless)
-                    .controlSize(.small)
-                    .foregroundStyle(item.isBookmarked ? .orange : .secondary)
-
-                    // Read toggle
-                    Button {
-                        store.toggleReadStatus(item)
-                    } label: {
-                        Label(
-                            item.isRead ? "Mark as Unread" : "Mark as Read",
-                            systemImage: item.isRead ? "circle" : "checkmark.circle.fill"
-                        )
-                    }
-                    .buttonStyle(.borderless)
-                    .controlSize(.small)
-
-                    // Open in browser
-                    if let url = URL(string: item.link) {
-                        Button {
-                            NSWorkspace.shared.open(url)
-                        } label: {
-                            Label("Open in Browser", systemImage: "safari")
-                        }
-                        .buttonStyle(.borderless)
-                        .controlSize(.small)
-                        .help("Open in Browser (Cmd+Return)")
-                    }
-                }
+                // Actions
+                actionToolbar(item: item)
             }
         }
-        .padding(18)
+        .padding(16)
+    }
+
+    // MARK: - Action Toolbar
+
+    @ViewBuilder
+    private func actionToolbar(item: FeedItem) -> some View {
+        HStack(spacing: 8) {
+            // Flexible 3-Way Reading Mode Selector
+            Picker("", selection: $activeViewMode) {
+                Label(String(localized: "Feed"), systemImage: "doc.text").tag(ReadingViewMode.feed)
+                Label(String(localized: "Reader"), systemImage: "sparkles").tag(ReadingViewMode.reader)
+                Label(String(localized: "Web"), systemImage: "globe").tag(ReadingViewMode.inAppBrowser)
+            }
+            .pickerStyle(.segmented)
+            .frame(maxWidth: 160)
+            .onChange(of: activeViewMode) { _, newMode in
+                if newMode == .reader && extractedReaderHTML == nil {
+                    loadReaderMode(for: item)
+                }
+            }
+
+            // Text to Speech
+            Button {
+                toggleSpeech(item: item)
+            } label: {
+                Image(systemName: isSpeaking ? "stop.fill" : "speaker.wave.2")
+                    .foregroundStyle(isSpeaking ? Color.accentColor : Color.secondary)
+            }
+            .buttonStyle(.borderless)
+            .help(isSpeaking ? String(localized: "Stop Reading") : String(localized: "Read Aloud"))
+
+            // Appearance Menu (Theme, Font, Size)
+            Menu {
+                // Themes
+                Picker("Theme", selection: $readerThemeRaw) {
+                    ForEach(ReaderTheme.allCases) { theme in
+                        Text(theme.title).tag(theme.rawValue)
+                    }
+                }
+
+                Divider()
+
+                // Fonts
+                Picker("Font Family", selection: $readerFontFamilyRaw) {
+                    ForEach(ReaderFontFamily.allCases) { font in
+                        Text(font.title).tag(font.rawValue)
+                    }
+                }
+
+                // Line Spacing
+                Picker("Line Spacing", selection: $readerLineHeightRaw) {
+                    ForEach(ReaderLineHeight.allCases) { lh in
+                        Text(lh.title).tag(lh.rawValue)
+                    }
+                }
+
+                Divider()
+
+                // Font size
+                HStack {
+                    Button("Smaller Font") {
+                        if readerFontSize > 12 { readerFontSize -= 2 }
+                    }
+                    Button("Larger Font") {
+                        if readerFontSize < 32 { readerFontSize += 2 }
+                    }
+                }
+            } label: {
+                Label("Appearance", systemImage: "textformat.size")
+            }
+            .buttonStyle(.borderless)
+            .controlSize(.small)
+            .help("Reader Appearance & Themes")
+
+            // Share Link
+            if let url = URL(string: item.link) {
+                ShareLink(item: url, subject: Text(item.title)) {
+                    Label("Share", systemImage: "square.and.arrow.up")
+                }
+                .buttonStyle(.borderless)
+                .controlSize(.small)
+                .help("Share Article")
+            }
+
+            // Bookmark toggle
+            Button {
+                store.toggleBookmark(item)
+            } label: {
+                Label(
+                    item.isBookmarked ? "Remove Bookmark" : "Add Bookmark",
+                    systemImage: item.isBookmarked ? "star.fill" : "star"
+                )
+            }
+            .buttonStyle(.borderless)
+            .controlSize(.small)
+            .foregroundStyle(item.isBookmarked ? .orange : .secondary)
+
+            // Read toggle
+            Button {
+                store.toggleReadStatus(item)
+            } label: {
+                Label(
+                    item.isRead ? "Mark as Unread" : "Mark as Read",
+                    systemImage: item.isRead ? "circle" : "checkmark.circle.fill"
+                )
+            }
+            .buttonStyle(.borderless)
+            .controlSize(.small)
+
+            // Open in Preferred External Browser
+            if let url = URL(string: item.link) {
+                Button {
+                    currentExternalBrowser.open(url: url)
+                } label: {
+                    Label(String(format: String(localized: "Open in %@"), currentExternalBrowser.title), systemImage: "arrow.up.right.square")
+                }
+                .buttonStyle(.borderless)
+                .controlSize(.small)
+                .help(String(format: String(localized: "Open in %@ (Cmd+Return)"), currentExternalBrowser.title))
+            }
+        }
     }
 
     // MARK: - Article Content
 
     @ViewBuilder
     private func articleContent(item: FeedItem) -> some View {
-        let contentHTML: String = {
-            if isReaderModeActive, let extracted = extractedReaderHTML {
-                return extracted
+        switch activeViewMode {
+        case .inAppBrowser:
+            inAppBrowserView(item: item)
+
+        case .reader:
+            readerModeView(item: item)
+
+        case .feed:
+            feedContentView(item: item)
+        }
+    }
+
+    // MARK: - In-App Browser Mode
+
+    @ViewBuilder
+    private func inAppBrowserView(item: FeedItem) -> some View {
+        if !networkMonitor.isConnected {
+            VStack(spacing: 12) {
+                Image(systemName: "wifi.slash")
+                    .font(.system(size: 36, weight: .ultraLight))
+                    .foregroundStyle(.quaternary)
+                Text(String(localized: "Live web page unavailable offline."))
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+                Text(String(localized: "Switching to cached Reader Mode or RSS summary."))
+                    .font(.subheadline)
+                    .foregroundStyle(.tertiary)
+
+                Button(String(localized: "View Cached Reader Mode")) {
+                    activeViewMode = .reader
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
             }
-            return item.content ?? item.itemDescription
-        }()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if let url = URL(string: item.link) {
+            WebView(
+                url: url,
+                fontSize: readerFontSize,
+                theme: currentTheme,
+                fontFamily: currentFontFamily,
+                lineHeight: currentLineHeight
+            )
+        } else {
+            feedContentView(item: item)
+        }
+    }
+
+    // MARK: - Reader Mode View
+
+    @ViewBuilder
+    private func readerModeView(item: FeedItem) -> some View {
+        if isLoadingReaderMode {
+            VStack(spacing: 14) {
+                ProgressView()
+                    .controlSize(.regular)
+                Text(String(localized: "Extracting article text..."))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if let extracted = extractedReaderHTML, !extracted.isEmpty {
+            WebView(
+                html: extracted,
+                fontSize: readerFontSize,
+                theme: currentTheme,
+                fontFamily: currentFontFamily,
+                lineHeight: currentLineHeight
+            )
+        } else {
+            // Fallback to feed content if reader extraction yielded nothing
+            feedContentView(item: item)
+        }
+    }
+
+    // MARK: - Feed Content View
+
+    @ViewBuilder
+    private func feedContentView(item: FeedItem) -> some View {
+        let contentHTML = item.content ?? item.itemDescription
 
         if contentHTML.isEmpty {
             VStack(spacing: 12) {
@@ -243,8 +376,8 @@ struct ArticleDetailView: View {
                     .foregroundStyle(.secondary)
 
                 if let url = URL(string: item.link) {
-                    Button("Open in Browser") {
-                        NSWorkspace.shared.open(url)
+                    Button(String(localized: "Open in Web View")) {
+                        activeViewMode = .inAppBrowser
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.small)
@@ -264,17 +397,9 @@ struct ArticleDetailView: View {
 
     // MARK: - Reader Mode Logic
 
-    private func toggleReaderMode(item: FeedItem) {
-        if isReaderModeActive {
-            isReaderModeActive = false
-        } else {
-            loadReaderMode(for: item)
-        }
-    }
-
     private func loadReaderMode(for item: FeedItem) {
-        if extractedReaderHTML != nil {
-            isReaderModeActive = true
+        if let cached = ReaderModeExtractor.shared.cachedContent(for: item.link) {
+            extractedReaderHTML = cached
             return
         }
 
@@ -284,9 +409,43 @@ struct ArticleDetailView: View {
             isLoadingReaderMode = false
             if let extracted, !extracted.isEmpty {
                 extractedReaderHTML = extracted
-                isReaderModeActive = true
             }
         }
+    }
+
+    // MARK: - Text to Speech Logic
+
+    private func toggleSpeech(item: FeedItem) {
+        if isSpeaking {
+            stopSpeech()
+        } else {
+            let textToRead = cleanTextForSpeech(item: item)
+            speechSynthesizer.startSpeaking(textToRead)
+            isSpeaking = true
+        }
+    }
+
+    private func stopSpeech() {
+        if isSpeaking {
+            speechSynthesizer.stopSpeaking()
+            isSpeaking = false
+        }
+    }
+
+    private func cleanTextForSpeech(item: FeedItem) -> String {
+        let raw = item.title + ". " + (item.content ?? item.itemDescription)
+        return raw.replacingOccurrences(of: "<[^>]+>", with: " ", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    // MARK: - Reading Time Calculation
+
+    private func calculateReadingTime(item: FeedItem) -> String {
+        let text = (item.content ?? item.itemDescription)
+            .replacingOccurrences(of: "<[^>]+>", with: " ", options: .regularExpression)
+        let words = text.split(whereSeparator: { $0.isWhitespace }).count
+        let minutes = max(1, Int(ceil(Double(words) / 200.0)))
+        return String(format: String(localized: "%d min read"), minutes)
     }
 
     // MARK: - Date Formatting

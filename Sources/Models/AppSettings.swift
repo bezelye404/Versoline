@@ -98,6 +98,73 @@ enum ReaderLineHeight: String, CaseIterable, Identifiable {
     }
 }
 
+enum ReadingViewMode: String, CaseIterable, Identifiable {
+    case feed
+    case reader
+    case inAppBrowser
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .feed: return String(localized: "Feed")
+        case .reader: return String(localized: "Reader")
+        case .inAppBrowser: return String(localized: "Web")
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .feed: return "doc.text"
+        case .reader: return "sparkles"
+        case .inAppBrowser: return "globe"
+        }
+    }
+}
+
+enum ExternalBrowserOption: String, CaseIterable, Identifiable {
+    case systemDefault
+    case safari
+    case chrome
+    case arc
+    case brave
+    case firefox
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .systemDefault: return String(localized: "System Default")
+        case .safari: return "Safari"
+        case .chrome: return "Google Chrome"
+        case .arc: return "Arc"
+        case .brave: return "Brave"
+        case .firefox: return "Firefox"
+        }
+    }
+
+    var bundleIdentifier: String? {
+        switch self {
+        case .systemDefault: return nil
+        case .safari: return "com.apple.Safari"
+        case .chrome: return "com.google.Chrome"
+        case .arc: return "company.thebrowser.Browser"
+        case .brave: return "com.brave.Browser"
+        case .firefox: return "org.mozilla.firefox"
+        }
+    }
+
+    func open(url: URL) {
+        if let bundleId = bundleIdentifier,
+           let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleId) {
+            let config = NSWorkspace.OpenConfiguration()
+            NSWorkspace.shared.open([url], withApplicationAt: appURL, configuration: config, completionHandler: nil)
+        } else {
+            NSWorkspace.shared.open(url)
+        }
+    }
+}
+
 struct AppSettingsKeys {
     static let readerTheme = "readerTheme"
     static let readerFontFamily = "readerFontFamily"
@@ -110,4 +177,8 @@ struct AppSettingsKeys {
     static let autoReaderMode = "autoReaderMode"
     static let autoCleanupDays = "autoCleanupDays"
     static let mutedKeywords = "mutedKeywords"
+    static let defaultReadingMode = "defaultReadingMode"
+    static let preferredExternalBrowser = "preferredExternalBrowser"
+    static let offlinePrecacheEnabled = "offlinePrecacheEnabled"
 }
+

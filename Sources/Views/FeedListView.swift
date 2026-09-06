@@ -9,6 +9,7 @@ struct FeedListView: View {
 
     @AppStorage(AppSettingsKeys.enableSingleKeyShortcuts) private var enableSingleKeyShortcuts = true
     @AppStorage(AppSettingsKeys.mutedKeywords) private var mutedKeywordsRaw = ""
+    @AppStorage(AppSettingsKeys.preferredExternalBrowser) private var preferredExternalBrowserRaw = ExternalBrowserOption.systemDefault.rawValue
 
     private var title: String {
         switch selection {
@@ -104,7 +105,22 @@ struct FeedListView: View {
                     .searchable(text: $searchText, prompt: Text("Search Articles"))
                     .navigationTitle(title)
                 } else {
-                    List(selection: $selectedArticle) {
+                    VStack(spacing: 0) {
+                        if !NetworkMonitor.shared.isConnected {
+                            HStack(spacing: 6) {
+                                Image(systemName: "wifi.slash")
+                                    .font(.caption2)
+                                Text(String(localized: "Offline Mode - Showing cached articles"))
+                                    .font(.caption2.weight(.medium))
+                                Spacer()
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 5)
+                            .background(Color.secondary.opacity(0.1))
+                            .foregroundStyle(.secondary)
+                        }
+
+                        List(selection: $selectedArticle) {
                         ForEach(items) { item in
                             FeedItemRow(
                                 item: item,
@@ -184,7 +200,8 @@ struct FeedListView: View {
 
                                 Button("Open In Browser Single Key") {
                                     if let selected = selectedArticle, let url = URL(string: selected.link) {
-                                        NSWorkspace.shared.open(url)
+                                        let browser = ExternalBrowserOption(rawValue: preferredExternalBrowserRaw) ?? .systemDefault
+                                        browser.open(url: url)
                                     }
                                 }
                                 .keyboardShortcut("o", modifiers: [])
@@ -192,6 +209,7 @@ struct FeedListView: View {
                         }
                         .frame(width: 0, height: 0)
                         .opacity(0)
+                    }
                     }
                 }
             } else {
@@ -261,9 +279,10 @@ struct FeedListView: View {
 
         if let url = URL(string: item.link) {
             Button {
-                NSWorkspace.shared.open(url)
+                let browser = ExternalBrowserOption(rawValue: preferredExternalBrowserRaw) ?? .systemDefault
+                browser.open(url: url)
             } label: {
-                Label("Open in Browser", systemImage: "safari")
+                Label("Open in Browser", systemImage: "arrow.up.right.square")
             }
         }
     }

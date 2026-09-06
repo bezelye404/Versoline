@@ -1,4 +1,5 @@
 import Foundation
+import CryptoKit
 
 @MainActor
 final class ReaderModeExtractor {
@@ -6,18 +7,62 @@ final class ReaderModeExtractor {
     static let shared = ReaderModeExtractor()
 
     private var articleCache: [String: String] = [:]
+    private let cacheDirectory: URL
 
-    private init() {}
+    private init() {
+        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let cacheDir = appSupport.appendingPathComponent("EasyRSS/ReaderCache", isDirectory: true)
+        try? FileManager.default.createDirectory(at: cacheDir, withIntermediateDirectories: true)
+        self.cacheDirectory = cacheDir
+    }
+
+    // MARK: - Cache Helpers
+
+    private func cacheKey(for urlString: String) -> String {
+        let inputData = Data(urlString.utf8)
+        let hash = SHA256.hash(data: inputData)
+        return hash.compactMap { String(format: "%02x", $0) }.joined()
+    }
+
+    private func fileURL(for urlString: String) -> URL {
+        let key = cacheKey(for: urlString)
+        return cacheDirectory.appendingPathComponent("\(key).html")
+    }
+
+    func cachedContent(for urlString: String) -> String? {
+        if let memory = articleCache[urlString] {
+            return memory
+        }
+
+        let diskURL = fileURL(for: urlString)
+        if FileManager.default.fileExists(atPath: diskURL.path),
+           let diskData = try? Data(contentsOf: diskURL),
+           let html = String(data: diskData, encoding: .utf8) {
+            articleCache[urlString] = html
+            return html
+        }
+
+        return nil
+    }
+
+    func saveToCache(urlString: String, content: String) {
+        articleCache[urlString] = content
+        let diskURL = fileURL(for: urlString)
+        try? content.data(using: .utf8)?.write(to: diskURL, options: .atomic)
+    }
+
+    // MARK: - Extraction
 
     func extract(from urlString: String) async -> String? {
-        if let cached = articleCache[urlString] {
+        // 1. Check memory or disk cache first (offline support)
+        if let cached = cachedContent(for: urlString) {
             return cached
         }
 
         guard let url = URL(string: urlString) else { return nil }
 
         var request = URLRequest(url: url)
-        request.timeoutInterval = 12
+        request.timeoutInterval = 10
         request.setValue(
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
             forHTTPHeaderField: "User-Agent"
@@ -32,7 +77,7 @@ final class ReaderModeExtractor {
             let html = String(decoding: data, as: UTF8.self)
             let cleaned = extractArticleHTML(from: html, baseURL: url)
             if let cleaned, !cleaned.isEmpty {
-                articleCache[urlString] = cleaned
+                saveToCache(urlString: urlString, content: cleaned)
                 return cleaned
             }
         } catch {
@@ -84,7 +129,6 @@ final class ReaderModeExtractor {
     }
 
     private func sanitize(_ content: String) -> String {
-        // Strip out display:none, onclick, inline style tags that might break layout
         var cleaned = content.replacingOccurrences(of: #"style=["'][^"']*["']"#, with: "", options: .regularExpression)
         cleaned = cleaned.replacingOccurrences(of: #"class=["'][^"']*["']"#, with: "", options: .regularExpression)
         cleaned = cleaned.replacingOccurrences(of: #"onclick=["'][^"']*["']"#, with: "", options: .regularExpression)
@@ -99,6 +143,32 @@ final class ReaderModeExtractor {
             return results.map { nsString.substring(with: $0.range) }
         } catch {
             return []
+        }
+    }
+
+    // MARK: - Cache Management
+
+    var diskCacheSizeBytes: Int64 {
+        let fm = FileManager.default
+        guard let files = try? fm.contentsOfDirectory(at: cacheDirectory, includingPropertiesForKeys: [.fileSizeKey]) else {
+            return 0
+        }
+        var total: Int64 = 0
+        for file in files {
+            if let size = try? file.resourceValues(forKeys: [.fileSizeKey]).fileSize {
+                total += Int64(size)
+            }
+        }
+        return total
+    }
+
+    func clearDiskCache() {
+        articleCache.removeAll()
+        let fm = FileManager.default
+        if let files = try? fm.contentsOfDirectory(at: cacheDirectory, includingPropertiesForKeys: nil) {
+            for file in files {
+                try? fm.removeItem(at: file)
+            }
         }
     }
 }

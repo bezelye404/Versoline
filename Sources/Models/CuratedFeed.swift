@@ -26,4 +26,9 @@ struct CuratedFeedCategory: Identifiable, Hashable, Codable, Sendable {
         if lower.contains("politika") || lower.contains("politics") { return "building.columns" }
         return "dot.radiowaves.up.forward"
     }
+
+    var cleanCategoryName: String {
+        category.replacingOccurrences(of: "🇹🇷 ", with: "")
+                .replacingOccurrences(of: "🇬🇧 ", with: "")
+    }
 }

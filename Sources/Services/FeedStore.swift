@@ -295,6 +295,25 @@ final class FeedStore {
         return size
     }
 
+    var offlineCacheSizeBytes: Int64 {
+        ReaderModeExtractor.shared.diskCacheSizeBytes
+    }
+
+    func clearOfflineCache() {
+        ReaderModeExtractor.shared.clearDiskCache()
+        AppLogger.shared.log("Offline reader cache cleared", level: .info, category: .storage)
+    }
+
+    func precacheArticles(limit: Int = 30) async {
+        guard NetworkMonitor.shared.isConnected else { return }
+        let unreadArticles = unreadItems().prefix(limit)
+        AppLogger.shared.log("Pre-caching \(unreadArticles.count) unread articles for offline reading...", level: .info, category: .network)
+        for item in unreadArticles {
+            _ = await ReaderModeExtractor.shared.extract(from: item.link)
+        }
+        AppLogger.shared.log("Offline pre-caching complete", level: .info, category: .storage)
+    }
+
     // MARK: - Bookmarks
 
     func toggleBookmark(_ item: FeedItem) {

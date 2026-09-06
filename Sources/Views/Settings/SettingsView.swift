@@ -43,7 +43,7 @@ struct SettingsView: View {
                 }
                 .tag(SettingsTab.storage)
         }
-        .frame(width: 520, height: 400)
+        .frame(width: 540, height: 460)
     }
 }
 
@@ -54,6 +54,8 @@ private struct GeneralSettingsTab: View {
     @AppStorage(AppSettingsKeys.isCompactListMode) private var isCompactListMode = false
     @AppStorage(AppSettingsKeys.showFavicons) private var showFavicons = true
     @AppStorage(AppSettingsKeys.showMenuBarIcon) private var showMenuBarIcon = false
+    @AppStorage(AppSettingsKeys.preferredExternalBrowser) private var preferredExternalBrowserRaw = ExternalBrowserOption.systemDefault.rawValue
+    @AppStorage(AppSettingsKeys.offlinePrecacheEnabled) private var offlinePrecacheEnabled = false
 
     var body: some View {
         Form {
@@ -77,6 +79,24 @@ private struct GeneralSettingsTab: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+
+            Section("External Browser") {
+                Picker("Preferred Browser:", selection: $preferredExternalBrowserRaw) {
+                    ForEach(ExternalBrowserOption.allCases) { browser in
+                        Text(browser.title).tag(browser.rawValue)
+                    }
+                }
+                Text("Choose which web browser opens when clicking 'Open in Browser'.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section("Offline Reading") {
+                Toggle("Pre-cache Articles for Offline Access", isOn: $offlinePrecacheEnabled)
+                Text("Pre-loads readable articles in the background so they are ready even without an internet connection.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
         .formStyle(.grouped)
         .padding(10)
@@ -87,6 +107,7 @@ private struct GeneralSettingsTab: View {
 
 private struct ReaderSettingsTab: View {
 
+    @AppStorage(AppSettingsKeys.defaultReadingMode) private var defaultReadingModeRaw = ReadingViewMode.feed.rawValue
     @AppStorage(AppSettingsKeys.readerTheme) private var readerThemeRaw = ReaderTheme.system.rawValue
     @AppStorage(AppSettingsKeys.readerFontFamily) private var readerFontFamilyRaw = ReaderFontFamily.system.rawValue
     @AppStorage(AppSettingsKeys.readerFontSize) private var readerFontSize = 16
@@ -95,20 +116,31 @@ private struct ReaderSettingsTab: View {
 
     var body: some View {
         Form {
+            Section("Default Mode") {
+                Picker("Default Article View:", selection: $defaultReadingModeRaw) {
+                    ForEach(ReadingViewMode.allCases) { mode in
+                        Label(mode.title, systemImage: mode.systemImage).tag(mode.rawValue)
+                    }
+                }
+                Text("Select whether articles initially open in RSS summary, clean Reader Mode, or In-App Browser.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             Section("Appearance") {
-                Picker("Theme", selection: $readerThemeRaw) {
+                Picker("Theme:", selection: $readerThemeRaw) {
                     ForEach(ReaderTheme.allCases) { theme in
                         Text(theme.title).tag(theme.rawValue)
                     }
                 }
 
-                Picker("Font Family", selection: $readerFontFamilyRaw) {
+                Picker("Font Family:", selection: $readerFontFamilyRaw) {
                     ForEach(ReaderFontFamily.allCases) { font in
                         Text(font.title).tag(font.rawValue)
                     }
                 }
 
-                Picker("Line Spacing", selection: $readerLineHeightRaw) {
+                Picker("Line Spacing:", selection: $readerLineHeightRaw) {
                     ForEach(ReaderLineHeight.allCases) { lh in
                         Text(lh.title).tag(lh.rawValue)
                     }
@@ -125,7 +157,7 @@ private struct ReaderSettingsTab: View {
 
             Section("Automation") {
                 Toggle("Automatically Open in Reader Mode", isOn: $autoReaderMode)
-                Text("Automatically extracts the full article body for feeds that only provide short summaries.")
+                Text("Automatically extracts full article body for feeds that only provide short summaries.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -155,7 +187,7 @@ private struct ShortcutsSettingsTab: View {
                 shortcutRow(key: "K", description: "Previous article")
                 shortcutRow(key: "M", description: "Toggle Read / Unread status")
                 shortcutRow(key: "S", description: "Toggle Bookmark (Star)")
-                shortcutRow(key: "O / ↩", description: "Open article in default web browser")
+                shortcutRow(key: "O / ↩", description: "Open article in preferred web browser")
                 shortcutRow(key: "⌘ ⇧ R", description: "Toggle Reader Mode")
                 shortcutRow(key: "⌘ R", description: "Refresh all feeds")
                 shortcutRow(key: "⌘ ⌥ C", description: "Open Developer Debug Console")
@@ -279,9 +311,18 @@ private struct StorageSettingsTab: View {
     @AppStorage(AppSettingsKeys.autoCleanupDays) private var autoCleanupDays = 30
     @State private var showCleanupSuccess = false
     @State private var clearedFavicons = false
+    @State private var clearedOfflineCache = false
 
     private var formattedDatabaseSize: String {
         let bytes = store.databaseSizeBytes
+        let formatter = ByteCountFormatter()
+        formatter.allowedUnits = [.useKB, .useMB]
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: bytes)
+    }
+
+    private var formattedOfflineCacheSize: String {
+        let bytes = store.offlineCacheSizeBytes
         let formatter = ByteCountFormatter()
         formatter.allowedUnits = [.useKB, .useMB]
         formatter.countStyle = .file
@@ -295,6 +336,21 @@ private struct StorageSettingsTab: View {
                 LabeledContent("Folders:", value: "\(store.folders.count)")
                 LabeledContent("Total Articles:", value: "\(store.totalItemCount)")
                 LabeledContent("Database Size on Disk:", value: formattedDatabaseSize)
+            }
+
+            Section("Offline Article Cache") {
+                LabeledContent("Cache Size on Disk:", value: formattedOfflineCacheSize)
+
+                Button("Clear Offline Article Cache") {
+                    store.clearOfflineCache()
+                    clearedOfflineCache = true
+                }
+
+                if clearedOfflineCache {
+                    Text("Offline article cache cleared successfully.")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                }
             }
 
             Section("Automatic Cleanup") {

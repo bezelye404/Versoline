@@ -6,6 +6,7 @@ struct SidebarView: View {
     @Binding var selectedItem: SidebarItem?
     @Binding var selectedArticle: FeedItem?
     @State private var showAddFeed = false
+    @State private var showDiscover = false
     @State private var showAddFolder = false
     @State private var newFolderName = ""
     @State private var renamingFolderId: UUID?
@@ -34,6 +35,13 @@ struct SidebarView: View {
                     Label("Bookmarks", systemImage: "star")
                         .badge(store.bookmarkCount())
                 }
+
+                Button {
+                    showDiscover = true
+                } label: {
+                    Label("Discover Feeds", systemImage: "compass")
+                }
+                .buttonStyle(.plain)
             }
 
             // Folders with feeds
@@ -89,11 +97,19 @@ struct SidebarView: View {
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
 
-                        Button("Add Feed") {
-                            showAddFeed = true
+                        HStack(spacing: 8) {
+                            Button("Add Feed") {
+                                showAddFeed = true
+                            }
+                            .buttonStyle(.bordered)
+                            .controlSize(.small)
+
+                            Button("Discover") {
+                                showDiscover = true
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.small)
                         }
-                        .buttonStyle(.bordered)
-                        .controlSize(.small)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 24)
@@ -105,6 +121,13 @@ struct SidebarView: View {
         .toolbar {
             ToolbarItemGroup(placement: .automatic) {
                 Button {
+                    showDiscover = true
+                } label: {
+                    Label("Discover Feeds", systemImage: "compass")
+                }
+                .help("Discover curated feeds")
+
+                Button {
                     showAddFolder = true
                 } label: {
                     Label("Add Folder", systemImage: "folder.badge.plus")
@@ -114,6 +137,9 @@ struct SidebarView: View {
         }
         .sheet(isPresented: $showAddFeed) {
             AddFeedSheet()
+        }
+        .sheet(isPresented: $showDiscover) {
+            CuratedDiscoverView()
         }
         .alert("New Folder", isPresented: $showAddFolder) {
             TextField("Folder Name", text: $newFolderName)
