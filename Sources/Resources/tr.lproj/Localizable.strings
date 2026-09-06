@@ -178,3 +178,20 @@
 "Block Ads & Trackers (WebKit Content Blocker)" = "Reklam ve İzleyicileri Engelle (WebKit Content Blocker)";
 "Enables native WebKit content blocking for live web browsing. Blocks advertising networks, analytics trackers, and popup scripts while keeping RSS feeds untouched." = "Canlı web tarayıcısı için yerel WebKit içerik engellemeyi etkinleştirir. RSS akışlarına dokunmadan reklam ağlarını, analitik izleyicilerini ve açılır pencereleri engeller.";
 
+/* Podcasts */
+"Podcasts" = "Podcast'ler";
+"Podcast" = "Podcast";
+"Play Episode" = "Bölümü Oynat";
+"Pause Episode" = "Bölümü Duraklat";
+"Resume Episode" = "Devam Et";
+"Resume" = "Devam Et";
+"Resume (%@)" = "Devam Et (%@)";
+"Resume (at %@)" = "Kaldığı Yerden (%@)";
+"No podcast episodes yet." = "Henüz podcast bölümü yok.";
+"No podcast episodes found." = "Podcast bölümü bulunamadı.";
+"Playback Speed" = "Oynatma Hızı";
+"Skip backward 15 seconds" = "15 saniye geri sar";
+"Skip forward 15 seconds" = "15 saniye ileri sar";
+"Close Player" = "Oynatıcıyı Kapat";
+"Audio" = "Ses";
+

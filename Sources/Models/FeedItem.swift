@@ -13,6 +13,44 @@ struct FeedItem: Codable, Identifiable, Hashable {
     var isBookmarked: Bool
     var snippet: String
 
+    // Podcast / Audio Enclosure Metadata
+    var audioURL: String?
+    var audioDuration: String?
+    var audioType: String?
+    var audioLength: Int64?
+    var playbackPosition: Double
+    var isFinished: Bool
+
+    var isPodcast: Bool {
+        audioURL != nil
+    }
+
+    var formattedDuration: String? {
+        if let duration = audioDuration?.trimmingCharacters(in: .whitespacesAndNewlines), !duration.isEmpty {
+            // Check if duration is pure seconds like "2712"
+            if let seconds = Double(duration) {
+                let totalSecs = Int(seconds)
+                let hours = totalSecs / 3600
+                let minutes = (totalSecs % 3600) / 60
+                let secs = totalSecs % 60
+                if hours > 0 {
+                    return String(format: "%d:%02d:%02d", hours, minutes, secs)
+                } else {
+                    return String(format: "%d:%02d", minutes, secs)
+                }
+            }
+            return duration
+        }
+        return nil
+    }
+
+    var progressFraction: Double {
+        guard let durationStr = audioDuration, let totalSecs = Double(durationStr), totalSecs > 0 else {
+            return 0
+        }
+        return min(max(playbackPosition / totalSecs, 0.0), 1.0)
+    }
+
     init(
         id: UUID = UUID(),
         feedId: UUID,
@@ -24,7 +62,13 @@ struct FeedItem: Codable, Identifiable, Hashable {
         isRead: Bool = false,
         content: String? = nil,
         isBookmarked: Bool = false,
-        snippet: String = ""
+        snippet: String = "",
+        audioURL: String? = nil,
+        audioDuration: String? = nil,
+        audioType: String? = nil,
+        audioLength: Int64? = nil,
+        playbackPosition: Double = 0.0,
+        isFinished: Bool = false
     ) {
         self.id = id
         self.feedId = feedId
@@ -37,11 +81,18 @@ struct FeedItem: Codable, Identifiable, Hashable {
         self.content = content
         self.isBookmarked = isBookmarked
         self.snippet = snippet.isEmpty ? itemDescription.strippingHTML() : snippet
+        self.audioURL = audioURL
+        self.audioDuration = audioDuration
+        self.audioType = audioType
+        self.audioLength = audioLength
+        self.playbackPosition = playbackPosition
+        self.isFinished = isFinished
     }
 
-    // Backward-compatible decoding: isBookmarked and snippet may not exist in older data
+    // Backward-compatible decoding
     enum CodingKeys: String, CodingKey {
         case id, feedId, title, link, itemDescription, pubDate, author, isRead, content, isBookmarked, snippet
+        case audioURL, audioDuration, audioType, audioLength, playbackPosition, isFinished
     }
 
     init(from decoder: Decoder) throws {
@@ -61,5 +112,11 @@ struct FeedItem: Codable, Identifiable, Hashable {
         } else {
             self.snippet = itemDescription.strippingHTML()
         }
+        audioURL = try container.decodeIfPresent(String.self, forKey: .audioURL)
+        audioDuration = try container.decodeIfPresent(String.self, forKey: .audioDuration)
+        audioType = try container.decodeIfPresent(String.self, forKey: .audioType)
+        audioLength = try container.decodeIfPresent(Int64.self, forKey: .audioLength)
+        playbackPosition = try container.decodeIfPresent(Double.self, forKey: .playbackPosition) ?? 0.0
+        isFinished = try container.decodeIfPresent(Bool.self, forKey: .isFinished) ?? false
     }
 }

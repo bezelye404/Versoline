@@ -19,6 +19,7 @@
 		565F54A2DEB2ED5ABDF959DA /* EasyRSSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF02B31D85C44FE4C109EAEB /* EasyRSSApp.swift */; };
 		5B3E5B6A2581C298263EA0EA /* ConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D69912A3269276DAF4FFAF45 /* ConsoleView.swift */; };
 		5C5E99C16EE7825CB24E9458 /* CuratedFeedManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795DF17736FD36D98F8A0532 /* CuratedFeedManager.swift */; };
+		5F8A527790BBD9AED729D7B1 /* AudioPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88847BD64845297886AEDBE0 /* AudioPlayerService.swift */; };
 		63EFB75394FFF56972A9311D /* FaviconService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA044137A15A6712344733C7 /* FaviconService.swift */; };
 		65B7FEECD3E1AC13D26FCE75 /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038186F086CEE92C0BC58C16 /* Folder.swift */; };
 		86F3651A20127B70130AAA47 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EB2B47B5FDC0386B5BE7A031 /* Assets.xcassets */; };
@@ -36,6 +37,7 @@
 		DCCBADE8B9C020813BFC8EA2 /* ReaderModeExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAFF94CE0115919DD1CD0EAA /* ReaderModeExtractor.swift */; };
 		F3F40F23F3F519D7193ECDB0 /* SidebarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD8A26D53207DCE596BE15D /* SidebarItem.swift */; };
 		F5A9A06F36B551A1F9FD945C /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B7F4F5DB90608B6618A7E65 /* Feed.swift */; };
+		FB8B097CFEC850DED54C870D /* MiniPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76ABF999503ABD2777398A9C /* MiniPlayerView.swift */; };
 		FCCFD7AB89EA563D84733CC1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BBEB79D86CCB9835183130A /* ContentView.swift */; };
 /* End PBXBuildFile section */
 
@@ -52,10 +54,12 @@
 		541CCECE17865AC0A57C3092 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		70111542A0F0A2F41B2BBA8D /* FeedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItem.swift; sourceTree = "<group>"; };
 		760474E1E310F43551422038 /* CuratedDiscoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CuratedDiscoverView.swift; sourceTree = "<group>"; };
+		76ABF999503ABD2777398A9C /* MiniPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPlayerView.swift; sourceTree = "<group>"; };
 		785E78CA77152E7FE78C1237 /* FeedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedStore.swift; sourceTree = "<group>"; };
 		795DF17736FD36D98F8A0532 /* CuratedFeedManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CuratedFeedManager.swift; sourceTree = "<group>"; };
 		8662D9AE64DB139E0FD25AC6 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		8685C42D6F5E40EA3963BC4D /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		88847BD64845297886AEDBE0 /* AudioPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerService.swift; sourceTree = "<group>"; };
 		9B7684318C6B5989562330B5 /* EasyRSS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EasyRSS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1ECF353593F446BEC8AA878 /* HTMLCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLCleaner.swift; sourceTree = "<group>"; };
 		A924150A9FB1F2E84DB62914 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
@@ -103,6 +107,7 @@
 				1BBEB79D86CCB9835183130A /* ContentView.swift */,
 				760474E1E310F43551422038 /* CuratedDiscoverView.swift */,
 				0183323EB4976E4330F68AAE /* FeedListView.swift */,
+				76ABF999503ABD2777398A9C /* MiniPlayerView.swift */,
 				8685C42D6F5E40EA3963BC4D /* SidebarView.swift */,
 				F7F354C3EA028686CD3E2BA1 /* WebView.swift */,
 				2C3F2AA6C98A82A52CF1F73C /* Settings */,
@@ -135,6 +140,7 @@
 			isa = PBXGroup;
 			children = (
 				13820ADBEB009A4A7A212BFF /* AppLogger.swift */,
+				88847BD64845297886AEDBE0 /* AudioPlayerService.swift */,
 				AD6EB7F5AE119EB8406DE3DC /* ContentBlockerService.swift */,
 				795DF17736FD36D98F8A0532 /* CuratedFeedManager.swift */,
 				BA044137A15A6712344733C7 /* FaviconService.swift */,
@@ -246,6 +252,7 @@
 				D4158C2C7CA5441F72758588 /* AppLogger.swift in Sources */,
 				415C86EA71BF46636C7025B8 /* AppSettings.swift in Sources */,
 				BB886C0D4FDD7292F2D75A7B /* ArticleDetailView.swift in Sources */,
+				5F8A527790BBD9AED729D7B1 /* AudioPlayerService.swift in Sources */,
 				5B3E5B6A2581C298263EA0EA /* ConsoleView.swift in Sources */,
 				C21ECAC7212E4EE56A272D5C /* ContentBlockerService.swift in Sources */,
 				FCCFD7AB89EA563D84733CC1 /* ContentView.swift in Sources */,
@@ -260,6 +267,7 @@
 				0988FDC8A62B97759BD9C716 /* FeedStore.swift in Sources */,
 				65B7FEECD3E1AC13D26FCE75 /* Folder.swift in Sources */,
 				B56EC34231A09A5124E5FD9D /* HTMLCleaner.swift in Sources */,
+				FB8B097CFEC850DED54C870D /* MiniPlayerView.swift in Sources */,
 				07653C9C418BE81D76738F41 /* NetworkMonitor.swift in Sources */,
 				332BE99960A9F197E6BAF766 /* OPMLManager.swift in Sources */,
 				39932094874073EA32CC007A /* RSSParser.swift in Sources */,

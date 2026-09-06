@@ -38,3 +38,5 @@ targets:
         ENABLE_HARDENED_RUNTIME: YES
     frameworks:
       - framework: WebKit.framework
+      - framework: AVFoundation.framework
+      - framework: MediaPlayer.framework

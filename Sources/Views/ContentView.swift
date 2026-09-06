@@ -16,14 +16,18 @@ struct ContentView: View {
     let autoRefreshTimer = Timer.publish(every: 1800, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        NavigationSplitView(columnVisibility: $columnVisibility) {
-            SidebarView(selectedItem: $selectedSidebarItem, selectedArticle: $selectedArticle)
-                .navigationSplitViewColumnWidth(min: 200, ideal: 240, max: 320)
-        } content: {
-            FeedListView(selection: selectedSidebarItem, selectedArticle: $selectedArticle)
-                .navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 480)
-        } detail: {
-            ArticleDetailView(selectedItem: selectedArticle)
+        VStack(spacing: 0) {
+            NavigationSplitView(columnVisibility: $columnVisibility) {
+                SidebarView(selectedItem: $selectedSidebarItem, selectedArticle: $selectedArticle)
+                    .navigationSplitViewColumnWidth(min: 200, ideal: 240, max: 320)
+            } content: {
+                FeedListView(selection: selectedSidebarItem, selectedArticle: $selectedArticle)
+                    .navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 480)
+            } detail: {
+                ArticleDetailView(selectedItem: selectedArticle)
+            }
+
+            MiniPlayerView()
         }
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {

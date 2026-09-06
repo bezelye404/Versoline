@@ -18,6 +18,7 @@ final class FeedStore {
     private(set) var cachedTotalUnreadCount: Int = 0
     private(set) var cachedTotalItemCount: Int = 0
     private(set) var cachedBookmarkCount: Int = 0
+    private(set) var cachedPodcastCount: Int = 0
     private var cachedFeedUnreadCounts: [UUID: Int] = [:]
 
     init() {
@@ -352,6 +353,31 @@ final class FeedStore {
         cachedBookmarkCount
     }
 
+    // MARK: - Podcasts
+
+    func podcastItems() -> [FeedItem] {
+        items.values.flatMap { $0 }
+            .filter { $0.isPodcast }
+            .sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
+    }
+
+    func podcastCount() -> Int {
+        cachedPodcastCount
+    }
+
+    func updatePlaybackProgress(for itemId: UUID, feedId: UUID, position: Double, isFinished: Bool) {
+        guard var feedItems = items[feedId],
+              let index = feedItems.firstIndex(where: { $0.id == itemId }) else { return }
+
+        feedItems[index].playbackPosition = position
+        feedItems[index].isFinished = isFinished
+        if isFinished {
+            feedItems[index].isRead = true
+        }
+        items[feedId] = feedItems
+        save()
+    }
+
     // MARK: - Queries
 
     var totalItemCount: Int {
@@ -489,6 +515,7 @@ final class FeedStore {
         var totalUnread = 0
         var totalItems = 0
         var totalBookmarks = 0
+        var totalPodcasts = 0
         var unreadPerFeed: [UUID: Int] = [:]
 
         for (feedId, list) in items {
@@ -502,6 +529,9 @@ final class FeedStore {
                 if item.isBookmarked {
                     totalBookmarks += 1
                 }
+                if item.isPodcast {
+                    totalPodcasts += 1
+                }
             }
             unreadPerFeed[feedId] = feedUnread
         }
@@ -509,6 +539,7 @@ final class FeedStore {
         self.cachedTotalUnreadCount = totalUnread
         self.cachedTotalItemCount = totalItems
         self.cachedBookmarkCount = totalBookmarks
+        self.cachedPodcastCount = totalPodcasts
         self.cachedFeedUnreadCounts = unreadPerFeed
     }
 

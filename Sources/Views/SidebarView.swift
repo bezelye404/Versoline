@@ -36,6 +36,11 @@ struct SidebarView: View {
                         .badge(store.bookmarkCount())
                 }
 
+                NavigationLink(value: SidebarItem.podcasts) {
+                    Label("Podcasts", systemImage: "headphones")
+                        .badge(store.podcastCount())
+                }
+
                 Button {
                     showDiscover = true
                 } label: {

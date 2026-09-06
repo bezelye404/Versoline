@@ -164,8 +164,125 @@ struct ArticleDetailView: View {
                 actionToolbar(item: item)
                     .fixedSize(horizontal: true, vertical: false)
             }
+
+            // Podcast Episode Card
+            if item.isPodcast {
+                podcastEpisodeCard(item: item)
+            }
         }
         .padding(16)
+    }
+
+    // MARK: - Podcast Episode Card
+
+    @ViewBuilder
+    private func podcastEpisodeCard(item: FeedItem) -> some View {
+        let player = AudioPlayerService.shared
+        let isCurrentEpisode = player.currentEpisode?.id == item.id
+        let isPlaying = isCurrentEpisode && player.isPlaying
+
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 12) {
+                // Play / Pause Circle Button
+                Button {
+                    player.play(item: item, feedTitle: currentFeed?.title, store: store)
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                            .font(.system(size: 13, weight: .bold))
+
+                        Text(isPlaying ? String(localized: "Pause") : (
+                            isCurrentEpisode ? String(localized: "Resume") : (
+                                (item.playbackPosition > 5 && !item.isFinished) ? String(format: String(localized: "Resume (%@)"), formatDuration(item.playbackPosition)) : String(localized: "Play Episode")
+                            )
+                        ))
+                        .font(.system(size: 12, weight: .semibold))
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 7)
+                    .background(Color.accentColor)
+                    .foregroundStyle(.white)
+                    .clipShape(Capsule())
+                }
+                .buttonStyle(.plain)
+
+                if isCurrentEpisode {
+                    Button {
+                        player.skipBackward(seconds: 15)
+                    } label: {
+                        Image(systemName: "gobackward.15")
+                            .font(.system(size: 13))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.secondary)
+                    .help(String(localized: "Skip backward 15 seconds"))
+
+                    Button {
+                        player.skipForward(seconds: 15)
+                    } label: {
+                        Image(systemName: "goforward.15")
+                            .font(.system(size: 13))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.secondary)
+                    .help(String(localized: "Skip forward 15 seconds"))
+                }
+
+                Spacer()
+
+                // Metadata Badges: Duration & File Size
+                HStack(spacing: 8) {
+                    if let duration = item.formattedDuration {
+                        Label(duration, systemImage: "headphones")
+                            .font(.caption2.weight(.medium))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.secondary.opacity(0.1))
+                            .clipShape(Capsule())
+                    }
+
+                    if let length = item.audioLength, length > 0 {
+                        let mb = Double(length) / (1024 * 1024)
+                        Text(String(format: "%.1f MB", mb))
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.secondary.opacity(0.1))
+                            .clipShape(Capsule())
+                    }
+                }
+            }
+
+            // Progress bar if in progress
+            if isCurrentEpisode && player.duration > 0 {
+                ProgressView(value: player.currentTime, total: player.duration)
+                    .tint(Color.accentColor)
+            } else if item.playbackPosition > 0 && !item.isFinished {
+                ProgressView(value: item.progressFraction, total: 1.0)
+                    .tint(Color.accentColor.opacity(0.7))
+            }
+        }
+        .padding(12)
+        .background(Color.accentColor.opacity(0.06))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.accentColor.opacity(0.18), lineWidth: 1)
+        )
+    }
+
+    private func formatDuration(_ seconds: Double) -> String {
+        guard seconds.isFinite && seconds >= 0 else { return "0:00" }
+        let total = Int(seconds)
+        let hours = total / 3600
+        let minutes = (total % 3600) / 60
+        let secs = total % 60
+        if hours > 0 {
+            return String(format: "%d:%02d:%02d", hours, minutes, secs)
+        } else {
+            return String(format: "%d:%02d", minutes, secs)
+        }
     }
 
     // MARK: - Action Toolbar

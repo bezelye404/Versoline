@@ -17,6 +17,7 @@ struct FeedListView: View {
         case .unread: return String(localized: "Unread")
         case .today: return String(localized: "Today")
         case .bookmarks: return String(localized: "Bookmarks")
+        case .podcasts: return String(localized: "Podcasts")
         case .feed(let id): return store.feed(for: id)?.title ?? String(localized: "Feed")
         case nil: return ""
         }
@@ -24,7 +25,7 @@ struct FeedListView: View {
 
     private var showFeedName: Bool {
         switch selection {
-        case .all, .bookmarks, .unread, .today: return true
+        case .all, .bookmarks, .unread, .today, .podcasts: return true
         default: return false
         }
     }
@@ -47,6 +48,8 @@ struct FeedListView: View {
             base = store.todayItems()
         case .bookmarks:
             base = store.bookmarkedItems()
+        case .podcasts:
+            base = store.podcastItems()
         case .feed(let id):
             base = store.itemsForFeed(id)
         case nil:
@@ -310,6 +313,7 @@ struct FeedListView: View {
         case .unread: return "envelope.open"
         case .today: return "clock"
         case .bookmarks: return "star"
+        case .podcasts: return "headphones"
         case .feed: return "newspaper"
         }
     }
@@ -320,6 +324,7 @@ struct FeedListView: View {
         case .unread: return String(localized: "No unread articles.")
         case .today: return String(localized: "No articles from today.")
         case .bookmarks: return String(localized: "No bookmarked articles yet.")
+        case .podcasts: return String(localized: "No podcast episodes yet.")
         case .feed: return String(localized: "No articles in this feed yet.")
         }
     }
@@ -396,6 +401,23 @@ struct FeedItemRow: View {
                             Text(formattedDate)
                                 .font(.caption2)
                                 .foregroundStyle(.tertiary)
+                        }
+
+                        if item.isPodcast {
+                            let player = AudioPlayerService.shared
+                            let isPlayingThis = player.currentEpisode?.id == item.id && player.isPlaying
+                            HStack(spacing: 3) {
+                                Image(systemName: isPlayingThis ? "waveform" : "headphones")
+                                if let duration = item.formattedDuration {
+                                    Text(duration)
+                                }
+                            }
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(isPlayingThis ? Color.accentColor : Color.secondary)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1.5)
+                            .background(isPlayingThis ? Color.accentColor.opacity(0.15) : Color.secondary.opacity(0.08))
+                            .clipShape(Capsule())
                         }
                     }
                 }

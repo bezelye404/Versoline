@@ -20,6 +20,12 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
     private var isInsideChannel: Bool = false
     private var isInsideImage: Bool = false
 
+    // Podcast support
+    private var currentAudioURL: String?
+    private var currentAudioDuration: String = ""
+    private var currentAudioType: String?
+    private var currentAudioLength: Int64?
+
     // Atom support
     private var isAtomFeed: Bool = false
 
@@ -144,21 +150,56 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
             currentPubDate = ""
             currentAuthor = ""
             currentContent = ""
+            currentAudioURL = nil
+            currentAudioDuration = ""
+            currentAudioType = nil
+            currentAudioLength = nil
 
         case "image":
             if !isInsideItem {
                 isInsideImage = true
             }
 
+        case "enclosure":
+            if isInsideItem {
+                if let url = attributeDict["url"] {
+                    let type = attributeDict["type"]?.lowercased() ?? ""
+                    let isAudio = type.contains("audio") || url.hasSuffix(".mp3") || url.hasSuffix(".m4a") || url.hasSuffix(".aac") || url.hasSuffix(".wav") || url.hasSuffix(".ogg")
+                    if isAudio || currentAudioURL == nil {
+                        currentAudioURL = url
+                        currentAudioType = attributeDict["type"]
+                        if let lengthStr = attributeDict["length"], let length = Int64(lengthStr) {
+                            currentAudioLength = length
+                        }
+                    }
+                }
+            }
+
         case "link":
             if isAtomFeed {
                 if let href = attributeDict["href"] {
-                    let rel = attributeDict["rel"] ?? "alternate"
-                    if rel == "alternate" || rel.isEmpty {
+                    let rel = (attributeDict["rel"] ?? "alternate").lowercased()
+                    let type = attributeDict["type"]?.lowercased() ?? ""
+                    if rel == "enclosure" || type.contains("audio") {
+                        if isInsideItem {
+                            currentAudioURL = href
+                            currentAudioType = attributeDict["type"]
+                            if let lengthStr = attributeDict["length"], let length = Int64(lengthStr) {
+                                currentAudioLength = length
+                            }
+                        }
+                    } else if rel == "alternate" || rel.isEmpty {
                         if isInsideItem {
                             currentLink = href
                         }
                     }
+                }
+            }
+
+        case "itunes:image":
+            if let href = attributeDict["href"] {
+                if !isInsideItem && feedImageURL == nil {
+                    feedImageURL = href
                 }
             }
 
@@ -212,6 +253,11 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
                 feedImageURL = (feedImageURL ?? "") + trimmed
             }
 
+        case "itunes:duration", "duration":
+            if isInsideItem {
+                currentAudioDuration += trimmed
+            }
+
         default:
             break
         }
@@ -247,7 +293,11 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
                 author: cleanAuthor.isEmpty ? nil : cleanAuthor,
                 isRead: false,
                 content: cleanContent.isEmpty ? nil : cleanContent,
-                snippet: precomputedSnippet
+                snippet: precomputedSnippet,
+                audioURL: currentAudioURL,
+                audioDuration: currentAudioDuration.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : currentAudioDuration.trimmingCharacters(in: .whitespacesAndNewlines),
+                audioType: currentAudioType,
+                audioLength: currentAudioLength
             )
             items.append(item)
             isInsideItem = false

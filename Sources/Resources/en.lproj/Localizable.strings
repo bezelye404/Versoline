@@ -178,3 +178,20 @@
 "Block Ads & Trackers (WebKit Content Blocker)" = "Block Ads & Trackers (WebKit Content Blocker)";
 "Enables native WebKit content blocking for live web browsing. Blocks advertising networks, analytics trackers, and popup scripts while keeping RSS feeds untouched." = "Enables native WebKit content blocking for live web browsing. Blocks advertising networks, analytics trackers, and popup scripts while keeping RSS feeds untouched.";
 
+/* Podcasts */
+"Podcasts" = "Podcasts";
+"Podcast" = "Podcast";
+"Play Episode" = "Play Episode";
+"Pause Episode" = "Pause Episode";
+"Resume Episode" = "Resume Episode";
+"Resume" = "Resume";
+"Resume (%@)" = "Resume (%@)";
+"Resume (at %@)" = "Resume (at %@)";
+"No podcast episodes yet." = "No podcast episodes yet.";
+"No podcast episodes found." = "No podcast episodes found.";
+"Playback Speed" = "Playback Speed";
+"Skip backward 15 seconds" = "Skip backward 15 seconds";
+"Skip forward 15 seconds" = "Skip forward 15 seconds";
+"Close Player" = "Close Player";
+"Audio" = "Audio";
+

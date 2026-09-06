@@ -1,5 +1,38 @@
 [
   {
+    "category": "🎙️ Podcasts",
+    "feeds": [
+      {
+        "title": "Accidental Tech Podcast (ATP)",
+        "url": "https://atp.fm/episodes?format=rss"
+      },
+      {
+        "title": "Syntax - Web Development Treats",
+        "url": "https://feed.syntax.fm/"
+      },
+      {
+        "title": "The Vergecast",
+        "url": "https://feeds.megaphone.fm/vergecast"
+      },
+      {
+        "title": "NPR News Now",
+        "url": "https://feeds.npr.org/500005/podcast.xml"
+      },
+      {
+        "title": "Lex Fridman Podcast",
+        "url": "https://lexfridman.com/feed/podcast/"
+      },
+      {
+        "title": "Nasıl Olunur? (Nilay Örnek)",
+        "url": "https://feeds.megaphone.fm/nasilolunur"
+      },
+      {
+        "title": "Fularsız Entellik",
+        "url": "https://anchor.fm/s/172c67c/podcast/rss"
+      }
+    ]
+  },
+  {
     "category": "🇹🇷 Bilim",
     "feeds": [
       {
