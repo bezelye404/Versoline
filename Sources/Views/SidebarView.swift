@@ -15,22 +15,25 @@ struct SidebarView: View {
         List(selection: $selectedItem) {
             // Smart Lists
             Section("Library") {
-                Label("All Articles", systemImage: "tray.full")
-                    .tag(SidebarItem.all)
-                    .badge(store.totalUnreadCount())
+                NavigationLink(value: SidebarItem.all) {
+                    Label("All Articles", systemImage: "tray.full")
+                        .badge(store.totalUnreadCount())
+                }
 
-                Label("Bookmarks", systemImage: "star")
-                    .tag(SidebarItem.bookmarks)
-                    .badge(store.bookmarkCount())
+                NavigationLink(value: SidebarItem.bookmarks) {
+                    Label("Bookmarks", systemImage: "star")
+                        .badge(store.bookmarkCount())
+                }
             }
 
             // Folders with feeds
             ForEach(store.folders) { folder in
                 Section {
                     ForEach(store.feedsInFolder(folder.id)) { feed in
-                        FeedRow(feed: feed)
-                            .tag(SidebarItem.feed(feed.id))
-                            .contextMenu { feedContextMenu(feed: feed) }
+                        NavigationLink(value: SidebarItem.feed(feed.id)) {
+                            FeedRow(feed: feed)
+                        }
+                        .contextMenu { feedContextMenu(feed: feed) }
                     }
                 } header: {
                     Text(folder.name)
@@ -56,9 +59,10 @@ struct SidebarView: View {
             if !uncategorized.isEmpty {
                 Section(store.folders.isEmpty ? "Feeds" : "Uncategorized") {
                     ForEach(uncategorized) { feed in
-                        FeedRow(feed: feed)
-                            .tag(SidebarItem.feed(feed.id))
-                            .contextMenu { feedContextMenu(feed: feed) }
+                        NavigationLink(value: SidebarItem.feed(feed.id)) {
+                            FeedRow(feed: feed)
+                        }
+                        .contextMenu { feedContextMenu(feed: feed) }
                     }
                 }
             }
