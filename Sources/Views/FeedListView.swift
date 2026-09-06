@@ -9,11 +9,11 @@ struct FeedListView: View {
 
     private var title: String {
         switch selection {
-        case .all: return String(localized: "All Articles", bundle: .appResources)
-        case .unread: return String(localized: "Unread", bundle: .appResources)
-        case .today: return String(localized: "Today", bundle: .appResources)
-        case .bookmarks: return String(localized: "Bookmarks", bundle: .appResources)
-        case .feed(let id): return store.feed(for: id)?.title ?? String(localized: "Feed", bundle: .appResources)
+        case .all: return String(localized: "All Articles")
+        case .unread: return String(localized: "Unread")
+        case .today: return String(localized: "Today")
+        case .bookmarks: return String(localized: "Bookmarks")
+        case .feed(let id): return store.feed(for: id)?.title ?? String(localized: "Feed")
         case nil: return ""
         }
     }
@@ -67,12 +67,12 @@ struct FeedListView: View {
                         Text("No results found")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
-                        Text(String(format: String(localized: "No articles matching \"%@\".", bundle: .appResources), searchText))
+                        Text(String(format: String(localized: "No articles matching \"%@\"."), searchText))
                             .font(.caption)
                             .foregroundStyle(.tertiary)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .searchable(text: $searchText, prompt: Text("Search Articles", bundle: .appResources))
+                    .searchable(text: $searchText, prompt: Text("Search Articles"))
                     .navigationTitle(title)
                 } else {
                     List(selection: $selectedArticle) {
@@ -88,7 +88,7 @@ struct FeedListView: View {
                         }
                     }
                     .listStyle(.inset)
-                    .searchable(text: $searchText, prompt: Text("Search Articles", bundle: .appResources))
+                    .searchable(text: $searchText, prompt: Text("Search Articles"))
                     .navigationTitle(title)
                     .toolbar {
                         ToolbarItem(placement: .automatic) {
@@ -146,11 +146,11 @@ struct FeedListView: View {
     @ViewBuilder
     private func emptyState(for item: SidebarItem) -> some View {
         let (icon, message): (String, String) = switch item {
-        case .all: ("tray", String(localized: "No articles yet. Start by adding a feed.", bundle: .appResources))
-        case .bookmarks: ("star", String(localized: "No bookmarked articles yet.", bundle: .appResources))
-        case .feed: ("doc.text.magnifyingglass", String(localized: "No articles in this feed yet.", bundle: .appResources))
-        case .unread: ("envelope.badge", String(localized: "No unread articles.", bundle: .appResources))
-        case .today: ("clock", String(localized: "No articles from today.", bundle: .appResources))
+        case .all: ("tray", String(localized: "No articles yet. Start by adding a feed."))
+        case .bookmarks: ("star", String(localized: "No bookmarked articles yet."))
+        case .feed: ("doc.text.magnifyingglass", String(localized: "No articles in this feed yet."))
+        case .unread: ("envelope.badge", String(localized: "No unread articles."))
+        case .today: ("clock", String(localized: "No articles from today."))
         }
 
         VStack(spacing: 12) {
