@@ -7,7 +7,7 @@ final class ContentBlockerService {
 
     static let shared = ContentBlockerService()
 
-    private let ruleListIdentifier = "EasyRSSContentBlockerRules-v5"
+    private let ruleListIdentifier = "EasyRSSContentBlockerRules-v6"
     private(set) var ruleList: WKContentRuleList?
     private(set) var isReady: Bool = false
 
@@ -29,7 +29,7 @@ final class ContentBlockerService {
         if let cached = await lookupRuleList(store: store) {
             self.ruleList = cached
             self.isReady = true
-            AppLogger.shared.log("Pre-compiled content blocker rules (v5) loaded from store cache.", level: .info, category: .system)
+            AppLogger.shared.log("Pre-compiled content blocker rules (v6) loaded from store cache.", level: .info, category: .system)
             return
         }
 
@@ -57,7 +57,7 @@ final class ContentBlockerService {
                     } else if let compiled = compiled {
                         self?.ruleList = compiled
                         self?.isReady = true
-                        AppLogger.shared.log("Successfully compiled native WebKit content blocker rules (v5).", level: .info, category: .system)
+                        AppLogger.shared.log("Successfully compiled native WebKit content blocker rules (v6).", level: .info, category: .system)
                     }
                     continuation.resume()
                 }
@@ -70,128 +70,153 @@ final class ContentBlockerService {
 
 private enum ContentBlockerRules {
 
-    static let rulesJSON: String = """
-    [
-      {
-        "trigger": {
-          "url-filter": ".*",
-          "resource-type": ["popup"]
-        },
-        "action": {
-          "type": "block"
-        }
-      },
-      {
-        "trigger": {
-          "url-filter": ".*",
-          "if-domain": [
-            "*doubleclick.net",
-            "*googlesyndication.com",
-            "*googleadservices.com",
-            "*google-analytics.com",
-            "*googletagmanager.com",
-            "*adnxs.com",
-            "*taboola.com",
-            "*outbrain.com",
-            "*criteo.com",
-            "*criteo.net",
-            "*scorecardresearch.com",
-            "*amazon-adsystem.com",
-            "*connect.facebook.net",
-            "*rubiconproject.com",
-            "*pubmatic.com",
-            "*openx.net",
-            "*moatads.com",
-            "*clarity.ms",
-            "*hotjar.com",
-            "*quantserve.com",
-            "*buysellads.com",
-            "*revcontent.com",
-            "*media.net",
-            "*casalemedia.com",
-            "*smartadserver.com",
-            "*yieldmo.com",
-            "*triplelift.com",
-            "*sharethrough.com",
-            "*sovrn.com",
-            "*indexexchange.com",
-            "*admiral.com",
-            "*fundingchoicesmessages.google.com",
-            "*popads.net",
-            "*propellerads.com",
-            "*popcash.net",
-            "*adsterra.com",
-            "*adcash.com",
-            "*clickadu.com",
-            "*exoclick.com",
-            "*hilltopads.com",
-            "*monetag.com",
-            "*mgid.com",
-            "*yektanet.com",
-            "*zeropark.com",
-            "*richpush.com",
-            "*pushwoosh.com",
-            "*onesignal.com",
-            "*useinsider.com",
-            "*webpushr.com",
-            "*subscribers.com",
-            "*connatix.com",
-            "*teads.tv",
-            "*teads.com",
-            "*primis.tech",
-            "*aniview.com",
-            "*vidoomy.com",
-            "*anyclip.com",
-            "*brid.tv",
-            "*playstream.media",
-            "*exco.tv",
-            "*adform.net",
-            "*ligatus.com",
-            "*plista.com",
-            "*stroeer.de",
-            "*adition.com",
-            "*smartclip.net",
-            "*yieldlab.net",
-            "*cpex.cz",
-            "*mc.yandex.ru",
-            "*an.yandex.ru",
-            "*adfox.ru",
-            "*rambler.ru",
-            "*begun.ru",
-            "*sape.ru",
-            "*recreativ.ru",
-            "*kadam.net",
-            "*reklamstore.com",
-            "*admatic.com.tr",
-            "*medyanet.com.tr",
-            "*gemius.pl",
-            "*gemius.com",
-            "*pigeoon.com",
-            "*ad01.tmgrup.com.tr",
-            "*virgul.com",
-            "*virgul.com.tr",
-            "*gelirortaklari.com",
-            "*i-mobile.co.jp",
-            "*microad.jp",
-            "*fluct.jp",
-            "*geniee.co.jp",
-            "*ad-stir.com",
-            "*popin.cc"
-          ]
-        },
-        "action": {
-          "type": "block"
-        }
-      },
-      {
-        "trigger": {
-          "url-filter": ".*"
-        },
-        "action": {
-          "type": "css-display-none",
-          "selector": ".advertisement, .ad-banner, .adsbygoogle, .taboola-container, #outbrain, div[id^='google_ads_'], div[id^='div-gpt-ad'], div[id^='ad-banner'], .sponsor-post, .dfp-ad, #ad-slot, ins.adsbygoogle, .ad-wrapper, .ad-container, [class*='ad-banner'], [class*='ad-modal'], [class*='popup-ad'], [id*='popup-ad'], [class*='newsletter-popup'], [class*='sticky-ad'], [id*='sticky-ad'], [class*='floating-ad'], [class*='ad-interstitial'], [id*='ad-interstitial'], .connatix-slot, .teads-inread, [class*='sponsored-post'], [class*='promoted-content'], [id^='taboola-'], [class^='outbrain-']"
-        }
-      }
+    private static let blockedDomains: [String] = [
+        // Global & US Ad Networks & Trackers
+        "doubleclick.net",
+        "googlesyndication.com",
+        "googleadservices.com",
+        "google-analytics.com",
+        "googletagmanager.com",
+        "adnxs.com",
+        "taboola.com",
+        "outbrain.com",
+        "criteo.com",
+        "criteo.net",
+        "scorecardresearch.com",
+        "amazon-adsystem.com",
+        "connect.facebook.net",
+        "rubiconproject.com",
+        "pubmatic.com",
+        "openx.net",
+        "moatads.com",
+        "clarity.ms",
+        "hotjar.com",
+        "quantserve.com",
+        "buysellads.com",
+        "revcontent.com",
+        "media.net",
+        "casalemedia.com",
+        "smartadserver.com",
+        "yieldmo.com",
+        "triplelift.com",
+        "sharethrough.com",
+        "sovrn.com",
+        "indexexchange.com",
+        "admiral.com",
+        "fundingchoicesmessages.google.com",
+
+        // Pop-ups, Pop-unders & Aggressive Ad Networks
+        "popads.net",
+        "propellerads.com",
+        "popcash.net",
+        "adsterra.com",
+        "adcash.com",
+        "clickadu.com",
+        "exoclick.com",
+        "hilltopads.com",
+        "monetag.com",
+        "mgid.com",
+        "yektanet.com",
+        "zeropark.com",
+        "richpush.com",
+        "pushwoosh.com",
+        "onesignal.com",
+        "useinsider.com",
+        "webpushr.com",
+        "subscribers.com",
+
+        // Video & Floating Outstream Ads
+        "connatix.com",
+        "teads.tv",
+        "teads.com",
+        "primis.tech",
+        "aniview.com",
+        "vidoomy.com",
+        "anyclip.com",
+        "brid.tv",
+        "playstream.media",
+        "exco.tv",
+
+        // European & Regional
+        "adform.net",
+        "ligatus.com",
+        "plista.com",
+        "stroeer.de",
+        "adition.com",
+        "smartclip.net",
+        "yieldlab.net",
+        "cpex.cz",
+
+        // Russian & Eastern European
+        "mc.yandex.ru",
+        "an.yandex.ru",
+        "adfox.ru",
+        "rambler.ru",
+        "begun.ru",
+        "sape.ru",
+        "recreativ.ru",
+        "kadam.net",
+
+        // Turkish & Regional
+        "reklamstore.com",
+        "admatic.com.tr",
+        "medyanet.com.tr",
+        "gemius.pl",
+        "gemius.com",
+        "pigeoon.com",
+        "ad01.tmgrup.com.tr",
+        "virgul.com",
+        "virgul.com.tr",
+        "gelirortaklari.com",
+
+        // Asian / Pacific
+        "i-mobile.co.jp",
+        "microad.jp",
+        "fluct.jp",
+        "geniee.co.jp",
+        "ad-stir.com",
+        "popin.cc"
     ]
-    """
+
+    static let rulesJSON: String = {
+        var rules: [[String: Any]] = [
+            [
+                "trigger": [
+                    "url-filter": ".*",
+                    "resource-type": ["popup"]
+                ],
+                "action": [
+                    "type": "block"
+                ]
+            ]
+        ]
+
+        for domain in blockedDomains {
+            let escaped = domain.replacingOccurrences(of: ".", with: "\\.")
+            rules.append([
+                "trigger": [
+                    "url-filter": ".*\(escaped).*"
+                ],
+                "action": [
+                    "type": "block"
+                ]
+            ])
+        }
+
+        rules.append([
+            "trigger": [
+                "url-filter": ".*"
+            ],
+            "action": [
+                "type": "css-display-none",
+                "selector": ".advertisement, .ad-banner, .adsbygoogle, .taboola-container, #outbrain, div[id^='google_ads_'], div[id^='div-gpt-ad'], div[id^='ad-banner'], .sponsor-post, .dfp-ad, #ad-slot, ins.adsbygoogle, .ad-wrapper, .ad-container, [class*='ad-banner'], [class*='ad-modal'], [class*='popup-ad'], [id*='popup-ad'], [class*='newsletter-popup'], [class*='sticky-ad'], [id*='sticky-ad'], [class*='floating-ad'], [class*='ad-interstitial'], [id*='ad-interstitial'], .connatix-slot, .teads-inread, [class*='sponsored-post'], [class*='promoted-content'], [id^='taboola-'], [class^='outbrain-']"
+            ]
+        ])
+
+        guard let data = try? JSONSerialization.data(withJSONObject: rules, options: []),
+              let jsonString = String(data: data, encoding: .utf8) else {
+            return "[]"
+        }
+        return jsonString
+    }()
 }

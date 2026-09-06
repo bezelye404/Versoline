@@ -55,14 +55,41 @@ struct WebView: NSViewRepresentable {
             config.userContentController.add(ruleList)
         }
 
-        // Neutralize in-page Web Push permission prompts
+        // Neutralize browser-level popups, dialogs, web push prompts, and scroll-locks
         if url != nil {
-            let pushSuppressScript = WKUserScript(
-                source: "if(window.Notification){window.Notification.requestPermission=function(){return Promise.resolve('denied');};window.Notification.permission='denied';}",
+            let popupNeutralizerSource = """
+            (function() {
+                try {
+                    window.open = function() { return null; };
+                    window.alert = function() {};
+                    window.confirm = function() { return false; };
+                    window.prompt = function() { return null; };
+                    if (window.Notification) {
+                        window.Notification.requestPermission = function() { return Promise.resolve('denied'); };
+                        window.Notification.permission = 'denied';
+                    }
+                    var unlockScroll = function() {
+                        if (document.documentElement) {
+                            document.documentElement.style.setProperty('overflow', 'auto', 'important');
+                        }
+                        if (document.body) {
+                            document.body.style.setProperty('overflow', 'auto', 'important');
+                        }
+                    };
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', unlockScroll);
+                    } else {
+                        unlockScroll();
+                    }
+                } catch(e) {}
+            })();
+            """
+            let popupNeutralizerScript = WKUserScript(
+                source: popupNeutralizerSource,
                 injectionTime: .atDocumentStart,
                 forMainFrameOnly: false
             )
-            config.userContentController.addUserScript(pushSuppressScript)
+            config.userContentController.addUserScript(popupNeutralizerScript)
         }
 
         let webView = WKWebView(frame: .zero, configuration: config)
