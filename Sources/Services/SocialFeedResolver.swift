@@ -160,50 +160,93 @@ final class SocialFeedResolver {
 
         do {
             let (data, response) = try await Self.session.data(for: request)
-            guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-                throw SocialFeedError.channelNotFound
-            }
+            if let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) {
+                let html = String(decoding: data, as: UTF8.self)
 
-            // Only examine the first 100KB of the HTML document
-            let snippetLength = min(data.count, 102400)
-            let html = String(decoding: data.prefix(snippetLength), as: UTF8.self)
+                // Pattern 1: <link rel="alternate" type="application/rss+xml" title="RSS" href="https://www.youtube.com/feeds/videos.xml?channel_id=UC...">
+                if let rssMatch = html.range(of: #"https://www.youtube.com/feeds/videos.xml\?channel_id=([a-zA-Z0-9_-]+)"#, options: .regularExpression) {
+                    let fullRSS = String(html[rssMatch])
+                    let channelId = fullRSS.replacingOccurrences(of: "https://www.youtube.com/feeds/videos.xml?channel_id=", with: "")
+                    let title = Self.extractTitle(from: html)
+                    return YouTubeChannelResult(rssURL: fullRSS, channelId: channelId, title: title)
+                }
 
-            // Pattern 1: <link rel="alternate" type="application/rss+xml" title="RSS" href="https://www.youtube.com/feeds/videos.xml?channel_id=UC...">
-            if let rssMatch = html.range(of: #"https://www.youtube.com/feeds/videos.xml\?channel_id=([a-zA-Z0-9_-]+)"#, options: .regularExpression) {
-                let fullRSS = String(html[rssMatch])
-                let channelId = fullRSS.replacingOccurrences(of: "https://www.youtube.com/feeds/videos.xml?channel_id=", with: "")
-                let title = Self.extractTitle(from: html)
-                return YouTubeChannelResult(rssURL: fullRSS, channelId: channelId, title: title)
-            }
-
-            // Pattern 2: "channelId":"UC..."
-            if let idMatch = html.range(of: #""channelId":"(UC[a-zA-Z0-9_-]+)""#, options: .regularExpression) {
-                let token = String(html[idMatch])
-                let channelId = token.replacingOccurrences(of: #""channelId":""#, with: "").replacingOccurrences(of: #"""#, with: "")
-                let rss = "https://www.youtube.com/feeds/videos.xml?channel_id=\(channelId)"
-                let title = Self.extractTitle(from: html)
-                return YouTubeChannelResult(rssURL: rss, channelId: channelId, title: title)
-            }
-
-            // Pattern 3: itemprop="channelId" content="UC..."
-            if let metaMatch = html.range(of: #"itemprop="channelId"\s+content="(UC[a-zA-Z0-9_-]+)""#, options: .regularExpression) {
-                let token = String(html[metaMatch])
-                if let contentRange = token.range(of: #"content="(UC[a-zA-Z0-9_-]+)""#, options: .regularExpression) {
-                    let channelId = String(token[contentRange])
-                        .replacingOccurrences(of: #"content=""#, with: "")
-                        .replacingOccurrences(of: #"""#, with: "")
+                // Pattern 2: "channelId":"UC..."
+                if let idMatch = html.range(of: #""channelId":"(UC[a-zA-Z0-9_-]+)""#, options: .regularExpression) {
+                    let token = String(html[idMatch])
+                    let channelId = token.replacingOccurrences(of: #""channelId":""#, with: "").replacingOccurrences(of: #"""#, with: "")
                     let rss = "https://www.youtube.com/feeds/videos.xml?channel_id=\(channelId)"
                     let title = Self.extractTitle(from: html)
                     return YouTubeChannelResult(rssURL: rss, channelId: channelId, title: title)
                 }
+
+                // Pattern 3: itemprop="channelId" content="UC..."
+                if let metaMatch = html.range(of: #"itemprop="channelId"\s+content="(UC[a-zA-Z0-9_-]+)""#, options: .regularExpression) {
+                    let token = String(html[metaMatch])
+                    if let contentRange = token.range(of: #"content="(UC[a-zA-Z0-9_-]+)""#, options: .regularExpression) {
+                        let channelId = String(token[contentRange])
+                            .replacingOccurrences(of: #"content=""#, with: "")
+                            .replacingOccurrences(of: #"""#, with: "")
+                        let rss = "https://www.youtube.com/feeds/videos.xml?channel_id=\(channelId)"
+                        let title = Self.extractTitle(from: html)
+                        return YouTubeChannelResult(rssURL: rss, channelId: channelId, title: title)
+                    }
+                }
+            }
+
+            // Fallback: search YouTube channel results
+            if let searchResult = await Self.searchYouTube(query: raw) {
+                return searchResult
             }
 
             throw SocialFeedError.channelNotFound
         } catch let err as SocialFeedError {
+            if let searchResult = await Self.searchYouTube(query: raw) {
+                return searchResult
+            }
             throw err
         } catch {
+            if let searchResult = await Self.searchYouTube(query: raw) {
+                return searchResult
+            }
             throw SocialFeedError.networkError(error.localizedDescription)
         }
+    }
+
+    private nonisolated static func searchYouTube(query: String) async -> YouTubeChannelResult? {
+        let cleanQuery = query
+            .replacingOccurrences(of: "@", with: "")
+            .replacingOccurrences(of: "https://www.youtube.com/", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanQuery.isEmpty,
+              let encoded = cleanQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+              let url = URL(string: "https://www.youtube.com/results?search_query=\(encoded)&sp=EgIQAg%253D%253D") else {
+            return nil
+        }
+
+        var req = URLRequest(url: url)
+        req.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36", forHTTPHeaderField: "User-Agent")
+
+        guard let (data, response) = try? await session.data(for: req),
+              let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            return nil
+        }
+
+        let html = String(decoding: data, as: UTF8.self)
+
+        if let idMatch = html.range(of: #""channelId":"(UC[a-zA-Z0-9_-]+)""#, options: .regularExpression) {
+            let token = String(html[idMatch])
+            let channelId = token.replacingOccurrences(of: #""channelId":""#, with: "").replacingOccurrences(of: #"""#, with: "")
+            let rss = "https://www.youtube.com/feeds/videos.xml?channel_id=\(channelId)"
+
+            var title: String? = nil
+            if let titleMatch = html.range(of: #""title":\{"simpleText":"([^"]+)""#, options: .regularExpression) {
+                let tToken = String(html[titleMatch])
+                title = tToken.replacingOccurrences(of: #""title":{"simpleText":""#, with: "").replacingOccurrences(of: #"""#, with: "")
+            }
+            return YouTubeChannelResult(rssURL: rss, channelId: channelId, title: title)
+        }
+        return nil
     }
 
     private nonisolated static func extractTitle(from html: String) -> String? {

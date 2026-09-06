@@ -335,7 +335,13 @@ final class FeedStore {
         let unreadArticles = unreadItems().prefix(limit)
         AppLogger.shared.log("Pre-caching \(unreadArticles.count) unread articles for offline reading...", level: .info, category: .network)
         for item in unreadArticles {
-            _ = await ReaderModeExtractor.shared.extract(from: item.link)
+            _ = await ReaderModeExtractor.shared.extract(
+                from: item.link,
+                fallbackContent: item.content ?? item.itemDescription,
+                title: item.title,
+                author: item.author,
+                pubDate: item.pubDate
+            )
         }
         AppLogger.shared.log("Offline pre-caching complete", level: .info, category: .storage)
     }

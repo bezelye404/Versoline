@@ -406,14 +406,15 @@ struct ArticleDetailView: View {
     @ViewBuilder
     private func actionToolbar(item: FeedItem) -> some View {
         HStack(spacing: 8) {
-            // 2-Way Reading Mode Selector: Reader | Web
+            // 3-Way Reading Mode Selector: Reader | RSS | Web
             Picker("", selection: $activeViewMode) {
                 Text(String(localized: "Reader")).tag(ReadingViewMode.reader)
+                Text(String(localized: "RSS")).tag(ReadingViewMode.rssContent)
                 Text(String(localized: "Web")).tag(ReadingViewMode.inAppBrowser)
             }
             .pickerStyle(.segmented)
             .labelsHidden()
-            .frame(width: 140)
+            .frame(width: 195)
             .onChange(of: activeViewMode) { _, newMode in
                 if newMode == .reader && extractedReaderHTML == nil {
                     loadReaderMode(for: item)
@@ -537,11 +538,14 @@ struct ArticleDetailView: View {
     @ViewBuilder
     private func articleContent(item: FeedItem) -> some View {
         switch activeViewMode {
-        case .inAppBrowser:
-            inAppBrowserView(item: item)
-
         case .reader:
             readerModeView(item: item)
+
+        case .rssContent:
+            feedContentView(item: item)
+
+        case .inAppBrowser:
+            inAppBrowserView(item: item)
         }
     }
 
@@ -652,9 +656,32 @@ struct ArticleDetailView: View {
             return
         }
 
+        // Reddit and YouTube feeds contain full post HTML inside the RSS enclosure
+        let isReddit = item.link.lowercased().contains("reddit.com")
+        let isYouTube = item.link.lowercased().contains("youtube.com") || item.link.lowercased().contains("youtu.be")
+
+        if isReddit || isYouTube {
+            let formatted = ReaderModeExtractor.shared.formatFeedContentAsReaderHTML(
+                title: item.title,
+                author: item.author,
+                pubDate: item.pubDate,
+                htmlContent: item.content ?? item.itemDescription,
+                link: item.link
+            )
+            extractedReaderHTML = formatted
+            ReaderModeExtractor.shared.saveToCache(urlString: item.link, content: formatted)
+            return
+        }
+
         isLoadingReaderMode = true
         Task {
-            let extracted = await ReaderModeExtractor.shared.extract(from: item.link)
+            let extracted = await ReaderModeExtractor.shared.extract(
+                from: item.link,
+                fallbackContent: item.content ?? item.itemDescription,
+                title: item.title,
+                author: item.author,
+                pubDate: item.pubDate
+            )
             isLoadingReaderMode = false
             if let extracted, !extracted.isEmpty {
                 extractedReaderHTML = extracted

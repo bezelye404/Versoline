@@ -57,16 +57,67 @@ final class ReaderModeExtractor {
 
     // MARK: - Extraction
 
-    func extract(from urlString: String) async -> String? {
+    func formatFeedContentAsReaderHTML(
+        title: String,
+        author: String?,
+        pubDate: Date?,
+        htmlContent: String,
+        link: String
+    ) -> String {
+        var headerHTML = "<h1>\(title)</h1>"
+        var metaItems: [String] = []
+        if let author, !author.isEmpty {
+            metaItems.append(author)
+        }
+        if let pubDate {
+            let df = DateFormatter()
+            df.dateStyle = .medium
+            df.timeStyle = .short
+            metaItems.append(df.string(from: pubDate))
+        }
+        if !metaItems.isEmpty {
+            headerHTML += "<p style=\"opacity: 0.6; font-size: 0.9em; margin-bottom: 1.5em;\">\(metaItems.joined(separator: " • "))</p>"
+        }
+        return headerHTML + "<div class=\"reader-body\">" + htmlContent + "</div>"
+    }
+
+    func extract(
+        from urlString: String,
+        fallbackContent: String? = nil,
+        title: String? = nil,
+        author: String? = nil,
+        pubDate: Date? = nil
+    ) async -> String? {
         // 1. Check memory or disk cache first (offline support)
         if let cached = cachedContent(for: urlString) {
             return cached
         }
 
-        guard let url = URL(string: urlString) else { return nil }
+        // 2. Direct format for Reddit or YouTube
+        let isReddit = urlString.lowercased().contains("reddit.com")
+        let isYouTube = urlString.lowercased().contains("youtube.com") || urlString.lowercased().contains("youtu.be")
+
+        if (isReddit || isYouTube), let fallbackContent, !fallbackContent.isEmpty {
+            let formatted = formatFeedContentAsReaderHTML(
+                title: title ?? "",
+                author: author,
+                pubDate: pubDate,
+                htmlContent: fallbackContent,
+                link: urlString
+            )
+            saveToCache(urlString: urlString, content: formatted)
+            return formatted
+        }
+
+        guard let url = URL(string: urlString) else {
+            if let fallbackContent, !fallbackContent.isEmpty {
+                return formatFeedContentAsReaderHTML(title: title ?? "", author: author, pubDate: pubDate, htmlContent: fallbackContent, link: urlString)
+            }
+            return nil
+        }
 
         var request = URLRequest(url: url)
-        request.timeoutInterval = 10
+        request.timeoutInterval = 8
         request.setValue(
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
             forHTTPHeaderField: "User-Agent"
@@ -74,18 +125,29 @@ final class ReaderModeExtractor {
 
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
-            guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
-                return nil
-            }
-
-            let html = String(decoding: data, as: UTF8.self)
-            let cleaned = extractArticleHTML(from: html, baseURL: url)
-            if let cleaned, !cleaned.isEmpty {
-                saveToCache(urlString: urlString, content: cleaned)
-                return cleaned
+            if let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) {
+                let html = String(decoding: data, as: UTF8.self)
+                let cleaned = extractArticleHTML(from: html, baseURL: url)
+                if let cleaned, !cleaned.isEmpty {
+                    saveToCache(urlString: urlString, content: cleaned)
+                    return cleaned
+                }
             }
         } catch {
             AppLogger.shared.log("Reader mode extraction error: \(error.localizedDescription)", level: .warning, category: .network, details: urlString)
+        }
+
+        // 3. Fallback if web extraction failed or returned empty
+        if let fallbackContent, !fallbackContent.isEmpty {
+            let formatted = formatFeedContentAsReaderHTML(
+                title: title ?? "",
+                author: author,
+                pubDate: pubDate,
+                htmlContent: fallbackContent,
+                link: urlString
+            )
+            saveToCache(urlString: urlString, content: formatted)
+            return formatted
         }
 
         return nil

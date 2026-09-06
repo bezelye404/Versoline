@@ -137,7 +137,7 @@ private struct ReaderSettingsTab: View {
                         Label(mode.title, systemImage: mode.systemImage).tag(mode.rawValue)
                     }
                 }
-                Text("Select whether articles initially open in clean Reader Mode or In-App Browser.")
+                Text("Select whether articles initially open in Reader Mode, RSS Summary, or Web Browser.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
