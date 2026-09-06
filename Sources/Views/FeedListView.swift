@@ -57,9 +57,10 @@ struct FeedListView: View {
     var body: some View {
         Group {
             if selection != nil {
-                if allItems.isEmpty && searchText.isEmpty {
+                let items = allItems
+                if items.isEmpty && searchText.isEmpty {
                     emptyState(for: selection!)
-                } else if allItems.isEmpty && !searchText.isEmpty {
+                } else if items.isEmpty && !searchText.isEmpty {
                     VStack(spacing: 12) {
                         Image(systemName: "magnifyingglass")
                             .font(.system(size: 40, weight: .ultraLight))
@@ -76,7 +77,7 @@ struct FeedListView: View {
                     .navigationTitle(title)
                 } else {
                     List(selection: $selectedArticle) {
-                        ForEach(allItems) { item in
+                        ForEach(items) { item in
                             FeedItemRow(
                                 item: item,
                                 feedTitle: showFeedName ? store.feed(for: item.feedId)?.title : nil
@@ -204,12 +205,16 @@ struct FeedItemRow: View {
     let item: FeedItem
     var feedTitle: String? = nil
 
+    private static let relativeDateTimeFormatter: RelativeDateTimeFormatter = {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.locale = Locale.autoupdatingCurrent
+        formatter.unitsStyle = .abbreviated
+        return formatter
+    }()
+
     private var formattedDate: String {
         guard let date = item.pubDate else { return "" }
-        let formatter = RelativeDateTimeFormatter()
-        formatter.locale = Locale(identifier: "tr_TR")
-        formatter.unitsStyle = .abbreviated
-        return formatter.localizedString(for: date, relativeTo: Date())
+        return Self.relativeDateTimeFormatter.localizedString(for: date, relativeTo: Date())
     }
 
     var body: some View {

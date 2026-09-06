@@ -87,3 +87,11 @@
 "Console" = "Console";
 "Developer Console" = "Developer Console";
 "Developer Console (Cmd+Option+C)" = "Developer Console (Cmd+Option+C)";
+
+/* Navigation & Views */
+"Unread" = "Unread";
+"Today" = "Today";
+"Compact Mode" = "Compact Mode";
+"View Options" = "View Options";
+"List View Options" = "List View Options";
+"Select an article from the list on the left to read." = "Select an article from the list on the left to read.";

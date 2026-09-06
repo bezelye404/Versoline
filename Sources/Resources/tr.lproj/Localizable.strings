@@ -87,3 +87,11 @@
 "Console" = "Konsol";
 "Developer Console" = "Geliştirici Konsolu";
 "Developer Console (Cmd+Option+C)" = "Geliştirici Konsolu (Cmd+Option+C)";
+
+/* Navigation & Views */
+"Unread" = "Okunmamış";
+"Today" = "Bugün";
+"Compact Mode" = "Kompakt Mod";
+"View Options" = "Görünüm Seçenekleri";
+"List View Options" = "Liste Görünüm Seçenekleri";
+"Select an article from the list on the left to read." = "Okumak için soldaki listeden bir makale seçin.";

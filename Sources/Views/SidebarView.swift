@@ -17,7 +17,7 @@ struct SidebarView: View {
             Section("Library") {
                 NavigationLink(value: SidebarItem.all) {
                     Label("All Articles", systemImage: "tray.full")
-                        .badge(store.allItems().count)
+                        .badge(store.totalItemCount)
                 }
 
                 NavigationLink(value: SidebarItem.unread) {

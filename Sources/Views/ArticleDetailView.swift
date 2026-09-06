@@ -158,11 +158,15 @@ struct ArticleDetailView: View {
         }
     }
 
-    private func formattedDate(_ date: Date) -> String {
+    private static let articleDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale.autoupdatingCurrent
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
-        return formatter.string(from: date)
+        return formatter
+    }()
+
+    private func formattedDate(_ date: Date) -> String {
+        Self.articleDateFormatter.string(from: date)
     }
 }

@@ -278,21 +278,42 @@ final class FeedStore {
     }
 
     func bookmarkCount() -> Int {
-        items.values.flatMap { $0 }.filter { $0.isBookmarked }.count
+        var count = 0
+        for list in items.values {
+            for item in list where item.isBookmarked {
+                count += 1
+            }
+        }
+        return count
     }
 
     // MARK: - Queries
+
+    var totalItemCount: Int {
+        items.values.reduce(0) { $0 + $1.count }
+    }
 
     func feed(for id: UUID) -> Feed? {
         feeds.first { $0.id == id }
     }
 
     func unreadCount(for feedId: UUID) -> Int {
-        items[feedId]?.filter { !$0.isRead }.count ?? 0
+        guard let list = items[feedId] else { return 0 }
+        var count = 0
+        for item in list where !item.isRead {
+            count += 1
+        }
+        return count
     }
 
     func totalUnreadCount() -> Int {
-        items.values.flatMap { $0 }.filter { !$0.isRead }.count
+        var count = 0
+        for list in items.values {
+            for item in list where !item.isRead {
+                count += 1
+            }
+        }
+        return count
     }
 
     func itemsForFeed(_ feedId: UUID) -> [FeedItem] {
@@ -319,7 +340,13 @@ final class FeedStore {
 
     func todayItemsCount() -> Int {
         let oneDayAgo = Date().addingTimeInterval(-86400)
-        return items.values.flatMap { $0 }.filter { ($0.pubDate ?? .distantPast) >= oneDayAgo }.count
+        var count = 0
+        for list in items.values {
+            for item in list where (item.pubDate ?? .distantPast) >= oneDayAgo {
+                count += 1
+            }
+        }
+        return count
     }
 
     func itemsForFolder(_ folderId: UUID) -> [FeedItem] {
