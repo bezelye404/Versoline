@@ -6,7 +6,7 @@ final class ReaderModeExtractor {
 
     static let shared = ReaderModeExtractor()
 
-    private var articleCache: [String: String] = [:]
+    private let memoryCache = NSCache<NSString, NSString>()
     private let cacheDirectory: URL
 
     private init() {
@@ -14,6 +14,7 @@ final class ReaderModeExtractor {
         let cacheDir = appSupport.appendingPathComponent("EasyRSS/ReaderCache", isDirectory: true)
         try? FileManager.default.createDirectory(at: cacheDir, withIntermediateDirectories: true)
         self.cacheDirectory = cacheDir
+        memoryCache.countLimit = 60
     }
 
     // MARK: - Cache Helpers
@@ -30,15 +31,16 @@ final class ReaderModeExtractor {
     }
 
     func cachedContent(for urlString: String) -> String? {
-        if let memory = articleCache[urlString] {
-            return memory
+        let nsKey = urlString as NSString
+        if let memory = memoryCache.object(forKey: nsKey) {
+            return memory as String
         }
 
         let diskURL = fileURL(for: urlString)
         if FileManager.default.fileExists(atPath: diskURL.path),
            let diskData = try? Data(contentsOf: diskURL),
            let html = String(data: diskData, encoding: .utf8) {
-            articleCache[urlString] = html
+            memoryCache.setObject(html as NSString, forKey: nsKey)
             return html
         }
 
@@ -46,9 +48,11 @@ final class ReaderModeExtractor {
     }
 
     func saveToCache(urlString: String, content: String) {
-        articleCache[urlString] = content
+        memoryCache.setObject(content as NSString, forKey: urlString as NSString)
         let diskURL = fileURL(for: urlString)
-        try? content.data(using: .utf8)?.write(to: diskURL, options: .atomic)
+        Task.detached(priority: .utility) {
+            try? content.data(using: .utf8)?.write(to: diskURL, options: .atomic)
+        }
     }
 
     // MARK: - Extraction
@@ -163,7 +167,7 @@ final class ReaderModeExtractor {
     }
 
     func clearDiskCache() {
-        articleCache.removeAll()
+        memoryCache.removeAllObjects()
         let fm = FileManager.default
         if let files = try? fm.contentsOfDirectory(at: cacheDirectory, includingPropertiesForKeys: nil) {
             for file in files {

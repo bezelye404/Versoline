@@ -12,6 +12,13 @@ final class FeedStore {
     var errorMessage: String?
 
     private let saveURL: URL
+    private var pendingSaveTask: Task<Void, Never>?
+
+    // Fast O(1) in-memory cached aggregates
+    private(set) var cachedTotalUnreadCount: Int = 0
+    private(set) var cachedTotalItemCount: Int = 0
+    private(set) var cachedBookmarkCount: Int = 0
+    private var cachedFeedUnreadCounts: [UUID: Int] = [:]
 
     init() {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
@@ -23,6 +30,16 @@ final class FeedStore {
         let cleanupDays = UserDefaults.standard.integer(forKey: AppSettingsKeys.autoCleanupDays)
         if cleanupDays > 0 {
             autoCleanup(olderThanDays: cleanupDays)
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.willTerminateNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.flushPendingSave()
+            }
         }
     }
 
@@ -332,19 +349,13 @@ final class FeedStore {
     }
 
     func bookmarkCount() -> Int {
-        var count = 0
-        for list in items.values {
-            for item in list where item.isBookmarked {
-                count += 1
-            }
-        }
-        return count
+        cachedBookmarkCount
     }
 
     // MARK: - Queries
 
     var totalItemCount: Int {
-        items.values.reduce(0) { $0 + $1.count }
+        cachedTotalItemCount
     }
 
     func feed(for id: UUID) -> Feed? {
@@ -352,22 +363,11 @@ final class FeedStore {
     }
 
     func unreadCount(for feedId: UUID) -> Int {
-        guard let list = items[feedId] else { return 0 }
-        var count = 0
-        for item in list where !item.isRead {
-            count += 1
-        }
-        return count
+        cachedFeedUnreadCounts[feedId] ?? 0
     }
 
     func totalUnreadCount() -> Int {
-        var count = 0
-        for list in items.values {
-            for item in list where !item.isRead {
-                count += 1
-            }
-        }
-        return count
+        cachedTotalUnreadCount
     }
 
     func itemsForFeed(_ feedId: UUID) -> [FeedItem] {
@@ -485,19 +485,79 @@ final class FeedStore {
         let folders: [Folder]?
     }
 
-    private func save() {
+    func updateCachedCounts() {
+        var totalUnread = 0
+        var totalItems = 0
+        var totalBookmarks = 0
+        var unreadPerFeed: [UUID: Int] = [:]
+
+        for (feedId, list) in items {
+            var feedUnread = 0
+            totalItems += list.count
+            for item in list {
+                if !item.isRead {
+                    feedUnread += 1
+                    totalUnread += 1
+                }
+                if item.isBookmarked {
+                    totalBookmarks += 1
+                }
+            }
+            unreadPerFeed[feedId] = feedUnread
+        }
+
+        self.cachedTotalUnreadCount = totalUnread
+        self.cachedTotalItemCount = totalItems
+        self.cachedBookmarkCount = totalBookmarks
+        self.cachedFeedUnreadCounts = unreadPerFeed
+    }
+
+    func flushPendingSave() {
+        pendingSaveTask?.cancel()
+        pendingSaveTask = nil
         let data = StorageData(feeds: feeds, items: items, folders: folders)
+        Self.performSave(data: data, to: saveURL)
+    }
+
+    func save(immediate: Bool = false) {
+        updateCachedCounts()
+
+        let data = StorageData(feeds: feeds, items: items, folders: folders)
+        let dir = saveURL
+
+        if immediate {
+            pendingSaveTask?.cancel()
+            pendingSaveTask = nil
+            Self.performSave(data: data, to: dir)
+            return
+        }
+
+        pendingSaveTask?.cancel()
+        pendingSaveTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 800_000_000) // 800ms debounce
+            guard !Task.isCancelled else { return }
+            Task.detached(priority: .utility) {
+                Self.performSave(data: data, to: dir)
+            }
+        }
+    }
+
+    private nonisolated static func performSave(data: StorageData, to directory: URL) {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
-        encoder.outputFormatting = .prettyPrinted
+        // Avoid .prettyPrinted for compact file size (~35% reduction) and faster encoding
 
         do {
             let jsonData = try encoder.encode(data)
-            let fileURL = saveURL.appendingPathComponent("data.json")
+            let fileURL = directory.appendingPathComponent("data.json")
             try jsonData.write(to: fileURL, options: .atomic)
-            AppLogger.shared.log("Saved database to disk (\(jsonData.count) bytes)", level: .debug, category: .storage)
+            Task { @MainActor in
+                AppLogger.shared.log("Saved database to disk (\(jsonData.count) bytes)", level: .debug, category: .storage)
+            }
         } catch {
-            AppLogger.shared.log("Save error: \(error.localizedDescription)", level: .error, category: .storage)
+            Task { @MainActor in
+                AppLogger.shared.log("Save error: \(error.localizedDescription)", level: .error, category: .storage)
+            }
         }
     }
 
@@ -526,10 +586,15 @@ final class FeedStore {
                     if cleaned.itemDescription.contains("&") {
                         cleaned.itemDescription = cleaned.itemDescription.decodingHTMLEntities()
                     }
+                    if cleaned.snippet.isEmpty {
+                        cleaned.snippet = cleaned.itemDescription.strippingHTML()
+                    }
                     return cleaned
                 }
             }
             self.items = sanitizedItems
+            self.updateCachedCounts()
+
             let totalItemsCount = self.items.values.reduce(0) { $0 + $1.count }
             AppLogger.shared.log(
                 "Loaded database: \(feeds.count) feeds, \(folders.count) folders, \(totalItemsCount) articles",

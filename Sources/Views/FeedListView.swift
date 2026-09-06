@@ -369,8 +369,8 @@ struct FeedItemRow: View {
                         }
                     }
 
-                    if !isCompactListMode && !item.itemDescription.isEmpty {
-                        Text(stripHTML(item.itemDescription))
+                    if !isCompactListMode && !item.snippet.isEmpty {
+                        Text(item.snippet)
                             .font(.caption)
                             .foregroundStyle(.tertiary)
                             .lineLimit(2)
@@ -403,9 +403,5 @@ struct FeedItemRow: View {
         }
         .padding(.vertical, 4)
         .contentShape(Rectangle())
-    }
-
-    private func stripHTML(_ html: String) -> String {
-        html.strippingHTML()
     }
 }

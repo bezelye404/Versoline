@@ -11,6 +11,7 @@ struct FeedItem: Codable, Identifiable, Hashable {
     var isRead: Bool
     var content: String?
     var isBookmarked: Bool
+    var snippet: String
 
     init(
         id: UUID = UUID(),
@@ -22,7 +23,8 @@ struct FeedItem: Codable, Identifiable, Hashable {
         author: String? = nil,
         isRead: Bool = false,
         content: String? = nil,
-        isBookmarked: Bool = false
+        isBookmarked: Bool = false,
+        snippet: String = ""
     ) {
         self.id = id
         self.feedId = feedId
@@ -34,11 +36,12 @@ struct FeedItem: Codable, Identifiable, Hashable {
         self.isRead = isRead
         self.content = content
         self.isBookmarked = isBookmarked
+        self.snippet = snippet.isEmpty ? itemDescription.strippingHTML() : snippet
     }
 
-    // Backward-compatible decoding: isBookmarked may not exist in older data
+    // Backward-compatible decoding: isBookmarked and snippet may not exist in older data
     enum CodingKeys: String, CodingKey {
-        case id, feedId, title, link, itemDescription, pubDate, author, isRead, content, isBookmarked
+        case id, feedId, title, link, itemDescription, pubDate, author, isRead, content, isBookmarked, snippet
     }
 
     init(from decoder: Decoder) throws {
@@ -53,5 +56,10 @@ struct FeedItem: Codable, Identifiable, Hashable {
         isRead = try container.decodeIfPresent(Bool.self, forKey: .isRead) ?? false
         content = try container.decodeIfPresent(String.self, forKey: .content)
         isBookmarked = try container.decodeIfPresent(Bool.self, forKey: .isBookmarked) ?? false
+        if let decodedSnippet = try container.decodeIfPresent(String.self, forKey: .snippet), !decodedSnippet.isEmpty {
+            self.snippet = decodedSnippet
+        } else {
+            self.snippet = itemDescription.strippingHTML()
+        }
     }
 }

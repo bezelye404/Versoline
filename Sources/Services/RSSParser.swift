@@ -125,9 +125,10 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         qualifiedName qName: String?,
         attributes attributeDict: [String: String] = [:]
     ) {
-        currentElement = elementName
+        let lower = elementName.lowercased()
+        currentElement = lower
 
-        switch elementName.lowercased() {
+        switch lower {
         case "feed":
             isAtomFeed = true
             isInsideChannel = true
@@ -169,7 +170,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
     func parser(_ parser: XMLParser, foundCharacters string: String) {
         let trimmed = string
 
-        switch currentElement.lowercased() {
+        switch currentElement {
         case "title":
             if isInsideItem {
                 currentTitle += trimmed
@@ -228,12 +229,14 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         namespaceURI: String?,
         qualifiedName qName: String?
     ) {
-        switch elementName.lowercased() {
+        let lower = elementName.lowercased()
+        switch lower {
         case "item", "entry":
             let cleanTitle = currentTitle.strippingHTML()
             let cleanAuthor = currentAuthor.strippingHTML()
             let cleanDesc = currentDescription.decodingHTMLEntities().trimmingCharacters(in: .whitespacesAndNewlines)
             let cleanContent = currentContent.decodingHTMLEntities().trimmingCharacters(in: .whitespacesAndNewlines)
+            let precomputedSnippet = cleanDesc.strippingHTML()
 
             let item = FeedItem(
                 feedId: feedId,
@@ -243,7 +246,8 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
                 pubDate: parseDate(currentPubDate.trimmingCharacters(in: .whitespacesAndNewlines)),
                 author: cleanAuthor.isEmpty ? nil : cleanAuthor,
                 isRead: false,
-                content: cleanContent.isEmpty ? nil : cleanContent
+                content: cleanContent.isEmpty ? nil : cleanContent,
+                snippet: precomputedSnippet
             )
             items.append(item)
             isInsideItem = false
@@ -278,25 +282,31 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
 
     // MARK: - Date Parsing (Cached & High Performance)
 
-    private static let cachedDateFormatters: [DateFormatter] = {
-        let formats: [(String, Bool)] = [
-            // RSS 2.0 (RFC 822)
-            ("EEE, dd MMM yyyy HH:mm:ss Z", true),
-            ("EEE, dd MMM yyyy HH:mm:ss zzz", true),
-            ("dd MMM yyyy HH:mm:ss Z", true),
-            ("EEE, dd MMM yy HH:mm:ss Z", true),
-            // Atom (ISO 8601)
-            ("yyyy-MM-dd'T'HH:mm:ssZ", false),
-            ("yyyy-MM-dd'T'HH:mm:ss.SSSZ", false),
-            ("yyyy-MM-dd'T'HH:mm:ssXXXXX", false),
-            ("yyyy-MM-dd", false),
+    private static let rfc822Formatters: [DateFormatter] = {
+        let formats = [
+            "EEE, dd MMM yyyy HH:mm:ss Z",
+            "EEE, dd MMM yyyy HH:mm:ss zzz",
+            "dd MMM yyyy HH:mm:ss Z",
+            "EEE, dd MMM yy HH:mm:ss Z",
         ]
-        return formats.map { format, isEnglish in
+        return formats.map { format in
             let df = DateFormatter()
             df.dateFormat = format
-            if isEnglish {
-                df.locale = Locale(identifier: "en_US_POSIX")
-            }
+            df.locale = Locale(identifier: "en_US_POSIX")
+            return df
+        }
+    }()
+
+    private static let isoDateCustomFormatters: [DateFormatter] = {
+        let formats = [
+            "yyyy-MM-dd'T'HH:mm:ssZ",
+            "yyyy-MM-dd'T'HH:mm:ss.SSSZ",
+            "yyyy-MM-dd'T'HH:mm:ssXXXXX",
+            "yyyy-MM-dd",
+        ]
+        return formats.map { format in
+            let df = DateFormatter()
+            df.dateFormat = format
             return df
         }
     }()
@@ -316,15 +326,27 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
     private func parseDate(_ string: String) -> Date? {
         if string.isEmpty { return nil }
 
-        for formatter in Self.cachedDateFormatters {
-            if let date = formatter.date(from: string) {
-                return date
+        // Fast-path heuristic: inspect leading character
+        let startsWithNumber = string.first?.isNumber == true
+
+        if startsWithNumber {
+            if let date = Self.isoFormatterWithFractional.date(from: string) { return date }
+            if let date = Self.isoFormatterStandard.date(from: string) { return date }
+            for df in Self.isoDateCustomFormatters {
+                if let date = df.date(from: string) { return date }
             }
+            // Fallback to RFC822 if numeric day starts e.g. "06 Sep 2026"
+            for df in Self.rfc822Formatters {
+                if let date = df.date(from: string) { return date }
+            }
+        } else {
+            for df in Self.rfc822Formatters {
+                if let date = df.date(from: string) { return date }
+            }
+            if let date = Self.isoFormatterWithFractional.date(from: string) { return date }
+            if let date = Self.isoFormatterStandard.date(from: string) { return date }
         }
 
-        if let date = Self.isoFormatterWithFractional.date(from: string) {
-            return date
-        }
-        return Self.isoFormatterStandard.date(from: string)
+        return nil
     }
 }

@@ -47,10 +47,12 @@ final class FaviconService {
             let image = await downloadFavicon(forHost: host)
             if let image {
                 self.memoryCache.setObject(image, forKey: cacheKey)
-                if let tiff = image.tiffRepresentation,
-                   let bitmap = NSBitmapImageRep(data: tiff),
-                   let png = bitmap.representation(using: .png, properties: [:]) {
-                    try? png.write(to: diskURL, options: .atomic)
+                Task.detached(priority: .utility) {
+                    if let tiff = image.tiffRepresentation,
+                       let bitmap = NSBitmapImageRep(data: tiff),
+                       let png = bitmap.representation(using: .png, properties: [:]) {
+                        try? png.write(to: diskURL, options: .atomic)
+                    }
                 }
             }
             self.inFlightTasks.removeValue(forKey: host)
