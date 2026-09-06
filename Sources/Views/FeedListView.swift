@@ -149,6 +149,8 @@ struct FeedListView: View {
         case .all: ("tray", String(localized: "No articles yet. Start by adding a feed.", bundle: .module))
         case .bookmarks: ("star", String(localized: "No bookmarked articles yet.", bundle: .module))
         case .feed: ("doc.text.magnifyingglass", String(localized: "No articles in this feed yet.", bundle: .module))
+        case .unread: ("envelope.badge", String(localized: "No unread articles.", bundle: .module))
+        case .today: ("clock", String(localized: "No articles from today.", bundle: .module))
         }
 
         VStack(spacing: 12) {
