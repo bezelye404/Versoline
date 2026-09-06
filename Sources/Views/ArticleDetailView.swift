@@ -10,12 +10,12 @@ struct ArticleDetailView: View {
     @AppStorage(AppSettingsKeys.readerFontFamily) private var readerFontFamilyRaw = ReaderFontFamily.system.rawValue
     @AppStorage(AppSettingsKeys.readerLineHeight) private var readerLineHeightRaw = ReaderLineHeight.normal.rawValue
     @AppStorage(AppSettingsKeys.autoReaderMode) private var autoReaderMode = false
-    @AppStorage(AppSettingsKeys.defaultReadingMode) private var defaultReadingModeRaw = ReadingViewMode.feed.rawValue
+    @AppStorage(AppSettingsKeys.defaultReadingMode) private var defaultReadingModeRaw = ReadingViewMode.reader.rawValue
     @AppStorage(AppSettingsKeys.preferredExternalBrowser) private var preferredExternalBrowserRaw = ExternalBrowserOption.systemDefault.rawValue
 
     let selectedItem: FeedItem?
 
-    @State private var activeViewMode: ReadingViewMode = .feed
+    @State private var activeViewMode: ReadingViewMode = .reader
     @State private var extractedReaderHTML: String? = nil
     @State private var isLoadingReaderMode = false
     @State private var isSpeaking = false
@@ -86,7 +86,7 @@ struct ArticleDetailView: View {
 
     private func resetStateForNewArticle(item: FeedItem) {
         stopSpeech()
-        let defaultMode = ReadingViewMode(rawValue: defaultReadingModeRaw) ?? (autoReaderMode ? .reader : .feed)
+        let defaultMode = ReadingViewMode(rawValue: defaultReadingModeRaw) ?? .reader
         activeViewMode = defaultMode
         extractedReaderHTML = ReaderModeExtractor.shared.cachedContent(for: item.link)
 
@@ -170,14 +170,14 @@ struct ArticleDetailView: View {
     @ViewBuilder
     private func actionToolbar(item: FeedItem) -> some View {
         HStack(spacing: 8) {
-            // Flexible 3-Way Reading Mode Selector
+            // 2-Way Reading Mode Selector: Reader | Web
             Picker("", selection: $activeViewMode) {
-                Text(String(localized: "Feed")).tag(ReadingViewMode.feed)
                 Text(String(localized: "Reader")).tag(ReadingViewMode.reader)
                 Text(String(localized: "Web")).tag(ReadingViewMode.inAppBrowser)
             }
             .pickerStyle(.segmented)
-            .frame(width: 175)
+            .labelsHidden()
+            .frame(width: 140)
             .onChange(of: activeViewMode) { _, newMode in
                 if newMode == .reader && extractedReaderHTML == nil {
                     loadReaderMode(for: item)
@@ -292,9 +292,6 @@ struct ArticleDetailView: View {
 
         case .reader:
             readerModeView(item: item)
-
-        case .feed:
-            feedContentView(item: item)
         }
     }
 

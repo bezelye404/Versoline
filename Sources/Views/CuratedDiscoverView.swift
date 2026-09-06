@@ -84,6 +84,7 @@ struct CuratedDiscoverView: View {
                     Text(String(localized: "English")).tag("en" as String?)
                 }
                 .pickerStyle(.segmented)
+                .labelsHidden()
                 .frame(maxWidth: 320)
                 .onChange(of: selectedLanguage) { _, _ in
                     selectedCategory = nil

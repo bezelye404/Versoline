@@ -107,7 +107,7 @@ private struct GeneralSettingsTab: View {
 
 private struct ReaderSettingsTab: View {
 
-    @AppStorage(AppSettingsKeys.defaultReadingMode) private var defaultReadingModeRaw = ReadingViewMode.feed.rawValue
+    @AppStorage(AppSettingsKeys.defaultReadingMode) private var defaultReadingModeRaw = ReadingViewMode.reader.rawValue
     @AppStorage(AppSettingsKeys.readerTheme) private var readerThemeRaw = ReaderTheme.system.rawValue
     @AppStorage(AppSettingsKeys.readerFontFamily) private var readerFontFamilyRaw = ReaderFontFamily.system.rawValue
     @AppStorage(AppSettingsKeys.readerFontSize) private var readerFontSize = 16
@@ -122,7 +122,7 @@ private struct ReaderSettingsTab: View {
                         Label(mode.title, systemImage: mode.systemImage).tag(mode.rawValue)
                     }
                 }
-                Text("Select whether articles initially open in RSS summary, clean Reader Mode, or In-App Browser.")
+                Text("Select whether articles initially open in clean Reader Mode or In-App Browser.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

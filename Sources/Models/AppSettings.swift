@@ -99,7 +99,6 @@ enum ReaderLineHeight: String, CaseIterable, Identifiable {
 }
 
 enum ReadingViewMode: String, CaseIterable, Identifiable {
-    case feed
     case reader
     case inAppBrowser
 
@@ -107,7 +106,6 @@ enum ReadingViewMode: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .feed: return String(localized: "Feed")
         case .reader: return String(localized: "Reader")
         case .inAppBrowser: return String(localized: "Web")
         }
@@ -115,7 +113,6 @@ enum ReadingViewMode: String, CaseIterable, Identifiable {
 
     var systemImage: String {
         switch self {
-        case .feed: return "doc.text"
         case .reader: return "sparkles"
         case .inAppBrowser: return "globe"
         }
