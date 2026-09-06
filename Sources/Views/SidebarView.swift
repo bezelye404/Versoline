@@ -17,7 +17,17 @@ struct SidebarView: View {
             Section("Library") {
                 NavigationLink(value: SidebarItem.all) {
                     Label("All Articles", systemImage: "tray.full")
+                        .badge(store.allItems().count)
+                }
+
+                NavigationLink(value: SidebarItem.unread) {
+                    Label("Unread", systemImage: "envelope.badge")
                         .badge(store.totalUnreadCount())
+                }
+
+                NavigationLink(value: SidebarItem.today) {
+                    Label("Today", systemImage: "clock")
+                        .badge(store.todayItemsCount())
                 }
 
                 NavigationLink(value: SidebarItem.bookmarks) {

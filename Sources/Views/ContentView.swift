@@ -8,6 +8,10 @@ struct ContentView: View {
     @State private var selectedArticle: FeedItem?
     @State private var showAddFeed = false
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
+    @AppStorage("isCompactListMode") private var isCompactListMode = false
+
+    // 30 minutes (1800 seconds) auto-refresh timer
+    let autoRefreshTimer = Timer.publish(every: 1800, on: .main, in: .common).autoconnect()
 
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
@@ -37,6 +41,13 @@ struct ContentView: View {
                 .help("Refresh all feeds")
                 .keyboardShortcut("r", modifiers: .command)
                 .disabled(store.isLoading)
+
+                Menu {
+                    Toggle("Compact Mode", isOn: $isCompactListMode)
+                } label: {
+                    Label("View Options", systemImage: "slider.horizontal.3")
+                }
+                .help("List View Options")
 
                 Button {
                     showAddFeed = true
@@ -80,6 +91,11 @@ struct ContentView: View {
             }
         }
         .onAppear {
+            Task {
+                await store.refreshAllFeeds()
+            }
+        }
+        .onReceive(autoRefreshTimer) { _ in
             Task {
                 await store.refreshAllFeeds()
             }

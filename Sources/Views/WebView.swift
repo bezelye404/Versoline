@@ -5,15 +5,18 @@ struct WebView: NSViewRepresentable {
 
     let html: String?
     let url: URL?
+    let fontSize: Int
 
-    init(html: String) {
+    init(html: String, fontSize: Int = 16) {
         self.html = html
         self.url = nil
+        self.fontSize = fontSize
     }
 
-    init(url: URL) {
+    init(url: URL, fontSize: Int = 16) {
         self.html = nil
         self.url = url
+        self.fontSize = fontSize
     }
 
     func makeNSView(context: Context) -> WKWebView {
@@ -53,12 +56,13 @@ struct WebView: NSViewRepresentable {
             }
             body {
                 font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
-                font-size: 15px;
-                line-height: 1.6;
+                font-size: \(fontSize)px;
+                line-height: 1.8;
                 color: var(--text-color);
                 background: transparent;
                 padding: 0 4px;
-                max-width: 100%;
+                max-width: 800px;
+                margin: 0 auto;
                 word-wrap: break-word;
                 overflow-wrap: break-word;
             }

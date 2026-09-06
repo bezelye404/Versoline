@@ -251,6 +251,24 @@ final class FeedStore {
             .sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
     }
 
+    func unreadItems() -> [FeedItem] {
+        items.values.flatMap { $0 }
+            .filter { !$0.isRead }
+            .sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
+    }
+
+    func todayItems() -> [FeedItem] {
+        let oneDayAgo = Date().addingTimeInterval(-86400)
+        return items.values.flatMap { $0 }
+            .filter { ($0.pubDate ?? .distantPast) >= oneDayAgo }
+            .sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
+    }
+
+    func todayItemsCount() -> Int {
+        let oneDayAgo = Date().addingTimeInterval(-86400)
+        return items.values.flatMap { $0 }.filter { ($0.pubDate ?? .distantPast) >= oneDayAgo }.count
+    }
+
     func itemsForFolder(_ folderId: UUID) -> [FeedItem] {
         let folderFeedIds = Set(feeds.filter { $0.folderId == folderId }.map { $0.id })
         return items

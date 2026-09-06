@@ -10,6 +10,8 @@ struct FeedListView: View {
     private var title: String {
         switch selection {
         case .all: return String(localized: "All Articles", bundle: .module)
+        case .unread: return String(localized: "Unread", bundle: .module)
+        case .today: return String(localized: "Today", bundle: .module)
         case .bookmarks: return String(localized: "Bookmarks", bundle: .module)
         case .feed(let id): return store.feed(for: id)?.title ?? String(localized: "Feed", bundle: .module)
         case nil: return ""
@@ -18,7 +20,7 @@ struct FeedListView: View {
 
     private var showFeedName: Bool {
         switch selection {
-        case .all, .bookmarks: return true
+        case .all, .bookmarks, .unread, .today: return true
         default: return false
         }
     }
@@ -28,6 +30,10 @@ struct FeedListView: View {
         switch selection {
         case .all:
             base = store.allItems()
+        case .unread:
+            base = store.unreadItems()
+        case .today:
+            base = store.todayItems()
         case .bookmarks:
             base = store.bookmarkedItems()
         case .feed(let id):
@@ -110,6 +116,15 @@ struct FeedListView: View {
                             store.markAsRead(newItem)
                         }
                     }
+                    .background {
+                        Button("Toggle Read Status") {
+                            if let selected = selectedArticle {
+                                store.toggleReadStatus(selected)
+                            }
+                        }
+                        .keyboardShortcut("u", modifiers: .command)
+                        .hidden()
+                    }
                 }
             } else {
                 VStack(spacing: 16) {
@@ -183,6 +198,7 @@ struct FeedListView: View {
 
 struct FeedItemRow: View {
 
+    @AppStorage("isCompactListMode") private var isCompactListMode = false
     let item: FeedItem
     var feedTitle: String? = nil
 
@@ -195,19 +211,19 @@ struct FeedItemRow: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: isCompactListMode ? 2 : 6) {
             HStack(alignment: .top, spacing: 8) {
                 // Unread indicator
                 Circle()
                     .fill(item.isRead ? .clear : .blue)
                     .frame(width: 8, height: 8)
-                    .padding(.top, 5)
+                    .padding(.top, isCompactListMode ? 4 : 5)
 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: isCompactListMode ? 2 : 4) {
                     HStack(spacing: 6) {
                         Text(item.title)
                             .font(.system(.body, design: .default, weight: item.isRead ? .regular : .semibold))
-                            .lineLimit(2)
+                            .lineLimit(isCompactListMode ? 1 : 2)
                             .foregroundStyle(item.isRead ? .secondary : .primary)
 
                         if item.isBookmarked {
@@ -217,7 +233,7 @@ struct FeedItemRow: View {
                         }
                     }
 
-                    if !item.itemDescription.isEmpty {
+                    if !isCompactListMode && !item.itemDescription.isEmpty {
                         Text(stripHTML(item.itemDescription))
                             .font(.caption)
                             .foregroundStyle(.tertiary)
