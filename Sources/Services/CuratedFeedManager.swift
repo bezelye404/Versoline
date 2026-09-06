@@ -1,34 +1,84 @@
 import Foundation
+import Observation
 
+@Observable
 @MainActor
 final class CuratedFeedManager {
 
     static let shared = CuratedFeedManager()
 
     private(set) var categories: [CuratedFeedCategory] = []
+    private(set) var isUpdatingFromRemote = false
 
-    private init() {
-        load()
+    private static let remoteManifestURL = URL(string: "https://raw.githubusercontent.com/bezelye404/easyRSS/main/Sources/Resources/curated_feeds.json")!
+
+    private var cacheFileURL: URL {
+        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let appDir = appSupport.appendingPathComponent("EasyRSS", isDirectory: true)
+        try? FileManager.default.createDirectory(at: appDir, withIntermediateDirectories: true)
+        return appDir.appendingPathComponent("curated_feeds_cache.json")
     }
 
-    func load() {
-        // 1. Try bundled JSON
-        if let url = Bundle.main.url(forResource: "curated_feeds", withExtension: "json"),
-           let data = try? Data(contentsOf: url),
-           let list = try? JSONDecoder().decode([CuratedFeedCategory].self, from: data) {
+    private init() {
+        loadLocal()
+        checkForRemoteUpdates()
+    }
+
+    // MARK: - 0ms Fast Local Load
+
+    func loadLocal() {
+        // 1. Prefer persisted dynamic cache if available
+        let diskURL = cacheFileURL
+        if FileManager.default.fileExists(atPath: diskURL.path),
+           let cachedData = try? Data(contentsOf: diskURL),
+           let list = try? JSONDecoder().decode([CuratedFeedCategory].self, from: cachedData),
+           !list.isEmpty {
             self.categories = list
-            AppLogger.shared.log("Loaded \(list.count) curated categories (\(totalFeedCount) feeds) from JSON", level: .info, category: .storage)
+            AppLogger.shared.log("Loaded \(list.count) curated categories from disk cache", level: .info, category: .storage)
             return
         }
 
-        // 2. Try bundled rss.md fallback
-        if let mdURL = Bundle.main.url(forResource: "rss", withExtension: "md"),
-           let mdString = try? String(contentsOf: mdURL, encoding: .utf8) {
-            let parsed = parseMarkdown(mdString)
-            if !parsed.isEmpty {
-                self.categories = parsed
-                AppLogger.shared.log("Loaded \(parsed.count) curated categories from rss.md", level: .info, category: .storage)
+        // 2. Fallback to bundled curated_feeds.json
+        if let bundleURL = Bundle.main.url(forResource: "curated_feeds", withExtension: "json"),
+           let bundleData = try? Data(contentsOf: bundleURL),
+           let list = try? JSONDecoder().decode([CuratedFeedCategory].self, from: bundleData) {
+            self.categories = list
+            AppLogger.shared.log("Loaded \(list.count) curated categories from app bundle", level: .info, category: .storage)
+            return
+        }
+    }
+
+    // MARK: - Silent Remote Sync with Local Cache
+
+    func checkForRemoteUpdates() {
+        guard !isUpdatingFromRemote else { return }
+        isUpdatingFromRemote = true
+
+        let targetURL = Self.remoteManifestURL
+        let cacheDest = cacheFileURL
+
+        Task.detached(priority: .utility) {
+            var request = URLRequest(url: targetURL, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15)
+            request.setValue("easyRSS/1.0", forHTTPHeaderField: "User-Agent")
+
+            guard let (data, response) = try? await URLSession.shared.data(for: request),
+                  let httpResponse = response as? HTTPURLResponse,
+                  httpResponse.statusCode == 200,
+                  let remoteCategories = try? JSONDecoder().decode([CuratedFeedCategory].self, from: data),
+                  !remoteCategories.isEmpty else {
+                await MainActor.run {
+                    CuratedFeedManager.shared.isUpdatingFromRemote = false
+                }
                 return
+            }
+
+            // Write atomic cache to disk
+            try? data.write(to: cacheDest, options: .atomic)
+
+            await MainActor.run {
+                CuratedFeedManager.shared.categories = remoteCategories
+                CuratedFeedManager.shared.isUpdatingFromRemote = false
+                AppLogger.shared.log("Updated curated feed catalog with \(remoteCategories.count) categories from remote manifest", level: .info, category: .network)
             }
         }
     }
@@ -41,52 +91,5 @@ final class CuratedFeedManager {
         categories.flatMap { cat in
             cat.feeds.map { (category: cat.category, feed: $0) }
         }
-    }
-
-    // MARK: - Markdown Parser Fallback
-
-    private func parseMarkdown(_ markdown: String) -> [CuratedFeedCategory] {
-        var results: [CuratedFeedCategory] = []
-
-        // Split by <h3><strong>Category</strong></h3>
-        let categoryPattern = try? NSRegularExpression(pattern: #"<h3><strong>(.*?)</strong></h3>([\s\S]*?)(?=<h3>|$)"#, options: [])
-        let linkPattern = try? NSRegularExpression(pattern: #"<a href=["'](.*?)["']>(.*?)</a>"#, options: [])
-
-        guard let categoryPattern, let linkPattern else { return [] }
-
-        let nsString = markdown as NSString
-        let catMatches = categoryPattern.matches(in: markdown, range: NSRange(location: 0, length: nsString.length))
-
-        for catMatch in catMatches {
-            guard catMatch.numberOfRanges >= 3 else { continue }
-            let catName = nsString.substring(with: catMatch.range(at: 1)).trimmingCharacters(in: .whitespacesAndNewlines)
-            let sectionHTML = nsString.substring(with: catMatch.range(at: 2))
-
-            let linkMatches = linkPattern.matches(in: sectionHTML, range: NSRange(location: 0, length: (sectionHTML as NSString).length))
-            var feeds: [CuratedFeed] = []
-
-            for linkMatch in linkMatches {
-                guard linkMatch.numberOfRanges >= 3 else { continue }
-                var url = (sectionHTML as NSString).substring(with: linkMatch.range(at: 1)).trimmingCharacters(in: .whitespacesAndNewlines)
-                let rawTitle = (sectionHTML as NSString).substring(with: linkMatch.range(at: 2))
-                let title = rawTitle.strippingHTML()
-
-                if url.hasPrefix("http://www.feeder.co/add-feed?url=") {
-                    url = String(url.dropFirst("http://www.feeder.co/add-feed?url=".count))
-                    if url.hasSuffix("#") { url = String(url.dropLast()) }
-                }
-                if !url.hasPrefix("http://") && !url.hasPrefix("https://") {
-                    url = "https://" + url
-                }
-
-                feeds.append(CuratedFeed(title: title, url: url))
-            }
-
-            if !feeds.isEmpty {
-                results.append(CuratedFeedCategory(category: catName, feeds: feeds))
-            }
-        }
-
-        return results
     }
 }

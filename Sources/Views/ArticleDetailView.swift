@@ -420,15 +420,14 @@ struct ArticleDetailView: View {
     @ViewBuilder
     private func actionToolbar(item: FeedItem) -> some View {
         HStack(spacing: 8) {
-            // 3-Way Reading Mode Selector: Reader | RSS | Web
+            // 2-Way Reading Mode Selector: Reader | Web
             Picker("", selection: $activeViewMode) {
                 Text(String(localized: "Reader")).tag(ReadingViewMode.reader)
-                Text(String(localized: "RSS")).tag(ReadingViewMode.rssContent)
                 Text(String(localized: "Web")).tag(ReadingViewMode.inAppBrowser)
             }
             .pickerStyle(.segmented)
             .labelsHidden()
-            .frame(width: 195)
+            .frame(width: 140)
             .onChange(of: activeViewMode) { _, newMode in
                 if newMode == .reader && extractedReaderHTML == nil {
                     loadReaderMode(for: item)
@@ -555,9 +554,6 @@ struct ArticleDetailView: View {
         case .reader:
             readerModeView(item: item)
 
-        case .rssContent:
-            feedContentView(item: item)
-
         case .inAppBrowser:
             inAppBrowserView(item: item)
         }
@@ -575,7 +571,7 @@ struct ArticleDetailView: View {
                 Text(String(localized: "Live web page unavailable offline."))
                     .font(.headline)
                     .foregroundStyle(.secondary)
-                Text(String(localized: "Switching to cached Reader Mode or RSS summary."))
+                Text(String(localized: "Switching to cached Reader Mode."))
                     .font(.subheadline)
                     .foregroundStyle(.tertiary)
 
@@ -596,7 +592,7 @@ struct ArticleDetailView: View {
                 isContentBlockerEnabled: isContentBlockerEnabled
             )
         } else {
-            feedContentView(item: item)
+            readerModeView(item: item)
         }
     }
 
@@ -622,38 +618,16 @@ struct ArticleDetailView: View {
                 lineHeight: currentLineHeight
             )
         } else {
-            // Fallback to feed content if reader extraction yielded nothing
-            feedContentView(item: item)
-        }
-    }
-
-    // MARK: - Feed Content View
-
-    @ViewBuilder
-    private func feedContentView(item: FeedItem) -> some View {
-        let contentHTML = item.content ?? item.itemDescription
-
-        if contentHTML.isEmpty {
-            VStack(spacing: 12) {
-                Image(systemName: "doc.text")
-                    .font(.system(size: 32, weight: .ultraLight))
-                    .foregroundStyle(.quaternary)
-                Text("Content not available.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-
-                if URL(string: item.link) != nil {
-                    Button(String(localized: "Open in Web View")) {
-                        activeViewMode = .inAppBrowser
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else {
+            // Fallback to item content formatted as reader mode HTML if reader extraction yielded nothing
+            let fallbackHTML = ReaderModeExtractor.shared.formatFeedContentAsReaderHTML(
+                title: item.title,
+                author: item.author,
+                pubDate: item.pubDate,
+                htmlContent: item.content ?? item.itemDescription,
+                link: item.link
+            )
             WebView(
-                html: contentHTML,
+                html: fallbackHTML,
                 fontSize: readerFontSize,
                 theme: currentTheme,
                 fontFamily: currentFontFamily,
