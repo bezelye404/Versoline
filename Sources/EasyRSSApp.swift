@@ -9,6 +9,7 @@ struct EasyRSSApp: App {
         DispatchQueue.main.async {
             NSApp.setActivationPolicy(.regular)
             NSApp.activate(ignoringOtherApps: true)
+            NSApp.applicationIconImage = NSImage(named: "AppIcon")
             if let window = NSApp.windows.first {
                 window.makeKeyAndOrderFront(nil)
             }
