@@ -1,23 +1,39 @@
 # ==============================================================================
-# easyRSS - .gitignore
+# easyRSS - .gitignore (Privacy & Security Focused)
 # ==============================================================================
 
-# 1. Kişisel Veriler, Akışlar & Gizlilik (Personal Data & Privacy)
-*.opml
-*.xml.backup
-*.json.backup
+# ------------------------------------------------------------------------------
+# 1. Kişisel Veriler, Akışlar & Gizlilik (Personal Data, Feeds & Privacy)
+# ------------------------------------------------------------------------------
 data.json
 *.data
+*.opml
+*.xml
+*.rss
+*.atom
+*.xml.backup
+*.json.backup
 *.sqlite
 *.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
 *.db
 *.store
+*.store-shm
+*.store-wal
 *.log
 *.crash
 *.ips
 logs/
+private/
+cache/
+Cache/
+caches/
+Caches/
 
-# Kimlik Doğrulama, Anahtarlar & Çevresel Değişkenler
+# ------------------------------------------------------------------------------
+# 2. Kimlik Doğrulama, Sertifikalar, Anahtarlar & Çevresel Değişkenler
+# ------------------------------------------------------------------------------
 .env
 .env.*
 *.key
@@ -27,37 +43,59 @@ logs/
 *.p8
 *.p12
 *.mobileprovision
+*.provisionprofile
 *.keychain
+*.keychain-db
 *.token
 *.secret
+*credentials*
+*Credential*
 
-# Geçici & Yedek Dosyalar
+# ------------------------------------------------------------------------------
+# 3. Geçici, Yedek & Paketleme Dosyaları
+# ------------------------------------------------------------------------------
 *.tmp
-*.dmg
 *.temp
 *.bak
 *.swp
 *~
+*.dmg
+*.pkg
+*.app
+*.ipa
+*.zip
+*.tar.gz
+*.tgz
 
-# 2. Swift Package Manager & Xcode Derleme Kalıntıları
+# ------------------------------------------------------------------------------
+# 4. Xcode & Swift Package Manager Derleme ve Kullanıcı Verileri
+# ------------------------------------------------------------------------------
 .build/
+build/
+DerivedData/
 Packages/
 Package.pins
 Package.resolved
 .swiftpm/
+
+# Xcode Kullanıcı Özelleştirmeleri (Kişisel pencere düzenleri, breakpoint'ler vb.)
 xcuserdata/
 *.xcuserdatad
 *.xcworkspace/xcuserdata/
 *.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
 *.xcuserstate
 UserInterfaceState.xcuserstate
-build/
-DerivedData/
 *.moved-aside
 *.xcresult
 *.xccoverage
+*.xcarchive
+*.dSYM
+*.dSYM.zip
 
-# 3. macOS Sistem Dosyaları
+# ------------------------------------------------------------------------------
+# 5. macOS Sistem Dosyaları
+# ------------------------------------------------------------------------------
 .DS_Store
 .DS_Store?
 ._*
@@ -66,7 +104,9 @@ DerivedData/
 Icon?
 ehthumbs.db
 
-# 4. Editörler & Geliştirme Araçları
+# ------------------------------------------------------------------------------
+# 6. Editörler & Yapay Zeka / Geliştirme Araçları
+# ------------------------------------------------------------------------------
 .vscode/
 .idea/
 *.sublime-project
@@ -75,4 +115,3 @@ ehthumbs.db
 .gemini/
 .cursor/
 .claude/
-

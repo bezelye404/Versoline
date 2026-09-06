@@ -1,0 +1,424 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0988FDC8A62B97759BD9C716 /* FeedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 785E78CA77152E7FE78C1237 /* FeedStore.swift */; };
+		0A404A128853FB51FE8F1D6A /* AddFeedSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEC1EECA81855474954BF2FD /* AddFeedSheet.swift */; };
+		1020DE99CF68166D20AADCD8 /* FeedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70111542A0F0A2F41B2BBA8D /* FeedItem.swift */; };
+		17C187012BC0DF718F9F2D8E /* FeedListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0183323EB4976E4330F68AAE /* FeedListView.swift */; };
+		332BE99960A9F197E6BAF766 /* OPMLManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45994E646C25361346388B46 /* OPMLManager.swift */; };
+		39932094874073EA32CC007A /* RSSParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1FBFB7658763A93FCF1CB77 /* RSSParser.swift */; };
+		565F54A2DEB2ED5ABDF959DA /* EasyRSSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF02B31D85C44FE4C109EAEB /* EasyRSSApp.swift */; };
+		65B7FEECD3E1AC13D26FCE75 /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038186F086CEE92C0BC58C16 /* Folder.swift */; };
+		86F3651A20127B70130AAA47 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EB2B47B5FDC0386B5BE7A031 /* Assets.xcassets */; };
+		8990619AA60391490D3D40EB /* Bundle+Resources.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7942FACB4AA8CAAB9E49E3 /* Bundle+Resources.swift */; };
+		8D659C588236B3E037CFBC13 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8F1ED5123DD893C36BAA9453 /* Localizable.strings */; };
+		A3150AA1722C19990DA5B36F /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F354C3EA028686CD3E2BA1 /* WebView.swift */; };
+		B3C8AEF1FFB7EC4A24C517A1 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8685C42D6F5E40EA3963BC4D /* SidebarView.swift */; };
+		BB886C0D4FDD7292F2D75A7B /* ArticleDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0ACB08B75C8AE277F91E0DD /* ArticleDetailView.swift */; };
+		F3F40F23F3F519D7193ECDB0 /* SidebarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD8A26D53207DCE596BE15D /* SidebarItem.swift */; };
+		F5A9A06F36B551A1F9FD945C /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B7F4F5DB90608B6618A7E65 /* Feed.swift */; };
+		FCCFD7AB89EA563D84733CC1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BBEB79D86CCB9835183130A /* ContentView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0183323EB4976E4330F68AAE /* FeedListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedListView.swift; sourceTree = "<group>"; };
+		038186F086CEE92C0BC58C16 /* Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Folder.swift; sourceTree = "<group>"; };
+		1B7F4F5DB90608B6618A7E65 /* Feed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feed.swift; sourceTree = "<group>"; };
+		1BBEB79D86CCB9835183130A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		45994E646C25361346388B46 /* OPMLManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OPMLManager.swift; sourceTree = "<group>"; };
+		5E7942FACB4AA8CAAB9E49E3 /* Bundle+Resources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+Resources.swift"; sourceTree = "<group>"; };
+		70111542A0F0A2F41B2BBA8D /* FeedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItem.swift; sourceTree = "<group>"; };
+		785E78CA77152E7FE78C1237 /* FeedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedStore.swift; sourceTree = "<group>"; };
+		8685C42D6F5E40EA3963BC4D /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		9B7684318C6B5989562330B5 /* EasyRSS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EasyRSS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B0ACB08B75C8AE277F91E0DD /* ArticleDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleDetailView.swift; sourceTree = "<group>"; };
+		BCD8A26D53207DCE596BE15D /* SidebarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarItem.swift; sourceTree = "<group>"; };
+		CEC1EECA81855474954BF2FD /* AddFeedSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFeedSheet.swift; sourceTree = "<group>"; };
+		D1FBFB7658763A93FCF1CB77 /* RSSParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSParser.swift; sourceTree = "<group>"; };
+		DF02B31D85C44FE4C109EAEB /* EasyRSSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EasyRSSApp.swift; sourceTree = "<group>"; };
+		E1D08735B62616723261ED83 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		EB2B47B5FDC0386B5BE7A031 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F23E22437382599AAB30B734 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		F7F354C3EA028686CD3E2BA1 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		29B0E0EC33BE08995F0D581B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				EB2B47B5FDC0386B5BE7A031 /* Assets.xcassets */,
+				5E7942FACB4AA8CAAB9E49E3 /* Bundle+Resources.swift */,
+				8F1ED5123DD893C36BAA9453 /* Localizable.strings */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		4B654450D9F4A842E2856151 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				CEC1EECA81855474954BF2FD /* AddFeedSheet.swift */,
+				B0ACB08B75C8AE277F91E0DD /* ArticleDetailView.swift */,
+				1BBEB79D86CCB9835183130A /* ContentView.swift */,
+				0183323EB4976E4330F68AAE /* FeedListView.swift */,
+				8685C42D6F5E40EA3963BC4D /* SidebarView.swift */,
+				F7F354C3EA028686CD3E2BA1 /* WebView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		5C3C8E3A2802BFD4688A83A1 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				1B7F4F5DB90608B6618A7E65 /* Feed.swift */,
+				70111542A0F0A2F41B2BBA8D /* FeedItem.swift */,
+				038186F086CEE92C0BC58C16 /* Folder.swift */,
+				BCD8A26D53207DCE596BE15D /* SidebarItem.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		854BC5F30DABF903879EE7E8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9B7684318C6B5989562330B5 /* EasyRSS.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9D3D886F11646C03AE033E8B /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				785E78CA77152E7FE78C1237 /* FeedStore.swift */,
+				45994E646C25361346388B46 /* OPMLManager.swift */,
+				D1FBFB7658763A93FCF1CB77 /* RSSParser.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		E336F086FEC190A74F711383 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				DF02B31D85C44FE4C109EAEB /* EasyRSSApp.swift */,
+				5C3C8E3A2802BFD4688A83A1 /* Models */,
+				29B0E0EC33BE08995F0D581B /* Resources */,
+				9D3D886F11646C03AE033E8B /* Services */,
+				4B654450D9F4A842E2856151 /* Views */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		EB0AEC9EE6A672EBD93477DE = {
+			isa = PBXGroup;
+			children = (
+				E336F086FEC190A74F711383 /* Sources */,
+				854BC5F30DABF903879EE7E8 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		542FD8853F0F52703C998B71 /* EasyRSS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4ED0763E3A51B39DADFEBB4E /* Build configuration list for PBXNativeTarget "EasyRSS" */;
+			buildPhases = (
+				AFF0D8F0F141FC7451E6193D /* Sources */,
+				46A7CC04D889DF182691F21D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = EasyRSS;
+			packageProductDependencies = (
+			);
+			productName = EasyRSS;
+			productReference = 9B7684318C6B5989562330B5 /* EasyRSS.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		83B7F32DC347E535385D564E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					542FD8853F0F52703C998B71 = {
+						ProvisioningStyle = Manual;
+					};
+				};
+			};
+			buildConfigurationList = E198D8B970F598F282772A86 /* Build configuration list for PBXProject "EasyRSS" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+				tr,
+			);
+			mainGroup = EB0AEC9EE6A672EBD93477DE;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 854BC5F30DABF903879EE7E8 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				542FD8853F0F52703C998B71 /* EasyRSS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		46A7CC04D889DF182691F21D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				86F3651A20127B70130AAA47 /* Assets.xcassets in Resources */,
+				8D659C588236B3E037CFBC13 /* Localizable.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AFF0D8F0F141FC7451E6193D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A404A128853FB51FE8F1D6A /* AddFeedSheet.swift in Sources */,
+				BB886C0D4FDD7292F2D75A7B /* ArticleDetailView.swift in Sources */,
+				8990619AA60391490D3D40EB /* Bundle+Resources.swift in Sources */,
+				FCCFD7AB89EA563D84733CC1 /* ContentView.swift in Sources */,
+				565F54A2DEB2ED5ABDF959DA /* EasyRSSApp.swift in Sources */,
+				F5A9A06F36B551A1F9FD945C /* Feed.swift in Sources */,
+				1020DE99CF68166D20AADCD8 /* FeedItem.swift in Sources */,
+				17C187012BC0DF718F9F2D8E /* FeedListView.swift in Sources */,
+				0988FDC8A62B97759BD9C716 /* FeedStore.swift in Sources */,
+				65B7FEECD3E1AC13D26FCE75 /* Folder.swift in Sources */,
+				332BE99960A9F197E6BAF766 /* OPMLManager.swift in Sources */,
+				39932094874073EA32CC007A /* RSSParser.swift in Sources */,
+				F3F40F23F3F519D7193ECDB0 /* SidebarItem.swift in Sources */,
+				B3C8AEF1FFB7EC4A24C517A1 /* SidebarView.swift in Sources */,
+				A3150AA1722C19990DA5B36F /* WebView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		8F1ED5123DD893C36BAA9453 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E1D08735B62616723261ED83 /* en */,
+				F23E22437382599AAB30B734 /* tr */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		8DA1C733FFE4CF51294B9773 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/Resources/EasyRSS.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = EasyRSS;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 bezelye404. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bezelye.EasyRSS;
+				PRODUCT_NAME = EasyRSS;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		96EFB0F8C374FF236A7AF5B8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		A161ADD27DACB3D85A4A10D6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		CDCA3D7BCEF18FFE526B68D1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/Resources/EasyRSS.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = EasyRSS;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 bezelye404. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bezelye.EasyRSS;
+				PRODUCT_NAME = EasyRSS;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4ED0763E3A51B39DADFEBB4E /* Build configuration list for PBXNativeTarget "EasyRSS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CDCA3D7BCEF18FFE526B68D1 /* Debug */,
+				8DA1C733FFE4CF51294B9773 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E198D8B970F598F282772A86 /* Build configuration list for PBXProject "EasyRSS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				96EFB0F8C374FF236A7AF5B8 /* Debug */,
+				A161ADD27DACB3D85A4A10D6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 83B7F32DC347E535385D564E /* Project object */;
+}

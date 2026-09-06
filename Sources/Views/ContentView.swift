@@ -106,7 +106,7 @@ struct ContentView: View {
 
     private func importOPML() {
         let panel = NSOpenPanel()
-        panel.title = String(localized: "Select OPML File", bundle: .module)
+        panel.title = String(localized: "Select OPML File", bundle: .appResources)
         panel.allowedContentTypes = [
             UTType(filenameExtension: "opml") ?? .xml,
             .xml
@@ -121,7 +121,7 @@ struct ContentView: View {
                 let data = try Data(contentsOf: url)
                 await store.importOPML(data: data)
             } catch {
-                store.errorMessage = String(format: String(localized: "Error reading OPML file: %@", bundle: .module), error.localizedDescription)
+                store.errorMessage = String(format: String(localized: "Error reading OPML file: %@", bundle: .appResources), error.localizedDescription)
             }
         }
     }
@@ -130,7 +130,7 @@ struct ContentView: View {
 
     private func exportOPML() {
         let panel = NSSavePanel()
-        panel.title = String(localized: "Export OPML", bundle: .module)
+        panel.title = String(localized: "Export OPML", bundle: .appResources)
         panel.allowedContentTypes = [UTType(filenameExtension: "opml") ?? .xml]
         panel.nameFieldStringValue = "easyRSS_subscriptions.opml"
 
@@ -140,7 +140,7 @@ struct ContentView: View {
         do {
             try opmlString.write(to: url, atomically: true, encoding: .utf8)
         } catch {
-            store.errorMessage = String(format: String(localized: "Error saving OPML file: %@", bundle: .module), error.localizedDescription)
+            store.errorMessage = String(format: String(localized: "Error saving OPML file: %@", bundle: .appResources), error.localizedDescription)
         }
     }
 }

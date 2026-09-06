@@ -1,0 +1,38 @@
+name: EasyRSS
+options:
+  bundleIdPrefix: com.bezelye
+  defaultConfig: Release
+  deploymentTarget:
+    macOS: "15.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "15.0"
+
+targets:
+  EasyRSS:
+    type: application
+    platform: macOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: Sources
+        excludes:
+          - "Resources/EasyRSS.entitlements"
+    settings:
+      base:
+        PRODUCT_NAME: EasyRSS
+        PRODUCT_BUNDLE_IDENTIFIER: com.bezelye.EasyRSS
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: EasyRSS
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.news
+        INFOPLIST_KEY_NSHumanReadableCopyright: "Copyright © 2026 bezelye404. All rights reserved."
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 1.0.0
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_ENTITLEMENTS: Sources/Resources/EasyRSS.entitlements
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_STYLE: Manual
+        ENABLE_HARDENED_RUNTIME: YES
+    frameworks:
+      - framework: WebKit.framework

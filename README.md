@@ -63,9 +63,9 @@ Uses a standard 3-column navigation layout (`NavigationSplitView`) and native sy
    ```bash
    cd easyRSS
    ```
-2. Open the package in Xcode:
+2. Open the project in Xcode:
    ```bash
-   open Package.swift
+   open EasyRSS.xcodeproj
    ```
 3. Select **My Mac** as the run destination.
 4. Press **`Cmd + R`** to build and run.
@@ -133,7 +133,7 @@ macOS Tahoe tasarım standartlarına uygun 3 sütunlu gezinti düzeni (`Navigati
    ```
 2. Projeyi Xcode ile açın:
    ```bash
-   open Package.swift
+   open EasyRSS.xcodeproj
    ```
 3. Hedef olarak **My Mac** seçin.
 4. **`Cmd + R`** tuşlarına basarak derleyin ve çalıştırın.

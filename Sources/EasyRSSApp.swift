@@ -7,7 +7,6 @@ struct EasyRSSApp: App {
 
     init() {
         DispatchQueue.main.async {
-            NSApp.setActivationPolicy(.regular)
             NSApp.activate(ignoringOtherApps: true)
             NSApp.applicationIconImage = Self.createNativeTahoeIcon()
             if let window = NSApp.windows.first {
