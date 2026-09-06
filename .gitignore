@@ -33,6 +33,7 @@ logs/
 
 # Geçici & Yedek Dosyalar
 *.tmp
+*.dmg
 *.temp
 *.bak
 *.swp
