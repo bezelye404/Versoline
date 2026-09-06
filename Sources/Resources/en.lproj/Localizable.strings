@@ -114,3 +114,31 @@
 "Curated from rss.md (by @joshuawalcher)" = "Curated from rss.md (by @joshuawalcher)";
 "Over 100+ popular feeds in Tech, News, Gaming & more" = "Over 100+ popular feeds in Tech, News, Gaming & more";
 "More Options & OPML" = "More Options & OPML";
+
+/* Reader & Themes */
+"Reader Mode" = "Reader Mode";
+"Exit Reader Mode" = "Exit Reader Mode";
+"Enter Reader Mode (Cmd+Shift+R)" = "Enter Reader Mode (Cmd+Shift+R)";
+"Appearance" = "Appearance";
+"Reader Appearance & Themes" = "Reader Appearance & Themes";
+"System Default" = "System Default";
+"Serif (New York)" = "Serif (New York)";
+"Sans-Serif (SF Pro)" = "Sans-Serif (SF Pro)";
+"Monospace (SF Mono)" = "Monospace (SF Mono)";
+"Compact" = "Compact";
+"Normal" = "Normal";
+"Relaxed" = "Relaxed";
+"Light" = "Light";
+"Sepia" = "Sepia";
+"Dark" = "Dark";
+"OLED Black" = "OLED Black";
+"Theme" = "Theme";
+"Font Family" = "Font Family";
+"Line Spacing" = "Line Spacing";
+
+/* Settings Window */
+"General" = "General";
+"Reader" = "Reader";
+"Shortcuts" = "Shortcuts";
+"Filters" = "Filters";
+"Storage" = "Storage";

@@ -114,3 +114,31 @@
 "Curated from rss.md (by @joshuawalcher)" = "rss.md üzerinden derlenmiştir (@joshuawalcher)";
 "Over 100+ popular feeds in Tech, News, Gaming & more" = "Teknoloji, Haber, Spor, Oyun ve daha fazlasında 100'den fazla popüler feed";
 "More Options & OPML" = "Daha Fazla Seçenek & OPML";
+
+/* Reader & Themes */
+"Reader Mode" = "Okuyucu Modu";
+"Exit Reader Mode" = "Okuyucu Modundan Çık";
+"Enter Reader Mode (Cmd+Shift+R)" = "Okuyucu Moduna Geç (Cmd+Shift+R)";
+"Appearance" = "Görünüm";
+"Reader Appearance & Themes" = "Okuma Görünümü & Temalar";
+"System Default" = "Sistem Varsayılanı";
+"Serif (New York)" = "Serif (New York)";
+"Sans-Serif (SF Pro)" = "Sans-Serif (SF Pro)";
+"Monospace (SF Mono)" = "Monospace (SF Mono)";
+"Compact" = "Kompakt";
+"Normal" = "Normal";
+"Relaxed" = "Geniş";
+"Light" = "Açık";
+"Sepia" = "Sepya";
+"Dark" = "Koyu";
+"OLED Black" = "OLED Siyah";
+"Theme" = "Tema";
+"Font Family" = "Yazı Tipi";
+"Line Spacing" = "Satır Aralığı";
+
+/* Settings Window */
+"General" = "Genel";
+"Reader" = "Okuyucu";
+"Shortcuts" = "Kısayollar";
+"Filters" = "Filtreler";
+"Storage" = "Depolama";

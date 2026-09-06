@@ -221,9 +221,7 @@ struct FeedRow: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            Image(systemName: "dot.radiowaves.up.forward")
-                .font(.system(size: 14))
-                .foregroundStyle(.secondary)
+            FaviconView(hostOrURL: feed.url, size: 16)
                 .frame(width: 20, height: 20)
 
             VStack(alignment: .leading, spacing: 1) {

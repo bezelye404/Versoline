@@ -7,6 +7,9 @@ struct FeedListView: View {
     @Binding var selectedArticle: FeedItem?
     @State private var searchText = ""
 
+    @AppStorage(AppSettingsKeys.enableSingleKeyShortcuts) private var enableSingleKeyShortcuts = true
+    @AppStorage(AppSettingsKeys.mutedKeywords) private var mutedKeywordsRaw = ""
+
     private var title: String {
         switch selection {
         case .all: return String(localized: "All Articles")
@@ -23,6 +26,13 @@ struct FeedListView: View {
         case .all, .bookmarks, .unread, .today: return true
         default: return false
         }
+    }
+
+    private var mutedKeywordsList: [String] {
+        mutedKeywordsRaw
+            .components(separatedBy: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+            .filter { !$0.isEmpty }
     }
 
     private var allItems: [FeedItem] {
@@ -42,12 +52,30 @@ struct FeedListView: View {
             base = []
         }
 
+        // Apply Keyword Muting
+        let muted = mutedKeywordsList
+        let visibleItems: [FeedItem]
+        if muted.isEmpty {
+            visibleItems = base
+        } else {
+            visibleItems = base.filter { item in
+                let lowerTitle = item.title.lowercased()
+                let lowerDesc = item.itemDescription.lowercased()
+                for kw in muted {
+                    if lowerTitle.contains(kw) || lowerDesc.contains(kw) {
+                        return false
+                    }
+                }
+                return true
+            }
+        }
+
         if searchText.isEmpty {
-            return base
+            return visibleItems
         }
 
         let query = searchText.lowercased()
-        return base.filter {
+        return visibleItems.filter {
             $0.title.lowercased().contains(query) ||
             $0.itemDescription.lowercased().contains(query) ||
             ($0.author?.lowercased().contains(query) ?? false)
@@ -80,7 +108,8 @@ struct FeedListView: View {
                         ForEach(items) { item in
                             FeedItemRow(
                                 item: item,
-                                feedTitle: showFeedName ? store.feed(for: item.feedId)?.title : nil
+                                feedTitle: showFeedName ? store.feed(for: item.feedId)?.title : nil,
+                                feedURL: showFeedName ? store.feed(for: item.feedId)?.url : nil
                             )
                             .tag(item)
                             .contextMenu {
@@ -118,13 +147,51 @@ struct FeedListView: View {
                         }
                     }
                     .background {
-                        Button("Toggle Read Status") {
-                            if let selected = selectedArticle {
-                                store.toggleReadStatus(selected)
+                        Group {
+                            // Standard command shortcuts
+                            Button("Toggle Read Status") {
+                                if let selected = selectedArticle {
+                                    store.toggleReadStatus(selected)
+                                }
+                            }
+                            .keyboardShortcut("u", modifiers: .command)
+
+                            // Power-User Single Key Shortcuts (J/K/M/S/O)
+                            if enableSingleKeyShortcuts {
+                                Button("Next Article") {
+                                    selectNextArticle(in: items)
+                                }
+                                .keyboardShortcut("j", modifiers: [])
+
+                                Button("Previous Article") {
+                                    selectPreviousArticle(in: items)
+                                }
+                                .keyboardShortcut("k", modifiers: [])
+
+                                Button("Toggle Read Single Key") {
+                                    if let selected = selectedArticle {
+                                        store.toggleReadStatus(selected)
+                                    }
+                                }
+                                .keyboardShortcut("m", modifiers: [])
+
+                                Button("Toggle Bookmark Single Key") {
+                                    if let selected = selectedArticle {
+                                        store.toggleBookmark(selected)
+                                    }
+                                }
+                                .keyboardShortcut("s", modifiers: [])
+
+                                Button("Open In Browser Single Key") {
+                                    if let selected = selectedArticle, let url = URL(string: selected.link) {
+                                        NSWorkspace.shared.open(url)
+                                    }
+                                }
+                                .keyboardShortcut("o", modifiers: [])
                             }
                         }
-                        .keyboardShortcut("u", modifiers: .command)
-                        .hidden()
+                        .frame(width: 0, height: 0)
+                        .opacity(0)
                     }
                 }
             } else {
@@ -144,39 +211,34 @@ struct FeedListView: View {
         }
     }
 
-    @ViewBuilder
-    private func emptyState(for item: SidebarItem) -> some View {
-        let (icon, message): (String, String) = switch item {
-        case .all: ("tray", String(localized: "No articles yet. Start by adding a feed."))
-        case .bookmarks: ("star", String(localized: "No bookmarked articles yet."))
-        case .feed: ("doc.text.magnifyingglass", String(localized: "No articles in this feed yet."))
-        case .unread: ("envelope.badge", String(localized: "No unread articles."))
-        case .today: ("clock", String(localized: "No articles from today."))
-        }
+    // MARK: - Article Navigation
 
-        VStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 40, weight: .ultraLight))
-                .foregroundStyle(.quaternary)
-            Text(message)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+    private func selectNextArticle(in items: [FeedItem]) {
+        guard !items.isEmpty else { return }
+        guard let current = selectedArticle,
+              let index = items.firstIndex(where: { $0.id == current.id }) else {
+            selectedArticle = items.first
+            return
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .navigationTitle(title)
+        let nextIndex = min(index + 1, items.count - 1)
+        selectedArticle = items[nextIndex]
     }
+
+    private func selectPreviousArticle(in items: [FeedItem]) {
+        guard !items.isEmpty else { return }
+        guard let current = selectedArticle,
+              let index = items.firstIndex(where: { $0.id == current.id }) else {
+            selectedArticle = items.first
+            return
+        }
+        let prevIndex = max(index - 1, 0)
+        selectedArticle = items[prevIndex]
+    }
+
+    // MARK: - Context Menu
 
     @ViewBuilder
     private func itemContextMenu(item: FeedItem) -> some View {
-        Button {
-            store.toggleBookmark(item)
-        } label: {
-            Label(
-                item.isBookmarked ? "Remove Bookmark" : "Add Bookmark",
-                systemImage: item.isBookmarked ? "star.slash" : "star"
-            )
-        }
-
         Button {
             store.toggleReadStatus(item)
         } label: {
@@ -186,13 +248,60 @@ struct FeedListView: View {
             )
         }
 
+        Button {
+            store.toggleBookmark(item)
+        } label: {
+            Label(
+                item.isBookmarked ? "Remove Bookmark" : "Add Bookmark",
+                systemImage: item.isBookmarked ? "star.fill" : "star"
+            )
+        }
+
+        Divider()
+
         if let url = URL(string: item.link) {
-            Divider()
             Button {
                 NSWorkspace.shared.open(url)
             } label: {
                 Label("Open in Browser", systemImage: "safari")
             }
+        }
+    }
+
+    // MARK: - Empty State
+
+    @ViewBuilder
+    private func emptyState(for item: SidebarItem) -> some View {
+        VStack(spacing: 16) {
+            Image(systemName: emptyStateIcon(for: item))
+                .font(.system(size: 48, weight: .ultraLight))
+                .foregroundStyle(.quaternary)
+
+            Text(emptyStateText(for: item))
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .navigationTitle(title)
+    }
+
+    private func emptyStateIcon(for item: SidebarItem) -> String {
+        switch item {
+        case .all: return "tray"
+        case .unread: return "envelope.open"
+        case .today: return "clock"
+        case .bookmarks: return "star"
+        case .feed: return "newspaper"
+        }
+    }
+
+    private func emptyStateText(for item: SidebarItem) -> String {
+        switch item {
+        case .all: return String(localized: "No articles yet. Start by adding a feed.")
+        case .unread: return String(localized: "No unread articles.")
+        case .today: return String(localized: "No articles from today.")
+        case .bookmarks: return String(localized: "No bookmarked articles yet.")
+        case .feed: return String(localized: "No articles in this feed yet.")
         }
     }
 }
@@ -201,9 +310,10 @@ struct FeedListView: View {
 
 struct FeedItemRow: View {
 
-    @AppStorage("isCompactListMode") private var isCompactListMode = false
+    @AppStorage(AppSettingsKeys.isCompactListMode) private var isCompactListMode = false
     let item: FeedItem
     var feedTitle: String? = nil
+    var feedURL: String? = nil
 
     private static let relativeDateTimeFormatter: RelativeDateTimeFormatter = {
         let formatter = RelativeDateTimeFormatter()
@@ -249,9 +359,12 @@ struct FeedItemRow: View {
 
                     HStack(spacing: 8) {
                         if let feedTitle, !feedTitle.isEmpty {
-                            Label(feedTitle, systemImage: "dot.radiowaves.up.forward")
-                                .font(.caption2)
-                                .foregroundStyle(.blue.opacity(0.7))
+                            HStack(spacing: 4) {
+                                FaviconView(hostOrURL: feedURL ?? item.link, size: 12)
+                                Text(feedTitle)
+                            }
+                            .font(.caption2)
+                            .foregroundStyle(.blue.opacity(0.8))
                         }
 
                         if let author = item.author, !author.isEmpty {
@@ -274,7 +387,6 @@ struct FeedItemRow: View {
     }
 
     private func stripHTML(_ html: String) -> String {
-        // Quick regex-based strip for performance
         html.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
             .replacingOccurrences(of: "&amp;", with: "&")
             .replacingOccurrences(of: "&lt;", with: "<")

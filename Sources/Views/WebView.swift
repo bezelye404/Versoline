@@ -6,17 +6,38 @@ struct WebView: NSViewRepresentable {
     let html: String?
     let url: URL?
     let fontSize: Int
+    var theme: ReaderTheme = .system
+    var fontFamily: ReaderFontFamily = .system
+    var lineHeight: ReaderLineHeight = .normal
 
-    init(html: String, fontSize: Int = 16) {
+    init(
+        html: String,
+        fontSize: Int = 16,
+        theme: ReaderTheme = .system,
+        fontFamily: ReaderFontFamily = .system,
+        lineHeight: ReaderLineHeight = .normal
+    ) {
         self.html = html
         self.url = nil
         self.fontSize = fontSize
+        self.theme = theme
+        self.fontFamily = fontFamily
+        self.lineHeight = lineHeight
     }
 
-    init(url: URL, fontSize: Int = 16) {
+    init(
+        url: URL,
+        fontSize: Int = 16,
+        theme: ReaderTheme = .system,
+        fontFamily: ReaderFontFamily = .system,
+        lineHeight: ReaderLineHeight = .normal
+    ) {
         self.html = nil
         self.url = url
         self.fontSize = fontSize
+        self.theme = theme
+        self.fontFamily = fontFamily
+        self.lineHeight = lineHeight
     }
 
     func makeNSView(context: Context) -> WKWebView {
@@ -25,18 +46,26 @@ struct WebView: NSViewRepresentable {
 
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
-        webView.underPageBackgroundColor = .clear
+        applyBackgroundColor(to: webView)
         return webView
     }
 
     func updateNSView(_ webView: WKWebView, context: Context) {
         let coordinator = context.coordinator
+        applyBackgroundColor(to: webView)
 
         if let html = html {
-            // Only reload if content or font size actually changed
-            if coordinator.lastLoadedHTML != html || coordinator.lastFontSize != fontSize {
+            let styleChanged = coordinator.lastFontSize != fontSize ||
+                               coordinator.lastTheme != theme ||
+                               coordinator.lastFontFamily != fontFamily ||
+                               coordinator.lastLineHeight != lineHeight
+
+            if coordinator.lastLoadedHTML != html || styleChanged {
                 coordinator.lastLoadedHTML = html
                 coordinator.lastFontSize = fontSize
+                coordinator.lastTheme = theme
+                coordinator.lastFontFamily = fontFamily
+                coordinator.lastLineHeight = lineHeight
                 coordinator.lastLoadedURL = nil
                 let styledHTML = wrapInTemplate(html)
                 webView.loadHTMLString(styledHTML, baseURL: nil)
@@ -55,6 +84,21 @@ struct WebView: NSViewRepresentable {
         Coordinator()
     }
 
+    private func applyBackgroundColor(to webView: WKWebView) {
+        switch theme {
+        case .system:
+            webView.underPageBackgroundColor = .clear
+        case .light:
+            webView.underPageBackgroundColor = .white
+        case .sepia:
+            webView.underPageBackgroundColor = NSColor(red: 0.97, green: 0.95, blue: 0.89, alpha: 1.0)
+        case .dark:
+            webView.underPageBackgroundColor = NSColor(white: 0.11, alpha: 1.0)
+        case .oled:
+            webView.underPageBackgroundColor = .black
+        }
+    }
+
     private func wrapInTemplate(_ content: String) -> String {
         """
         <!DOCTYPE html>
@@ -64,15 +108,15 @@ struct WebView: NSViewRepresentable {
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
             :root {
-                color-scheme: light dark;
+                color-scheme: \(theme == .system ? "light dark" : (theme == .dark || theme == .oled ? "dark" : "light"));
             }
             body {
-                font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+                font-family: \(fontFamily.cssFontFamily);
                 font-size: \(fontSize)px;
-                line-height: 1.8;
-                color: var(--text-color);
-                background: transparent;
-                padding: 0 4px;
+                line-height: \(lineHeight.rawValue);
+                color: \(theme.textColorCSS);
+                background-color: \(theme.backgroundColorCSS);
+                padding: 0 8px;
                 max-width: 800px;
                 margin: 0 auto;
                 word-wrap: break-word;
@@ -84,13 +128,13 @@ struct WebView: NSViewRepresentable {
             @media (prefers-color-scheme: light) {
                 :root { --text-color: #1d1d1f; --link-color: #0066cc; }
             }
-            a { color: var(--link-color); text-decoration: none; }
+            a { color: \(theme.linkColorCSS); text-decoration: none; }
             a:hover { text-decoration: underline; }
-            img { max-width: 100%; height: auto; border-radius: 8px; margin: 8px 0; }
+            img { max-width: 100%; height: auto; border-radius: 8px; margin: 12px 0; }
             pre, code {
                 font-family: "SF Mono", Menlo, monospace;
                 font-size: 13px;
-                background: rgba(128, 128, 128, 0.1);
+                background: rgba(128, 128, 128, 0.12);
                 border-radius: 6px;
                 padding: 2px 6px;
             }
@@ -99,10 +143,10 @@ struct WebView: NSViewRepresentable {
                 border-left: 3px solid rgba(128, 128, 128, 0.3);
                 margin-left: 0;
                 padding-left: 16px;
-                color: rgba(128, 128, 128, 0.8);
+                color: rgba(128, 128, 128, 0.85);
             }
-            h1, h2, h3, h4 { font-weight: 600; }
-            hr { border: none; border-top: 1px solid rgba(128, 128, 128, 0.2); margin: 16px 0; }
+            h1, h2, h3, h4 { font-weight: 600; line-height: 1.3; }
+            hr { border: none; border-top: 1px solid rgba(128, 128, 128, 0.2); margin: 20px 0; }
         </style>
         </head>
         <body>
@@ -116,21 +160,22 @@ struct WebView: NSViewRepresentable {
         var lastLoadedHTML: String?
         var lastLoadedURL: URL?
         var lastFontSize: Int?
+        var lastTheme: ReaderTheme?
+        var lastFontFamily: ReaderFontFamily?
+        var lastLineHeight: ReaderLineHeight?
 
-        @MainActor
         func webView(
             _ webView: WKWebView,
             decidePolicyFor navigationAction: WKNavigationAction,
-            decisionHandler: @escaping @MainActor (WKNavigationActionPolicy) -> Void
+            decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
         ) {
-            // Open external links in the default browser
             if navigationAction.navigationType == .linkActivated,
                let url = navigationAction.request.url {
                 NSWorkspace.shared.open(url)
                 decisionHandler(.cancel)
-                return
+            } else {
+                decisionHandler(.allow)
             }
-            decisionHandler(.allow)
         }
     }
 }

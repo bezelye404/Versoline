@@ -1,10 +1,33 @@
 import SwiftUI
+import AppKit
 
 struct ArticleDetailView: View {
 
     @Environment(FeedStore.self) private var store
-    @AppStorage("readerFontSize") private var readerFontSize = 16
+
+    @AppStorage(AppSettingsKeys.readerFontSize) private var readerFontSize = 16
+    @AppStorage(AppSettingsKeys.readerTheme) private var readerThemeRaw = ReaderTheme.system.rawValue
+    @AppStorage(AppSettingsKeys.readerFontFamily) private var readerFontFamilyRaw = ReaderFontFamily.system.rawValue
+    @AppStorage(AppSettingsKeys.readerLineHeight) private var readerLineHeightRaw = ReaderLineHeight.normal.rawValue
+    @AppStorage(AppSettingsKeys.autoReaderMode) private var autoReaderMode = false
+
     let selectedItem: FeedItem?
+
+    @State private var isReaderModeActive = false
+    @State private var extractedReaderHTML: String? = nil
+    @State private var isLoadingReaderMode = false
+
+    private var currentTheme: ReaderTheme {
+        ReaderTheme(rawValue: readerThemeRaw) ?? .system
+    }
+
+    private var currentFontFamily: ReaderFontFamily {
+        ReaderFontFamily(rawValue: readerFontFamilyRaw) ?? .system
+    }
+
+    private var currentLineHeight: ReaderLineHeight {
+        ReaderLineHeight(rawValue: readerLineHeightRaw) ?? .normal
+    }
 
     // Always read fresh data from store
     private var currentItem: FeedItem? {
@@ -25,6 +48,18 @@ struct ArticleDetailView: View {
                     Divider()
                     articleContent(item: item)
                 }
+                .onChange(of: item.id) { _, _ in
+                    isReaderModeActive = false
+                    extractedReaderHTML = nil
+                    if autoReaderMode {
+                        loadReaderMode(for: item)
+                    }
+                }
+                .onAppear {
+                    if autoReaderMode {
+                        loadReaderMode(for: item)
+                    }
+                }
             } else {
                 VStack(spacing: 16) {
                     Image(systemName: "newspaper")
@@ -42,18 +77,23 @@ struct ArticleDetailView: View {
         }
     }
 
+    // MARK: - Article Header
+
     @ViewBuilder
     private func articleHeader(item: FeedItem) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
             Text(item.title)
                 .font(.title2.weight(.semibold))
                 .textSelection(.enabled)
 
             HStack(spacing: 16) {
                 if let feedTitle = currentFeed?.title {
-                    Label(feedTitle, systemImage: "dot.radiowaves.up.forward")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    HStack(spacing: 6) {
+                        FaviconView(hostOrURL: currentFeed?.url ?? item.link, size: 14)
+                        Text(feedTitle)
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 }
 
                 if let author = item.author, !author.isEmpty {
@@ -71,24 +111,74 @@ struct ArticleDetailView: View {
                 Spacer()
 
                 HStack(spacing: 8) {
-                    // Font size controls
+                    // Reader Mode Toggle
                     Button {
-                        if readerFontSize > 12 { readerFontSize -= 2 }
+                        toggleReaderMode(item: item)
                     } label: {
-                        Text("A-")
+                        if isLoadingReaderMode {
+                            ProgressView()
+                                .controlSize(.small)
+                        } else {
+                            Image(systemName: isReaderModeActive ? "sparkles" : "sparkle")
+                                .foregroundStyle(isReaderModeActive ? Color.accentColor : Color.secondary)
+                        }
                     }
                     .buttonStyle(.borderless)
-                    .controlSize(.small)
-                    .disabled(readerFontSize <= 12)
+                    .help(isReaderModeActive ? "Exit Reader Mode" : "Enter Reader Mode (Cmd+Shift+R)")
+                    .keyboardShortcut("r", modifiers: [.command, .shift])
 
-                    Button {
-                        if readerFontSize < 28 { readerFontSize += 2 }
+                    // Appearance Menu (Theme, Font, Size)
+                    Menu {
+                        // Themes
+                        Picker("Theme", selection: $readerThemeRaw) {
+                            ForEach(ReaderTheme.allCases) { theme in
+                                Text(theme.title).tag(theme.rawValue)
+                            }
+                        }
+
+                        Divider()
+
+                        // Fonts
+                        Picker("Font Family", selection: $readerFontFamilyRaw) {
+                            ForEach(ReaderFontFamily.allCases) { font in
+                                Text(font.title).tag(font.rawValue)
+                            }
+                        }
+
+                        // Line Spacing
+                        Picker("Line Spacing", selection: $readerLineHeightRaw) {
+                            ForEach(ReaderLineHeight.allCases) { lh in
+                                Text(lh.title).tag(lh.rawValue)
+                            }
+                        }
+
+                        Divider()
+
+                        // Font size
+                        HStack {
+                            Button("Smaller Font") {
+                                if readerFontSize > 12 { readerFontSize -= 2 }
+                            }
+                            Button("Larger Font") {
+                                if readerFontSize < 32 { readerFontSize += 2 }
+                            }
+                        }
                     } label: {
-                        Text("A+")
+                        Label("Appearance", systemImage: "textformat.size")
                     }
                     .buttonStyle(.borderless)
                     .controlSize(.small)
-                    .disabled(readerFontSize >= 28)
+                    .help("Reader Appearance & Themes")
+
+                    // Share Link
+                    if let url = URL(string: item.link) {
+                        ShareLink(item: url, subject: Text(item.title)) {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                        .buttonStyle(.borderless)
+                        .controlSize(.small)
+                        .help("Share Article")
+                    }
 
                     // Bookmark toggle
                     Button {
@@ -124,16 +214,24 @@ struct ArticleDetailView: View {
                         }
                         .buttonStyle(.borderless)
                         .controlSize(.small)
+                        .help("Open in Browser (Cmd+Return)")
                     }
                 }
             }
         }
-        .padding(20)
+        .padding(18)
     }
+
+    // MARK: - Article Content
 
     @ViewBuilder
     private func articleContent(item: FeedItem) -> some View {
-        let contentHTML = item.content ?? item.itemDescription
+        let contentHTML: String = {
+            if isReaderModeActive, let extracted = extractedReaderHTML {
+                return extracted
+            }
+            return item.content ?? item.itemDescription
+        }()
 
         if contentHTML.isEmpty {
             VStack(spacing: 12) {
@@ -154,9 +252,44 @@ struct ArticleDetailView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
-            WebView(html: contentHTML, fontSize: readerFontSize)
+            WebView(
+                html: contentHTML,
+                fontSize: readerFontSize,
+                theme: currentTheme,
+                fontFamily: currentFontFamily,
+                lineHeight: currentLineHeight
+            )
         }
     }
+
+    // MARK: - Reader Mode Logic
+
+    private func toggleReaderMode(item: FeedItem) {
+        if isReaderModeActive {
+            isReaderModeActive = false
+        } else {
+            loadReaderMode(for: item)
+        }
+    }
+
+    private func loadReaderMode(for item: FeedItem) {
+        if extractedReaderHTML != nil {
+            isReaderModeActive = true
+            return
+        }
+
+        isLoadingReaderMode = true
+        Task {
+            let extracted = await ReaderModeExtractor.shared.extract(from: item.link)
+            isLoadingReaderMode = false
+            if let extracted, !extracted.isEmpty {
+                extractedReaderHTML = extracted
+                isReaderModeActive = true
+            }
+        }
+    }
+
+    // MARK: - Date Formatting
 
     private static let articleDateFormatter: DateFormatter = {
         let formatter = DateFormatter()

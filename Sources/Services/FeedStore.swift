@@ -19,6 +19,11 @@ final class FeedStore {
         try? FileManager.default.createDirectory(at: appDir, withIntermediateDirectories: true)
         self.saveURL = appDir
         load()
+
+        let cleanupDays = UserDefaults.standard.integer(forKey: AppSettingsKeys.autoCleanupDays)
+        if cleanupDays > 0 {
+            autoCleanup(olderThanDays: cleanupDays)
+        }
     }
 
     // MARK: - Feed Management
@@ -258,6 +263,36 @@ final class FeedStore {
         feedItems[index].isRead.toggle()
         items[item.feedId] = feedItems
         save()
+    }
+
+    // MARK: - Auto-Cleanup & Storage Management
+
+    func autoCleanup(olderThanDays days: Int) {
+        guard days > 0 else { return }
+        let cutoffDate = Date().addingTimeInterval(-Double(days * 86400))
+        var removedCount = 0
+
+        for (feedId, feedItems) in items {
+            let filtered = feedItems.filter { item in
+                if item.isBookmarked || !item.isRead { return true }
+                if let pubDate = item.pubDate, pubDate >= cutoffDate { return true }
+                removedCount += 1
+                return false
+            }
+            items[feedId] = filtered
+        }
+
+        if removedCount > 0 {
+            save()
+            AppLogger.shared.log("Auto-cleanup removed \(removedCount) old read articles (older than \(days) days)", level: .info, category: .storage)
+        }
+    }
+
+    var databaseSizeBytes: Int64 {
+        let fileURL = saveURL.appendingPathComponent("data.json")
+        guard let attrs = try? FileManager.default.attributesOfItem(atPath: fileURL.path(percentEncoded: false)),
+              let size = attrs[.size] as? Int64 else { return 0 }
+        return size
     }
 
     // MARK: - Bookmarks
