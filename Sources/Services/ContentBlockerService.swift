@@ -7,7 +7,7 @@ final class ContentBlockerService {
 
     static let shared = ContentBlockerService()
 
-    private let ruleListIdentifier = "EasyRSSContentBlockerRules-v4"
+    private let ruleListIdentifier = "EasyRSSContentBlockerRules-v5"
     private(set) var ruleList: WKContentRuleList?
     private(set) var isReady: Bool = false
 
@@ -29,7 +29,7 @@ final class ContentBlockerService {
         if let cached = await lookupRuleList(store: store) {
             self.ruleList = cached
             self.isReady = true
-            AppLogger.shared.log("Pre-compiled content blocker rules (v4) loaded from store cache.", level: .info, category: .system)
+            AppLogger.shared.log("Pre-compiled content blocker rules (v5) loaded from store cache.", level: .info, category: .system)
             return
         }
 
@@ -57,7 +57,7 @@ final class ContentBlockerService {
                     } else if let compiled = compiled {
                         self?.ruleList = compiled
                         self?.isReady = true
-                        AppLogger.shared.log("Successfully compiled native WebKit content blocker rules (v4).", level: .info, category: .system)
+                        AppLogger.shared.log("Successfully compiled native WebKit content blocker rules (v5).", level: .info, category: .system)
                     }
                     continuation.resume()
                 }
@@ -98,6 +98,25 @@ private enum ContentBlockerRules {
             "*scorecardresearch.com",
             "*amazon-adsystem.com",
             "*connect.facebook.net",
+            "*rubiconproject.com",
+            "*pubmatic.com",
+            "*openx.net",
+            "*moatads.com",
+            "*clarity.ms",
+            "*hotjar.com",
+            "*quantserve.com",
+            "*buysellads.com",
+            "*revcontent.com",
+            "*media.net",
+            "*casalemedia.com",
+            "*smartadserver.com",
+            "*yieldmo.com",
+            "*triplelift.com",
+            "*sharethrough.com",
+            "*sovrn.com",
+            "*indexexchange.com",
+            "*admiral.com",
+            "*fundingchoicesmessages.google.com",
             "*popads.net",
             "*propellerads.com",
             "*popcash.net",
@@ -109,23 +128,13 @@ private enum ContentBlockerRules {
             "*monetag.com",
             "*mgid.com",
             "*yektanet.com",
-            "*rubiconproject.com",
-            "*pubmatic.com",
-            "*openx.net",
-            "*adform.net",
-            "*moatads.com",
-            "*clarity.ms",
-            "*hotjar.com",
-            "*quantserve.com",
-            "*buysellads.com",
-            "*revcontent.com",
-            "*media.net",
-            "*mc.yandex.ru",
-            "*reklamstore.com",
-            "*admatic.com.tr",
-            "*medyanet.com.tr",
-            "*gemius.pl",
-            "*gemius.com",
+            "*zeropark.com",
+            "*richpush.com",
+            "*pushwoosh.com",
+            "*onesignal.com",
+            "*useinsider.com",
+            "*webpushr.com",
+            "*subscribers.com",
             "*connatix.com",
             "*teads.tv",
             "*teads.com",
@@ -134,18 +143,40 @@ private enum ContentBlockerRules {
             "*vidoomy.com",
             "*anyclip.com",
             "*brid.tv",
-            "*casalemedia.com",
-            "*smartadserver.com",
-            "*yieldmo.com",
-            "*triplelift.com",
-            "*sharethrough.com",
-            "*sovrn.com",
-            "*indexexchange.com",
-            "*admiral.com",
-            "*fundingchoicesmessages.google.com",
+            "*playstream.media",
+            "*exco.tv",
+            "*adform.net",
+            "*ligatus.com",
+            "*plista.com",
+            "*stroeer.de",
+            "*adition.com",
+            "*smartclip.net",
+            "*yieldlab.net",
+            "*cpex.cz",
+            "*mc.yandex.ru",
+            "*an.yandex.ru",
+            "*adfox.ru",
+            "*rambler.ru",
+            "*begun.ru",
+            "*sape.ru",
+            "*recreativ.ru",
+            "*kadam.net",
+            "*reklamstore.com",
+            "*admatic.com.tr",
+            "*medyanet.com.tr",
+            "*gemius.pl",
+            "*gemius.com",
             "*pigeoon.com",
-            "*useinsider.com",
-            "*onesignal.com"
+            "*ad01.tmgrup.com.tr",
+            "*virgul.com",
+            "*virgul.com.tr",
+            "*gelirortaklari.com",
+            "*i-mobile.co.jp",
+            "*microad.jp",
+            "*fluct.jp",
+            "*geniee.co.jp",
+            "*ad-stir.com",
+            "*popin.cc"
           ]
         },
         "action": {

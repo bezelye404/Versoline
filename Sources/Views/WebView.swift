@@ -55,6 +55,16 @@ struct WebView: NSViewRepresentable {
             config.userContentController.add(ruleList)
         }
 
+        // Neutralize in-page Web Push permission prompts
+        if url != nil {
+            let pushSuppressScript = WKUserScript(
+                source: "if(window.Notification){window.Notification.requestPermission=function(){return Promise.resolve('denied');};window.Notification.permission='denied';}",
+                injectionTime: .atDocumentStart,
+                forMainFrameOnly: false
+            )
+            config.userContentController.addUserScript(pushSuppressScript)
+        }
+
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
@@ -64,6 +74,7 @@ struct WebView: NSViewRepresentable {
 
     func updateNSView(_ webView: WKWebView, context: Context) {
         let coordinator = context.coordinator
+        coordinator.isHTMLMode = (html != nil)
         applyBackgroundColor(to: webView)
 
         if let html = html {
@@ -109,7 +120,7 @@ struct WebView: NSViewRepresentable {
     }
 
     func makeCoordinator() -> Coordinator {
-        Coordinator()
+        Coordinator(isHTMLMode: html != nil)
     }
 
     private func applyBackgroundColor(to webView: WKWebView) {
@@ -185,6 +196,7 @@ struct WebView: NSViewRepresentable {
     }
 
     class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
+        var isHTMLMode: Bool
         var lastLoadedHTML: String?
         var lastLoadedURL: URL?
         var lastFontSize: Int?
@@ -193,39 +205,84 @@ struct WebView: NSViewRepresentable {
         var lastLineHeight: ReaderLineHeight?
         var lastContentBlockerEnabled: Bool?
 
-        // Suppress automatic popup webviews (window.open, target=_blank)
+        init(isHTMLMode: Bool = false) {
+            self.isHTMLMode = isHTMLMode
+        }
+
+        // 1. Block popup window creation (window.open, target=_blank auxiliary windows)
         func webView(
             _ webView: WKWebView,
             createWebViewWith configuration: WKWebViewConfiguration,
             for navigationAction: WKNavigationAction,
             windowFeatures: WKWindowFeatures
         ) -> WKWebView? {
-            if navigationAction.navigationType == .linkActivated,
-               let url = navigationAction.request.url {
-                NSWorkspace.shared.open(url)
+            // If the user deliberately clicked a target="_blank" link inside the browser, keep reading in the same view
+            if !isHTMLMode && navigationAction.navigationType == .linkActivated {
+                webView.load(navigationAction.request)
             }
+            // Always return nil: strictly prevents auxiliary popup webview windows from spawning
             return nil
         }
 
+        // 2. Decide navigation policy (contain browsing, eliminate click-trap popups)
         func webView(
             _ webView: WKWebView,
             decidePolicyFor navigationAction: WKNavigationAction,
             decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
         ) {
-            if navigationAction.navigationType == .linkActivated,
-               let url = navigationAction.request.url {
-                NSWorkspace.shared.open(url)
-                decisionHandler(.cancel)
-            } else if navigationAction.targetFrame == nil {
-                // Popup or unprompted new tab attempt
+            if isHTMLMode {
+                // Reader Mode: Clicking external article links opens in user's default browser
                 if navigationAction.navigationType == .linkActivated,
                    let url = navigationAction.request.url {
                     NSWorkspace.shared.open(url)
+                    decisionHandler(.cancel)
+                    return
                 }
-                decisionHandler(.cancel)
             } else {
-                decisionHandler(.allow)
+                // In-App Web Browser Mode:
+                if navigationAction.targetFrame == nil {
+                    // Website is attempting target="_blank" or script popup
+                    if navigationAction.navigationType == .linkActivated {
+                        // Keep user-initiated links inside the in-app browser
+                        webView.load(navigationAction.request)
+                    }
+                    // Cancel auxiliary window/popup creation
+                    decisionHandler(.cancel)
+                    return
+                }
             }
+            decisionHandler(.allow)
+        }
+
+        // 3. Suppress JavaScript alert popups
+        func webView(
+            _ webView: WKWebView,
+            runJavaScriptAlertPanelWithMessage message: String,
+            initiatedByFrame frame: WKFrameInfo,
+            completionHandler: @escaping () -> Void
+        ) {
+            completionHandler()
+        }
+
+        // 4. Suppress JavaScript confirm dialog popups
+        func webView(
+            _ webView: WKWebView,
+            runJavaScriptConfirmPanelWithMessage message: String,
+            initiatedByFrame frame: WKFrameInfo,
+            completionHandler: @escaping (Bool) -> Void
+        ) {
+            completionHandler(false)
+        }
+
+        // 5. Suppress JavaScript text input prompt popups
+        func webView(
+            _ webView: WKWebView,
+            runJavaScriptTextInputPanelWithPrompt prompt: String,
+            defaultText: String?,
+            initiatedByFrame frame: WKFrameInfo,
+            completionHandler: @escaping (String?) -> Void
+        ) {
+            completionHandler(nil)
         }
     }
 }
