@@ -49,6 +49,11 @@ struct WebView: NSViewRepresentable {
         config.defaultWebpagePreferences.allowsContentJavaScript = true
         config.preferences.javaScriptCanOpenWindowsAutomatically = false
 
+        // For local Reader Mode HTML, use nonPersistent data store to save RAM and avoid persistent disk/cache bloat
+        if html != nil {
+            config.websiteDataStore = .nonPersistent()
+        }
+
         // Attach Content Blocker ONLY for external live web URLs when enabled
         if url != nil && isContentBlockerEnabled,
            let ruleList = ContentBlockerService.shared.ruleList {
@@ -144,6 +149,17 @@ struct WebView: NSViewRepresentable {
                 webView.load(request)
             }
         }
+    }
+
+    static func dismantleNSView(_ webView: WKWebView, coordinator: Coordinator) {
+        webView.stopLoading()
+        webView.loadHTMLString("", baseURL: nil)
+        webView.navigationDelegate = nil
+        webView.uiDelegate = nil
+        webView.configuration.userContentController.removeAllUserScripts()
+        webView.configuration.userContentController.removeAllContentRuleLists()
+        coordinator.lastLoadedHTML = nil
+        coordinator.lastLoadedURL = nil
     }
 
     func makeCoordinator() -> Coordinator {

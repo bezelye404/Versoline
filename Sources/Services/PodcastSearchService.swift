@@ -71,6 +71,9 @@ final class PodcastSearchService {
                         ($0.feedURL.hasPrefix("http://") || $0.feedURL.hasPrefix("https://"))
                     }
 
+                    if self.queryCache.count >= 10 {
+                        self.queryCache.removeAll()
+                    }
                     self.queryCache[trimmed.lowercased()] = validResults
                     self.results = validResults
                     self.isSearching = false
@@ -95,5 +98,9 @@ final class PodcastSearchService {
         isSearching = false
         errorMessage = nil
         lastQuery = ""
+    }
+
+    func clearCache() {
+        queryCache.removeAll()
     }
 }

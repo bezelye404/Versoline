@@ -14,7 +14,11 @@ final class ReaderModeExtractor {
         let cacheDir = appSupport.appendingPathComponent("EasyRSS/ReaderCache", isDirectory: true)
         try? FileManager.default.createDirectory(at: cacheDir, withIntermediateDirectories: true)
         self.cacheDirectory = cacheDir
-        memoryCache.countLimit = 60
+        memoryCache.countLimit = 15
+    }
+
+    func clearMemoryCache() {
+        memoryCache.removeAllObjects()
     }
 
     // MARK: - Cache Helpers

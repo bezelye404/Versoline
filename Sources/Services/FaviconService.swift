@@ -17,7 +17,12 @@ final class FaviconService {
         let dir = appSupport.appendingPathComponent("EasyRSS/Favicons", isDirectory: true)
         try? fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
         self.cacheDirectory = dir
-        memoryCache.countLimit = 300
+        memoryCache.countLimit = 40
+        memoryCache.totalCostLimit = 10 * 1024 * 1024 // Max 10MB in RAM
+    }
+
+    func clearMemoryCache() {
+        memoryCache.removeAllObjects()
     }
 
     func favicon(for hostOrURL: String) async -> NSImage? {

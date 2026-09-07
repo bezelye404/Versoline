@@ -67,7 +67,7 @@ public final class AppLogger {
     public static let shared = AppLogger()
 
     public private(set) var entries: [LogEntry] = []
-    public var maxEntries: Int = 1000
+    public var maxEntries: Int = 200
 
     private let osLog = Logger(subsystem: "com.bezelye.EasyRSS", category: "App")
 

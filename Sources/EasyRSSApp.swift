@@ -11,6 +11,31 @@ struct EasyRSSApp: App {
         Task { @MainActor in
             await ContentBlockerService.shared.prepare()
         }
+
+        // Memory optimization: Purge transient RAM caches when the app is minimized, hidden or backgrounded
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.willResignActiveNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            MainActor.assumeIsolated {
+                FaviconService.shared.clearMemoryCache()
+                ReaderModeExtractor.shared.clearMemoryCache()
+                PodcastSearchService.shared.clearCache()
+            }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.didHideNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            MainActor.assumeIsolated {
+                FaviconService.shared.clearMemoryCache()
+                ReaderModeExtractor.shared.clearMemoryCache()
+                PodcastSearchService.shared.clearCache()
+            }
+        }
     }
 
     var body: some Scene {
