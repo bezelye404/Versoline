@@ -40,8 +40,8 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: EasyRSS
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.news
         INFOPLIST_KEY_NSHumanReadableCopyright: "Copyright © 2026 bezelye404. All rights reserved."
-        CURRENT_PROJECT_VERSION: 1
-        MARKETING_VERSION: 1.0.0
+        CURRENT_PROJECT_VERSION: 2
+        MARKETING_VERSION: 0.2
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CODE_SIGN_ENTITLEMENTS: Sources/Resources/EasyRSS.entitlements
         CODE_SIGN_IDENTITY: "-"
