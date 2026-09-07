@@ -9,6 +9,17 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     MACOSX_DEPLOYMENT_TARGET: "15.0"
+  configs:
+    Release:
+      SWIFT_COMPILATION_MODE: wholemodule
+      SWIFT_OPTIMIZATION_LEVEL: "-O"
+      LLVM_LTO: YES_THIN
+      DEAD_CODE_STRIPPING: YES
+      STRIP_INSTALLED_PRODUCT: YES
+      STRIP_STYLE: all
+      COPY_PHASE_STRIP: YES
+      DEPLOYMENT_POSTPROCESSING: YES
+      DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
 
 targets:
   EasyRSS:

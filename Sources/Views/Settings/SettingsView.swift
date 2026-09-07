@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import WebKit
 
 struct SettingsView: View {
 
@@ -328,6 +329,7 @@ private struct StorageSettingsTab: View {
     @State private var clearedFavicons = false
     @State private var clearedOfflineCache = false
     @State private var clearedPodcastDownloads = false
+    @State private var clearedWebCache = false
 
     private var formattedDatabaseSize: String {
         let bytes = store.databaseSizeBytes
@@ -425,6 +427,24 @@ private struct StorageSettingsTab: View {
 
                 if clearedFavicons {
                     Text("Favicon cache cleared successfully.")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                }
+            }
+
+            Section("Web & Browser Cache") {
+                Button("Clear Web & Browser Disk Cache") {
+                    let types = WKWebsiteDataStore.allWebsiteDataTypes()
+                    WKWebsiteDataStore.default().removeData(ofTypes: types, modifiedSince: .distantPast) {
+                        DispatchQueue.main.async {
+                            clearedWebCache = true
+                        }
+                    }
+                    URLCache.shared.removeAllCachedResponses()
+                }
+
+                if clearedWebCache {
+                    Text("Web and browser cache cleared successfully.")
                         .font(.caption)
                         .foregroundStyle(.green)
                 }
