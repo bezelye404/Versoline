@@ -19,22 +19,14 @@ struct EasyRSSApp: App {
             await ContentBlockerService.shared.prepare()
         }
 
-        // Memory optimization: Purge transient RAM caches when the app is minimized, hidden or backgrounded
+        // Memory optimization: Purge transient RAM caches and flush network/WebKit memory when the app is minimized, hidden or backgrounded
         NotificationCenter.default.addObserver(
             forName: NSApplication.willResignActiveNotification,
             object: nil,
             queue: .main
         ) { _ in
             MainActor.assumeIsolated {
-                FaviconService.shared.clearMemoryCache()
-                ReaderModeExtractor.shared.clearMemoryCache()
-                PodcastSearchService.shared.clearCache()
-                URLCache.shared.removeAllCachedResponses()
-                WKWebsiteDataStore.default().removeData(
-                    ofTypes: [WKWebsiteDataTypeMemoryCache],
-                    modifiedSince: .distantPast,
-                    completionHandler: {}
-                )
+                Self.purgeTransientMemory()
             }
         }
 
@@ -44,17 +36,23 @@ struct EasyRSSApp: App {
             queue: .main
         ) { _ in
             MainActor.assumeIsolated {
-                FaviconService.shared.clearMemoryCache()
-                ReaderModeExtractor.shared.clearMemoryCache()
-                PodcastSearchService.shared.clearCache()
-                URLCache.shared.removeAllCachedResponses()
-                WKWebsiteDataStore.default().removeData(
-                    ofTypes: [WKWebsiteDataTypeMemoryCache],
-                    modifiedSince: .distantPast,
-                    completionHandler: {}
-                )
+                Self.purgeTransientMemory()
             }
         }
+    }
+
+    @MainActor
+    private static func purgeTransientMemory() {
+        FaviconService.shared.clearMemoryCache()
+        ReaderModeExtractor.shared.clearMemoryCache()
+        PodcastSearchService.shared.clearCache()
+        URLCache.shared.removeAllCachedResponses()
+        URLSession.shared.flush(completionHandler: {})
+        WKWebsiteDataStore.default().removeData(
+            ofTypes: [WKWebsiteDataTypeMemoryCache],
+            modifiedSince: .distantPast,
+            completionHandler: {}
+        )
     }
 
     var body: some Scene {

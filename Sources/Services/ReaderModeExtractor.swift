@@ -51,8 +51,10 @@ final class ReaderModeExtractor {
         return nil
     }
 
-    func saveToCache(urlString: String, content: String) {
-        memoryCache.setObject(content as NSString, forKey: urlString as NSString)
+    func saveToCache(urlString: String, content: String, storeInMemory: Bool = true) {
+        if storeInMemory {
+            memoryCache.setObject(content as NSString, forKey: urlString as NSString)
+        }
         let diskURL = fileURL(for: urlString)
         Task.detached(priority: .utility) {
             try? content.data(using: .utf8)?.write(to: diskURL, options: .atomic)

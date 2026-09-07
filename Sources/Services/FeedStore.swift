@@ -190,6 +190,20 @@ final class FeedStore {
             if bookmarkedLinks.contains(item.link) {
                 mutableItem.isBookmarked = true
             }
+
+            // Offload heavy HTML content to disk reader cache so RAM remains completely lean
+            if let rawContent = mutableItem.content, !rawContent.isEmpty {
+                let formatted = ReaderModeExtractor.shared.formatFeedContentAsReaderHTML(
+                    title: mutableItem.title,
+                    author: mutableItem.author,
+                    pubDate: mutableItem.pubDate,
+                    htmlContent: rawContent,
+                    link: mutableItem.link
+                )
+                ReaderModeExtractor.shared.saveToCache(urlString: mutableItem.link, content: formatted, storeInMemory: false)
+                mutableItem.content = nil
+            }
+
             return mutableItem
         }
 
@@ -717,6 +731,18 @@ final class FeedStore {
                         }
                         if cleaned.snippet.isEmpty {
                             cleaned.snippet = cleaned.itemDescription.strippingHTML()
+                        }
+                        // Offload heavy HTML content to disk reader cache so RAM is never bloated
+                        if let rawContent = cleaned.content, !rawContent.isEmpty {
+                            let formatted = ReaderModeExtractor.shared.formatFeedContentAsReaderHTML(
+                                title: cleaned.title,
+                                author: cleaned.author,
+                                pubDate: cleaned.pubDate,
+                                htmlContent: rawContent,
+                                link: cleaned.link
+                            )
+                            ReaderModeExtractor.shared.saveToCache(urlString: cleaned.link, content: formatted, storeInMemory: false)
+                            cleaned.content = nil
                         }
                         return cleaned
                     }

@@ -302,7 +302,7 @@ struct ArticleDetailView: View {
             }
 
             // Clickable Chapter Timestamps
-            let chapters = parseChapters(from: item.itemDescription + " " + (item.content ?? ""))
+            let chapters = parseChapters(from: item.itemDescription + " " + (extractedReaderHTML ?? item.content ?? ""))
             if !chapters.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(String(localized: "Chapters & Timestamps"))
@@ -704,14 +704,14 @@ struct ArticleDetailView: View {
     }
 
     private func cleanTextForSpeech(item: FeedItem) -> String {
-        let content = (item.content ?? item.itemDescription).strippingHTML()
+        let content = (extractedReaderHTML ?? item.content ?? item.itemDescription).strippingHTML()
         return "\(item.title). \(content)".trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     // MARK: - Reading Time Calculation
 
     private func calculateReadingTime(item: FeedItem) -> String {
-        let text = (item.content ?? item.itemDescription).strippingHTML()
+        let text = (extractedReaderHTML ?? item.content ?? item.itemDescription).strippingHTML()
         let words = text.split(whereSeparator: { $0.isWhitespace }).count
         let minutes = max(1, Int(ceil(Double(words) / 200.0)))
         return String(format: String(localized: "%d min read"), minutes)
