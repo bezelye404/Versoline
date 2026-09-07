@@ -15,6 +15,7 @@ final class PodcastDownloadService {
     @ObservationIgnored private lazy var session: URLSession = {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForResource = 3600 // 1 hour max download
+        config.urlCache = nil
         return URLSession(configuration: config)
     }()
 

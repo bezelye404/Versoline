@@ -71,9 +71,9 @@ struct FeedListView: View {
         } else {
             visibleItems = base.filter { item in
                 let lowerTitle = item.title.lowercased()
-                let lowerDesc = item.itemDescription.lowercased()
+                let lowerSnippet = item.snippet.lowercased()
                 for kw in muted {
-                    if lowerTitle.contains(kw) || lowerDesc.contains(kw) {
+                    if lowerTitle.contains(kw) || lowerSnippet.contains(kw) {
                         return false
                     }
                 }
@@ -88,7 +88,7 @@ struct FeedListView: View {
         let query = searchText.lowercased()
         return visibleItems.filter {
             $0.title.lowercased().contains(query) ||
-            $0.itemDescription.lowercased().contains(query) ||
+            $0.snippet.lowercased().contains(query) ||
             ($0.author?.lowercased().contains(query) ?? false)
         }
     }

@@ -31,7 +31,7 @@ final class FeedHealthService {
     var isScanning: Bool = false
 
     @ObservationIgnored private lazy var session: URLSession = {
-        let config = URLSessionConfiguration.default
+        let config = URLSessionConfiguration.ephemeral
         config.timeoutIntervalForRequest = 8
         config.timeoutIntervalForResource = 12
         return URLSession(configuration: config)

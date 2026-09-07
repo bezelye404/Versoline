@@ -1,6 +1,8 @@
 import Foundation
 import AppKit
 import SwiftUI
+import ImageIO
+import CoreGraphics
 
 @MainActor
 final class FaviconService {
@@ -12,17 +14,46 @@ final class FaviconService {
     private let cacheDirectory: URL
     private var inFlightTasks: [String: Task<NSImage?, Never>] = [:]
 
+    private static let session: URLSession = {
+        let config = URLSessionConfiguration.ephemeral
+        config.timeoutIntervalForRequest = 6
+        config.timeoutIntervalForResource = 10
+        return URLSession(configuration: config)
+    }()
+
     private init() {
         let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         let dir = appSupport.appendingPathComponent("EasyRSS/Favicons", isDirectory: true)
         try? fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
         self.cacheDirectory = dir
-        memoryCache.countLimit = 40
-        memoryCache.totalCostLimit = 10 * 1024 * 1024 // Max 10MB in RAM
+        memoryCache.countLimit = 50
+        memoryCache.totalCostLimit = 2 * 1024 * 1024 // Strict 2MB ceiling for all decoded favicons in RAM
     }
 
     func clearMemoryCache() {
         memoryCache.removeAllObjects()
+    }
+
+    private static func downsample(data: Data, maxPixelSize: CGFloat = 64) -> NSImage? {
+        let options: [CFString: Any] = [
+            kCGImageSourceShouldCache: false
+        ]
+        guard let imageSource = CGImageSourceCreateWithData(data as CFData, options as CFDictionary) else {
+            return NSImage(data: data)
+        }
+
+        let downsampleOptions: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize
+        ]
+
+        guard let thumbnail = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, downsampleOptions as CFDictionary) else {
+            return NSImage(data: data)
+        }
+
+        return NSImage(cgImage: thumbnail, size: NSSize(width: maxPixelSize / 2, height: maxPixelSize / 2))
     }
 
     func favicon(for hostOrURL: String) async -> NSImage? {
@@ -34,12 +65,12 @@ final class FaviconService {
             return cached
         }
 
-        // 2. Disk cache
+        // 2. Disk cache (with downsampling on decode)
         let diskURL = cacheDirectory.appendingPathComponent("\(host).png")
         if fileManager.fileExists(atPath: diskURL.path(percentEncoded: false)),
            let data = try? Data(contentsOf: diskURL),
-           let image = NSImage(data: data) {
-            memoryCache.setObject(image, forKey: cacheKey)
+           let image = Self.downsample(data: data) {
+            memoryCache.setObject(image, forKey: cacheKey, cost: 16 * 1024)
             return image
         }
 
@@ -51,7 +82,7 @@ final class FaviconService {
         let task = Task<NSImage?, Never> {
             let image = await downloadFavicon(forHost: host)
             if let image {
-                self.memoryCache.setObject(image, forKey: cacheKey)
+                self.memoryCache.setObject(image, forKey: cacheKey, cost: 16 * 1024)
                 Task.detached(priority: .utility) {
                     if let tiff = image.tiffRepresentation,
                        let bitmap = NSBitmapImageRep(data: tiff),
@@ -77,11 +108,11 @@ final class FaviconService {
         request.setValue("EasyRSS/1.0", forHTTPHeaderField: "User-Agent")
 
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await Self.session.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode), !data.isEmpty else {
                 return nil
             }
-            return NSImage(data: data)
+            return Self.downsample(data: data)
         } catch {
             return nil
         }

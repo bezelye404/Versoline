@@ -3,6 +3,9 @@ import WebKit
 
 struct WebView: NSViewRepresentable {
 
+    // Shared process pool across all WebViews to consolidate com.apple.WebKit.WebContent helper processes
+    static let sharedProcessPool = WKProcessPool()
+
     let html: String?
     let url: URL?
     let fontSize: Int
@@ -46,6 +49,7 @@ struct WebView: NSViewRepresentable {
 
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
+        config.processPool = Self.sharedProcessPool
         config.defaultWebpagePreferences.allowsContentJavaScript = true
         config.preferences.javaScriptCanOpenWindowsAutomatically = false
 

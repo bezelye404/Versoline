@@ -350,10 +350,10 @@ struct FolderStreamRow: View {
         NavigationLink(value: SidebarItem.folder(folder.id)) {
             if folder.isSmartFolder {
                 Label("Smart Stream", systemImage: "sparkles")
-                    .badge(store.itemsForFolder(folder.id).count)
+                    .badge(store.itemsCountForFolder(folder.id))
             } else {
                 Label("All in Folder", systemImage: "tray.2")
-                    .badge(store.itemsForFolder(folder.id).count)
+                    .badge(store.itemsCountForFolder(folder.id))
             }
         }
     }

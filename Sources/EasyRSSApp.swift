@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import WebKit
 
 @main
 struct EasyRSSApp: App {
@@ -8,6 +9,12 @@ struct EasyRSSApp: App {
     @AppStorage(AppSettingsKeys.showMenuBarIcon) private var showMenuBarIcon = false
 
     init() {
+        // Memory optimization: Strict URLCache capacity limits (2MB RAM / 25MB Disk)
+        URLCache.shared = URLCache(
+            memoryCapacity: 2 * 1024 * 1024,
+            diskCapacity: 25 * 1024 * 1024
+        )
+
         Task { @MainActor in
             await ContentBlockerService.shared.prepare()
         }
@@ -22,6 +29,12 @@ struct EasyRSSApp: App {
                 FaviconService.shared.clearMemoryCache()
                 ReaderModeExtractor.shared.clearMemoryCache()
                 PodcastSearchService.shared.clearCache()
+                URLCache.shared.removeAllCachedResponses()
+                WKWebsiteDataStore.default().removeData(
+                    ofTypes: [WKWebsiteDataTypeMemoryCache],
+                    modifiedSince: .distantPast,
+                    completionHandler: {}
+                )
             }
         }
 
@@ -34,6 +47,12 @@ struct EasyRSSApp: App {
                 FaviconService.shared.clearMemoryCache()
                 ReaderModeExtractor.shared.clearMemoryCache()
                 PodcastSearchService.shared.clearCache()
+                URLCache.shared.removeAllCachedResponses()
+                WKWebsiteDataStore.default().removeData(
+                    ofTypes: [WKWebsiteDataTypeMemoryCache],
+                    modifiedSince: .distantPast,
+                    completionHandler: {}
+                )
             }
         }
     }

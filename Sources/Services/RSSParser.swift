@@ -29,11 +29,13 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
     // Atom support
     private var isAtomFeed: Bool = false
 
-    // URLSession with custom User-Agent and timeout
+    // URLSession with custom User-Agent, timeout, and zero URLCache overhead
     private static let session: URLSession = {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 15
         config.timeoutIntervalForResource = 30
+        config.urlCache = nil
+        config.requestCachePolicy = .reloadIgnoringLocalCacheData
         config.httpAdditionalHeaders = [
             "User-Agent": "EasyRSS/1.0 (Macintosh; Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko)"
         ]
@@ -53,20 +55,22 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
     }
 
     func parse(data: Data) -> ParseResult? {
-        let parser = XMLParser(data: data)
-        parser.delegate = self
-        parser.shouldResolveExternalEntities = false
+        autoreleasepool {
+            let parser = XMLParser(data: data)
+            parser.delegate = self
+            parser.shouldResolveExternalEntities = false
 
-        guard parser.parse() else {
-            return nil
+            guard parser.parse() else {
+                return nil
+            }
+
+            return ParseResult(
+                title: feedTitle,
+                description: feedDescription,
+                imageURL: feedImageURL,
+                items: items
+            )
         }
-
-        return ParseResult(
-            title: feedTitle,
-            description: feedDescription,
-            imageURL: feedImageURL,
-            items: items
-        )
     }
 
     static func fetchAndParse(url: String, feedId: UUID) async throws -> ParseResult? {

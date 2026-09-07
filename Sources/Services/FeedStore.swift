@@ -182,7 +182,7 @@ final class FeedStore {
         let readLinks = Set(existingItems.filter { $0.isRead }.map { $0.link })
         let bookmarkedLinks = Set(existingItems.filter { $0.isBookmarked }.map { $0.link })
 
-        let updatedItems = result.items.map { item in
+        var updatedItems = result.items.map { item in
             var mutableItem = item
             if readLinks.contains(item.link) {
                 mutableItem.isRead = true
@@ -191,6 +191,23 @@ final class FeedStore {
                 mutableItem.isBookmarked = true
             }
             return mutableItem
+        }
+
+        // Always preserve existing bookmarked items that may have fallen off the feed XML
+        let updatedLinks = Set(updatedItems.map { $0.link })
+        let preservedBookmarks = existingItems.filter { $0.isBookmarked && !updatedLinks.contains($0.link) }
+        if !preservedBookmarks.isEmpty {
+            updatedItems.append(contentsOf: preservedBookmarks)
+        }
+
+        // Memory safety: Enforce 150 most recent items cap for non-bookmarked items
+        if updatedItems.count > 150 {
+            let bookmarks = updatedItems.filter { $0.isBookmarked }
+            let nonBookmarks = updatedItems
+                .filter { !$0.isBookmarked }
+                .sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
+                .prefix(150)
+            updatedItems = (Array(nonBookmarks) + bookmarks).sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
         }
 
         items[feedId] = updatedItems
@@ -471,6 +488,21 @@ final class FeedStore {
         return directItems.sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
     }
 
+    func itemsCountForFolder(_ folderId: UUID) -> Int {
+        let folder = folders.first(where: { $0.id == folderId })
+        let folderFeedIds = Set(feeds.filter { $0.folderId == folderId }.map { $0.id })
+        var directCount = 0
+        for (feedId, feedItems) in items where folderFeedIds.contains(feedId) {
+            directCount += feedItems.count
+        }
+
+        guard let keywords = folder?.keywords, !keywords.isEmpty else {
+            return directCount
+        }
+
+        return itemsForFolder(folderId).count
+    }
+
     func updateFolderKeywords(_ folderId: UUID, keywords: [String]?) {
         if let index = folders.firstIndex(where: { $0.id == folderId }) {
             folders[index].keywords = (keywords?.isEmpty ?? true) ? nil : keywords
@@ -658,47 +690,49 @@ final class FeedStore {
     }
 
     private func load() {
-        let fileURL = saveURL.appendingPathComponent("data.json")
-        guard FileManager.default.fileExists(atPath: fileURL.path) else {
-            AppLogger.shared.log("No existing database file found at \(fileURL.path)", level: .info, category: .storage)
-            return
-        }
-
-        do {
-            let data = try Data(contentsOf: fileURL)
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-            let storage = try decoder.decode(StorageData.self, from: data)
-            self.feeds = storage.feeds
-            self.folders = storage.folders ?? []
-
-            var sanitizedItems: [UUID: [FeedItem]] = [:]
-            for (feedId, feedItems) in storage.items {
-                sanitizedItems[feedId] = feedItems.map { item in
-                    var cleaned = item
-                    if cleaned.title.contains("&") || cleaned.title.contains("<") {
-                        cleaned.title = cleaned.title.strippingHTML()
-                    }
-                    if cleaned.itemDescription.contains("&") {
-                        cleaned.itemDescription = cleaned.itemDescription.decodingHTMLEntities()
-                    }
-                    if cleaned.snippet.isEmpty {
-                        cleaned.snippet = cleaned.itemDescription.strippingHTML()
-                    }
-                    return cleaned
-                }
+        autoreleasepool {
+            let fileURL = saveURL.appendingPathComponent("data.json")
+            guard FileManager.default.fileExists(atPath: fileURL.path) else {
+                AppLogger.shared.log("No existing database file found at \(fileURL.path)", level: .info, category: .storage)
+                return
             }
-            self.items = sanitizedItems
-            self.updateCachedCounts()
 
-            let totalItemsCount = self.items.values.reduce(0) { $0 + $1.count }
-            AppLogger.shared.log(
-                "Loaded database: \(feeds.count) feeds, \(folders.count) folders, \(totalItemsCount) articles",
-                level: .info,
-                category: .storage
-            )
-        } catch {
-            AppLogger.shared.log("Database load error: \(error.localizedDescription)", level: .error, category: .storage)
+            do {
+                let data = try Data(contentsOf: fileURL)
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
+                let storage = try decoder.decode(StorageData.self, from: data)
+                self.feeds = storage.feeds
+                self.folders = storage.folders ?? []
+
+                var sanitizedItems: [UUID: [FeedItem]] = [:]
+                for (feedId, feedItems) in storage.items {
+                    sanitizedItems[feedId] = feedItems.map { item in
+                        var cleaned = item
+                        if cleaned.title.contains("&") || cleaned.title.contains("<") {
+                            cleaned.title = cleaned.title.strippingHTML()
+                        }
+                        if cleaned.itemDescription.contains("&") {
+                            cleaned.itemDescription = cleaned.itemDescription.decodingHTMLEntities()
+                        }
+                        if cleaned.snippet.isEmpty {
+                            cleaned.snippet = cleaned.itemDescription.strippingHTML()
+                        }
+                        return cleaned
+                    }
+                }
+                self.items = sanitizedItems
+                self.updateCachedCounts()
+
+                let totalItemsCount = self.items.values.reduce(0) { $0 + $1.count }
+                AppLogger.shared.log(
+                    "Loaded database: \(feeds.count) feeds, \(folders.count) folders, \(totalItemsCount) articles",
+                    level: .info,
+                    category: .storage
+                )
+            } catch {
+                AppLogger.shared.log("Database load error: \(error.localizedDescription)", level: .error, category: .storage)
+            }
         }
     }
 }
