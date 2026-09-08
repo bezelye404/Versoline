@@ -830,20 +830,22 @@ final class FeedStore {
     }
 
     private nonisolated static func performSave(data: StorageData, to directory: URL) {
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-        // Avoid .prettyPrinted for compact file size (~35% reduction) and faster encoding
+        autoreleasepool {
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            // Avoid .prettyPrinted for compact file size (~35% reduction) and faster encoding
 
-        do {
-            let jsonData = try encoder.encode(data)
-            let fileURL = directory.appendingPathComponent("data.json")
-            try jsonData.write(to: fileURL, options: .atomic)
-            Task { @MainActor in
-                AppLogger.shared.log("Saved database to disk (\(jsonData.count) bytes)", level: .debug, category: .storage)
-            }
-        } catch {
-            Task { @MainActor in
-                AppLogger.shared.log("Save error: \(error.localizedDescription)", level: .error, category: .storage)
+            do {
+                let jsonData = try encoder.encode(data)
+                let fileURL = directory.appendingPathComponent("data.json")
+                try jsonData.write(to: fileURL, options: .atomic)
+                Task { @MainActor in
+                    AppLogger.shared.log("Saved database to disk (\(jsonData.count) bytes)", level: .debug, category: .storage)
+                }
+            } catch {
+                Task { @MainActor in
+                    AppLogger.shared.log("Save error: \(error.localizedDescription)", level: .error, category: .storage)
+                }
             }
         }
     }

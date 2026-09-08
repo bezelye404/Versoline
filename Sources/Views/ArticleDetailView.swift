@@ -69,6 +69,7 @@ struct ArticleDetailView: View {
                 }
                 .onDisappear {
                     stopSpeech()
+                    WebView.flushMemoryCache()
                 }
             } else {
                 VStack(spacing: 16) {
@@ -83,6 +84,9 @@ struct ArticleDetailView: View {
                         .foregroundStyle(.tertiary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .onAppear {
+                    WebView.flushMemoryCache()
+                }
             }
         }
     }
