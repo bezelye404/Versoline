@@ -52,6 +52,9 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         let description: String
         let imageURL: String?
         let items: [FeedItem]
+        var etag: String? = nil
+        var lastModified: String? = nil
+        var isNotModified: Bool = false
     }
 
     func parse(data: Data) -> ParseResult? {
@@ -73,7 +76,12 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         }
     }
 
-    static func fetchAndParse(url: String, feedId: UUID) async throws -> ParseResult? {
+    static func fetchAndParse(
+        url: String,
+        feedId: UUID,
+        etag: String? = nil,
+        lastModified: String? = nil
+    ) async throws -> ParseResult? {
         guard let feedURL = URL(string: url) else {
             await AppLogger.shared.log("Invalid feed URL: \(url)", level: .error, category: .network)
             throw URLError(.badURL)
@@ -83,6 +91,13 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         await AppLogger.shared.log("Fetching feed: \(feedURL.host ?? url)", level: .info, category: .network, details: url)
 
         var request = URLRequest(url: feedURL)
+        if let etag, !etag.isEmpty {
+            request.setValue(etag, forHTTPHeaderField: "If-None-Match")
+        }
+        if let lastModified, !lastModified.isEmpty {
+            request.setValue(lastModified, forHTTPHeaderField: "If-Modified-Since")
+        }
+
         if feedURL.host?.lowercased().contains("reddit.com") == true {
             request.setValue("EasyRSS/1.0 (macOS; com.bezelye.EasyRSS; build 1) (by /u/EasyRSSApp)", forHTTPHeaderField: "User-Agent")
         } else {
@@ -91,8 +106,29 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
 
         let (data, response) = try await session.data(for: request)
 
+        var responseETag: String?
+        var responseLastModified: String?
+
         if let httpResponse = response as? HTTPURLResponse {
             let elapsed = String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - startTime)
+
+            if httpResponse.statusCode == 304 {
+                await AppLogger.shared.log(
+                    "HTTP 304 Not Modified (\(elapsed)) from \(feedURL.host ?? url) - 0 bytes downloaded/parsed",
+                    level: .info,
+                    category: .network
+                )
+                return ParseResult(
+                    title: "",
+                    description: "",
+                    imageURL: nil,
+                    items: [],
+                    etag: etag,
+                    lastModified: lastModified,
+                    isNotModified: true
+                )
+            }
+
             if httpResponse.statusCode == 429 {
                 let reset = httpResponse.value(forHTTPHeaderField: "x-ratelimit-reset") ?? ""
                 let resetInfo = reset.isEmpty ? "" : " (Reset: \(reset)s)"
@@ -104,6 +140,9 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
                 )
                 throw NSError(domain: "EasyRSSNetwork", code: 429, userInfo: [NSLocalizedDescriptionKey: limitMsg])
             }
+
+            responseETag = httpResponse.value(forHTTPHeaderField: "ETag") ?? httpResponse.value(forHTTPHeaderField: "Etag")
+            responseLastModified = httpResponse.value(forHTTPHeaderField: "Last-Modified")
 
             if (200...299).contains(httpResponse.statusCode) {
                 await AppLogger.shared.log(
@@ -133,6 +172,15 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
                 category: .parser,
                 details: "Feed ID: \(feedId)"
             )
+            return ParseResult(
+                title: result.title,
+                description: result.description,
+                imageURL: result.imageURL,
+                items: result.items,
+                etag: responseETag ?? etag,
+                lastModified: responseLastModified ?? lastModified,
+                isNotModified: false
+            )
         } else {
             await AppLogger.shared.log(
                 "Failed to parse XML from \(url)",
@@ -140,9 +188,8 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
                 category: .parser,
                 details: "Data size: \(data.count) bytes"
             )
+            return nil
         }
-
-        return result
     }
 
     // MARK: - XMLParserDelegate

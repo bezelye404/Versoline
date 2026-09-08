@@ -47,6 +47,13 @@ final class FeedStore {
         cachedFeedItems.removeAll(keepingCapacity: true)
     }
 
+    func compactMemory() {
+        invalidateItemCaches()
+        cachedFolderItems.removeAll(keepingCapacity: false)
+        cachedFeedItems.removeAll(keepingCapacity: false)
+        AppLogger.shared.log("In-memory sorted caches compacted for background memory relief", level: .debug, category: .storage)
+    }
+
     init() {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         let appDir = appSupport.appendingPathComponent("EasyRSS", isDirectory: true)
@@ -57,6 +64,26 @@ final class FeedStore {
         let cleanupDays = UserDefaults.standard.integer(forKey: AppSettingsKeys.autoCleanupDays)
         if cleanupDays > 0 {
             autoCleanup(olderThanDays: cleanupDays)
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.willResignActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.compactMemory()
+            }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.didHideNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.compactMemory()
+            }
         }
 
         NotificationCenter.default.addObserver(
@@ -149,7 +176,7 @@ final class FeedStore {
         AppLogger.shared.log("Refreshing single feed: \"\(feed.title)\"", level: .info, category: .network)
 
         do {
-            let result = try await Self.fetchFeed(url: feed.url, feedId: feed.id)
+            let result = try await Self.fetchFeed(url: feed.url, feedId: feed.id, etag: feed.etag, lastModified: feed.lastModifiedHeader)
 
             guard let result else {
                 isLoading = false
@@ -195,7 +222,7 @@ final class FeedStore {
                             if feed.url.lowercased().contains("reddit.com") {
                                 try? await Task.sleep(nanoseconds: 500_000_000)
                             }
-                            let result = try await Self.fetchFeed(url: feed.url, feedId: feed.id)
+                            let result = try await Self.fetchFeed(url: feed.url, feedId: feed.id, etag: feed.etag, lastModified: feed.lastModifiedHeader)
                             return (feed.id, result)
                         } catch {
                             await AppLogger.shared.log("Error refreshing \"\(feed.title)\": \(error.localizedDescription)", level: .error, category: .network)
@@ -222,6 +249,14 @@ final class FeedStore {
     }
 
     private func applyFeedUpdate(feedId: UUID, result: RSSParser.ParseResult) {
+        if result.isNotModified {
+            if let index = feeds.firstIndex(where: { $0.id == feedId }) {
+                feeds[index].lastUpdated = Date()
+            }
+            AppLogger.shared.log("Feed not modified (HTTP 304): skipped parsing & updates", level: .debug, category: .network)
+            return
+        }
+
         let existingItems = items[feedId] ?? []
         let readLinks = Set(existingItems.filter { $0.isRead }.map { $0.link })
         let bookmarkedLinks = Set(existingItems.filter { $0.isBookmarked }.map { $0.link })
@@ -269,6 +304,12 @@ final class FeedStore {
 
         if let index = feeds.firstIndex(where: { $0.id == feedId }) {
             feeds[index].lastUpdated = Date()
+            if let etag = result.etag {
+                feeds[index].etag = etag
+            }
+            if let lastModified = result.lastModified {
+                feeds[index].lastModifiedHeader = lastModified
+            }
             if !result.title.isEmpty {
                 feeds[index].title = result.title
             }
@@ -399,6 +440,9 @@ final class FeedStore {
             }
             items[feedId] = filtered
         }
+
+        let allBookmarkedLinks = Set(items.values.flatMap { $0 }.filter { $0.isBookmarked }.map { $0.link })
+        ReaderModeExtractor.shared.cleanupDiskCache(olderThanDays: days, preservedLinks: allBookmarkedLinks)
 
         if removedCount > 0 {
             save()
@@ -682,8 +726,13 @@ final class FeedStore {
 
     // MARK: - Network (nonisolated)
 
-    private nonisolated static func fetchFeed(url: String, feedId: UUID) async throws -> RSSParser.ParseResult? {
-        try await RSSParser.fetchAndParse(url: url, feedId: feedId)
+    private nonisolated static func fetchFeed(
+        url: String,
+        feedId: UUID,
+        etag: String? = nil,
+        lastModified: String? = nil
+    ) async throws -> RSSParser.ParseResult? {
+        try await RSSParser.fetchAndParse(url: url, feedId: feedId, etag: etag, lastModified: lastModified)
     }
 
     // MARK: - Persistence

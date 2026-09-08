@@ -244,4 +244,29 @@ final class ReaderModeExtractor {
             }
         }
     }
+
+    func cleanupDiskCache(olderThanDays days: Int = 30, preservedLinks: Set<String> = []) {
+        guard days > 0 else { return }
+        let cutoffDate = Date().addingTimeInterval(-Double(days * 86400))
+        let preservedFilenames = Set(preservedLinks.map { "\(cacheKey(for: $0)).html" })
+        let fm = FileManager.default
+        guard let files = try? fm.contentsOfDirectory(at: cacheDirectory, includingPropertiesForKeys: [.contentModificationDateKey]) else {
+            return
+        }
+
+        var removedCount = 0
+        for file in files {
+            let filename = file.lastPathComponent
+            if preservedFilenames.contains(filename) { continue }
+            if let values = try? file.resourceValues(forKeys: [.contentModificationDateKey]),
+               let modDate = values.contentModificationDate,
+               modDate < cutoffDate {
+                try? fm.removeItem(at: file)
+                removedCount += 1
+            }
+        }
+        if removedCount > 0 {
+            AppLogger.shared.log("Cleaned up \(removedCount) stale reader cache files from disk", level: .info, category: .storage)
+        }
+    }
 }

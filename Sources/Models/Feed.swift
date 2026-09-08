@@ -8,6 +8,8 @@ struct Feed: Codable, Identifiable, Hashable {
     var imageURL: String?
     var lastUpdated: Date?
     var folderId: UUID?
+    var etag: String?
+    var lastModifiedHeader: String?
 
     init(
         id: UUID = UUID(),
@@ -16,7 +18,9 @@ struct Feed: Codable, Identifiable, Hashable {
         description: String = "",
         imageURL: String? = nil,
         lastUpdated: Date? = nil,
-        folderId: UUID? = nil
+        folderId: UUID? = nil,
+        etag: String? = nil,
+        lastModifiedHeader: String? = nil
     ) {
         self.id = id
         self.title = title
@@ -25,5 +29,7 @@ struct Feed: Codable, Identifiable, Hashable {
         self.imageURL = imageURL
         self.lastUpdated = lastUpdated
         self.folderId = folderId
+        self.etag = etag
+        self.lastModifiedHeader = lastModifiedHeader
     }
 }

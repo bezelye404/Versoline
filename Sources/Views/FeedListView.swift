@@ -7,6 +7,7 @@ struct FeedListView: View {
     @Binding var selectedArticle: FeedItem?
     @State private var searchText = ""
     @State private var showPodcastSearch = false
+    @State private var displayLimit: Int = 60
 
     @AppStorage(AppSettingsKeys.enableSingleKeyShortcuts) private var enableSingleKeyShortcuts = true
     @AppStorage(AppSettingsKeys.mutedKeywords) private var mutedKeywordsRaw = ""
@@ -130,21 +131,31 @@ struct FeedListView: View {
                             .foregroundStyle(.secondary)
                         }
 
+                        let visibleItems: [FeedItem] = searchText.isEmpty ? Array(items.prefix(displayLimit)) : items
+
                         List(selection: $selectedArticle) {
-                        ForEach(items) { item in
-                            let feed = store.feed(for: item.feedId)
-                            FeedItemRow(
-                                item: item,
-                                feedTitle: showFeedName ? feed?.title : nil,
-                                feedURL: feed?.url ?? URL(string: item.link)?.host
-                            )
-                            .tag(item)
-                            .contextMenu {
-                                itemContextMenu(item: item)
+                            ForEach(visibleItems) { item in
+                                let feed = store.feed(for: item.feedId)
+                                FeedItemRow(
+                                    item: item,
+                                    feedTitle: showFeedName ? feed?.title : nil,
+                                    feedURL: feed?.url ?? URL(string: item.link)?.host
+                                )
+                                .tag(item)
+                                .contextMenu {
+                                    itemContextMenu(item: item)
+                                }
+                            }
+
+                            if searchText.isEmpty && displayLimit < items.count {
+                                Color.clear
+                                    .frame(height: 1)
+                                    .onAppear {
+                                        displayLimit = min(displayLimit + 40, items.count)
+                                    }
                             }
                         }
-                    }
-                    .listStyle(.inset)
+                        .listStyle(.inset)
                     .searchable(text: $searchText, prompt: Text("Search Articles"))
                     .navigationTitle(title)
                     .toolbar {
@@ -172,6 +183,9 @@ struct FeedListView: View {
                         if let newItem {
                             store.markAsRead(newItem)
                         }
+                    }
+                    .onChange(of: selection) {
+                        displayLimit = 60
                     }
                     .background {
                         Group {
@@ -250,6 +264,9 @@ struct FeedListView: View {
             return
         }
         let nextIndex = min(index + 1, items.count - 1)
+        if nextIndex >= displayLimit {
+            displayLimit = min(displayLimit + 40, items.count)
+        }
         selectedArticle = items[nextIndex]
     }
 

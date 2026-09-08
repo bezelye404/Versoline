@@ -60,27 +60,40 @@ curated_feeds_cache.json
 *Credential*
 
 # ------------------------------------------------------------------------------
-# 3. Geçici, Yedek, Test & Paketleme Dosyaları
+# 3. Geçici, Yedek, Test & Paketleme / Dağıtım Dosyaları
 # ------------------------------------------------------------------------------
 *.tmp
 *.temp
 *.bak
 *.swp
+*.swo
 *~
 *.orig
 *.rej
 *.patch
 *.diff
+*.scratch
+scratch/
+test-results/
+coverage/
+dist/
+release/
+releases/
+artifacts/
 *.dmg
+*.dmg.tmp
+*.sparseimage
+*.sparsebundle
+*.iso
+*.cdr
 *.pkg
 *.app
 *.ipa
 *.zip
 *.tar.gz
 *.tgz
-scratch/
-test-results/
-coverage/
+*.core
+core.*
 
 # ------------------------------------------------------------------------------
 # 4. Xcode, XcodeGen & Swift Package Manager Derleme Dosyaları
@@ -114,6 +127,10 @@ UserInterfaceState.xcuserstate
 *.dSYM/
 *.dSYM.zip
 *.hmap
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
 
 # ------------------------------------------------------------------------------
 # 5. macOS & OS Sistem Dosyaları
@@ -124,11 +141,13 @@ UserInterfaceState.xcuserstate
 .Spotlight-V100
 .Trashes
 Icon?
+Icon\r*
 ehthumbs.db
 Thumbs.db
 Desktop.ini
 .AppleDouble
 .LSOverride
+*.localized/
 
 # ------------------------------------------------------------------------------
 # 6. Editörler, Geliştirme Ortamları & Yapay Zeka Araçları
@@ -137,6 +156,10 @@ Desktop.ini
 .idea/
 *.sublime-project
 *.sublime-workspace
+.zed/
+.fleet/
+.history/
+*.iml
 .agents/
 .gemini/
 .cursor/
@@ -146,7 +169,7 @@ Desktop.ini
 .copilot/
 
 # ------------------------------------------------------------------------------
-# 7. Python & Yardımcı Betik Kalıntıları
+# 7. Python, Node & Yardımcı Betik Kalıntıları
 # ------------------------------------------------------------------------------
 __pycache__/
 *.py[cod]
@@ -155,3 +178,4 @@ __pycache__/
 .venv/
 venv/
 env/
+node_modules/
