@@ -377,11 +377,11 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
             let precomputedSnippet = cleanDesc.strippingHTML()
             let itemLink = currentLink.trimmingCharacters(in: .whitespacesAndNewlines)
 
-            // Offload rich HTML to disk cache immediately for Reader Mode, keeping RAM completely lean
-            let richHTML = !cleanContent.isEmpty ? cleanContent : cleanDesc
-            if !richHTML.isEmpty && !itemLink.isEmpty {
+            // Offload rich HTML to disk cache immediately for Reader Mode only if substantive full content exists.
+            // Do NOT save short teaser descriptions (cleanDesc) as they poison the cache with 150-char snippets.
+            if !cleanContent.isEmpty && cleanContent.count > 600 && !itemLink.isEmpty {
                 Task { @MainActor in
-                    ReaderModeExtractor.shared.saveToCache(urlString: itemLink, content: richHTML, storeInMemory: false)
+                    ReaderModeExtractor.shared.saveToCache(urlString: itemLink, content: cleanContent, storeInMemory: false)
                 }
             }
 

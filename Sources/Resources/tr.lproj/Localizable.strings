@@ -152,6 +152,9 @@
 "Switching to cached Reader Mode or RSS summary." = "Önbellekteki Okuyucu Moduna veya RSS özetine geçiliyor.";
 "View Cached Reader Mode" = "Önbellekteki Okuyucu Modunu Gör";
 "Extracting article text..." = "Makale metni çıkarılıyor...";
+"Fetch / Reload Full Article from Web" = "Tam Makaleyi Web'den Yenile";
+"Showing feed summary. Tap to fetch full article from web." = "Yalnızca akış özeti gösteriliyor. Tam metni web'den çekmek için dokunun.";
+"Fetch Full Article" = "Tam Makaleyi Yükle";
 "Open in Web View" = "Web Görünümünde Aç";
 "Open in %@" = "%@ ile Aç";
 "Open in %@ (Cmd+Return)" = "%@ ile Aç (Cmd+Return)";

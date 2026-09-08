@@ -98,10 +98,11 @@ struct ArticleDetailView: View {
         stopSpeech()
         let defaultMode = ReadingViewMode(rawValue: defaultReadingModeRaw) ?? .reader
         activeViewMode = defaultMode
-        extractedReaderHTML = ReaderModeExtractor.shared.cachedContent(for: item.link)
+        let cached = ReaderModeExtractor.shared.cachedContent(for: item.link, requireSubstantive: true)
+        extractedReaderHTML = cached
 
-        if activeViewMode == .reader && extractedReaderHTML == nil {
-            loadReaderMode(for: item)
+        if activeViewMode == .reader && cached == nil {
+            loadReaderMode(for: item, forceWeb: false)
         }
     }
 
@@ -436,9 +437,22 @@ struct ArticleDetailView: View {
             .labelsHidden()
             .frame(width: 140)
             .onChange(of: activeViewMode) { _, newMode in
-                if newMode == .reader && extractedReaderHTML == nil {
-                    loadReaderMode(for: item)
+                if newMode == .reader && (extractedReaderHTML == nil || !ReaderModeExtractor.shared.isSubstantiveContent(extractedReaderHTML ?? "")) {
+                    loadReaderMode(for: item, forceWeb: false)
                 }
+            }
+
+            // Reload / Force Extract Full Article from Web
+            if activeViewMode == .reader {
+                Button {
+                    loadReaderMode(for: item, forceWeb: true)
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                        .foregroundStyle(isLoadingReaderMode ? Color.accentColor : Color.secondary)
+                }
+                .buttonStyle(.borderless)
+                .disabled(isLoadingReaderMode)
+                .help(String(localized: "Fetch / Reload Full Article from Web"))
             }
 
             // 1-Click WebKit Content Blocker Toggle (Web Mode)
@@ -617,13 +631,19 @@ struct ArticleDetailView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let extracted = extractedReaderHTML, !extracted.isEmpty {
-            WebView(
-                html: extracted,
-                fontSize: readerFontSize,
-                theme: currentTheme,
-                fontFamily: currentFontFamily,
-                lineHeight: currentLineHeight
-            )
+            VStack(spacing: 0) {
+                WebView(
+                    html: extracted,
+                    fontSize: readerFontSize,
+                    theme: currentTheme,
+                    fontFamily: currentFontFamily,
+                    lineHeight: currentLineHeight
+                )
+
+                if !ReaderModeExtractor.shared.isSubstantiveContent(extracted) {
+                    summaryNoticeBanner(item: item)
+                }
+            }
         } else {
             // Fallback to item content formatted as reader mode HTML if reader extraction yielded nothing
             let fallbackHTML = ReaderModeExtractor.shared.formatFeedContentAsReaderHTML(
@@ -633,20 +653,52 @@ struct ArticleDetailView: View {
                 htmlContent: item.content ?? item.itemDescription,
                 link: item.link
             )
-            WebView(
-                html: fallbackHTML,
-                fontSize: readerFontSize,
-                theme: currentTheme,
-                fontFamily: currentFontFamily,
-                lineHeight: currentLineHeight
-            )
+            VStack(spacing: 0) {
+                WebView(
+                    html: fallbackHTML,
+                    fontSize: readerFontSize,
+                    theme: currentTheme,
+                    fontFamily: currentFontFamily,
+                    lineHeight: currentLineHeight
+                )
+
+                summaryNoticeBanner(item: item)
+            }
         }
+    }
+
+    @ViewBuilder
+    private func summaryNoticeBanner(item: FeedItem) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "doc.text.magnifyingglass")
+                .foregroundStyle(Color.accentColor)
+                .font(.system(size: 15))
+
+            Text(String(localized: "Showing feed summary. Tap to fetch full article from web."))
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            Spacer()
+
+            Button {
+                loadReaderMode(for: item, forceWeb: true)
+            } label: {
+                Label(String(localized: "Fetch Full Article"), systemImage: "arrow.down.circle")
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.small)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .padding(12)
     }
 
     // MARK: - Reader Mode Logic
 
-    private func loadReaderMode(for item: FeedItem) {
-        if let cached = ReaderModeExtractor.shared.cachedContent(for: item.link) {
+    private func loadReaderMode(for item: FeedItem, forceWeb: Bool = false) {
+        if !forceWeb, let cached = ReaderModeExtractor.shared.cachedContent(for: item.link, requireSubstantive: true) {
             extractedReaderHTML = cached
             return
         }
@@ -655,7 +707,7 @@ struct ArticleDetailView: View {
         let isReddit = item.link.lowercased().contains("reddit.com")
         let isYouTube = item.link.lowercased().contains("youtube.com") || item.link.lowercased().contains("youtu.be")
 
-        if isReddit || isYouTube {
+        if (isReddit || isYouTube) && !forceWeb {
             let formatted = ReaderModeExtractor.shared.formatFeedContentAsReaderHTML(
                 title: item.title,
                 author: item.author,
@@ -664,7 +716,7 @@ struct ArticleDetailView: View {
                 link: item.link
             )
             extractedReaderHTML = formatted
-            ReaderModeExtractor.shared.saveToCache(urlString: item.link, content: formatted)
+            ReaderModeExtractor.shared.saveToCache(urlString: item.link, content: formatted, storeInMemory: false)
             return
         }
 
@@ -675,7 +727,8 @@ struct ArticleDetailView: View {
                 fallbackContent: item.content ?? item.itemDescription,
                 title: item.title,
                 author: item.author,
-                pubDate: item.pubDate
+                pubDate: item.pubDate,
+                forceWebFetch: forceWeb
             )
             isLoadingReaderMode = false
             if let extracted, !extracted.isEmpty {

@@ -35,16 +35,35 @@ final class ReaderModeExtractor {
         return cacheDirectory.appendingPathComponent("\(key).html")
     }
 
-    func cachedContent(for urlString: String) -> String? {
+    // MARK: - Substantive Content Validation
+
+    func isSubstantiveContent(_ html: String) -> Bool {
+        let stripped = html.strippingHTML().trimmingCharacters(in: .whitespacesAndNewlines)
+        return stripped.count >= 350
+    }
+
+    func cachedContent(for urlString: String, requireSubstantive: Bool = false) -> String? {
         let nsKey = urlString as NSString
         if let memory = memoryCache.object(forKey: nsKey) {
-            return memory as String
+            let memoryString = memory as String
+            if requireSubstantive && !isSubstantiveContent(memoryString) {
+                memoryCache.removeObject(forKey: nsKey)
+                let diskURL = fileURL(for: urlString)
+                try? FileManager.default.removeItem(at: diskURL)
+                return nil
+            }
+            return memoryString
         }
 
         let diskURL = fileURL(for: urlString)
         if FileManager.default.fileExists(atPath: diskURL.path),
            let diskData = try? Data(contentsOf: diskURL),
            let html = String(data: diskData, encoding: .utf8) {
+            if requireSubstantive && !isSubstantiveContent(html) {
+                // Delete poisoned or stub teaser from disk
+                try? FileManager.default.removeItem(at: diskURL)
+                return nil
+            }
             memoryCache.setObject(html as NSString, forKey: nsKey)
             return html
         }
@@ -93,10 +112,11 @@ final class ReaderModeExtractor {
         fallbackContent: String? = nil,
         title: String? = nil,
         author: String? = nil,
-        pubDate: Date? = nil
+        pubDate: Date? = nil,
+        forceWebFetch: Bool = false
     ) async -> String? {
-        // 1. Check memory or disk cache first (offline support)
-        if let cached = cachedContent(for: urlString) {
+        // 1. Check memory or disk cache first (offline support) if not force-reloading
+        if !forceWebFetch, let cached = cachedContent(for: urlString, requireSubstantive: true) {
             return cached
         }
 
@@ -112,7 +132,7 @@ final class ReaderModeExtractor {
                 htmlContent: fallbackContent,
                 link: urlString
             )
-            saveToCache(urlString: urlString, content: formatted)
+            saveToCache(urlString: urlString, content: formatted, storeInMemory: false)
             return formatted
         }
 
@@ -124,7 +144,7 @@ final class ReaderModeExtractor {
         }
 
         var request = URLRequest(url: url)
-        request.timeoutInterval = 8
+        request.timeoutInterval = 10
         request.setValue(
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
             forHTTPHeaderField: "User-Agent"
@@ -134,17 +154,28 @@ final class ReaderModeExtractor {
             let (data, response) = try await URLSession.shared.data(for: request)
             if let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) {
                 let html = String(decoding: data, as: UTF8.self)
-                let cleaned = extractArticleHTML(from: html, baseURL: url)
-                if let cleaned, !cleaned.isEmpty {
-                    saveToCache(urlString: urlString, content: cleaned)
-                    return cleaned
+                if let cleanedBody = extractArticleHTML(from: html, baseURL: url), !cleanedBody.isEmpty {
+                    let fullFormatted: String
+                    if cleanedBody.contains("<h1") {
+                        fullFormatted = cleanedBody
+                    } else {
+                        fullFormatted = formatFeedContentAsReaderHTML(
+                            title: title ?? "",
+                            author: author,
+                            pubDate: pubDate,
+                            htmlContent: cleanedBody,
+                            link: urlString
+                        )
+                    }
+                    saveToCache(urlString: urlString, content: fullFormatted, storeInMemory: false)
+                    return fullFormatted
                 }
             }
         } catch {
-            AppLogger.shared.log("Reader mode extraction error: \(error.localizedDescription)", level: .warning, category: .network, details: urlString)
+            AppLogger.shared.log("Reader mode web extraction error: \(error.localizedDescription)", level: .warning, category: .network, details: urlString)
         }
 
-        // 3. Fallback if web extraction failed or returned empty
+        // 3. Fallback to feed content if web extraction failed
         if let fallbackContent, !fallbackContent.isEmpty {
             let formatted = formatFeedContentAsReaderHTML(
                 title: title ?? "",
@@ -153,7 +184,6 @@ final class ReaderModeExtractor {
                 htmlContent: fallbackContent,
                 link: urlString
             )
-            saveToCache(urlString: urlString, content: formatted)
             return formatted
         }
 
@@ -163,7 +193,7 @@ final class ReaderModeExtractor {
     private func extractArticleHTML(from rawHTML: String, baseURL: URL) -> String? {
         var html = rawHTML
 
-        // 1. Remove non-content tags: script, style, noscript, iframe, svg, nav, footer, header
+        // 1. Remove non-content tags: script, style, noscript, iframe, svg, nav, footer, header, aside, comments
         let removePatterns = [
             #"<script[\s\S]*?</script>"#,
             #"<style[\s\S]*?</style>"#,
@@ -179,32 +209,60 @@ final class ReaderModeExtractor {
             html = html.replacingOccurrences(of: pattern, with: "", options: [.regularExpression, .caseInsensitive])
         }
 
-        // 2. Look for <article> ... </article>
-        if let articleMatch = html.range(of: #"<article[\s\S]*?</article>"#, options: [.regularExpression, .caseInsensitive]) {
-            let articleContent = String(html[articleMatch])
-            return sanitize(articleContent)
+        // 2. Multi-Candidate Container Scoring: search for article, main, or prominent content classes
+        let candidatePatterns = [
+            #"<article[\s\S]*?</article>"#,
+            #"<main[\s\S]*?</main>"#,
+            #"<div[^>]*class=["'][^"']*(?:entry-content|article-body|post-content|story-body|article-content|article__body|main-content|story-text)[^"']*["'][\s\S]*?</div>"#,
+            #"<section[^>]*class=["'][^"']*(?:entry-content|article-body|post-content|story-body|article-content|article__body)[^"']*["'][\s\S]*?</section>"#
+        ]
+
+        var bestCandidate: String?
+        var bestScore: Int = 0
+
+        for pattern in candidatePatterns {
+            let matchedBlocks = matches(for: pattern, in: html)
+            for block in matchedBlocks {
+                let plainText = block.strippingHTML().trimmingCharacters(in: .whitespacesAndNewlines)
+                if plainText.count > bestScore {
+                    bestScore = plainText.count
+                    bestCandidate = block
+                }
+            }
         }
 
-        // 3. Look for <main> ... </main>
-        if let mainMatch = html.range(of: #"<main[\s\S]*?</main>"#, options: [.regularExpression, .caseInsensitive]) {
-            let mainContent = String(html[mainMatch])
-            return sanitize(mainContent)
+        if let bestCandidate, bestScore >= 300 {
+            return sanitize(bestCandidate, baseURL: baseURL)
         }
 
-        // 4. Fallback: extract paragraphs
-        let pMatches = matches(for: #"<p[\s\S]*?</p>"#, in: html)
-        if !pMatches.isEmpty {
-            let joined = pMatches.joined(separator: "\n")
-            return sanitize(joined)
+        // 3. Fallback: extract all paragraphs, headings, blockquotes, and lists
+        let paragraphBlocks = matches(for: #"<(?:p|h[1-6]|blockquote|ul|ol|pre)[\s\S]*?</(?:p|h[1-6]|blockquote|ul|ol|pre)>"#, in: html)
+        if !paragraphBlocks.isEmpty {
+            let joined = paragraphBlocks.joined(separator: "\n")
+            let plainText = joined.strippingHTML().trimmingCharacters(in: .whitespacesAndNewlines)
+            if plainText.count >= 250 {
+                return sanitize(joined, baseURL: baseURL)
+            }
         }
 
         return nil
     }
 
-    private func sanitize(_ content: String) -> String {
+    private func sanitize(_ content: String, baseURL: URL) -> String {
         var cleaned = content.replacingOccurrences(of: #"style=["'][^"']*["']"#, with: "", options: .regularExpression)
         cleaned = cleaned.replacingOccurrences(of: #"class=["'][^"']*["']"#, with: "", options: .regularExpression)
         cleaned = cleaned.replacingOccurrences(of: #"onclick=["'][^"']*["']"#, with: "", options: .regularExpression)
+
+        // Resolve relative img src URLs to absolute URLs so images render properly in WKWebView
+        if let host = baseURL.host, let scheme = baseURL.scheme {
+            let basePrefix = "\(scheme)://\(host)"
+            cleaned = cleaned.replacingOccurrences(
+                of: #"src="/([^"]+)""#,
+                with: "src=\"\(basePrefix)/$1\"",
+                options: .regularExpression
+            )
+        }
+
         return cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
@@ -219,7 +277,7 @@ final class ReaderModeExtractor {
         }
     }
 
-    // MARK: - Cache Management
+    // MARK: - Cache Management & Quota Enforcement
 
     var diskCacheSizeBytes: Int64 {
         let fm = FileManager.default
@@ -267,6 +325,47 @@ final class ReaderModeExtractor {
         }
         if removedCount > 0 {
             AppLogger.shared.log("Cleaned up \(removedCount) stale reader cache files from disk", level: .info, category: .storage)
+        }
+    }
+
+    func enforceQuota(maxSizeBytes: Int64 = 150 * 1024 * 1024, preservedLinks: Set<String> = []) {
+        let currentSize = diskCacheSizeBytes
+        guard currentSize > maxSizeBytes else { return }
+
+        let targetSize = Int64(Double(maxSizeBytes) * 0.8) // Reduce to 80% of max
+        let preservedFilenames = Set(preservedLinks.map { "\(cacheKey(for: $0)).html" })
+        let fm = FileManager.default
+
+        guard let files = try? fm.contentsOfDirectory(
+            at: cacheDirectory,
+            includingPropertiesForKeys: [.fileSizeKey, .contentModificationDateKey]
+        ) else { return }
+
+        // Sort files by modification date ascending (oldest first - LRU)
+        let sortedFiles = files.sorted { f1, f2 in
+            let d1 = (try? f1.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate ?? Date.distantPast
+            let d2 = (try? f2.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate ?? Date.distantPast
+            return d1 < d2
+        }
+
+        var reclaimedBytes: Int64 = 0
+        var remainingSize = currentSize
+
+        for file in sortedFiles {
+            guard remainingSize > targetSize else { break }
+            let filename = file.lastPathComponent
+            if preservedFilenames.contains(filename) { continue }
+
+            if let values = try? file.resourceValues(forKeys: [.fileSizeKey]),
+               let size = values.fileSize {
+                try? fm.removeItem(at: file)
+                remainingSize -= Int64(size)
+                reclaimedBytes += Int64(size)
+            }
+        }
+
+        if reclaimedBytes > 0 {
+            AppLogger.shared.log("Reader disk cache LRU quota enforced: reclaimed \(reclaimedBytes / 1024 / 1024) MB", level: .info, category: .storage)
         }
     }
 }
