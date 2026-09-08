@@ -19,7 +19,31 @@ final class FeedStore {
     private(set) var cachedTotalItemCount: Int = 0
     private(set) var cachedBookmarkCount: Int = 0
     private(set) var cachedPodcastCount: Int = 0
+    private(set) var cachedTodayCount: Int = 0
     private var cachedFeedUnreadCounts: [UUID: Int] = [:]
+    private var cachedFeedMap: [UUID: Feed] = [:]
+    private var cachedFeedsInFolder: [UUID: [Feed]] = [:]
+    private var cachedUncategorizedFeeds: [Feed] = []
+
+    // Memoized sorted arrays to avoid O(N log N) re-computation on every UI frame
+    @ObservationIgnored private var cachedAllItems: [FeedItem]?
+    @ObservationIgnored private var cachedUnreadItems: [FeedItem]?
+    @ObservationIgnored private var cachedTodayItems: [FeedItem]?
+    @ObservationIgnored private var cachedBookmarkedItems: [FeedItem]?
+    @ObservationIgnored private var cachedPodcastItems: [FeedItem]?
+    @ObservationIgnored private var cachedFolderItems: [UUID: [FeedItem]] = [:]
+    @ObservationIgnored private var cachedFeedItems: [UUID: [FeedItem]] = [:]
+    @ObservationIgnored private var lastRefreshDate: Date?
+
+    private func invalidateItemCaches() {
+        cachedAllItems = nil
+        cachedUnreadItems = nil
+        cachedTodayItems = nil
+        cachedBookmarkedItems = nil
+        cachedPodcastItems = nil
+        cachedFolderItems.removeAll(keepingCapacity: true)
+        cachedFeedItems.removeAll(keepingCapacity: true)
+    }
 
     init() {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
@@ -131,11 +155,18 @@ final class FeedStore {
         }
     }
 
-    func refreshAllFeeds() async {
+    func refreshAllFeeds(force: Bool = false) async {
         guard !feeds.isEmpty else { return }
+
+        // Throttle: don't auto-refresh if refreshed within the last 15 minutes unless forced
+        if !force, let last = lastRefreshDate, Date().timeIntervalSince(last) < 900 {
+            AppLogger.shared.log("Skipping background refresh: refreshed \(Int(Date().timeIntervalSince(last)))s ago", level: .debug, category: .network)
+            return
+        }
+
         isLoading = true
         errorMessage = nil
-        AppLogger.shared.log("Starting concurrent refresh for \(feeds.count) feeds", level: .info, category: .network)
+        AppLogger.shared.log("Starting concurrent refresh for \(feeds.count) feeds (forced: \(force))", level: .info, category: .network)
 
         let feedsToRefresh = self.feeds
 
@@ -172,6 +203,7 @@ final class FeedStore {
             }
         }
 
+        lastRefreshDate = Date()
         isLoading = false
         save()
         AppLogger.shared.log("All feeds refresh finished", level: .info, category: .network)
@@ -191,16 +223,9 @@ final class FeedStore {
                 mutableItem.isBookmarked = true
             }
 
-            // Offload heavy HTML content to disk reader cache so RAM remains completely lean
+            // Save raw content to disk reader cache so RAM remains completely lean without heavy template formatting
             if let rawContent = mutableItem.content, !rawContent.isEmpty {
-                let formatted = ReaderModeExtractor.shared.formatFeedContentAsReaderHTML(
-                    title: mutableItem.title,
-                    author: mutableItem.author,
-                    pubDate: mutableItem.pubDate,
-                    htmlContent: rawContent,
-                    link: mutableItem.link
-                )
-                ReaderModeExtractor.shared.saveToCache(urlString: mutableItem.link, content: formatted, storeInMemory: false)
+                ReaderModeExtractor.shared.saveToCache(urlString: mutableItem.link, content: rawContent, storeInMemory: false)
                 mutableItem.content = nil
             }
 
@@ -304,11 +329,11 @@ final class FeedStore {
     }
 
     func feedsInFolder(_ folderId: UUID) -> [Feed] {
-        feeds.filter { $0.folderId == folderId }
+        cachedFeedsInFolder[folderId] ?? []
     }
 
     func uncategorizedFeeds() -> [Feed] {
-        feeds.filter { $0.folderId == nil }
+        cachedUncategorizedFeeds
     }
 
     // MARK: - Item Management
@@ -421,9 +446,12 @@ final class FeedStore {
     }
 
     func bookmarkedItems() -> [FeedItem] {
-        items.values.flatMap { $0 }
+        if let cached = cachedBookmarkedItems { return cached }
+        let sorted = items.values.flatMap { $0 }
             .filter { $0.isBookmarked }
             .sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
+        cachedBookmarkedItems = sorted
+        return sorted
     }
 
     func bookmarkCount() -> Int {
@@ -433,9 +461,12 @@ final class FeedStore {
     // MARK: - Podcasts
 
     func podcastItems() -> [FeedItem] {
-        items.values.flatMap { $0 }
+        if let cached = cachedPodcastItems { return cached }
+        let sorted = items.values.flatMap { $0 }
             .filter { $0.isPodcast }
             .sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
+        cachedPodcastItems = sorted
+        return sorted
     }
 
     func podcastCount() -> Int {
@@ -462,7 +493,7 @@ final class FeedStore {
     }
 
     func feed(for id: UUID) -> Feed? {
-        feeds.first { $0.id == id }
+        cachedFeedMap[id] ?? feeds.first { $0.id == id }
     }
 
     func unreadCount(for feedId: UUID) -> Int {
@@ -474,44 +505,54 @@ final class FeedStore {
     }
 
     func itemsForFeed(_ feedId: UUID) -> [FeedItem] {
-        (items[feedId] ?? []).sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
+        if let cached = cachedFeedItems[feedId] { return cached }
+        let sorted = (items[feedId] ?? []).sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
+        cachedFeedItems[feedId] = sorted
+        return sorted
     }
 
     func allItems() -> [FeedItem] {
-        items.values.flatMap { $0 }
+        if let cached = cachedAllItems { return cached }
+        let sorted = items.values.flatMap { $0 }
             .sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
+        cachedAllItems = sorted
+        return sorted
     }
 
     func unreadItems() -> [FeedItem] {
-        items.values.flatMap { $0 }
+        if let cached = cachedUnreadItems { return cached }
+        let sorted = items.values.flatMap { $0 }
             .filter { !$0.isRead }
             .sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
+        cachedUnreadItems = sorted
+        return sorted
     }
 
     func todayItems() -> [FeedItem] {
+        if let cached = cachedTodayItems { return cached }
         let oneDayAgo = Date().addingTimeInterval(-86400)
-        return items.values.flatMap { $0 }
+        let sorted = items.values.flatMap { $0 }
             .filter { ($0.pubDate ?? .distantPast) >= oneDayAgo }
             .sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
+        cachedTodayItems = sorted
+        return sorted
     }
 
     func todayItemsCount() -> Int {
-        let oneDayAgo = Date().addingTimeInterval(-86400)
-        var count = 0
-        for list in items.values {
-            for item in list where (item.pubDate ?? .distantPast) >= oneDayAgo {
-                count += 1
-            }
-        }
-        return count
+        cachedTodayCount
     }
 
     func itemsForFolder(_ folderId: UUID) -> [FeedItem] {
+        if let cached = cachedFolderItems[folderId] { return cached }
+
         let folder = folders.first(where: { $0.id == folderId })
-        let folderFeedIds = Set(feeds.filter { $0.folderId == folderId }.map { $0.id })
+        let folderFeeds = cachedFeedsInFolder[folderId] ?? []
+        let folderFeedIds = Set(folderFeeds.map(\.id))
         var directItems: [FeedItem] = []
-        for (feedId, feedItems) in items where folderFeedIds.contains(feedId) {
-            directItems.append(contentsOf: feedItems)
+        for feedId in folderFeedIds {
+            if let feedItems = items[feedId] {
+                directItems.append(contentsOf: feedItems)
+            }
         }
 
         if let keywords = folder?.keywords, !keywords.isEmpty {
@@ -531,22 +572,22 @@ final class FeedStore {
             directItems.append(contentsOf: matchingItems)
         }
 
-        return directItems.sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
+        let sorted = directItems.sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
+        cachedFolderItems[folderId] = sorted
+        return sorted
     }
 
     func itemsCountForFolder(_ folderId: UUID) -> Int {
         let folder = folders.first(where: { $0.id == folderId })
-        let folderFeedIds = Set(feeds.filter { $0.folderId == folderId }.map { $0.id })
-        var directCount = 0
-        for (feedId, feedItems) in items where folderFeedIds.contains(feedId) {
-            directCount += feedItems.count
+        if let keywords = folder?.keywords, !keywords.isEmpty {
+            return itemsForFolder(folderId).count
         }
-
-        guard let keywords = folder?.keywords, !keywords.isEmpty else {
-            return directCount
+        let folderFeeds = cachedFeedsInFolder[folderId] ?? []
+        var count = 0
+        for feed in folderFeeds {
+            count += items[feed.id]?.count ?? 0
         }
-
-        return itemsForFolder(folderId).count
+        return count
     }
 
     func updateFolderKeywords(_ folderId: UUID, keywords: [String]?) {
@@ -655,11 +696,15 @@ final class FeedStore {
     }
 
     func updateCachedCounts() {
+        invalidateItemCaches()
+
         var totalUnread = 0
         var totalItems = 0
         var totalBookmarks = 0
         var totalPodcasts = 0
+        var todayCount = 0
         var unreadPerFeed: [UUID: Int] = [:]
+        let oneDayAgo = Date().addingTimeInterval(-86400)
 
         for (feedId, list) in items {
             var feedUnread = 0
@@ -675,15 +720,35 @@ final class FeedStore {
                 if item.isPodcast {
                     totalPodcasts += 1
                 }
+                if (item.pubDate ?? .distantPast) >= oneDayAgo {
+                    todayCount += 1
+                }
             }
             unreadPerFeed[feedId] = feedUnread
+        }
+
+        var map: [UUID: Feed] = [:]
+        var inFolder: [UUID: [Feed]] = [:]
+        var uncategorized: [Feed] = []
+
+        for feed in feeds {
+            map[feed.id] = feed
+            if let folderId = feed.folderId {
+                inFolder[folderId, default: []].append(feed)
+            } else {
+                uncategorized.append(feed)
+            }
         }
 
         self.cachedTotalUnreadCount = totalUnread
         self.cachedTotalItemCount = totalItems
         self.cachedBookmarkCount = totalBookmarks
         self.cachedPodcastCount = totalPodcasts
+        self.cachedTodayCount = todayCount
         self.cachedFeedUnreadCounts = unreadPerFeed
+        self.cachedFeedMap = map
+        self.cachedFeedsInFolder = inFolder
+        self.cachedUncategorizedFeeds = uncategorized
     }
 
     func flushPendingSave() {
@@ -771,18 +836,8 @@ final class FeedStore {
                             cleaned.audioLength = nil
                             cleaned.audioDuration = nil
                         }
-                        // Offload heavy HTML content to disk reader cache so RAM is never bloated
-                        if let rawContent = cleaned.content, !rawContent.isEmpty {
-                            let formatted = ReaderModeExtractor.shared.formatFeedContentAsReaderHTML(
-                                title: cleaned.title,
-                                author: cleaned.author,
-                                pubDate: cleaned.pubDate,
-                                htmlContent: rawContent,
-                                link: cleaned.link
-                            )
-                            ReaderModeExtractor.shared.saveToCache(urlString: cleaned.link, content: formatted, storeInMemory: false)
-                            cleaned.content = nil
-                        }
+                        // Keep RAM lean; ReaderMode extracts or reads on-demand when article is opened
+                        cleaned.content = nil
                         return cleaned
                     }
                 }

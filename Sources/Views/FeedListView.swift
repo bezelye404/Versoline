@@ -132,10 +132,11 @@ struct FeedListView: View {
 
                         List(selection: $selectedArticle) {
                         ForEach(items) { item in
+                            let feed = store.feed(for: item.feedId)
                             FeedItemRow(
                                 item: item,
-                                feedTitle: showFeedName ? store.feed(for: item.feedId)?.title : nil,
-                                feedURL: showFeedName ? store.feed(for: item.feedId)?.url : nil
+                                feedTitle: showFeedName ? feed?.title : nil,
+                                feedURL: feed?.url ?? URL(string: item.link)?.host
                             )
                             .tag(item)
                             .contextMenu {
@@ -427,7 +428,7 @@ struct FeedItemRow: View {
                     HStack(spacing: 8) {
                         if let feedTitle, !feedTitle.isEmpty {
                             HStack(spacing: 4) {
-                                FaviconView(hostOrURL: feedURL ?? item.link, size: 12)
+                                FaviconView(hostOrURL: feedURL ?? URL(string: item.link)?.host ?? item.link, size: 12)
                                 Text(feedTitle)
                             }
                             .font(.caption2.weight(.medium))

@@ -38,7 +38,7 @@ struct ContentView: View {
 
                 Button {
                     Task {
-                        await store.refreshAllFeeds()
+                        await store.refreshAllFeeds(force: true)
                     }
                 } label: {
                     Label("Refresh", systemImage: "arrow.clockwise")

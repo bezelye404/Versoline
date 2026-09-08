@@ -19,23 +19,6 @@ struct SidebarView: View {
     @AppStorage("collapsedFolderIds") private var collapsedFolderIdsRaw: String = ""
     @AppStorage("isUncategorizedExpanded") private var isUncategorizedExpanded: Bool = true
 
-    private func isFolderExpandedBinding(for folderId: UUID) -> Binding<Bool> {
-        Binding<Bool>(
-            get: {
-                let set = Set(collapsedFolderIdsRaw.components(separatedBy: ",").filter { !$0.isEmpty })
-                return !set.contains(folderId.uuidString)
-            },
-            set: { isExpanded in
-                var set = Set(collapsedFolderIdsRaw.components(separatedBy: ",").filter { !$0.isEmpty })
-                if isExpanded {
-                    set.remove(folderId.uuidString)
-                } else {
-                    set.insert(folderId.uuidString)
-                }
-                collapsedFolderIdsRaw = set.joined(separator: ",")
-            }
-        )
-    }
 
     var body: some View {
         List(selection: $selectedItem) {
@@ -189,17 +172,36 @@ struct SidebarView: View {
         }
     }
 
+    private func isFolderExpanded(_ folderId: UUID) -> Bool {
+        let set = Set(collapsedFolderIdsRaw.components(separatedBy: ",").filter { !$0.isEmpty })
+        return !set.contains(folderId.uuidString)
+    }
+
+    private func toggleFolder(_ folderId: UUID) {
+        withAnimation(.easeInOut(duration: 0.18)) {
+            var set = Set(collapsedFolderIdsRaw.components(separatedBy: ",").filter { !$0.isEmpty })
+            if set.contains(folderId.uuidString) {
+                set.remove(folderId.uuidString)
+            } else {
+                set.insert(folderId.uuidString)
+            }
+            collapsedFolderIdsRaw = set.joined(separator: ",")
+        }
+    }
+
     @ViewBuilder
     private var foldersSection: some View {
         ForEach(store.folders) { folder in
-            Section(isExpanded: isFolderExpandedBinding(for: folder.id)) {
-                FolderStreamRow(folder: folder)
+            Section {
+                if isFolderExpanded(folder.id) {
+                    FolderStreamRow(folder: folder)
 
-                ForEach(store.feedsInFolder(folder.id)) { feed in
-                    NavigationLink(value: SidebarItem.feed(feed.id)) {
-                        FeedRow(feed: feed)
+                    ForEach(store.feedsInFolder(folder.id)) { feed in
+                        NavigationLink(value: SidebarItem.feed(feed.id)) {
+                            FeedRow(feed: feed)
+                        }
+                        .contextMenu { feedContextMenu(feed: feed) }
                     }
-                    .contextMenu { feedContextMenu(feed: feed) }
                 }
             } header: {
                 folderHeader(for: folder)
@@ -211,16 +213,48 @@ struct SidebarView: View {
     private var uncategorizedSection: some View {
         let uncategorized = store.uncategorizedFeeds()
         if !uncategorized.isEmpty {
-            Section(isExpanded: $isUncategorizedExpanded) {
-                ForEach(uncategorized) { feed in
-                    NavigationLink(value: SidebarItem.feed(feed.id)) {
-                        FeedRow(feed: feed)
+            Section {
+                if isUncategorizedExpanded {
+                    ForEach(uncategorized) { feed in
+                        NavigationLink(value: SidebarItem.feed(feed.id)) {
+                            FeedRow(feed: feed)
+                        }
+                        .contextMenu { feedContextMenu(feed: feed) }
                     }
-                    .contextMenu { feedContextMenu(feed: feed) }
                 }
             } header: {
-                Text(store.folders.isEmpty ? String(localized: "Feeds") : String(localized: "Uncategorized"))
-                    .fontWeight(.medium)
+                Button {
+                    withAnimation(.easeInOut(duration: 0.18)) {
+                        isUncategorizedExpanded.toggle()
+                    }
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: isUncategorizedExpanded ? "chevron.down" : "chevron.right")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(.secondary)
+                            .frame(width: 16, height: 16)
+
+                        Image(systemName: "tray")
+                            .font(.system(size: 13))
+                            .foregroundStyle(.secondary)
+
+                        Text(store.folders.isEmpty ? String(localized: "Feeds") : String(localized: "Uncategorized"))
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(.primary)
+
+                        Spacer()
+
+                        Text("\(uncategorized.count)")
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1)
+                            .background(Color.secondary.opacity(0.12), in: Capsule())
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .padding(.vertical, 3)
             }
         }
     }
@@ -280,20 +314,50 @@ struct SidebarView: View {
 
     @ViewBuilder
     private func folderHeader(for folder: Folder) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: folder.isSmartFolder ? "folder.badge.gearshape" : "folder")
-                .foregroundStyle(folder.isSmartFolder ? Color.accentColor : Color.secondary)
-            Text(folder.name)
-                .fontWeight(.medium)
-            if folder.isSmartFolder {
-                Text("Smart")
-                    .font(.system(size: 9, weight: .bold))
-                    .foregroundStyle(.tint)
-                    .padding(.horizontal, 4)
-                    .padding(.vertical, 1)
-                    .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 3))
+        let expanded = isFolderExpanded(folder.id)
+        let feedsCount = store.feedsInFolder(folder.id).count
+
+        Button {
+            toggleFolder(folder.id)
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: expanded ? "chevron.down" : "chevron.right")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 16, height: 16)
+
+                Image(systemName: folder.isSmartFolder ? "folder.badge.gearshape" : "folder")
+                    .font(.system(size: 13))
+                    .foregroundStyle(folder.isSmartFolder ? Color.accentColor : Color.secondary)
+
+                Text(folder.name)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.primary)
+
+                if folder.isSmartFolder {
+                    Text("Smart")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(.tint)
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 1)
+                        .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 3))
+                }
+
+                Spacer()
+
+                if feedsCount > 0 {
+                    Text("\(feedsCount)")
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 1)
+                        .background(Color.secondary.opacity(0.12), in: Capsule())
+                }
             }
+            .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
+        .padding(.vertical, 3)
         .contextMenu {
             Button {
                 managingFolderId = folder.id
