@@ -6,13 +6,36 @@ struct SidebarView: View {
     @Binding var selectedItem: SidebarItem?
     @Binding var selectedArticle: FeedItem?
     @State private var showAddFeed = false
-    @State private var showDiscover = false
+    @State private var showFolderManagement = false
+    @State private var managingFolderId: UUID?
     @State private var showAddFolder = false
     @State private var newFolderName = ""
     @State private var renamingFolderId: UUID?
     @State private var renameText = ""
     @State private var editingSmartFolder: Folder?
     @State private var smartKeywordsText = ""
+
+    // Collapsible sections persistence
+    @AppStorage("collapsedFolderIds") private var collapsedFolderIdsRaw: String = ""
+    @AppStorage("isUncategorizedExpanded") private var isUncategorizedExpanded: Bool = true
+
+    private func isFolderExpandedBinding(for folderId: UUID) -> Binding<Bool> {
+        Binding<Bool>(
+            get: {
+                let set = Set(collapsedFolderIdsRaw.components(separatedBy: ",").filter { !$0.isEmpty })
+                return !set.contains(folderId.uuidString)
+            },
+            set: { isExpanded in
+                var set = Set(collapsedFolderIdsRaw.components(separatedBy: ",").filter { !$0.isEmpty })
+                if isExpanded {
+                    set.remove(folderId.uuidString)
+                } else {
+                    set.insert(folderId.uuidString)
+                }
+                collapsedFolderIdsRaw = set.joined(separator: ",")
+            }
+        )
+    }
 
     var body: some View {
         List(selection: $selectedItem) {
@@ -26,11 +49,12 @@ struct SidebarView: View {
         .toolbar {
             ToolbarItemGroup(placement: .automatic) {
                 Button {
-                    showDiscover = true
+                    managingFolderId = nil
+                    showFolderManagement = true
                 } label: {
-                    Label("Discover Feeds", systemImage: "safari")
+                    Label("Folders", systemImage: "folder.badge.gearshape")
                 }
-                .help("Discover curated feeds")
+                .help("Manage folders and feeds")
 
                 Button {
                     showAddFolder = true
@@ -43,8 +67,13 @@ struct SidebarView: View {
         .sheet(isPresented: $showAddFeed) {
             AddFeedSheet()
         }
-        .sheet(isPresented: $showDiscover) {
-            CuratedDiscoverView()
+        .sheet(isPresented: $showFolderManagement) {
+            FolderManagementView(initialFolderId: managingFolderId)
+        }
+        .onChange(of: showFolderManagement) { _, isShowing in
+            if !isShowing {
+                managingFolderId = nil
+            }
         }
         .alert("New Folder", isPresented: $showAddFolder) {
             TextField("Folder Name", text: $newFolderName)
@@ -136,10 +165,24 @@ struct SidebarView: View {
             }
 
             Button {
-                showDiscover = true
+                managingFolderId = nil
+                showFolderManagement = true
             } label: {
-                Label("Discover Feeds", systemImage: "safari")
-                    .foregroundStyle(.primary)
+                HStack {
+                    Label("Folders", systemImage: "folder")
+                        .foregroundStyle(.primary)
+
+                    Spacer()
+
+                    if !store.folders.isEmpty {
+                        Text("\(store.folders.count)")
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 1)
+                            .background(Color.secondary.opacity(0.12), in: Capsule())
+                    }
+                }
             }
             .buttonStyle(.plain)
             .padding(.vertical, 2)
@@ -149,7 +192,7 @@ struct SidebarView: View {
     @ViewBuilder
     private var foldersSection: some View {
         ForEach(store.folders) { folder in
-            Section {
+            Section(isExpanded: isFolderExpandedBinding(for: folder.id)) {
                 FolderStreamRow(folder: folder)
 
                 ForEach(store.feedsInFolder(folder.id)) { feed in
@@ -168,13 +211,16 @@ struct SidebarView: View {
     private var uncategorizedSection: some View {
         let uncategorized = store.uncategorizedFeeds()
         if !uncategorized.isEmpty {
-            Section(store.folders.isEmpty ? "Feeds" : "Uncategorized") {
+            Section(isExpanded: $isUncategorizedExpanded) {
                 ForEach(uncategorized) { feed in
                     NavigationLink(value: SidebarItem.feed(feed.id)) {
                         FeedRow(feed: feed)
                     }
                     .contextMenu { feedContextMenu(feed: feed) }
                 }
+            } header: {
+                Text(store.folders.isEmpty ? String(localized: "Feeds") : String(localized: "Uncategorized"))
+                    .fontWeight(.medium)
             }
         }
     }
@@ -195,12 +241,6 @@ struct SidebarView: View {
                     HStack(spacing: 8) {
                         Button("Add Feed") {
                             showAddFeed = true
-                        }
-                        .buttonStyle(.bordered)
-                        .controlSize(.small)
-
-                        Button("Discover") {
-                            showDiscover = true
                         }
                         .buttonStyle(.borderedProminent)
                         .controlSize(.small)
@@ -255,6 +295,15 @@ struct SidebarView: View {
             }
         }
         .contextMenu {
+            Button {
+                managingFolderId = folder.id
+                showFolderManagement = true
+            } label: {
+                Label("Manage Feeds...", systemImage: "folder.badge.gearshape")
+            }
+
+            Divider()
+
             Button {
                 smartKeywordsText = folder.keywords?.joined(separator: ", ") ?? ""
                 editingSmartFolder = folder

@@ -5,6 +5,8 @@ struct SocialFeedsView: View {
     @Environment(FeedStore.self) private var store
     @Environment(\.dismiss) private var dismiss
 
+    var selectedFolderId: UUID? = nil
+
     enum Platform: String, CaseIterable, Identifiable {
         case youtube
         case reddit
@@ -493,7 +495,7 @@ struct SocialFeedsView: View {
             do {
                 let result = try await SocialFeedResolver.shared.resolveYouTube(input: input)
                 resolvedResult = result
-                await store.addFeed(url: result.rssURL)
+                await store.addFeed(url: result.rssURL, folderId: selectedFolderId)
                 isResolvingYouTube = false
 
                 if store.errorMessage == nil {
@@ -516,7 +518,7 @@ struct SocialFeedsView: View {
         redditError = nil
 
         Task {
-            await store.addFeed(url: url)
+            await store.addFeed(url: url, folderId: selectedFolderId)
             isAddingReddit = false
 
             if store.errorMessage == nil {

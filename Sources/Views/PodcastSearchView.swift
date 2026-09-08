@@ -3,6 +3,7 @@ import SwiftUI
 struct PodcastSearchView: View {
 
     @Environment(FeedStore.self) private var store
+    var selectedFolderId: UUID? = nil
     @State private var searchService = PodcastSearchService.shared
     @State private var query: String = ""
     @State private var addingURLs: Set<String> = []
@@ -282,7 +283,7 @@ struct PodcastSearchView: View {
     private func subscribeToPodcast(_ podcast: PodcastSearchResult) {
         addingURLs.insert(podcast.feedURL)
         Task {
-            await store.addFeed(url: podcast.feedURL)
+            await store.addFeed(url: podcast.feedURL, folderId: selectedFolderId)
             addingURLs.remove(podcast.feedURL)
         }
     }

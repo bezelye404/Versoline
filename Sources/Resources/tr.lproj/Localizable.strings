@@ -244,3 +244,22 @@
 "Scan Feeds" = "Akışları Tara";
 "Remove All Broken Feeds" = "Tüm Bozuk Akışları Kaldır";
 
+/* Folders & Bulk Feed Management */
+"Folders & Feeds Management" = "Klasör ve Akış Yönetimi";
+"Manage Feeds..." = "Akışları Yönet...";
+"Folder (Optional)" = "Klasör (İsteğe Bağlı)";
+"Folder (Optional):" = "Klasör (İsteğe Bağlı):";
+"None (Uncategorized)" = "Yok (Kategorisiz)";
+"Destination Folder:" = "Hedef Klasör:";
+"No Folders Yet" = "Henüz Klasör Yok";
+"Create Folder" = "Klasör Oluştur";
+"Smart Rules Active" = "Akıllı Kurallar Etkin";
+"%d feeds assigned to this folder" = "Bu klasöre atanmış %d akış";
+"Select All" = "Tümünü Seç";
+"Deselect All" = "Tümünü Kaldır";
+"Search feeds by name or URL..." = "Akışları isim veya URL ile ara...";
+"No feeds subscribed yet." = "Henüz abone olunan akış yok.";
+"No matching feeds found." = "Eşleşen akış bulunamadı.";
+"Select a folder from the list to manage its feeds." = "Akışlarını yönetmek için listeden bir klasör seçin.";
+"In \"%@\"" = "\"%@\" içinde";
+

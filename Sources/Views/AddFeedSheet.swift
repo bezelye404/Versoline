@@ -45,6 +45,7 @@ struct AddFeedSheet: View {
     @State private var selectedTab: AddFeedTab
     @State private var feedURL: String = ""
     @State private var isValidating: Bool = false
+    @State private var selectedFolderId: UUID? = nil
 
     // Catalog state
     @State private var searchText: String = ""
@@ -106,11 +107,11 @@ struct AddFeedSheet: View {
             case .customURL:
                 customURLView
             case .socialFeeds:
-                SocialFeedsView()
+                SocialFeedsView(selectedFolderId: selectedFolderId)
             case .curatedCatalog:
                 curatedCatalogView
             case .podcastSearch:
-                PodcastSearchView()
+                PodcastSearchView(selectedFolderId: selectedFolderId)
             }
         }
         .frame(
@@ -152,6 +153,22 @@ struct AddFeedSheet: View {
                             .onSubmit {
                                 addFeed()
                             }
+                    }
+
+                    // Folder Selector (Optional)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(String(localized: "Folder (Optional)"))
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.secondary)
+
+                        Picker(String(localized: "Folder"), selection: $selectedFolderId) {
+                            Text(String(localized: "None (Uncategorized)")).tag(nil as UUID?)
+                            ForEach(store.folders) { folder in
+                                Text(folder.name).tag(folder.id as UUID?)
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
                     // Discovery Banner to Curated Catalog
@@ -344,6 +361,28 @@ struct AddFeedSheet: View {
 
     private var curatedCatalogView: some View {
         VStack(spacing: 0) {
+            // Folder Selector for Curated Catalog
+            HStack(spacing: 8) {
+                Text(String(localized: "Folder (Optional):"))
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+
+                Picker("", selection: $selectedFolderId) {
+                    Text(String(localized: "None (Uncategorized)")).tag(nil as UUID?)
+                    ForEach(store.folders) { folder in
+                        Text(folder.name).tag(folder.id as UUID?)
+                    }
+                }
+                .labelsHidden()
+                .controlSize(.small)
+                .frame(maxWidth: 220)
+
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
+
             // Search Bar & Filter Bar
             VStack(spacing: 10) {
                 HStack {
@@ -611,7 +650,7 @@ struct AddFeedSheet: View {
         isValidating = true
 
         Task {
-            await store.addFeed(url: urlString)
+            await store.addFeed(url: urlString, folderId: selectedFolderId)
             isValidating = false
             if store.errorMessage == nil {
                 dismiss()
@@ -622,7 +661,7 @@ struct AddFeedSheet: View {
     private func addCurated(feed: CuratedFeed) {
         addingFeedURLs.insert(feed.url)
         Task {
-            await store.addFeed(url: feed.url)
+            await store.addFeed(url: feed.url, folderId: selectedFolderId)
             addingFeedURLs.remove(feed.url)
         }
     }

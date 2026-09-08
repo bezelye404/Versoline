@@ -244,3 +244,22 @@
 "Scan Feeds" = "Scan Feeds";
 "Remove All Broken Feeds" = "Remove All Broken Feeds";
 
+/* Folders & Bulk Feed Management */
+"Folders & Feeds Management" = "Folders & Feeds Management";
+"Manage Feeds..." = "Manage Feeds...";
+"Folder (Optional)" = "Folder (Optional)";
+"Folder (Optional):" = "Folder (Optional):";
+"None (Uncategorized)" = "None (Uncategorized)";
+"Destination Folder:" = "Destination Folder:";
+"No Folders Yet" = "No Folders Yet";
+"Create Folder" = "Create Folder";
+"Smart Rules Active" = "Smart Rules Active";
+"%d feeds assigned to this folder" = "%d feeds assigned to this folder";
+"Select All" = "Select All";
+"Deselect All" = "Deselect All";
+"Search feeds by name or URL..." = "Search feeds by name or URL...";
+"No feeds subscribed yet." = "No feeds subscribed yet.";
+"No matching feeds found." = "No matching feeds found.";
+"Select a folder from the list to manage its feeds." = "Select a folder from the list to manage its feeds.";
+"In \"%@\"" = "In \"%@\"";
+

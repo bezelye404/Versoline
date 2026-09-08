@@ -236,11 +236,13 @@ final class FeedStore {
 
     // MARK: - Folder Management
 
-    func addFolder(name: String) {
+    @discardableResult
+    func addFolder(name: String) -> Folder {
         let folder = Folder(name: name)
         folders.append(folder)
         AppLogger.shared.log("Added folder: \"\(name)\"", level: .info, category: .storage)
         save()
+        return folder
     }
 
     func removeFolder(_ folderId: UUID) {
@@ -267,6 +269,36 @@ final class FeedStore {
     func moveFeed(_ feedId: UUID, toFolder folderId: UUID?) {
         if let index = feeds.firstIndex(where: { $0.id == feedId }) {
             feeds[index].folderId = folderId
+            save()
+        }
+    }
+
+    func moveFeeds(_ feedIds: Set<UUID>, toFolder folderId: UUID?) {
+        var changed = false
+        for i in feeds.indices {
+            if feedIds.contains(feeds[i].id) && feeds[i].folderId != folderId {
+                feeds[i].folderId = folderId
+                changed = true
+            }
+        }
+        if changed {
+            save()
+        }
+    }
+
+    func setFeedsInFolder(_ folderId: UUID, feedIds: Set<UUID>) {
+        var changed = false
+        for i in feeds.indices {
+            let shouldBeInFolder = feedIds.contains(feeds[i].id)
+            if shouldBeInFolder && feeds[i].folderId != folderId {
+                feeds[i].folderId = folderId
+                changed = true
+            } else if !shouldBeInFolder && feeds[i].folderId == folderId {
+                feeds[i].folderId = nil
+                changed = true
+            }
+        }
+        if changed {
             save()
         }
     }
