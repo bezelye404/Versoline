@@ -182,22 +182,21 @@ struct FeedListView: View {
                     .navigationTitle(title)
                     .toolbar {
                         ToolbarItem(placement: .automatic) {
-                            if case .feed(let feedId) = selection {
-                                if store.allRead(feedId: feedId) {
-                                    Button {
-                                        store.markAllAsUnread(feedId: feedId)
-                                    } label: {
-                                        Label("Mark All as Unread", systemImage: "circle")
-                                    }
-                                    .help("Mark All as Unread")
-                                } else {
-                                    Button {
-                                        store.markAllAsRead(feedId: feedId)
-                                    } label: {
-                                        Label("Mark All as Read", systemImage: "checkmark.circle")
-                                    }
-                                    .help("Mark All as Read")
+                            let unreadItems = items.filter { !$0.isRead }
+                            if !unreadItems.isEmpty {
+                                Button {
+                                    store.markAllAsRead(items: unreadItems)
+                                } label: {
+                                    Label(String(localized: "Mark All as Read"), systemImage: "checkmark.circle")
                                 }
+                                .help(String(localized: "Mark All as Read in Current View"))
+                            } else if case .feed(let feedId) = selection, !items.isEmpty {
+                                Button {
+                                    store.markAllAsUnread(feedId: feedId)
+                                } label: {
+                                    Label(String(localized: "Mark All as Unread"), systemImage: "circle")
+                                }
+                                .help(String(localized: "Mark All as Unread"))
                             }
                         }
                     }

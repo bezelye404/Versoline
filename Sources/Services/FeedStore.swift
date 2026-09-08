@@ -406,6 +406,22 @@ final class FeedStore {
         save()
     }
 
+    func markAllAsRead(items targetItems: [FeedItem]) {
+        guard !targetItems.isEmpty else { return }
+        var feedGroups: [UUID: Set<UUID>] = [:]
+        for item in targetItems {
+            feedGroups[item.feedId, default: []].insert(item.id)
+        }
+        for (feedId, targetIds) in feedGroups {
+            guard var feedItems = items[feedId] else { continue }
+            for i in feedItems.indices where targetIds.contains(feedItems[i].id) {
+                feedItems[i].isRead = true
+            }
+            items[feedId] = feedItems
+        }
+        save()
+    }
+
     func markAllAsUnread(feedId: UUID) {
         guard var feedItems = items[feedId] else { return }
         for i in feedItems.indices {

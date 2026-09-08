@@ -427,142 +427,155 @@ struct ArticleDetailView: View {
 
     @ViewBuilder
     private func actionToolbar(item: FeedItem) -> some View {
-        HStack(spacing: 8) {
-            // 2-Way Reading Mode Selector: Reader | Web
-            Picker("", selection: $activeViewMode) {
-                Text(String(localized: "Reader")).tag(ReadingViewMode.reader)
-                Text(String(localized: "Web")).tag(ReadingViewMode.inAppBrowser)
-            }
-            .pickerStyle(.segmented)
-            .labelsHidden()
-            .frame(width: 140)
-            .onChange(of: activeViewMode) { _, newMode in
-                if newMode == .reader && (extractedReaderHTML == nil || !ReaderModeExtractor.shared.isSubstantiveContent(extractedReaderHTML ?? "")) {
-                    loadReaderMode(for: item, forceWeb: false)
+        HStack(spacing: 12) {
+            // Island 1: Reading Mode & Appearance
+            HStack(spacing: 6) {
+                Picker("", selection: $activeViewMode) {
+                    Text(String(localized: "Reader")).tag(ReadingViewMode.reader)
+                    Text(String(localized: "Web")).tag(ReadingViewMode.inAppBrowser)
                 }
-            }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .frame(width: 136)
+                .onChange(of: activeViewMode) { _, newMode in
+                    if newMode == .reader && (extractedReaderHTML == nil || !ReaderModeExtractor.shared.isSubstantiveContent(extractedReaderHTML ?? "")) {
+                        loadReaderMode(for: item, forceWeb: false)
+                    }
+                }
 
-            // Reload / Force Extract Full Article from Web
-            if activeViewMode == .reader {
-                Button {
-                    loadReaderMode(for: item, forceWeb: true)
+                // Appearance Menu (Theme, Font, Size)
+                Menu {
+                    // Themes
+                    Picker("Theme", selection: $readerThemeRaw) {
+                        ForEach(ReaderTheme.allCases) { theme in
+                            Text(theme.title).tag(theme.rawValue)
+                        }
+                    }
+
+                    Divider()
+
+                    // Fonts
+                    Picker("Font Family", selection: $readerFontFamilyRaw) {
+                        ForEach(ReaderFontFamily.allCases) { font in
+                            Text(font.title).tag(font.rawValue)
+                        }
+                    }
+
+                    // Line Spacing
+                    Picker("Line Spacing", selection: $readerLineHeightRaw) {
+                        ForEach(ReaderLineHeight.allCases) { lh in
+                            Text(lh.title).tag(lh.rawValue)
+                        }
+                    }
+
+                    Divider()
+
+                    // Font size
+                    HStack {
+                        Button("Smaller Font") {
+                            if readerFontSize > 12 { readerFontSize -= 2 }
+                        }
+                        Button("Larger Font") {
+                            if readerFontSize < 32 { readerFontSize += 2 }
+                        }
+                    }
                 } label: {
-                    Image(systemName: "arrow.clockwise")
-                        .foregroundStyle(isLoadingReaderMode ? Color.accentColor : Color.secondary)
-                }
-                .buttonStyle(.borderless)
-                .disabled(isLoadingReaderMode)
-                .help(String(localized: "Fetch / Reload Full Article from Web"))
-            }
-
-            // 1-Click WebKit Content Blocker Toggle (Web Mode)
-            if activeViewMode == .inAppBrowser {
-                Button {
-                    isContentBlockerEnabled.toggle()
-                } label: {
-                    Image(systemName: isContentBlockerEnabled ? "shield.fill" : "shield.slash")
-                        .foregroundStyle(isContentBlockerEnabled ? Color.accentColor : Color.secondary)
-                }
-                .buttonStyle(.borderless)
-                .help(isContentBlockerEnabled ? String(localized: "Content Blocker Active (Click to Disable)") : String(localized: "Content Blocker Disabled (Click to Enable)"))
-            }
-
-            // Text to Speech
-            Button {
-                toggleSpeech(item: item)
-            } label: {
-                Image(systemName: isSpeaking ? "stop.fill" : "speaker.wave.2")
-                    .foregroundStyle(isSpeaking ? Color.accentColor : Color.secondary)
-            }
-            .buttonStyle(.borderless)
-            .help(isSpeaking ? String(localized: "Stop Reading") : String(localized: "Read Aloud"))
-
-            // Share Article or Episode
-            Button {
-                shareArticleOrEpisode(item: item)
-            } label: {
-                Image(systemName: "square.and.arrow.up")
-                    .foregroundStyle(Color.secondary)
-            }
-            .buttonStyle(.borderless)
-            .help(String(localized: "Share Article or Episode"))
-
-            // Appearance Menu (Theme, Font, Size)
-            Menu {
-                // Themes
-                Picker("Theme", selection: $readerThemeRaw) {
-                    ForEach(ReaderTheme.allCases) { theme in
-                        Text(theme.title).tag(theme.rawValue)
-                    }
-                }
-
-                Divider()
-
-                // Fonts
-                Picker("Font Family", selection: $readerFontFamilyRaw) {
-                    ForEach(ReaderFontFamily.allCases) { font in
-                        Text(font.title).tag(font.rawValue)
-                    }
-                }
-
-                // Line Spacing
-                Picker("Line Spacing", selection: $readerLineHeightRaw) {
-                    ForEach(ReaderLineHeight.allCases) { lh in
-                        Text(lh.title).tag(lh.rawValue)
-                    }
-                }
-
-                Divider()
-
-                // Font size
-                HStack {
-                    Button("Smaller Font") {
-                        if readerFontSize > 12 { readerFontSize -= 2 }
-                    }
-                    Button("Larger Font") {
-                        if readerFontSize < 32 { readerFontSize += 2 }
-                    }
-                }
-            } label: {
-                Image(systemName: "textformat.size")
-                    .foregroundStyle(.secondary)
-            }
-            .menuStyle(.borderlessButton)
-            .fixedSize()
-            .help(String(localized: "Appearance"))
-
-
-
-            // Bookmark toggle
-            Button {
-                store.toggleBookmark(item)
-            } label: {
-                Image(systemName: item.isBookmarked ? "star.fill" : "star")
-                    .foregroundStyle(item.isBookmarked ? .orange : .secondary)
-            }
-            .buttonStyle(.borderless)
-            .help(item.isBookmarked ? String(localized: "Remove Bookmark") : String(localized: "Add Bookmark"))
-
-            // Read toggle
-            Button {
-                store.toggleReadStatus(item)
-            } label: {
-                Image(systemName: item.isRead ? "circle" : "checkmark.circle.fill")
-                    .foregroundStyle(item.isRead ? .secondary : Color.accentColor)
-            }
-            .buttonStyle(.borderless)
-            .help(item.isRead ? String(localized: "Mark as Unread") : String(localized: "Mark as Read"))
-
-            // Open in Preferred External Browser
-            if let url = URL(string: item.link) {
-                Button {
-                    currentExternalBrowser.open(url: url)
-                } label: {
-                    Image(systemName: "arrow.up.right.square")
+                    Image(systemName: "textformat.size")
                         .foregroundStyle(.secondary)
                 }
+                .menuStyle(.borderlessButton)
+                .fixedSize()
+                .help(String(localized: "Appearance"))
+
+                // Mode-specific helper button
+                if activeViewMode == .reader {
+                    Button {
+                        loadReaderMode(for: item, forceWeb: true)
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .foregroundStyle(isLoadingReaderMode ? Color.accentColor : Color.secondary)
+                    }
+                    .buttonStyle(.borderless)
+                    .disabled(isLoadingReaderMode)
+                    .help(String(localized: "Fetch / Reload Full Article from Web"))
+                } else {
+                    Button {
+                        isContentBlockerEnabled.toggle()
+                    } label: {
+                        Image(systemName: isContentBlockerEnabled ? "shield.fill" : "shield.slash")
+                            .foregroundStyle(isContentBlockerEnabled ? Color.accentColor : Color.secondary)
+                    }
+                    .buttonStyle(.borderless)
+                    .help(isContentBlockerEnabled ? String(localized: "Content Blocker Active (Click to Disable)") : String(localized: "Content Blocker Disabled (Click to Enable)"))
+                }
+            }
+
+            Divider()
+                .frame(height: 16)
+
+            // Island 2: Article Status Actions (Connected macOS ControlGroup)
+            ControlGroup {
+                Button {
+                    store.toggleBookmark(item)
+                } label: {
+                    Image(systemName: item.isBookmarked ? "star.fill" : "star")
+                        .foregroundStyle(item.isBookmarked ? .orange : .secondary)
+                }
+                .help(item.isBookmarked ? String(localized: "Remove Bookmark") : String(localized: "Add Bookmark"))
+
+                Button {
+                    store.toggleReadStatus(item)
+                } label: {
+                    Image(systemName: item.isRead ? "circle" : "checkmark.circle.fill")
+                        .foregroundStyle(item.isRead ? .secondary : Color.accentColor)
+                }
+                .help(item.isRead ? String(localized: "Mark as Unread") : String(localized: "Mark as Read"))
+            }
+
+            Divider()
+                .frame(height: 16)
+
+            // Island 3: Auxiliary & Sharing Actions
+            HStack(spacing: 8) {
+                // Text to Speech
+                Button {
+                    toggleSpeech(item: item)
+                } label: {
+                    Image(systemName: isSpeaking ? "stop.fill" : "speaker.wave.2")
+                        .foregroundStyle(isSpeaking ? Color.accentColor : Color.secondary)
+                }
                 .buttonStyle(.borderless)
-                .help(String(format: String(localized: "Open in %@ (Cmd+Return)"), currentExternalBrowser.title))
+                .help(isSpeaking ? String(localized: "Stop Reading") : String(localized: "Read Aloud"))
+
+                // Share & External Browser Menu
+                Menu {
+                    Button {
+                        shareArticleOrEpisode(item: item)
+                    } label: {
+                        Label(String(localized: "Share..."), systemImage: "square.and.arrow.up")
+                    }
+
+                    if let url = URL(string: item.link) {
+                        Button {
+                            currentExternalBrowser.open(url: url)
+                        } label: {
+                            Label(String(format: String(localized: "Open in %@ (Cmd+Return)"), currentExternalBrowser.title), systemImage: "arrow.up.right.square")
+                        }
+
+                        Button {
+                            NSPasteboard.general.clearContents()
+                            NSPasteboard.general.setString(item.link, forType: .string)
+                        } label: {
+                            Label(String(localized: "Copy Link"), systemImage: "doc.on.doc")
+                        }
+                    }
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                        .foregroundStyle(Color.secondary)
+                }
+                .menuStyle(.borderlessButton)
+                .fixedSize()
+                .help(String(localized: "Share & External Actions"))
             }
         }
     }

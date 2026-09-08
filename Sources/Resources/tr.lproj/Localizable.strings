@@ -268,4 +268,17 @@
 "Close" = "Kapat";
 "Done" = "Bitti";
 
+/* Ergonomic Toolbar Strings */
+"Refresh All Feeds" = "Tüm Akışları Yenile";
+"Refresh All Feeds (Cmd+R)" = "Tüm Akışları Yenile (Cmd+R)";
+"Add Feed by URL..." = "URL ile Akış Ekle...";
+"Search Podcasts..." = "Podcast Ara...";
+"Developer Console..." = "Geliştirici Konsolu...";
+"View Options & Tools" = "Görünüm Seçenekleri & Araçlar";
+"Add feed, browse catalog, search podcasts, or import OPML" = "Akış ekle, katalog tara, podcast ara veya OPML aktar";
+"Mark All as Read in Current View" = "Mevcut Görünümdeki Tümünü Okundu İşaretle";
+"Share & External Actions" = "Paylaş & Dış Eylemler";
+"Share..." = "Paylaş...";
+"Copy Link" = "Bağlantıyı Kopyala";
+
 

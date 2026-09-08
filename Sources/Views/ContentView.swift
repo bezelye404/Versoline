@@ -47,44 +47,27 @@ struct ContentView: View {
                 .help("Refresh all feeds")
                 .keyboardShortcut("r", modifiers: .command)
                 .disabled(store.isLoading)
-
+                // Unified Add Menu: URL, Curated Catalog, Podcast Search & OPML
                 Menu {
-                    Toggle("Compact Mode", isOn: $isCompactListMode)
-
-                    Divider()
-
                     Button {
-                        showShortcutsHelp = true
+                        addFeedTab = .customURL
+                        showAddFeed = true
                     } label: {
-                        Label("Keyboard Shortcuts", systemImage: "keyboard")
+                        Label(String(localized: "Add Feed by URL..."), systemImage: "link")
                     }
-                    .keyboardShortcut("?", modifiers: [])
-                } label: {
-                    Label("View Options", systemImage: "slider.horizontal.3")
-                }
-                .help("List View Options")
 
-                Button {
-                    addFeedTab = .customURL
-                    showAddFeed = true
-                } label: {
-                    Label("Add Feed", systemImage: "plus")
-                }
-                .help("Add new feed")
-
-                Menu {
                     Button {
                         addFeedTab = .curatedCatalog
                         showAddFeed = true
                     } label: {
-                        Label("Browse Curated Catalog...", systemImage: "sparkles.rectangle.stack")
+                        Label(String(localized: "Browse Curated Catalog..."), systemImage: "sparkles.rectangle.stack")
                     }
 
                     Button {
                         addFeedTab = .podcastSearch
                         showAddFeed = true
                     } label: {
-                        Label("Find Podcasts (Search Engine)...", systemImage: "waveform.and.magnifyingglass")
+                        Label(String(localized: "Search Podcasts..."), systemImage: "waveform.and.magnifyingglass")
                     }
 
                     Divider()
@@ -92,27 +75,45 @@ struct ContentView: View {
                     Button {
                         importOPML()
                     } label: {
-                        Label("Import OPML...", systemImage: "square.and.arrow.down")
+                        Label(String(localized: "Import OPML..."), systemImage: "square.and.arrow.down")
                     }
 
                     Button {
                         exportOPML()
                     } label: {
-                        Label("Export OPML...", systemImage: "square.and.arrow.up")
+                        Label(String(localized: "Export OPML..."), systemImage: "square.and.arrow.up")
                     }
                     .disabled(store.feeds.isEmpty)
                 } label: {
-                    Label("More", systemImage: "ellipsis.circle")
+                    Label(String(localized: "Add"), systemImage: "plus")
                 }
-                .help("More Options & OPML")
+                .help(String(localized: "Add feed, browse catalog, search podcasts, or import OPML"))
 
-                Button {
-                    showConsole = true
+                // View & Tools Menu (Compact mode, Shortcuts HUD, Console)
+                Menu {
+                    Toggle(String(localized: "Compact Mode"), isOn: $isCompactListMode)
+
+                    Divider()
+
+                    Button {
+                        showShortcutsHelp = true
+                    } label: {
+                        Label(String(localized: "Keyboard Shortcuts"), systemImage: "keyboard")
+                    }
+                    .keyboardShortcut("?", modifiers: [])
+
+                    Divider()
+
+                    Button {
+                        showConsole = true
+                    } label: {
+                        Label(String(localized: "Developer Console..."), systemImage: "terminal")
+                    }
+                    .keyboardShortcut("c", modifiers: [.command, .option])
                 } label: {
-                    Label("Console", systemImage: "terminal")
+                    Label(String(localized: "View Options"), systemImage: "slider.horizontal.3")
                 }
-                .help("Developer Console (Cmd+Option+C)")
-                .keyboardShortcut("c", modifiers: [.command, .option])
+                .help(String(localized: "View Options & Tools"))
             }
         }
         .sheet(isPresented: $showAddFeed) {

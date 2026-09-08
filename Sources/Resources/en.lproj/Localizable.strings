@@ -268,4 +268,18 @@
 "Close" = "Close";
 "Done" = "Done";
 
+/* Ergonomic Toolbar Strings */
+"Refresh All Feeds" = "Refresh All Feeds";
+"Refresh All Feeds (Cmd+R)" = "Refresh All Feeds (Cmd+R)";
+"Add Feed by URL..." = "Add Feed by URL...";
+"Search Podcasts..." = "Search Podcasts...";
+"Developer Console..." = "Developer Console...";
+"View Options & Tools" = "View Options & Tools";
+"Add feed, browse catalog, search podcasts, or import OPML" = "Add feed, browse catalog, search podcasts, or import OPML";
+"Mark All as Read in Current View" = "Mark All as Read in Current View";
+"Share & External Actions" = "Share & External Actions";
+"Share..." = "Share...";
+"Copy Link" = "Copy Link";
+
+
 
