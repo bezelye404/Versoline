@@ -22,6 +22,7 @@
 		415C86EA71BF46636C7025B8 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541CCECE17865AC0A57C3092 /* AppSettings.swift */; };
 		4AE06182FA3218E2F97389F4 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8662D9AE64DB139E0FD25AC6 /* SettingsView.swift */; };
 		565F54A2DEB2ED5ABDF959DA /* EasyRSSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF02B31D85C44FE4C109EAEB /* EasyRSSApp.swift */; };
+		592D532618846909248BEC1C /* KeyboardShortcutsHelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E5CFA45A067C8E156F6FFEE /* KeyboardShortcutsHelpView.swift */; };
 		5B3E5B6A2581C298263EA0EA /* ConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D69912A3269276DAF4FFAF45 /* ConsoleView.swift */; };
 		5C5E99C16EE7825CB24E9458 /* CuratedFeedManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795DF17736FD36D98F8A0532 /* CuratedFeedManager.swift */; };
 		5F8A527790BBD9AED729D7B1 /* AudioPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88847BD64845297886AEDBE0 /* AudioPlayerService.swift */; };
@@ -56,6 +57,7 @@
 		13820ADBEB009A4A7A212BFF /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
 		1B7F4F5DB90608B6618A7E65 /* Feed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feed.swift; sourceTree = "<group>"; };
 		1BBEB79D86CCB9835183130A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		1E5CFA45A067C8E156F6FFEE /* KeyboardShortcutsHelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardShortcutsHelpView.swift; sourceTree = "<group>"; };
 		1F6A10119A190D5FE76F0592 /* EqualizerWaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EqualizerWaveformView.swift; sourceTree = "<group>"; };
 		239062A09E4D48D3305E8F18 /* CuratedFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CuratedFeed.swift; sourceTree = "<group>"; };
 		30661282BE6ABC87FCE97CDD /* PodcastSearchResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastSearchResult.swift; sourceTree = "<group>"; };
@@ -131,6 +133,7 @@
 				1BBEB79D86CCB9835183130A /* ContentView.swift */,
 				0183323EB4976E4330F68AAE /* FeedListView.swift */,
 				0053C0D86B3535760BE51C66 /* FolderManagementView.swift */,
+				1E5CFA45A067C8E156F6FFEE /* KeyboardShortcutsHelpView.swift */,
 				76ABF999503ABD2777398A9C /* MiniPlayerView.swift */,
 				7B5C58B4B0CD8303EF27EEB0 /* PodcastSearchView.swift */,
 				8685C42D6F5E40EA3963BC4D /* SidebarView.swift */,
@@ -300,6 +303,7 @@
 				65B7FEECD3E1AC13D26FCE75 /* Folder.swift in Sources */,
 				193779E76AAB54F056CECE5E /* FolderManagementView.swift in Sources */,
 				B56EC34231A09A5124E5FD9D /* HTMLCleaner.swift in Sources */,
+				592D532618846909248BEC1C /* KeyboardShortcutsHelpView.swift in Sources */,
 				FB8B097CFEC850DED54C870D /* MiniPlayerView.swift in Sources */,
 				07653C9C418BE81D76738F41 /* NetworkMonitor.swift in Sources */,
 				332BE99960A9F197E6BAF766 /* OPMLManager.swift in Sources */,

@@ -247,7 +247,22 @@
 "Deselect All" = "Deselect All";
 "Search feeds by name or URL..." = "Search feeds by name or URL...";
 "No feeds subscribed yet." = "No feeds subscribed yet.";
-"No matching feeds found." = "No matching feeds found.";
-"Select a folder from the list to manage its feeds." = "Select a folder from the list to manage its feeds.";
 "In \"%@\"" = "In \"%@\"";
+
+/* UX Improvements */
+"All Caught Up!" = "All Caught Up!";
+"You have no unread articles. Enjoy your day!" = "You have no unread articles. Enjoy your day!";
+"Keyboard Shortcuts" = "Keyboard Shortcuts";
+"Navigation" = "Navigation";
+"Article Actions" = "Article Actions";
+"Next Article" = "Next Article";
+"Previous Article" = "Previous Article";
+"Page Down / Next Article" = "Page Down / Next Article";
+"Page Up" = "Page Up";
+"Toggle Read Status" = "Toggle Read Status";
+"Toggle Bookmark" = "Toggle Bookmark";
+"Press ? anytime to toggle this helper." = "Press ? anytime to toggle this helper.";
+"Close" = "Close";
+"Done" = "Done";
+
 

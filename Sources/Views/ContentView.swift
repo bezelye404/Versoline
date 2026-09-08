@@ -9,6 +9,7 @@ struct ContentView: View {
     @State private var showAddFeed = false
     @State private var addFeedTab: AddFeedTab = .customURL
     @State private var showConsole = false
+    @State private var showShortcutsHelp = false
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @AppStorage(AppSettingsKeys.isCompactListMode) private var isCompactListMode = false
 
@@ -49,6 +50,15 @@ struct ContentView: View {
 
                 Menu {
                     Toggle("Compact Mode", isOn: $isCompactListMode)
+
+                    Divider()
+
+                    Button {
+                        showShortcutsHelp = true
+                    } label: {
+                        Label("Keyboard Shortcuts", systemImage: "keyboard")
+                    }
+                    .keyboardShortcut("?", modifiers: [])
                 } label: {
                     Label("View Options", systemImage: "slider.horizontal.3")
                 }
@@ -110,6 +120,9 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showConsole) {
             ConsoleView()
+        }
+        .sheet(isPresented: $showShortcutsHelp) {
+            KeyboardShortcutsHelpView()
         }
         .alert("Error", isPresented: .init(
             get: { store.errorMessage != nil },

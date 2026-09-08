@@ -195,12 +195,20 @@ struct SidebarView: View {
             Section {
                 if isFolderExpanded(folder.id) {
                     FolderStreamRow(folder: folder)
+                        .dropDestination(for: String.self) { items, _ in
+                            guard let idStr = items.first, let feedId = UUID(uuidString: idStr) else { return false }
+                            withAnimation(.easeInOut(duration: 0.18)) {
+                                store.moveFeed(feedId, toFolder: folder.id)
+                            }
+                            return true
+                        }
 
                     ForEach(store.feedsInFolder(folder.id)) { feed in
                         NavigationLink(value: SidebarItem.feed(feed.id)) {
                             FeedRow(feed: feed)
                         }
                         .contextMenu { feedContextMenu(feed: feed) }
+                        .draggable(feed.id.uuidString)
                     }
                 }
             } header: {
@@ -220,6 +228,7 @@ struct SidebarView: View {
                             FeedRow(feed: feed)
                         }
                         .contextMenu { feedContextMenu(feed: feed) }
+                        .draggable(feed.id.uuidString)
                     }
                 }
             } header: {
@@ -255,6 +264,13 @@ struct SidebarView: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.vertical, 3)
+                .dropDestination(for: String.self) { items, _ in
+                    guard let idStr = items.first, let feedId = UUID(uuidString: idStr) else { return false }
+                    withAnimation(.easeInOut(duration: 0.18)) {
+                        store.moveFeed(feedId, toFolder: nil)
+                    }
+                    return true
+                }
             }
         }
     }
@@ -358,6 +374,13 @@ struct SidebarView: View {
         }
         .buttonStyle(.plain)
         .padding(.vertical, 3)
+        .dropDestination(for: String.self) { items, _ in
+            guard let idStr = items.first, let feedId = UUID(uuidString: idStr) else { return false }
+            withAnimation(.easeInOut(duration: 0.18)) {
+                store.moveFeed(feedId, toFolder: folder.id)
+            }
+            return true
+        }
         .contextMenu {
             Button {
                 managingFolderId = folder.id

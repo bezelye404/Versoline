@@ -61,6 +61,9 @@ struct ArticleDetailView: View {
                     Divider()
                     articleContent(item: item)
                 }
+                .id(item.id)
+                .transition(.opacity)
+                .animation(.easeInOut(duration: 0.15), value: item.id)
                 .onChange(of: item.id) { _, _ in
                     resetStateForNewArticle(item: item)
                 }

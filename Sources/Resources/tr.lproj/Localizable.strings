@@ -247,7 +247,22 @@
 "Deselect All" = "Tümünü Kaldır";
 "Search feeds by name or URL..." = "Akışları isim veya URL ile ara...";
 "No feeds subscribed yet." = "Henüz abone olunan akış yok.";
-"No matching feeds found." = "Eşleşen akış bulunamadı.";
-"Select a folder from the list to manage its feeds." = "Akışlarını yönetmek için listeden bir klasör seçin.";
 "In \"%@\"" = "\"%@\" içinde";
+
+/* UX Improvements */
+"All Caught Up!" = "Hepsi Okundu!";
+"You have no unread articles. Enjoy your day!" = "Okunmamış makaleniz kalmadı. Günün tadını çıkarın!";
+"Keyboard Shortcuts" = "Klavye Kısayolları";
+"Navigation" = "Gezinme";
+"Article Actions" = "Makale Eylemleri";
+"Next Article" = "Sonraki Makale";
+"Previous Article" = "Önceki Makale";
+"Page Down / Next Article" = "Sayfa Kaydır / Sonraki Makale";
+"Page Up" = "Sayfa Yukarı";
+"Toggle Read Status" = "Okundu Durumunu Değiştir";
+"Toggle Bookmark" = "Yıldızla / Kaldır";
+"Press ? anytime to toggle this helper." = "Bu rehberi açıp kapatmak için istediğiniz zaman ? tuşuna basın.";
+"Close" = "Kapat";
+"Done" = "Bitti";
+
 

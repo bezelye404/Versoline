@@ -145,6 +145,28 @@ struct FeedListView: View {
                                 .contextMenu {
                                     itemContextMenu(item: item)
                                 }
+                                .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                    Button {
+                                        store.toggleReadStatus(item)
+                                    } label: {
+                                        Label(
+                                            item.isRead ? String(localized: "Mark as Unread") : String(localized: "Mark as Read"),
+                                            systemImage: item.isRead ? "circle" : "checkmark.circle"
+                                        )
+                                    }
+                                    .tint(.blue)
+                                }
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button {
+                                        store.toggleBookmark(item)
+                                    } label: {
+                                        Label(
+                                            item.isBookmarked ? String(localized: "Remove Bookmark") : String(localized: "Bookmark"),
+                                            systemImage: item.isBookmarked ? "star.slash" : "star.fill"
+                                        )
+                                    }
+                                    .tint(.orange)
+                                }
                             }
 
                             if searchText.isEmpty && displayLimit < items.count {
@@ -230,6 +252,16 @@ struct FeedListView: View {
                                     }
                                 }
                                 .keyboardShortcut("o", modifiers: [])
+
+                                Button("Space Paged Reading") {
+                                    handleSpacebarNavigation(in: items)
+                                }
+                                .keyboardShortcut(.space, modifiers: [])
+
+                                Button("Space Paged Reading Up") {
+                                    handleShiftSpacebarNavigation(in: items)
+                                }
+                                .keyboardShortcut(.space, modifiers: [.shift])
                             }
                         }
                         .frame(width: 0, height: 0)
@@ -279,6 +311,32 @@ struct FeedListView: View {
         }
         let prevIndex = max(index - 1, 0)
         selectedArticle = items[prevIndex]
+    }
+
+    private func handleSpacebarNavigation(in items: [FeedItem]) {
+        guard !items.isEmpty else { return }
+        guard let current = selectedArticle else {
+            selectedArticle = items.first
+            return
+        }
+        // Advance to next unread article if any, otherwise next article in list
+        let subsequent = items.drop(while: { $0.id != current.id }).dropFirst()
+        if let nextUnread = subsequent.first(where: { !$0.isRead }) {
+            selectArticleWithExpansion(nextUnread, in: items)
+        } else {
+            selectNextArticle(in: items)
+        }
+    }
+
+    private func handleShiftSpacebarNavigation(in items: [FeedItem]) {
+        selectPreviousArticle(in: items)
+    }
+
+    private func selectArticleWithExpansion(_ article: FeedItem, in items: [FeedItem]) {
+        if let idx = items.firstIndex(where: { $0.id == article.id }), idx >= displayLimit {
+            displayLimit = min(idx + 20, items.count)
+        }
+        selectedArticle = article
     }
 
     // MARK: - Context Menu
@@ -335,14 +393,30 @@ struct FeedListView: View {
 
     @ViewBuilder
     private func emptyState(for item: SidebarItem) -> some View {
-        VStack(spacing: 16) {
-            Image(systemName: emptyStateIcon(for: item))
-                .font(.system(size: 48, weight: .ultraLight))
-                .foregroundStyle(.quaternary)
+        VStack(spacing: 14) {
+            if item == .unread {
+                Image(systemName: "checkmark.seal.fill")
+                    .font(.system(size: 52, weight: .light))
+                    .foregroundStyle(Color.accentColor.gradient)
+                    .padding(.bottom, 2)
 
-            Text(emptyStateText(for: item))
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                Text(String(localized: "All Caught Up!"))
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(.primary)
+
+                Text(String(localized: "You have no unread articles. Enjoy your day!"))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            } else {
+                Image(systemName: emptyStateIcon(for: item))
+                    .font(.system(size: 48, weight: .ultraLight))
+                    .foregroundStyle(.quaternary)
+
+                Text(emptyStateText(for: item))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
 
             if item == .podcasts {
                 Button {
