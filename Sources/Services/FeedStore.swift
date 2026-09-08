@@ -764,6 +764,13 @@ final class FeedStore {
                         if cleaned.snippet.isEmpty {
                             cleaned.snippet = cleaned.itemDescription.strippingHTML()
                         }
+                        // Clean up any legacy items where an image enclosure was saved as audioURL
+                        if !cleaned.isPodcast && cleaned.audioURL != nil {
+                            cleaned.audioURL = nil
+                            cleaned.audioType = nil
+                            cleaned.audioLength = nil
+                            cleaned.audioDuration = nil
+                        }
                         // Offload heavy HTML content to disk reader cache so RAM is never bloated
                         if let rawContent = cleaned.content, !rawContent.isEmpty {
                             let formatted = ReaderModeExtractor.shared.formatFeedContentAsReaderHTML(

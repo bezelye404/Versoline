@@ -114,11 +114,7 @@ struct AddFeedSheet: View {
                 PodcastSearchView(selectedFolderId: selectedFolderId)
             }
         }
-        .frame(
-            width: selectedTab == .customURL ? 460 : (selectedTab == .socialFeeds ? 560 : 640),
-            height: selectedTab == .customURL ? 510 : (selectedTab == .socialFeeds ? 540 : 560)
-        )
-        .animation(.easeInOut(duration: 0.2), value: selectedTab)
+        .frame(width: 640, height: 560)
     }
 
     // MARK: - Custom URL View

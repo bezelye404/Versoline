@@ -143,20 +143,8 @@
 "Filters" = "Filters";
 "Storage" = "Storage";
 
-/* Flexible Reading Modes & Discover */
+/* Flexible Reading Modes */
 "Web" = "Web";
-"Discover Feeds" = "Discover Feeds";
-"Discover Curated Feeds" = "Discover Curated Feeds";
-"Search feeds, topics, or domains..." = "Search feeds, topics, or domains...";
-"All Sources" = "All Sources";
-"Turkish" = "Turkish";
-"English" = "English";
-"%d feeds available" = "%d feeds available";
-"All Topics" = "All Topics";
-"Subscribed" = "Subscribed";
-"Subscribe" = "Subscribe";
-"Clear Filters" = "Clear Filters";
-"No feeds match your search." = "No feeds match your search.";
 "Offline" = "Offline";
 "Offline Mode - Showing cached articles" = "Offline Mode - Showing cached articles";
 "Offline Mode - Cached content only" = "Offline Mode - Cached content only";

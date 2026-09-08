@@ -22,7 +22,22 @@ struct FeedItem: Codable, Identifiable, Hashable {
     var isFinished: Bool
 
     var isPodcast: Bool {
-        audioURL != nil
+        guard let url = audioURL?.trimmingCharacters(in: .whitespacesAndNewlines), !url.isEmpty else {
+            return false
+        }
+        let lowerType = audioType?.lowercased() ?? ""
+        if lowerType.contains("image") || lowerType.contains("video") || lowerType.contains("text") || lowerType.contains("html") {
+            return false
+        }
+        let cleanURL = url.components(separatedBy: "?").first?.lowercased() ?? url.lowercased()
+        if cleanURL.hasSuffix(".jpg") || cleanURL.hasSuffix(".jpeg") || cleanURL.hasSuffix(".png") || cleanURL.hasSuffix(".webp") || cleanURL.hasSuffix(".gif") {
+            return false
+        }
+        if lowerType.contains("audio") {
+            return true
+        }
+        let audioExtensions = [".mp3", ".m4a", ".aac", ".wav", ".ogg", ".oga", ".flac", ".opus", ".m4b"]
+        return audioExtensions.contains(where: { cleanURL.hasSuffix($0) })
     }
 
     var formattedDuration: String? {

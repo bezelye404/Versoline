@@ -143,20 +143,8 @@
 "Filters" = "Filtreler";
 "Storage" = "Depolama";
 
-/* Flexible Reading Modes & Discover */
+/* Flexible Reading Modes */
 "Web" = "Web";
-"Discover Feeds" = "Akışları Keşfet";
-"Discover Curated Feeds" = "Önerilen Akışları Keşfet";
-"Search feeds, topics, or domains..." = "Akış, konu veya alan adı ara...";
-"All Sources" = "Tüm Kaynaklar";
-"Turkish" = "Türkçe";
-"English" = "İngilizce";
-"%d feeds available" = "%d akış mevcut";
-"All Topics" = "Tüm Konular";
-"Subscribed" = "Abone Olundu";
-"Subscribe" = "Abone Ol";
-"Clear Filters" = "Filtreleri Temizle";
-"No feeds match your search." = "Aramanızla eşleşen akış bulunamadı.";
 "Offline" = "Çevrimdışı";
 "Offline Mode - Showing cached articles" = "Çevrimdışı Mod - Kaydedilen makaleler gösteriliyor";
 "Offline Mode - Cached content only" = "Çevrimdışı Mod - Yalnızca önbellekteki içerik";

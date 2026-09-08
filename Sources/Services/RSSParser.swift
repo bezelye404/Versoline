@@ -187,8 +187,19 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
             if isInsideItem {
                 if let url = attributeDict["url"] {
                     let type = attributeDict["type"]?.lowercased() ?? ""
-                    let isAudio = type.contains("audio") || url.hasSuffix(".mp3") || url.hasSuffix(".m4a") || url.hasSuffix(".aac") || url.hasSuffix(".wav") || url.hasSuffix(".ogg")
-                    if isAudio || currentAudioURL == nil {
+                    let cleanURL = url.components(separatedBy: "?").first?.lowercased() ?? url.lowercased()
+                    let isAudioType = type.contains("audio")
+                    let isAudioExtension = cleanURL.hasSuffix(".mp3") || cleanURL.hasSuffix(".m4a") ||
+                                           cleanURL.hasSuffix(".aac") || cleanURL.hasSuffix(".wav") ||
+                                           cleanURL.hasSuffix(".ogg") || cleanURL.hasSuffix(".oga") ||
+                                           cleanURL.hasSuffix(".flac") || cleanURL.hasSuffix(".opus") ||
+                                           cleanURL.hasSuffix(".m4b")
+                    let isImageOrDoc = type.contains("image") || type.contains("video") || type.contains("text") ||
+                                       cleanURL.hasSuffix(".jpg") || cleanURL.hasSuffix(".jpeg") ||
+                                       cleanURL.hasSuffix(".png") || cleanURL.hasSuffix(".webp") ||
+                                       cleanURL.hasSuffix(".gif")
+
+                    if (isAudioType || isAudioExtension) && !isImageOrDoc {
                         currentAudioURL = url
                         currentAudioType = attributeDict["type"]
                         if let lengthStr = attributeDict["length"], let length = Int64(lengthStr) {
@@ -203,8 +214,19 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
                 if let href = attributeDict["href"] {
                     let rel = (attributeDict["rel"] ?? "alternate").lowercased()
                     let type = attributeDict["type"]?.lowercased() ?? ""
+                    let cleanHref = href.components(separatedBy: "?").first?.lowercased() ?? href.lowercased()
+                    let isAudioExtension = cleanHref.hasSuffix(".mp3") || cleanHref.hasSuffix(".m4a") ||
+                                           cleanHref.hasSuffix(".aac") || cleanHref.hasSuffix(".wav") ||
+                                           cleanHref.hasSuffix(".ogg") || cleanHref.hasSuffix(".oga") ||
+                                           cleanHref.hasSuffix(".flac") || cleanHref.hasSuffix(".opus") ||
+                                           cleanHref.hasSuffix(".m4b")
+                    let isImageOrDoc = type.contains("image") || type.contains("video") || type.contains("text") ||
+                                       cleanHref.hasSuffix(".jpg") || cleanHref.hasSuffix(".jpeg") ||
+                                       cleanHref.hasSuffix(".png") || cleanHref.hasSuffix(".webp") ||
+                                       cleanHref.hasSuffix(".gif")
+
                     if rel == "enclosure" || type.contains("audio") {
-                        if isInsideItem {
+                        if isInsideItem && (type.contains("audio") || isAudioExtension) && !isImageOrDoc {
                             currentAudioURL = href
                             currentAudioType = attributeDict["type"]
                             if let lengthStr = attributeDict["length"], let length = Int64(lengthStr) {
