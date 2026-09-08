@@ -95,7 +95,8 @@ struct FeedItem: Codable, Identifiable, Hashable {
         self.isRead = isRead
         self.content = content
         self.isBookmarked = isBookmarked
-        self.snippet = snippet.isEmpty ? itemDescription.strippingHTML() : snippet
+        let cleanSnippet = snippet.isEmpty ? itemDescription.strippingHTML() : snippet
+        self.snippet = cleanSnippet.count > 250 ? String(cleanSnippet.prefix(250)) : cleanSnippet
         self.audioURL = audioURL
         self.audioDuration = audioDuration
         self.audioType = audioType
@@ -123,9 +124,10 @@ struct FeedItem: Codable, Identifiable, Hashable {
         content = try container.decodeIfPresent(String.self, forKey: .content)
         isBookmarked = try container.decodeIfPresent(Bool.self, forKey: .isBookmarked) ?? false
         if let decodedSnippet = try container.decodeIfPresent(String.self, forKey: .snippet), !decodedSnippet.isEmpty {
-            self.snippet = decodedSnippet
+            self.snippet = decodedSnippet.count > 250 ? String(decodedSnippet.prefix(250)) : decodedSnippet
         } else {
-            self.snippet = itemDescription.strippingHTML()
+            let clean = itemDescription.strippingHTML()
+            self.snippet = clean.count > 250 ? String(clean.prefix(250)) : clean
         }
         audioURL = try container.decodeIfPresent(String.self, forKey: .audioURL)
         audioDuration = try container.decodeIfPresent(String.self, forKey: .audioDuration)

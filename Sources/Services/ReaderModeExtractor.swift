@@ -15,6 +15,7 @@ final class ReaderModeExtractor {
         try? FileManager.default.createDirectory(at: cacheDir, withIntermediateDirectories: true)
         self.cacheDirectory = cacheDir
         memoryCache.countLimit = 15
+        memoryCache.totalCostLimit = 2 * 1024 * 1024 // 2MB RAM limit
     }
 
     func clearMemoryCache() {

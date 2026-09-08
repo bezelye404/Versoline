@@ -7,7 +7,17 @@ final class CuratedFeedManager {
 
     static let shared = CuratedFeedManager()
 
-    private(set) var categories: [CuratedFeedCategory] = []
+    var categories: [CuratedFeedCategory] {
+        get {
+            loadIfNeeded()
+            return internalCategories
+        }
+        set {
+            internalCategories = newValue
+        }
+    }
+    private var internalCategories: [CuratedFeedCategory] = []
+    private var hasLoaded = false
     private(set) var isUpdatingFromRemote = false
 
     private static let remoteManifestURL = URL(string: "https://raw.githubusercontent.com/bezelye404/easyRSS/main/Sources/Resources/curated_feeds.json")!
@@ -20,6 +30,12 @@ final class CuratedFeedManager {
     }
 
     private init() {
+        // Tembel yükleme: AddFeedSheet açılmadan katalog belleğe yüklenmez
+    }
+
+    func loadIfNeeded() {
+        guard !hasLoaded else { return }
+        hasLoaded = true
         loadLocal()
         checkForRemoteUpdates()
     }

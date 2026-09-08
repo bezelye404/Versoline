@@ -5,6 +5,8 @@ import SwiftUI
 @Observable
 final class FeedStore {
 
+    static let maxItemsPerFeed = 100
+
     var feeds: [Feed] = []
     var items: [UUID: [FeedItem]] = [:]
     var folders: [Folder] = []
@@ -112,10 +114,20 @@ final class FeedStore {
             )
 
             feeds.append(feed)
-            items[newFeedId] = result.items
+            let parsedItems = result.items.map { item -> FeedItem in
+                var m = item
+                if m.itemDescription.count > 300 || m.itemDescription.contains("<") {
+                    ReaderModeExtractor.shared.saveToCache(urlString: m.link, content: m.itemDescription, storeInMemory: false)
+                    m.itemDescription = m.snippet
+                }
+                m.content = nil
+                return m
+            }
+            let cappedItems = parsedItems.count > Self.maxItemsPerFeed ? Array(parsedItems.prefix(Self.maxItemsPerFeed)) : parsedItems
+            items[newFeedId] = cappedItems
             isLoading = false
             save()
-            AppLogger.shared.log("Successfully added feed \"\(feed.title)\" with \(result.items.count) items", level: .info, category: .storage)
+            AppLogger.shared.log("Successfully added feed \"\(feed.title)\" with \(cappedItems.count) items", level: .info, category: .storage)
         } catch {
             let errorMsg = String(format: String(localized: "Failed to load feed: %@"), error.localizedDescription)
             errorMessage = errorMsg
@@ -223,10 +235,14 @@ final class FeedStore {
                 mutableItem.isBookmarked = true
             }
 
-            // Save raw content to disk reader cache so RAM remains completely lean without heavy template formatting
+            // Save raw content and large descriptions to disk reader cache so RAM remains completely lean
             if let rawContent = mutableItem.content, !rawContent.isEmpty {
                 ReaderModeExtractor.shared.saveToCache(urlString: mutableItem.link, content: rawContent, storeInMemory: false)
                 mutableItem.content = nil
+            }
+            if mutableItem.itemDescription.count > 300 || mutableItem.itemDescription.contains("<") {
+                ReaderModeExtractor.shared.saveToCache(urlString: mutableItem.link, content: mutableItem.itemDescription, storeInMemory: false)
+                mutableItem.itemDescription = mutableItem.snippet
             }
 
             return mutableItem
@@ -239,13 +255,13 @@ final class FeedStore {
             updatedItems.append(contentsOf: preservedBookmarks)
         }
 
-        // Memory safety: Enforce 150 most recent items cap for non-bookmarked items
-        if updatedItems.count > 150 {
+        // Memory safety: Enforce maxItemsPerFeed cap for non-bookmarked items
+        if updatedItems.count > Self.maxItemsPerFeed {
             let bookmarks = updatedItems.filter { $0.isBookmarked }
             let nonBookmarks = updatedItems
                 .filter { !$0.isBookmarked }
                 .sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
-                .prefix(150)
+                .prefix(Self.maxItemsPerFeed)
             updatedItems = (Array(nonBookmarks) + bookmarks).sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
         }
 
@@ -298,18 +314,6 @@ final class FeedStore {
         }
     }
 
-    func moveFeeds(_ feedIds: Set<UUID>, toFolder folderId: UUID?) {
-        var changed = false
-        for i in feeds.indices {
-            if feedIds.contains(feeds[i].id) && feeds[i].folderId != folderId {
-                feeds[i].folderId = folderId
-                changed = true
-            }
-        }
-        if changed {
-            save()
-        }
-    }
 
     func setFeedsInFolder(_ folderId: UUID, feedIds: Set<UUID>) {
         var changed = false
@@ -418,21 +422,6 @@ final class FeedStore {
         AppLogger.shared.log("Offline reader cache cleared", level: .info, category: .storage)
     }
 
-    func precacheArticles(limit: Int = 30) async {
-        guard NetworkMonitor.shared.isConnected else { return }
-        let unreadArticles = unreadItems().prefix(limit)
-        AppLogger.shared.log("Pre-caching \(unreadArticles.count) unread articles for offline reading...", level: .info, category: .network)
-        for item in unreadArticles {
-            _ = await ReaderModeExtractor.shared.extract(
-                from: item.link,
-                fallbackContent: item.content ?? item.itemDescription,
-                title: item.title,
-                author: item.author,
-                pubDate: item.pubDate
-            )
-        }
-        AppLogger.shared.log("Offline pre-caching complete", level: .info, category: .storage)
-    }
 
     // MARK: - Bookmarks
 
@@ -658,8 +647,18 @@ final class FeedStore {
                         lastUpdated: Date(),
                         folderId: folderId
                     )
+                    let parsed = result.items.map { item -> FeedItem in
+                        var m = item
+                        if m.itemDescription.count > 300 || m.itemDescription.contains("<") {
+                            ReaderModeExtractor.shared.saveToCache(urlString: m.link, content: m.itemDescription, storeInMemory: false)
+                            m.itemDescription = m.snippet
+                        }
+                        m.content = nil
+                        return m
+                    }
+                    let capped = parsed.count > Self.maxItemsPerFeed ? Array(parsed.prefix(Self.maxItemsPerFeed)) : parsed
                     feeds.append(feed)
-                    items[feedId] = result.items
+                    items[feedId] = capped
                 }
             } catch {
                 let feed = Feed(
@@ -818,16 +817,21 @@ final class FeedStore {
 
                 var sanitizedItems: [UUID: [FeedItem]] = [:]
                 for (feedId, feedItems) in storage.items {
-                    sanitizedItems[feedId] = feedItems.map { item in
+                    let processed = feedItems.map { item -> FeedItem in
                         var cleaned = item
                         if cleaned.title.contains("&") || cleaned.title.contains("<") {
                             cleaned.title = cleaned.title.strippingHTML()
                         }
-                        if cleaned.itemDescription.contains("&") {
-                            cleaned.itemDescription = cleaned.itemDescription.decodingHTMLEntities()
-                        }
                         if cleaned.snippet.isEmpty {
                             cleaned.snippet = cleaned.itemDescription.strippingHTML()
+                        }
+                        if cleaned.snippet.count > 250 {
+                            cleaned.snippet = String(cleaned.snippet.prefix(250))
+                        }
+                        // Offload heavy HTML or large descriptions to reader disk cache
+                        if cleaned.itemDescription.count > 300 || cleaned.itemDescription.contains("<") {
+                            ReaderModeExtractor.shared.saveToCache(urlString: cleaned.link, content: cleaned.itemDescription, storeInMemory: false)
+                            cleaned.itemDescription = cleaned.snippet
                         }
                         // Clean up any legacy items where an image enclosure was saved as audioURL
                         if !cleaned.isPodcast && cleaned.audioURL != nil {
@@ -836,9 +840,20 @@ final class FeedStore {
                             cleaned.audioLength = nil
                             cleaned.audioDuration = nil
                         }
-                        // Keep RAM lean; ReaderMode extracts or reads on-demand when article is opened
                         cleaned.content = nil
                         return cleaned
+                    }
+
+                    // Enforce maxItemsPerFeed cap while preserving all bookmarked items
+                    if processed.count > Self.maxItemsPerFeed {
+                        let bookmarks = processed.filter { $0.isBookmarked }
+                        let nonBookmarks = processed
+                            .filter { !$0.isBookmarked }
+                            .sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
+                            .prefix(Self.maxItemsPerFeed)
+                        sanitizedItems[feedId] = (Array(nonBookmarks) + bookmarks).sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
+                    } else {
+                        sanitizedItems[feedId] = processed
                     }
                 }
                 self.items = sanitizedItems

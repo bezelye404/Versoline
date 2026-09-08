@@ -31,7 +31,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
 
     // URLSession with custom User-Agent, timeout, and zero URLCache overhead
     private static let session: URLSession = {
-        let config = URLSessionConfiguration.default
+        let config = URLSessionConfiguration.ephemeral
         config.timeoutIntervalForRequest = 15
         config.timeoutIntervalForResource = 30
         config.urlCache = nil
@@ -328,16 +328,25 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
             let cleanDesc = currentDescription.decodingHTMLEntities().trimmingCharacters(in: .whitespacesAndNewlines)
             let cleanContent = currentContent.decodingHTMLEntities().trimmingCharacters(in: .whitespacesAndNewlines)
             let precomputedSnippet = cleanDesc.strippingHTML()
+            let itemLink = currentLink.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            // Offload rich HTML to disk cache immediately for Reader Mode, keeping RAM completely lean
+            let richHTML = !cleanContent.isEmpty ? cleanContent : cleanDesc
+            if !richHTML.isEmpty && !itemLink.isEmpty {
+                Task { @MainActor in
+                    ReaderModeExtractor.shared.saveToCache(urlString: itemLink, content: richHTML, storeInMemory: false)
+                }
+            }
 
             let item = FeedItem(
                 feedId: feedId,
-                title: cleanTitle.isEmpty ? currentLink.trimmingCharacters(in: .whitespacesAndNewlines) : cleanTitle,
-                link: currentLink.trimmingCharacters(in: .whitespacesAndNewlines),
-                itemDescription: cleanDesc,
+                title: cleanTitle.isEmpty ? itemLink : cleanTitle,
+                link: itemLink,
+                itemDescription: precomputedSnippet,
                 pubDate: parseDate(currentPubDate.trimmingCharacters(in: .whitespacesAndNewlines)),
                 author: cleanAuthor.isEmpty ? nil : cleanAuthor,
                 isRead: false,
-                content: cleanContent.isEmpty ? nil : cleanContent,
+                content: nil,
                 snippet: precomputedSnippet,
                 audioURL: currentAudioURL,
                 audioDuration: currentAudioDuration.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : currentAudioDuration.trimmingCharacters(in: .whitespacesAndNewlines),
