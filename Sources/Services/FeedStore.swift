@@ -1,6 +1,13 @@
 import Foundation
 import SwiftUI
 
+struct FullscreenVideoContext: Identifiable, Equatable {
+    var id: String { videoID }
+    let videoID: String
+    let title: String
+    let link: String
+}
+
 @MainActor
 @Observable
 final class FeedStore {
@@ -12,6 +19,7 @@ final class FeedStore {
     var folders: [Folder] = []
     var isLoading: Bool = false
     var errorMessage: String?
+    var fullscreenVideo: FullscreenVideoContext?
 
     private let saveURL: URL
     private var pendingSaveTask: Task<Void, Never>?

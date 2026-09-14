@@ -99,8 +99,11 @@ enum HTMLCleaner {
     }
 
     private static let noisePatterns: [String] = [
+        #"(?i)[^\n<]{0,60}google['\u2019]?\s*(?:da|de)?\s*favori[^\n<]{0,100}"#,
         #"(?i)linke tıkla[^\n\.<]{0,120}"#,
-        #"(?i)google favorilerine ekle[^\n\.<]{0,120}"#,
+        #"(?i)tıkla ve [^\n\.<]{0,80}"#,
+        #"(?i)^\s*anasayfa[\s\S]{0,150}?(?:gündem|ekonomi|spor|dünya|yaşam|yerel gündem|teknoloji)[\s\S]{0,80}?\n"#,
+        #"(?i)\b\d{1,2}:\d{2},\s*\d{1,2}[\/\.]\d{1,2}[\/\.]\d{4}[^\n<]*"#,
         #"(?i)paylaş[\s\S]{0,40}(?:facebook|x|whatsapp|linkedin|nsosyal|bağlantıyı kopyala)[\s\S]{0,120}"#,
         #"(?i)(?:facebook|twitter|whatsapp|linkedin|telegram|reddit)\s+ile\s+paylaş[^\n<]{0,100}"#,
         #"(?i)bizi\s+(?:sosyal medyada|x'te|twitter'da|facebook'ta)\s+takip edin[^\n<]{0,100}"#,

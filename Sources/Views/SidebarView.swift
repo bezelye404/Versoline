@@ -28,8 +28,10 @@ struct SidebarView: View {
             emptyStateSection
         }
         .listStyle(.sidebar)
-        .safeAreaInset(edge: .top) {
-            Color.clear.frame(height: 6)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            Color.clear
+                .frame(height: 36)
+                .background(.bar)
         }
         .sheet(isPresented: $showAddFeed) {
             AddFeedSheet()

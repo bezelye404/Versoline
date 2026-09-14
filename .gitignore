@@ -179,3 +179,5 @@ __pycache__/
 venv/
 env/
 node_modules/
+animlist.md
+animguide.md

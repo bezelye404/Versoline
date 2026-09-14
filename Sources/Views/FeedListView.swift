@@ -100,23 +100,10 @@ struct FeedListView: View {
                 let items = allItems
                 if items.isEmpty && searchText.isEmpty {
                     emptyState(for: selection!)
-                } else if items.isEmpty && !searchText.isEmpty {
-                    VStack(spacing: 12) {
-                        Image(systemName: "magnifyingglass")
-                            .font(.system(size: 40, weight: .ultraLight))
-                            .foregroundStyle(.quaternary)
-                        Text("No results found")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        Text(String(format: String(localized: "No articles matching \"%@\"."), searchText))
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .searchable(text: $searchText, prompt: Text("Search Articles"))
-                    .navigationTitle(title)
                 } else {
                     VStack(spacing: 0) {
+                        inlineSearchBar
+
                         if !NetworkMonitor.shared.isConnected {
                             HStack(spacing: 6) {
                                 Image(systemName: "wifi.slash")
@@ -131,69 +118,84 @@ struct FeedListView: View {
                             .foregroundStyle(.secondary)
                         }
 
-                        let visibleItems: [FeedItem] = searchText.isEmpty ? Array(items.prefix(displayLimit)) : items
+                        if items.isEmpty && !searchText.isEmpty {
+                            VStack(spacing: 12) {
+                                Image(systemName: "magnifyingglass")
+                                    .font(.system(size: 40, weight: .ultraLight))
+                                    .foregroundStyle(.quaternary)
+                                Text("No results found")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                Text(String(format: String(localized: "No articles matching \"%@\"."), searchText))
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        } else {
+                            let visibleItems: [FeedItem] = searchText.isEmpty ? Array(items.prefix(displayLimit)) : items
 
-                        List(selection: Binding(
-                            get: { selectedArticle },
-                            set: { newSelection in
-                                withAnimation(AppAnimation.slidingPill) {
-                                    selectedArticle = newSelection
+                            List(selection: Binding(
+                                get: { selectedArticle },
+                                set: { newSelection in
+                                    withAnimation(AppAnimation.slidingPill) {
+                                        selectedArticle = newSelection
+                                    }
+                                }
+                            )) {
+                                ForEach(visibleItems) { item in
+                                    let feed = store.feed(for: item.feedId)
+                                    FeedItemRow(
+                                        item: item,
+                                        isSelected: selectedArticle?.id == item.id,
+                                        feedTitle: showFeedName ? feed?.title : nil,
+                                        feedURL: feed?.url ?? URL(string: item.link)?.host,
+                                        feedImageURL: feed?.imageURL
+                                    )
+                                    .tag(item)
+                                    .listRowBackground(EmptyView())
+                                    .listRowInsets(EdgeInsets(top: 2, leading: 6, bottom: 2, trailing: 6))
+                                    .listRowSeparator(.hidden)
+                                    .contextMenu {
+                                        itemContextMenu(item: item)
+                                    }
+                                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                        Button {
+                                            store.toggleReadStatus(item)
+                                        } label: {
+                                            Label(
+                                                item.isRead ? String(localized: "Mark as Unread") : String(localized: "Mark as Read"),
+                                                systemImage: item.isRead ? "circle" : "checkmark.circle"
+                                            )
+                                        }
+                                        .tint(.blue)
+                                    }
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                        Button {
+                                            store.toggleBookmark(item)
+                                        } label: {
+                                            Label(
+                                                item.isBookmarked ? String(localized: "Remove Bookmark") : String(localized: "Bookmark"),
+                                                systemImage: item.isBookmarked ? "star.slash" : "star.fill"
+                                            )
+                                        }
+                                        .tint(.orange)
+                                    }
+                                }
+
+                                if searchText.isEmpty && displayLimit < items.count {
+                                    Color.clear
+                                        .frame(height: 1)
+                                        .onAppear {
+                                            displayLimit = min(displayLimit + 40, items.count)
+                                        }
                                 }
                             }
-                        )) {
-                            ForEach(visibleItems) { item in
-                                let feed = store.feed(for: item.feedId)
-                                FeedItemRow(
-                                    item: item,
-                                    isSelected: selectedArticle?.id == item.id,
-                                    feedTitle: showFeedName ? feed?.title : nil,
-                                    feedURL: feed?.url ?? URL(string: item.link)?.host,
-                                    feedImageURL: feed?.imageURL
-                                )
-                                .tag(item)
-                                .listRowBackground(EmptyView())
-                                .listRowInsets(EdgeInsets(top: 2, leading: 6, bottom: 2, trailing: 6))
-                                .listRowSeparator(.hidden)
-                                .contextMenu {
-                                    itemContextMenu(item: item)
-                                }
-                                .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                                    Button {
-                                        store.toggleReadStatus(item)
-                                    } label: {
-                                        Label(
-                                            item.isRead ? String(localized: "Mark as Unread") : String(localized: "Mark as Read"),
-                                            systemImage: item.isRead ? "circle" : "checkmark.circle"
-                                        )
-                                    }
-                                    .tint(.blue)
-                                }
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button {
-                                        store.toggleBookmark(item)
-                                    } label: {
-                                        Label(
-                                            item.isBookmarked ? String(localized: "Remove Bookmark") : String(localized: "Bookmark"),
-                                            systemImage: item.isBookmarked ? "star.slash" : "star.fill"
-                                        )
-                                    }
-                                    .tint(.orange)
-                                }
-                            }
-
-                            if searchText.isEmpty && displayLimit < items.count {
-                                Color.clear
-                                    .frame(height: 1)
-                                    .onAppear {
-                                        displayLimit = min(displayLimit + 40, items.count)
-                                    }
+                            .listStyle(.plain)
+                            .safeAreaInset(edge: .top) {
+                                Color.clear.frame(height: 4)
                             }
                         }
-                        .listStyle(.plain)
-                        .safeAreaInset(edge: .top) {
-                            Color.clear.frame(height: 6)
-                        }
-                    .searchable(text: $searchText, prompt: Text("Search Articles"))
+                    }
                     .navigationTitle(title)
                     .toolbar {
                         ToolbarItem(placement: .automatic) {
@@ -281,7 +283,6 @@ struct FeedListView: View {
                         .frame(width: 0, height: 0)
                         .opacity(0)
                     }
-                    }
                 }
             } else {
                 VStack(spacing: 16) {
@@ -304,6 +305,41 @@ struct FeedListView: View {
             removal: .opacity
         ))
         .animation(.spring(response: 0.32, dampingFraction: 0.82), value: selection)
+    }
+
+    // MARK: - Inline Search Bar (Keeps middle column self-contained)
+
+    private var inlineSearchBar: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(.secondary)
+
+            TextField(String(localized: "Search Articles"), text: $searchText)
+                .textFieldStyle(.plain)
+                .font(.system(size: 12))
+
+            if !searchText.isEmpty {
+                Button {
+                    searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(Color(nsColor: .controlBackgroundColor).opacity(0.85), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(Color.primary.opacity(0.08), lineWidth: 0.5)
+        )
+        .padding(.horizontal, 10)
+        .padding(.top, 8)
+        .padding(.bottom, 4)
     }
 
     // MARK: - Article Navigation

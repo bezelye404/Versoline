@@ -11,7 +11,7 @@ final class ReaderModeExtractor {
 
     private init() {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let cacheDir = appSupport.appendingPathComponent("EasyRSS/ReaderCache_v2", isDirectory: true)
+        let cacheDir = appSupport.appendingPathComponent("EasyRSS/ReaderCache_v3", isDirectory: true)
         try? FileManager.default.createDirectory(at: cacheDir, withIntermediateDirectories: true)
         self.cacheDirectory = cacheDir
         memoryCache.countLimit = 15
