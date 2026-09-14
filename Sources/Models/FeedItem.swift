@@ -71,6 +71,40 @@ struct FeedItem: Codable, Identifiable, Hashable {
         return min(max(playbackPosition / totalSecs, 0.0), 1.0)
     }
 
+    // MARK: - YouTube Video Metadata (Computed / 0 Byte Overhead)
+
+    var youtubeVideoID: String? {
+        guard let url = URL(string: link), let host = url.host?.lowercased() else { return nil }
+        if host.contains("youtube.com") {
+            if let components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+                if let v = components.queryItems?.first(where: { $0.name == "v" })?.value, !v.isEmpty {
+                    return v
+                }
+                let pathComponents = url.pathComponents
+                if pathComponents.count >= 3 {
+                    if pathComponents[1] == "embed" || pathComponents[1] == "shorts" || pathComponents[1] == "v" {
+                        return pathComponents[2]
+                    }
+                }
+            }
+        } else if host.contains("youtu.be") {
+            let pathComponents = url.pathComponents
+            if pathComponents.count >= 2 && !pathComponents[1].isEmpty {
+                return pathComponents[1]
+            }
+        }
+        return nil
+    }
+
+    var isYouTube: Bool {
+        youtubeVideoID != nil
+    }
+
+    var youtubeThumbnailURL: URL? {
+        guard let id = youtubeVideoID else { return nil }
+        return URL(string: "https://img.youtube.com/vi/\(id)/hqdefault.jpg")
+    }
+
     init(
         id: UUID = UUID(),
         feedId: UUID,

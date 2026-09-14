@@ -62,8 +62,8 @@ struct ArticleDetailView: View {
                     articleContent(item: item)
                 }
                 .id(item.id)
-                .transition(.opacity)
-                .animation(.easeInOut(duration: 0.15), value: item.id)
+                .transition(.opacity.combined(with: .offset(y: 4)))
+                .animation(.spring(response: 0.28, dampingFraction: 0.85), value: item.id)
                 .onChange(of: item.id) { _, _ in
                     resetStateForNewArticle(item: item)
                 }
@@ -155,6 +155,13 @@ struct ArticleDetailView: View {
             // Podcast Episode Card
             if item.isPodcast {
                 podcastEpisodeCard(item: item)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+
+            // YouTube Built-in Video Player Card
+            if let videoID = item.youtubeVideoID {
+                YouTubePlayerView(videoID: videoID, title: item.title, link: item.link)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
         .padding(.horizontal, 20)
@@ -516,18 +523,24 @@ struct ArticleDetailView: View {
             // Island 2: Article Status Actions (Connected macOS ControlGroup)
             ControlGroup {
                 Button {
-                    store.toggleBookmark(item)
+                    withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
+                        store.toggleBookmark(item)
+                    }
                 } label: {
                     Image(systemName: item.isBookmarked ? "star.fill" : "star")
                         .foregroundStyle(item.isBookmarked ? .orange : .secondary)
+                        .contentTransition(.symbolEffect(.replace))
                 }
                 .help(item.isBookmarked ? String(localized: "Remove Bookmark") : String(localized: "Add Bookmark"))
 
                 Button {
-                    store.toggleReadStatus(item)
+                    withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
+                        store.toggleReadStatus(item)
+                    }
                 } label: {
                     Image(systemName: item.isRead ? "circle" : "checkmark.circle.fill")
                         .foregroundStyle(item.isRead ? .secondary : Color.accentColor)
+                        .contentTransition(.symbolEffect(.replace))
                 }
                 .help(item.isRead ? String(localized: "Mark as Unread") : String(localized: "Mark as Read"))
             }
@@ -543,6 +556,7 @@ struct ArticleDetailView: View {
                 } label: {
                     Image(systemName: isSpeaking ? "stop.fill" : "speaker.wave.2")
                         .foregroundStyle(isSpeaking ? Color.accentColor : Color.secondary)
+                        .contentTransition(.symbolEffect(.replace))
                 }
                 .buttonStyle(.borderless)
                 .help(isSpeaking ? String(localized: "Stop Reading") : String(localized: "Read Aloud"))

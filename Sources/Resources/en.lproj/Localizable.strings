@@ -281,5 +281,21 @@
 "Share..." = "Share...";
 "Copy Link" = "Copy Link";
 
+/* YouTube Built-In Player */
+"Close Player" = "Close Player";
+"Watch on YouTube" = "Watch on YouTube";
+"Stop video and free memory" = "Stop video and free memory";
+"Play" = "Play";
+"Pause" = "Pause";
+"Seek Backward 10s" = "Seek Backward 10s";
+"Seek Forward 10s" = "Seek Forward 10s";
+"Playback Speed" = "Playback Speed";
+"Mute" = "Mute";
+"Unmute" = "Unmute";
+"Volume" = "Volume";
+"Picture in Picture" = "Picture in Picture";
+"Fullscreen" = "Fullscreen";
+"Exit Fullscreen" = "Exit Fullscreen";
+
 
 

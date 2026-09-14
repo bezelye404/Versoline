@@ -492,6 +492,7 @@ struct FeedItemRow: View {
                     .fill(item.isRead ? Color.clear : Color.accentColor)
                     .frame(width: 7, height: 7)
                     .padding(.top, isCompactListMode ? 4 : 6)
+                    .animation(.spring(response: 0.25, dampingFraction: 0.7), value: item.isRead)
 
                 VStack(alignment: .leading, spacing: isCompactListMode ? 2 : 4) {
                     HStack(spacing: 6) {
@@ -504,6 +505,7 @@ struct FeedItemRow: View {
                             Image(systemName: "star.fill")
                                 .font(.caption2)
                                 .foregroundStyle(Color.accentColor)
+                                .transition(.scale.combined(with: .opacity))
                         }
                     }
 
@@ -561,6 +563,20 @@ struct FeedItemRow: View {
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(isPlayingThis ? Color.accentColor.opacity(0.12) : Color.secondary.opacity(0.08))
+                            .clipShape(Capsule())
+                        }
+
+                        if item.isYouTube {
+                            HStack(spacing: 3) {
+                                Image(systemName: "play.rectangle.fill")
+                                    .foregroundStyle(.red)
+                                Text("YouTube")
+                            }
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.secondary.opacity(0.08))
                             .clipShape(Capsule())
                         }
                     }
