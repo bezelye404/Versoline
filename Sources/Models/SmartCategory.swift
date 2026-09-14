@@ -101,6 +101,17 @@ enum SmartCategoryClassifier {
         return map
     }()
 
+    static func classify(feed: Feed) -> SmartCategory? {
+        // Tier 1: Check curated catalog
+        if let match = curatedCategoryMap[feed.url.lowercased()] {
+            return match
+        }
+
+        // Tier 2: Check feed URL and title metadata
+        let feedMeta = "\(feed.title) \(feed.url)".lowercased()
+        return matchFeedMetadata(feedMeta)
+    }
+
     static func classify(item: FeedItem, feed: Feed?) -> SmartCategory? {
         // Tier 1: Check feed URL against curated catalog lookup (Instant exact hit)
         if let feedURL = feed?.url.lowercased(), let match = curatedCategoryMap[feedURL] {
@@ -160,28 +171,36 @@ enum SmartCategoryClassifier {
 
     private static func matchFeedMetadata(_ meta: String) -> SmartCategory? {
         // Sports feed markers
-        if meta.contains("/spor") || meta.contains("sports") || meta.contains("fotomac") || meta.contains("fotospor") || meta.contains("basketdergisi") || meta.contains("aspor") {
+        if meta.contains("/spor") || meta.contains("sports") || meta.contains("fotomac") || meta.contains("fotospor") || meta.contains("fanatik") || meta.contains("basketdergisi") || meta.contains("aspor") || meta.contains("espn") || meta.contains("goal.com") || meta.contains("theathletic") || meta.contains("nba") {
             return .sports
         }
         // Tech feed markers
-        if meta.contains("/teknoloji") || meta.contains("technology") || meta.contains("technopat") || meta.contains("webtekno") || meta.contains("webrazzi") || meta.contains("shiftdelete") || meta.contains("donanimhaber") || meta.contains("techcrunch") || meta.contains("wired") || meta.contains("theverge") || meta.contains("arstechnica") {
+        if meta.contains("/teknoloji") || meta.contains("technology") || meta.contains("technopat") || meta.contains("webtekno") || meta.contains("webrazzi") || meta.contains("shiftdelete") || meta.contains("donanimhaber") || meta.contains("techcrunch") || meta.contains("wired") || meta.contains("theverge") || meta.contains("arstechnica") || meta.contains("github") || meta.contains("appleinsider") {
             return .technology
         }
         // Science feed markers
-        if meta.contains("/bilim") || meta.contains("science") || meta.contains("evrimagaci") || meta.contains("arkeofili") || meta.contains("gelecekbilimde") || meta.contains("sarkac") {
+        if meta.contains("/bilim") || meta.contains("science") || meta.contains("evrimagaci") || meta.contains("arkeofili") || meta.contains("gelecekbilimde") || meta.contains("sarkac") || meta.contains("nature.com") || meta.contains("scientificamerican") {
             return .science
         }
         // Finance feed markers
-        if meta.contains("/ekonomi") || meta.contains("finans") || meta.contains("bloomberg") || meta.contains("investing") || meta.contains("doviz") || meta.contains("foreks") || meta.contains("midas") || meta.contains("forbes") || meta.contains("economist") {
+        if meta.contains("/ekonomi") || meta.contains("finans") || meta.contains("bloomberg") || meta.contains("investing") || meta.contains("doviz") || meta.contains("foreks") || meta.contains("midas") || meta.contains("forbes") || meta.contains("economist") || meta.contains("marketwatch") || meta.contains("coindesk") {
             return .finance
         }
         // Culture feed markers
-        if meta.contains("kultur") || meta.contains("sanat") || meta.contains("kayiprihtim") || meta.contains("edebiyat") || meta.contains("bantmag") || meta.contains("argonotlar") {
+        if meta.contains("kultur") || meta.contains("sanat") || meta.contains("kayiprihtim") || meta.contains("edebiyat") || meta.contains("bantmag") || meta.contains("argonotlar") || meta.contains("book") || meta.contains("kitap") {
             return .culture
         }
         // Entertainment feed markers
         if meta.contains("/oyun") || meta.contains("gaming") || meta.contains("oyungezer") || meta.contains("merlininkazani") || meta.contains("ign") || meta.contains("gamespot") || meta.contains("kotaku") || meta.contains("beyazperde") {
             return .entertainment
+        }
+        // News feed markers
+        if meta.contains("/haber") || meta.contains("news") || meta.contains("gundem") || meta.contains("gazete") || meta.contains("bbc") || meta.contains("reuters") || meta.contains("sozcu") || meta.contains("cumhuriyet") || meta.contains("hurriyet") || meta.contains("t24") || meta.contains("bianet") || meta.contains("nytimes") || meta.contains("theguardian") || meta.contains("apnews") {
+            return .news
+        }
+        // Lifestyle feed markers
+        if meta.contains("/yasam") || meta.contains("life") || meta.contains("lifestyle") || meta.contains("saglik") || meta.contains("health") || meta.contains("gastronomi") || meta.contains("yemek") || meta.contains("travel") || meta.contains("gezi") || meta.contains("wellness") {
+            return .lifestyle
         }
         return nil
     }
