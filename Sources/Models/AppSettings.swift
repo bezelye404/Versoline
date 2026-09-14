@@ -330,6 +330,7 @@ struct AppSettingsKeys {
     static let isContentBlockerEnabled = "isContentBlockerEnabled"
     static let appColorPalette = "appColorPalette"
     static let isBionicReadingEnabled = "isBionicReadingEnabled"
+    static let showReadingTimeStreams = "showReadingTimeStreams"
 }
 
 

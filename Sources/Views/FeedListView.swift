@@ -24,6 +24,7 @@ struct FeedListView: View {
         case .downloaded: return String(localized: "Downloaded Episodes")
         case .quickReads: return String(localized: "Quick Reads")
         case .longReads: return String(localized: "Deep Reads")
+        case .smartCategory(let cat): return cat.displayName
         case .videos: return String(localized: "Videos")
         case .folder(let id): return store.folders.first(where: { $0.id == id })?.name ?? String(localized: "Folder")
         case .feed(let id): return store.feed(for: id)?.title ?? String(localized: "Feed")
@@ -33,7 +34,7 @@ struct FeedListView: View {
 
     private var showFeedName: Bool {
         switch selection {
-        case .all, .bookmarks, .unread, .today, .podcasts, .downloaded, .quickReads, .longReads, .videos, .folder: return true
+        case .all, .bookmarks, .unread, .today, .podcasts, .downloaded, .quickReads, .longReads, .smartCategory, .videos, .folder: return true
         default: return false
         }
     }
@@ -71,6 +72,8 @@ struct FeedListView: View {
             base = store.quickReadItems()
         case .longReads:
             base = store.longReadItems()
+        case .smartCategory(let cat):
+            base = store.smartCategoryItems(cat)
         case .videos:
             base = store.videoItems()
         case .folder(let id):
@@ -554,6 +557,7 @@ struct FeedListView: View {
         case .downloaded: return "arrow.down.circle"
         case .quickReads: return "bolt"
         case .longReads: return "book.closed"
+        case .smartCategory(let cat): return cat.systemImage
         case .videos: return "play.rectangle"
         case .folder: return "folder"
         case .feed: return "newspaper"
@@ -570,6 +574,7 @@ struct FeedListView: View {
         case .downloaded: return String(localized: "No Downloads")
         case .quickReads: return String(localized: "No Quick Reads")
         case .longReads: return String(localized: "No Deep Reads")
+        case .smartCategory(let cat): return cat.displayName
         case .videos: return String(localized: "No Videos")
         case .folder: return String(localized: "Folder is Empty")
         case .feed: return String(localized: "Feed is Empty")
@@ -586,6 +591,7 @@ struct FeedListView: View {
         case .downloaded: return String(localized: "Downloaded podcast episodes will appear here for offline playback.")
         case .quickReads: return String(localized: "Short articles (< 3 minutes) will appear here for quick reading.")
         case .longReads: return String(localized: "In-depth articles (7+ minutes) will appear here for deep reading.")
+        case .smartCategory: return String(localized: "Articles automatically classified in this category will appear here.")
         case .videos: return String(localized: "Articles containing YouTube videos will appear here.")
         case .folder: return String(localized: "Move feeds into this folder from the sidebar.")
         case .feed: return String(localized: "No articles found in this feed.")

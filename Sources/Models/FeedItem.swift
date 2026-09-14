@@ -11,6 +11,7 @@ struct FeedItem: Codable, Identifiable, Hashable {
     var isRead: Bool
     var content: String?
     var isBookmarked: Bool
+    var category: String?
 
     // Memory optimization: snippet routes directly to itemDescription to eliminate duplicate heap allocations
     var snippet: String {
@@ -137,6 +138,7 @@ struct FeedItem: Codable, Identifiable, Hashable {
         content: String? = nil,
         isBookmarked: Bool = false,
         snippet: String = "",
+        category: String? = nil,
         audioURL: String? = nil,
         audioDuration: String? = nil,
         audioType: String? = nil,
@@ -156,6 +158,7 @@ struct FeedItem: Codable, Identifiable, Hashable {
         self.isRead = isRead
         self.content = content
         self.isBookmarked = isBookmarked
+        self.category = category
         self.audioURL = audioURL
         self.audioDuration = audioDuration
         self.audioType = audioType
@@ -166,7 +169,7 @@ struct FeedItem: Codable, Identifiable, Hashable {
 
     // Backward-compatible decoding and optimized single-field encoding
     enum CodingKeys: String, CodingKey {
-        case id, feedId, title, link, itemDescription, pubDate, author, isRead, content, isBookmarked, snippet
+        case id, feedId, title, link, itemDescription, pubDate, author, isRead, content, isBookmarked, snippet, category
         case audioURL, audioDuration, audioType, audioLength, playbackPosition, isFinished
     }
 
@@ -188,6 +191,7 @@ struct FeedItem: Codable, Identifiable, Hashable {
         isRead = try container.decodeIfPresent(Bool.self, forKey: .isRead) ?? false
         content = try container.decodeIfPresent(String.self, forKey: .content)
         isBookmarked = try container.decodeIfPresent(Bool.self, forKey: .isBookmarked) ?? false
+        category = try container.decodeIfPresent(String.self, forKey: .category)
         audioURL = try container.decodeIfPresent(String.self, forKey: .audioURL)
         audioDuration = try container.decodeIfPresent(String.self, forKey: .audioDuration)
         audioType = try container.decodeIfPresent(String.self, forKey: .audioType)
@@ -208,6 +212,7 @@ struct FeedItem: Codable, Identifiable, Hashable {
         try container.encode(isRead, forKey: .isRead)
         try container.encodeIfPresent(content, forKey: .content)
         try container.encode(isBookmarked, forKey: .isBookmarked)
+        try container.encodeIfPresent(category, forKey: .category)
         // snippet is omitted from encoding: saves ~35% JSON disk space and avoids redundant heap strings
         try container.encodeIfPresent(audioURL, forKey: .audioURL)
         try container.encodeIfPresent(audioDuration, forKey: .audioDuration)

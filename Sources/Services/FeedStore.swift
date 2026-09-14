@@ -43,6 +43,9 @@ final class FeedStore {
     @ObservationIgnored private var cachedPodcastItems: [FeedItem]?
     @ObservationIgnored private var cachedFolderItems: [UUID: [FeedItem]] = [:]
     @ObservationIgnored private var cachedFeedItems: [UUID: [FeedItem]] = [:]
+    @ObservationIgnored private var cachedSmartCategoryItems: [SmartCategory: [FeedItem]] = [:]
+    @ObservationIgnored private var cachedSmartCategoryCounts: [SmartCategory: Int] = [:]
+    private(set) var activeSmartCategories: [SmartCategory] = []
     @ObservationIgnored private var lastRefreshDate: Date?
 
     private func invalidateItemCaches() {
@@ -53,12 +56,14 @@ final class FeedStore {
         cachedPodcastItems = nil
         cachedFolderItems.removeAll(keepingCapacity: true)
         cachedFeedItems.removeAll(keepingCapacity: true)
+        cachedSmartCategoryItems.removeAll(keepingCapacity: true)
     }
 
     func compactMemory() {
         invalidateItemCaches()
         cachedFolderItems.removeAll(keepingCapacity: false)
         cachedFeedItems.removeAll(keepingCapacity: false)
+        cachedSmartCategoryItems.removeAll(keepingCapacity: false)
         let preserved = Set(items.values.flatMap { $0 }.filter { $0.isBookmarked }.map { $0.link })
         ReaderModeExtractor.shared.enforceQuota(maxSizeBytes: 50 * 1024 * 1024, preservedLinks: preserved)
         ImageDownsampleCache.shared.clearMemory()
@@ -575,6 +580,26 @@ final class FeedStore {
         videoItems().count
     }
 
+    func smartCategoryItems(_ category: SmartCategory) -> [FeedItem] {
+        if let cached = cachedSmartCategoryItems[category] {
+            return cached
+        }
+        let feedMap = cachedFeedMap
+        let filtered = allItems().filter { item in
+            let feed = feedMap[item.feedId]
+            return SmartCategoryClassifier.classify(item: item, feed: feed) == category
+        }
+        cachedSmartCategoryItems[category] = filtered
+        return filtered
+    }
+
+    func smartCategoryCount(_ category: SmartCategory) -> Int {
+        if let count = cachedSmartCategoryCounts[category] {
+            return count
+        }
+        return smartCategoryItems(category).count
+    }
+
     // MARK: - Reading Statistics
 
     func totalReadCount() -> Int {
@@ -903,6 +928,36 @@ final class FeedStore {
         self.cachedFeedMap = map
         self.cachedFeedsInFolder = inFolder
         self.cachedUncategorizedFeeds = uncategorized
+
+        // Pre-classify items into Smart Categories (O(1) lookups during UI navigation)
+        var categoryMap: [SmartCategory: [FeedItem]] = [:]
+        for (feedId, list) in items {
+            let feed = map[feedId]
+            for item in list {
+                if let cat = SmartCategoryClassifier.classify(item: item, feed: feed) {
+                    categoryMap[cat, default: []].append(item)
+                }
+            }
+        }
+
+        // Sort items in each category with newest first
+        for (cat, catItems) in categoryMap {
+            categoryMap[cat] = catItems.sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
+        }
+
+        var categoryCounts: [SmartCategory: Int] = [:]
+        var activeCats: [SmartCategory] = []
+        for cat in SmartCategory.allCases {
+            let count = categoryMap[cat]?.count ?? 0
+            categoryCounts[cat] = count
+            if count > 0 {
+                activeCats.append(cat)
+            }
+        }
+
+        self.cachedSmartCategoryItems = categoryMap
+        self.cachedSmartCategoryCounts = categoryCounts
+        self.activeSmartCategories = activeCats
     }
 
     func flushPendingSave() {
