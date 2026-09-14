@@ -64,11 +64,10 @@ struct EasyRSSApp: App {
         PodcastSearchService.shared.clearCache()
         URLCache.shared.removeAllCachedResponses()
         URLSession.shared.flush(completionHandler: {})
-        WKWebsiteDataStore.default().removeData(
-            ofTypes: [WKWebsiteDataTypeMemoryCache],
-            modifiedSince: .distantPast,
-            completionHandler: {}
-        )
+        WebView.flushMemoryCache()
+        if !VideoPlayerService.shared.isPlaying && VideoPlayerService.shared.webView != nil {
+            VideoPlayerService.shared.close()
+        }
     }
 
     var body: some Scene {

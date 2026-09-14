@@ -70,6 +70,8 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
         }
 
         let configuration = WKWebViewConfiguration()
+        configuration.processPool = WebView.sharedProcessPool
+        configuration.websiteDataStore = WebView.sharedEphemeralDataStore
         configuration.mediaTypesRequiringUserActionForPlayback = []
         configuration.allowsAirPlayForMediaPlayback = true
         configuration.preferences.isElementFullscreenEnabled = true
@@ -194,10 +196,18 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
 
     func close() {
         pause()
-        executeJS("if (window.player && player.stopVideo) { player.stopVideo(); }")
-        webView?.removeFromSuperview()
-        webView?.load(URLRequest(url: URL(string: "about:blank")!))
+        executeJS("if (window.stopProgressTimer) stopProgressTimer(); if (window.player && player.stopVideo) { player.stopVideo(); }")
+        if let wv = webView {
+            wv.stopLoading()
+            wv.removeFromSuperview()
+            wv.navigationDelegate = nil
+            wv.uiDelegate = nil
+            wv.configuration.userContentController.removeScriptMessageHandler(forName: "customPlayerBridge")
+            wv.configuration.userContentController.removeAllScriptMessageHandlers()
+            wv.configuration.userContentController.removeAllUserScripts()
+        }
         webView = nil
+        currentAttachedContainer = nil
         isReady = false
         currentVideo = nil
         currentFeedTitle = nil
@@ -207,6 +217,9 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
         isPlaying = false
         isBuffering = false
         isFullscreen = false
+
+        // Purge hardware decode & WebKit buffers so GPU and WebContent processes release memory
+        WebView.flushMemoryCache()
     }
 
     // MARK: - Script Bridge Dispatch
@@ -308,6 +321,22 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
                 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
                 var player;
+                var progressTimer = null;
+
+                function startProgressTimer() {
+                    if (!progressTimer) {
+                        reportProgress();
+                        progressTimer = setInterval(reportProgress, 500);
+                    }
+                }
+
+                function stopProgressTimer() {
+                    if (progressTimer) {
+                        clearInterval(progressTimer);
+                        progressTimer = null;
+                    }
+                }
+
                 function onYouTubeIframeAPIReady() {
                     player = new YT.Player('player', {
                         width: '100%',
@@ -337,17 +366,24 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
                         event.target.playVideo();
                         var dur = player.getDuration() || 0;
                         sendBridgeMessage({ type: 'ready', duration: dur });
-                        setInterval(reportProgress, 250);
                     } catch (e) {}
                 }
 
                 function onPlayerStateChange(event) {
                     try {
                         var stateStr = 'unstarted';
-                        if (event.data == YT.PlayerState.PLAYING) stateStr = 'playing';
-                        else if (event.data == YT.PlayerState.PAUSED) stateStr = 'paused';
-                        else if (event.data == YT.PlayerState.BUFFERING) stateStr = 'buffering';
-                        else if (event.data == YT.PlayerState.ENDED) stateStr = 'ended';
+                        if (event.data == YT.PlayerState.PLAYING) {
+                            stateStr = 'playing';
+                            startProgressTimer();
+                        } else if (event.data == YT.PlayerState.PAUSED) {
+                            stateStr = 'paused';
+                            stopProgressTimer();
+                        } else if (event.data == YT.PlayerState.BUFFERING) {
+                            stateStr = 'buffering';
+                        } else if (event.data == YT.PlayerState.ENDED) {
+                            stateStr = 'ended';
+                            stopProgressTimer();
+                        }
                         sendBridgeMessage({ type: 'state', state: stateStr });
                     } catch (e) {}
                 }
