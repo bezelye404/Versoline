@@ -271,16 +271,29 @@ final class FeedStore {
         }
 
         let existingItems = items[feedId] ?? []
-        let readLinks = Set(existingItems.filter { $0.isRead }.map { $0.link })
-        let bookmarkedLinks = Set(existingItems.filter { $0.isBookmarked }.map { $0.link })
+        let existingByLink = Dictionary(existingItems.map { ($0.link, $0) }, uniquingKeysWith: { first, _ in first })
 
         var updatedItems = result.items.map { item in
             var mutableItem = item
-            if readLinks.contains(item.link) {
-                mutableItem.isRead = true
-            }
-            if bookmarkedLinks.contains(item.link) {
-                mutableItem.isBookmarked = true
+            if let existing = existingByLink[item.link] {
+                mutableItem = FeedItem(
+                    id: existing.id,
+                    feedId: item.feedId,
+                    title: item.title,
+                    link: item.link,
+                    itemDescription: item.itemDescription,
+                    pubDate: item.pubDate ?? existing.pubDate,
+                    author: item.author ?? existing.author,
+                    isRead: existing.isRead,
+                    content: item.content,
+                    isBookmarked: existing.isBookmarked,
+                    audioURL: item.audioURL ?? existing.audioURL,
+                    audioDuration: item.audioDuration ?? existing.audioDuration,
+                    audioType: item.audioType ?? existing.audioType,
+                    audioLength: item.audioLength ?? existing.audioLength,
+                    playbackPosition: existing.playbackPosition,
+                    isFinished: existing.isFinished
+                )
             }
 
             // Save raw content and large descriptions to disk reader cache so RAM remains completely lean

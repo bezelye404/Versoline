@@ -89,30 +89,61 @@ final class ReaderModeExtractor {
         pubDate: Date?,
         htmlContent: String,
         link: String,
-        includeHeader: Bool = false
+        feedTitle: String? = nil,
+        includeHeader: Bool = true
     ) -> String {
-        var headerHTML = ""
-        if includeHeader {
-            headerHTML = "<h1>\(title)</h1>"
-            var metaItems: [String] = []
-            if let author, !author.isEmpty {
-                metaItems.append(author)
-            }
-            if let pubDate {
-                let df = DateFormatter()
-                df.dateStyle = .medium
-                df.timeStyle = .short
-                metaItems.append(df.string(from: pubDate))
-            }
-            if !metaItems.isEmpty {
-                headerHTML += "<p style=\"opacity: 0.6; font-size: 0.9em; margin-bottom: 1.5em;\">\(metaItems.joined(separator: " • "))</p>"
-            }
-        }
+        // 1. Strip out advertisements, tracking banners, and repetitive noise
+        var cleaned = htmlContent
+            .strippingAdsAndBanners()
+            .cleaningRSSBoilerplate()
 
-        // Clean out any duplicate leading <h1> and boilerplate noise so native SwiftUI header is the single source of truth
-        var cleaned = htmlContent.cleaningRSSBoilerplate()
+        // 2. Clean out duplicate leading <h1> or <h2> matching the title
         if let firstH1Range = cleaned.range(of: #"^\s*<h1[^>]*>[\s\S]*?</h1>"#, options: [.regularExpression, .caseInsensitive]) {
             cleaned.removeSubrange(firstH1Range)
+        }
+
+        // 3. Clean out leading banner ads (e.g. standalone ad images before content)
+        cleaned = cleaned.replacingOccurrences(
+            of: #"^\s*(?:<(?:p|div)[^>]*>\s*)?<a[^>]*>(?:<img[^>]*banner[^>]*>|<img[^>]*reklam[^>]*>|<img[^>]*ad[^>]*>)</a>(?:\s*</(?:p|div)>)?"#,
+            with: "",
+            options: [.regularExpression, .caseInsensitive]
+        )
+
+        // 4. Build integrated editorial header that scrolls naturally with article
+        var headerHTML = ""
+        if includeHeader {
+            let plainWordCount = cleaned.strippingHTML().split(whereSeparator: { $0.isWhitespace }).count
+            let readingMinutes = max(1, Int(ceil(Double(plainWordCount) / 200.0)))
+            let readingTimeStr = String(format: String(localized: "%d min read"), readingMinutes)
+
+            var pillParts: [String] = []
+            if let pubDate {
+                let df = DateFormatter()
+                df.locale = Locale.autoupdatingCurrent
+                df.dateStyle = .medium
+                df.timeStyle = .none
+                pillParts.append(df.string(from: pubDate).uppercased())
+            }
+            pillParts.append(readingTimeStr.uppercased())
+            let pillText = pillParts.joined(separator: " · ")
+
+            headerHTML += "<header class=\"reader-header\" style=\"margin-bottom: 28px; padding-bottom: 18px; border-bottom: 1px solid rgba(128,128,128,0.18);\">"
+            if !pillText.isEmpty {
+                headerHTML += "<div style=\"font-size: 11px; font-weight: 600; letter-spacing: 0.8px; opacity: 0.6; margin-bottom: 10px;\">\(pillText)</div>"
+            }
+            headerHTML += "<h1 style=\"font-size: 1.7em; font-weight: 700; line-height: 1.25; margin: 0 0 12px 0;\">\(title)</h1>"
+
+            var bylineParts: [String] = []
+            if let feedTitle, !feedTitle.isEmpty {
+                bylineParts.append("<strong>\(feedTitle)</strong>")
+            }
+            if let author, !author.isEmpty {
+                bylineParts.append(author)
+            }
+            if !bylineParts.isEmpty {
+                headerHTML += "<div style=\"font-size: 13px; opacity: 0.72; font-weight: 400;\">\(bylineParts.joined(separator: " • "))</div>"
+            }
+            headerHTML += "</header>"
         }
 
         return headerHTML + "<div class=\"reader-body\">" + cleaned + "</div>"
@@ -142,7 +173,7 @@ final class ReaderModeExtractor {
                 pubDate: pubDate,
                 htmlContent: fallbackContent,
                 link: urlString,
-                includeHeader: false
+                includeHeader: true
             )
             saveToCache(urlString: urlString, content: formatted, storeInMemory: false)
             return formatted
@@ -150,7 +181,7 @@ final class ReaderModeExtractor {
 
         guard let url = URL(string: urlString) else {
             if let fallbackContent, !fallbackContent.isEmpty {
-                return formatFeedContentAsReaderHTML(title: title ?? "", author: author, pubDate: pubDate, htmlContent: fallbackContent, link: urlString, includeHeader: false)
+                return formatFeedContentAsReaderHTML(title: title ?? "", author: author, pubDate: pubDate, htmlContent: fallbackContent, link: urlString, includeHeader: true)
             }
             return nil
         }
@@ -173,7 +204,7 @@ final class ReaderModeExtractor {
                         pubDate: pubDate,
                         htmlContent: cleanedBody,
                         link: urlString,
-                        includeHeader: false
+                        includeHeader: true
                     )
                     saveToCache(urlString: urlString, content: fullFormatted, storeInMemory: false)
                     return fullFormatted
@@ -257,7 +288,9 @@ final class ReaderModeExtractor {
     }
 
     private func sanitize(_ content: String, baseURL: URL) -> String {
-        var cleaned = content.replacingOccurrences(of: #"style=["'][^"']*["']"#, with: "", options: .regularExpression)
+        var cleaned = content
+            .strippingAdsAndBanners()
+            .replacingOccurrences(of: #"style=["'][^"']*["']"#, with: "", options: .regularExpression)
         cleaned = cleaned.replacingOccurrences(of: #"class=["'][^"']*["']"#, with: "", options: .regularExpression)
         cleaned = cleaned.replacingOccurrences(of: #"onclick=["'][^"']*["']"#, with: "", options: .regularExpression)
 
