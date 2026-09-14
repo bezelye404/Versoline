@@ -9,6 +9,7 @@ struct SettingsView: View {
         case reader
         case shortcuts
         case filters
+        case sync
         case storage
         case health
     }
@@ -39,6 +40,12 @@ struct SettingsView: View {
                 }
                 .tag(SettingsTab.filters)
 
+            SyncSettingsTab()
+                .tabItem {
+                    Label("Sync", systemImage: "arrow.triangle.2.circlepath")
+                }
+                .tag(SettingsTab.sync)
+
             StorageSettingsTab()
                 .tabItem {
                     Label("Storage", systemImage: "internaldrive")
@@ -51,7 +58,7 @@ struct SettingsView: View {
                 }
                 .tag(SettingsTab.health)
         }
-        .frame(width: 560, height: 490)
+        .frame(width: 580, height: 510)
     }
 }
 
@@ -392,7 +399,100 @@ private struct FiltersSettingsTab: View {
     }
 }
 
-// MARK: - 5. Storage Tab
+// MARK: - 5. Sync Tab
+
+private struct SyncSettingsTab: View {
+
+    @State private var coordinator = SyncCoordinator.shared
+
+    var body: some View {
+        Form {
+            Section("iCloud Drive Synchronization") {
+                Toggle("Enable iCloud Drive Sync", isOn: Binding(
+                    get: { coordinator.isEnabled },
+                    set: { coordinator.setSyncEnabled($0) }
+                ))
+
+                Text("Keeps your feeds, folders, bookmarks, and read article states synced across all your Macs and future iOS/iPadOS devices via iCloud Drive.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                if coordinator.isEnabled {
+                    LabeledContent("Storage Location:", value: coordinator.syncDirectoryPath)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+            }
+
+            Section("High-Speed Local Network P2P") {
+                Toggle("Real-Time Wi-Fi & Bluetooth Mesh", isOn: Binding(
+                    get: { coordinator.isLocalP2PEnabled },
+                    set: { coordinator.setLocalP2PEnabled($0) }
+                ))
+                .disabled(!coordinator.isEnabled)
+
+                Text("Transfers read states and new feeds instantly (sub-100ms) between your nearby devices when connected to the same Wi-Fi network without waiting for cloud files.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                if coordinator.isLocalP2PEnabled && coordinator.isEnabled {
+                    HStack {
+                        Circle()
+                            .fill(coordinator.connectedPeerCount > 0 ? Color.green : Color.orange)
+                            .frame(width: 8, height: 8)
+                        Text(coordinator.connectedPeerCount > 0
+                             ? String(format: String(localized: "%d nearby device(s) connected"), coordinator.connectedPeerCount)
+                             : String(localized: "Searching for nearby devices on Wi-Fi...")
+                        )
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    }
+                }
+            }
+
+            Section("Sync Status & Actions") {
+                if let lastSync = coordinator.lastSyncDate {
+                    LabeledContent("Last Synchronized:", value: lastSync.formatted(date: .abbreviated, time: .standard))
+                } else {
+                    LabeledContent("Last Synchronized:", value: String(localized: "Not yet synced"))
+                }
+
+                if !coordinator.statusMessage.isEmpty {
+                    LabeledContent("Status:", value: coordinator.statusMessage)
+                }
+
+                HStack {
+                    Button {
+                        Task {
+                            await coordinator.performSync()
+                        }
+                    } label: {
+                        if coordinator.isSyncing {
+                            ProgressView()
+                                .controlSize(.small)
+                                .padding(.trailing, 4)
+                            Text("Syncing...")
+                        } else {
+                            Label("Sync Now", systemImage: "arrow.triangle.2.circlepath")
+                        }
+                    }
+                    .disabled(coordinator.isSyncing || !coordinator.isEnabled)
+
+                    Button("Open Sync Folder in Finder") {
+                        NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: coordinator.syncDirectoryPath)
+                    }
+                    .disabled(!coordinator.isEnabled)
+                }
+            }
+        }
+        .formStyle(.grouped)
+        .padding(10)
+    }
+}
+
+// MARK: - 6. Storage Tab
 
 private struct StorageSettingsTab: View {
 

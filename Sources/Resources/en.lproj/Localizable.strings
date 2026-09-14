@@ -323,6 +323,28 @@
 "Reset Everything" = "Reset Everything";
 "All data and settings have been reset." = "All data and settings have been reset.";
 
+/* Settings: Sync */
+"Sync" = "Sync";
+"iCloud Drive Synchronization" = "iCloud Drive Synchronization";
+"Enable iCloud Drive Sync" = "Enable iCloud Drive Sync";
+"Keeps your feeds, folders, bookmarks, and read article states synced across all your Macs and future iOS/iPadOS devices via iCloud Drive." = "Keeps your feeds, folders, bookmarks, and read article states synced across all your Macs and future iOS/iPadOS devices via iCloud Drive.";
+"Storage Location:" = "Storage Location:";
+"High-Speed Local Network P2P" = "High-Speed Local Network P2P";
+"Real-Time Wi-Fi & Bluetooth Mesh" = "Real-Time Wi-Fi & Bluetooth Mesh";
+"Transfers read states and new feeds instantly (sub-100ms) between your nearby devices when connected to the same Wi-Fi network without waiting for cloud files." = "Transfers read states and new feeds instantly (sub-100ms) between your nearby devices when connected to the same Wi-Fi network without waiting for cloud files.";
+"%d nearby device(s) connected" = "%d nearby device(s) connected";
+"Searching for nearby devices on Wi-Fi..." = "Searching for nearby devices on Wi-Fi...";
+"Sync Status & Actions" = "Sync Status & Actions";
+"Last Synchronized:" = "Last Synchronized:";
+"Not yet synced" = "Not yet synced";
+"Status:" = "Status:";
+"Syncing..." = "Syncing...";
+"Sync Now" = "Sync Now";
+"Open Sync Folder in Finder" = "Open Sync Folder in Finder";
+"Syncing with iCloud Drive..." = "Syncing with iCloud Drive...";
+"Up to date" = "Up to date";
+
+
 
 
 

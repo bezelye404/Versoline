@@ -323,6 +323,28 @@
 "Reset Everything" = "Her Şeyi Sıfırla";
 "All data and settings have been reset." = "Tüm veriler ve ayarlar sıfırlandı.";
 
+/* Settings: Sync */
+"Sync" = "Senkronizasyon";
+"iCloud Drive Synchronization" = "iCloud Drive Senkronizasyonu";
+"Enable iCloud Drive Sync" = "iCloud Drive Eşitlemesini Etkinleştir";
+"Keeps your feeds, folders, bookmarks, and read article states synced across all your Macs and future iOS/iPadOS devices via iCloud Drive." = "Feed'lerinizi, klasörlerinizi, favorilerinizi ve okundu durumlarınızı iCloud Drive üzerinden tüm Mac'leriniz ve gelecekteki iOS/iPadOS cihazlarınız arasında senkronize tutar.";
+"Storage Location:" = "Depolama Konumu:";
+"High-Speed Local Network P2P" = "Yüksek Hızlı Yerel Ağ P2P";
+"Real-Time Wi-Fi & Bluetooth Mesh" = "Gerçek Zamanlı Wi-Fi & Bluetooth Ağı";
+"Transfers read states and new feeds instantly (sub-100ms) between your nearby devices when connected to the same Wi-Fi network without waiting for cloud files." = "Aynı Wi-Fi ağına bağlıyken bulut dosyalarını beklemeden yakındaki cihazlarınız arasında okundu durumlarını ve yeni feed'leri anında (100ms altı) aktarır.";
+"%d nearby device(s) connected" = "%d yakındaki cihaz bağlı";
+"Searching for nearby devices on Wi-Fi..." = "Wi-Fi üzerindeki yakındaki cihazlar aranıyor...";
+"Sync Status & Actions" = "Senkronizasyon Durumu & Eylemler";
+"Last Synchronized:" = "Son Senkronizasyon:";
+"Not yet synced" = "Henüz senkronize edilmedi";
+"Status:" = "Durum:";
+"Syncing..." = "Eşitleniyor...";
+"Sync Now" = "Şimdi Eşitle";
+"Open Sync Folder in Finder" = "Eşitleme Klasörünü Finder'da Aç";
+"Syncing with iCloud Drive..." = "iCloud Drive ile eşitleniyor...";
+"Up to date" = "Güncel";
+
+
 
 
 

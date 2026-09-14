@@ -115,6 +115,8 @@ final class FeedStore {
                 self?.flushPendingSave()
             }
         }
+
+        SyncCoordinator.shared.configure(with: self)
     }
 
     // MARK: - Feed Management
@@ -174,6 +176,7 @@ final class FeedStore {
             items[newFeedId] = cappedItems
             isLoading = false
             save()
+            SyncCoordinator.shared.notifyFeedAddedOrUpdated(feed)
             AppLogger.shared.log("Successfully added feed \"\(feed.title)\" with \(cappedItems.count) items", level: .info, category: .storage)
         } catch {
             let errorMsg = String(format: String(localized: "Failed to load feed: %@"), error.localizedDescription)
@@ -188,6 +191,7 @@ final class FeedStore {
         feeds.removeAll { $0.id == feed.id }
         items.removeValue(forKey: feed.id)
         save()
+        SyncCoordinator.shared.notifyFeedDeleted(id: feed.id)
     }
 
     func refreshFeed(_ feed: Feed) async {
@@ -423,15 +427,19 @@ final class FeedStore {
         feedItems[index].isRead = true
         items[item.feedId] = feedItems
         save()
+        SyncCoordinator.shared.notifyReadArticles(links: [item.link])
     }
 
     func markAllAsRead(feedId: UUID) {
         guard var feedItems = items[feedId] else { return }
+        var links: [String] = []
         for i in feedItems.indices {
             feedItems[i].isRead = true
+            links.append(feedItems[i].link)
         }
         items[feedId] = feedItems
         save()
+        SyncCoordinator.shared.notifyReadArticles(links: links)
     }
 
     func markAllAsRead(items targetItems: [FeedItem]) {
@@ -440,14 +448,17 @@ final class FeedStore {
         for item in targetItems {
             feedGroups[item.feedId, default: []].insert(item.id)
         }
+        var links: [String] = []
         for (feedId, targetIds) in feedGroups {
             guard var feedItems = items[feedId] else { continue }
             for i in feedItems.indices where targetIds.contains(feedItems[i].id) {
                 feedItems[i].isRead = true
+                links.append(feedItems[i].link)
             }
             items[feedId] = feedItems
         }
         save()
+        SyncCoordinator.shared.notifyReadArticles(links: links)
     }
 
     func markAllAsUnread(feedId: UUID) {
@@ -566,8 +577,10 @@ final class FeedStore {
               let index = feedItems.firstIndex(where: { $0.id == item.id }) else { return }
 
         feedItems[index].isBookmarked.toggle()
+        let isNowBookmarked = feedItems[index].isBookmarked
         items[item.feedId] = feedItems
         save()
+        SyncCoordinator.shared.notifyBookmarkToggled(link: item.link, isBookmarked: isNowBookmarked)
     }
 
     func bookmarkedItems() -> [FeedItem] {
@@ -581,6 +594,98 @@ final class FeedStore {
 
     func bookmarkCount() -> Int {
         cachedBookmarkCount
+    }
+
+    // MARK: - Remote Synchronization Handlers
+
+    func applySyncUpdate(
+        feeds: [Feed],
+        folders: [Folder],
+        readHashes: Set<UInt64>,
+        bookmarkedLinks: Set<String>
+    ) {
+        self.feeds = feeds
+        self.folders = folders
+
+        for (feedId, feedItems) in self.items {
+            var updatedList = feedItems
+            var hasChanges = false
+            for i in updatedList.indices {
+                let hash = updatedList[i].link.syncHash64
+                if !updatedList[i].isRead && readHashes.contains(hash) {
+                    updatedList[i].isRead = true
+                    hasChanges = true
+                }
+                let shouldBookmark = bookmarkedLinks.contains(updatedList[i].link)
+                if updatedList[i].isBookmarked != shouldBookmark {
+                    updatedList[i].isBookmarked = shouldBookmark
+                    hasChanges = true
+                }
+            }
+            if hasChanges {
+                self.items[feedId] = updatedList
+            }
+        }
+
+        self.updateCachedCounts()
+        self.save()
+    }
+
+    func applyIncomingReadHashes(_ hashes: Set<UInt64>) {
+        var hasChanges = false
+        for (feedId, feedItems) in self.items {
+            var updatedList = feedItems
+            var listChanged = false
+            for i in updatedList.indices {
+                let hash = updatedList[i].link.syncHash64
+                if !updatedList[i].isRead && hashes.contains(hash) {
+                    updatedList[i].isRead = true
+                    listChanged = true
+                }
+            }
+            if listChanged {
+                self.items[feedId] = updatedList
+                hasChanges = true
+            }
+        }
+        if hasChanges {
+            self.updateCachedCounts()
+        }
+    }
+
+    func applyIncomingBookmark(link: String, isBookmarked: Bool) {
+        for (feedId, feedItems) in self.items {
+            if let idx = feedItems.firstIndex(where: { $0.link == link }) {
+                self.items[feedId]?[idx].isBookmarked = isBookmarked
+                self.updateCachedCounts()
+                return
+            }
+        }
+    }
+
+    func applyIncomingFeed(_ syncFeed: SyncFeed) {
+        if let idx = self.feeds.firstIndex(where: { $0.url.lowercased() == syncFeed.url.lowercased() }) {
+            self.feeds[idx].title = syncFeed.title
+            self.feeds[idx].folderId = syncFeed.folderId
+        } else {
+            let newFeed = Feed(
+                id: syncFeed.id,
+                title: syncFeed.title,
+                url: syncFeed.url,
+                folderId: syncFeed.folderId
+            )
+            self.feeds.append(newFeed)
+            Task {
+                await self.refreshFeed(newFeed)
+            }
+        }
+        self.updateCachedCounts()
+    }
+
+    func applyIncomingFeedDeletion(id: UUID) {
+        self.feeds.removeAll { $0.id == id }
+        self.items.removeValue(forKey: id)
+        self.updateCachedCounts()
     }
 
     // MARK: - Podcasts
