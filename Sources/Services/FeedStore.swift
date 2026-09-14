@@ -35,6 +35,7 @@ final class FeedStore {
     private var cachedFeedMap: [UUID: Feed] = [:]
     private var cachedFeedsInFolder: [UUID: [Feed]] = [:]
     private var cachedUncategorizedFeeds: [Feed] = []
+    private var cachedPinnedFeeds: [Feed] = []
 
     // Memoized sorted arrays to avoid O(N log N) re-computation on every UI frame
     @ObservationIgnored private var cachedAllItems: [FeedItem]?
@@ -418,6 +419,48 @@ final class FeedStore {
         cachedUncategorizedFeeds
     }
 
+    func pinnedFeeds() -> [Feed] {
+        cachedPinnedFeeds
+    }
+
+    func isPinned(feedId: UUID) -> Bool {
+        cachedFeedMap[feedId]?.isPinned ?? false
+    }
+
+    func togglePin(feedId: UUID) {
+        guard let index = feeds.firstIndex(where: { $0.id == feedId }) else { return }
+        feeds[index].isPinned.toggle()
+        let updatedFeed = feeds[index]
+        save()
+        SyncCoordinator.shared.notifyFeedAddedOrUpdated(updatedFeed)
+        AppLogger.shared.log("Toggled pin for \"\(updatedFeed.title)\": \(updatedFeed.isPinned)", level: .info, category: .storage)
+    }
+
+    func setFeedPinned(_ feedId: UUID, isPinned: Bool) {
+        guard let index = feeds.firstIndex(where: { $0.id == feedId }), feeds[index].isPinned != isPinned else { return }
+        feeds[index].isPinned = isPinned
+        let updatedFeed = feeds[index]
+        save()
+        SyncCoordinator.shared.notifyFeedAddedOrUpdated(updatedFeed)
+        AppLogger.shared.log("Set pin for \"\(updatedFeed.title)\": \(isPinned)", level: .info, category: .storage)
+    }
+
+    func reorderPinnedFeeds(fromOffsets source: IndexSet, toOffset destination: Int) {
+        var pinned = cachedPinnedFeeds
+        pinned.move(fromOffsets: source, toOffset: destination)
+
+        var pinnedIterator = pinned.makeIterator()
+        for i in feeds.indices {
+            if feeds[i].isPinned {
+                if let next = pinnedIterator.next() {
+                    feeds[i] = next
+                }
+            }
+        }
+        save()
+        AppLogger.shared.log("Reordered pinned feeds", level: .info, category: .ui)
+    }
+
     // MARK: - Item Management
 
     func markAsRead(_ item: FeedItem) {
@@ -667,12 +710,16 @@ final class FeedStore {
         if let idx = self.feeds.firstIndex(where: { $0.url.lowercased() == syncFeed.url.lowercased() }) {
             self.feeds[idx].title = syncFeed.title
             self.feeds[idx].folderId = syncFeed.folderId
+            if let isPinned = syncFeed.isPinned {
+                self.feeds[idx].isPinned = isPinned
+            }
         } else {
             let newFeed = Feed(
                 id: syncFeed.id,
                 title: syncFeed.title,
                 url: syncFeed.url,
-                folderId: syncFeed.folderId
+                folderId: syncFeed.folderId,
+                isPinned: syncFeed.isPinned ?? false
             )
             self.feeds.append(newFeed)
             Task {
@@ -1058,9 +1105,13 @@ final class FeedStore {
         var map: [UUID: Feed] = [:]
         var inFolder: [UUID: [Feed]] = [:]
         var uncategorized: [Feed] = []
+        var pinned: [Feed] = []
 
         for feed in feeds {
             map[feed.id] = feed
+            if feed.isPinned {
+                pinned.append(feed)
+            }
             if let folderId = feed.folderId {
                 inFolder[folderId, default: []].append(feed)
             } else {
@@ -1077,6 +1128,7 @@ final class FeedStore {
         self.cachedFeedMap = map
         self.cachedFeedsInFolder = inFolder
         self.cachedUncategorizedFeeds = uncategorized
+        self.cachedPinnedFeeds = pinned
 
         // Pre-classify items into Smart Categories (O(1) lookups during UI navigation)
         var categoryMap: [SmartCategory: [FeedItem]] = [:]

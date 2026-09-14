@@ -20,12 +20,14 @@ struct SidebarView: View {
 
     // Collapsible sections persistence
     @AppStorage("collapsedFolderIds") private var collapsedFolderIdsRaw: String = ""
+    @AppStorage("isPinnedExpanded") private var isPinnedExpanded: Bool = true
     @AppStorage("isUncategorizedExpanded") private var isUncategorizedExpanded: Bool = true
     @AppStorage(AppSettingsKeys.showReadingTimeStreams) private var showReadingTimeStreams = false
 
     var body: some View {
         List(selection: $selectedItem) {
             librarySection
+            pinnedSection
             smartStreamsSection
             foldersSection
             uncategorizedSection
@@ -231,6 +233,77 @@ struct SidebarView: View {
             }
             .buttonStyle(.plain)
             .padding(.vertical, 2)
+        }
+    }
+
+    // MARK: - Pinned Section (Apple HIG Quick Access)
+
+    @ViewBuilder
+    private var pinnedSection: some View {
+        let pinned = store.pinnedFeeds()
+        if !pinned.isEmpty {
+            Section {
+                if isPinnedExpanded {
+                    ForEach(pinned) { feed in
+                        NavigationLink(value: SidebarItem.feed(feed.id)) {
+                            FeedRow(feed: feed, isInsidePinnedSection: true)
+                        }
+                        .contextMenu { feedContextMenu(feed: feed) }
+                        .draggable(feed.id.uuidString)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
+                    .onMove { indices, newOffset in
+                        withAnimation(AppAnimation.snappy) {
+                            store.reorderPinnedFeeds(fromOffsets: indices, toOffset: newOffset)
+                        }
+                    }
+                }
+            } header: {
+                Button {
+                    AppHaptics.tap()
+                    withAnimation(AppAnimation.accordion) {
+                        isPinnedExpanded.toggle()
+                    }
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(.secondary)
+                            .frame(width: 14, height: 14)
+                            .rotationEffect(.degrees(isPinnedExpanded ? 90 : 0))
+                            .animation(AppAnimation.snappy, value: isPinnedExpanded)
+
+                        Image(systemName: "pin.fill")
+                            .font(.system(size: 11))
+                            .foregroundStyle(AppTheme.Colors.accent)
+
+                        Text(String(localized: "Pinned"))
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(.secondary)
+
+                        Spacer()
+
+                        Text("\(pinned.count)")
+                            .font(.system(size: 10, weight: .medium, design: .monospaced))
+                            .foregroundStyle(AppTheme.Colors.badgeText)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1)
+                            .background(AppTheme.Colors.badgeBackground, in: Capsule())
+                            .contentTransition(.numericText())
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .padding(.vertical, 3)
+                .dropDestination(for: String.self) { items, _ in
+                    guard let idStr = items.first, let feedId = UUID(uuidString: idStr) else { return false }
+                    withAnimation(AppAnimation.snappy) {
+                        store.setFeedPinned(feedId, isPinned: true)
+                    }
+                    AppHaptics.notifySuccess()
+                    return true
+                }
+            }
         }
     }
 
@@ -579,6 +652,20 @@ struct SidebarView: View {
     @ViewBuilder
     private func feedContextMenu(feed: Feed) -> some View {
         Button {
+            withAnimation(AppAnimation.snappy) {
+                store.togglePin(feedId: feed.id)
+            }
+            AppHaptics.tap()
+        } label: {
+            Label(
+                feed.isPinned ? String(localized: "Unpin Feed") : String(localized: "Pin Feed"),
+                systemImage: feed.isPinned ? "pin.slash" : "pin"
+            )
+        }
+
+        Divider()
+
+        Button {
             Task { await store.refreshFeed(feed) }
         } label: {
             Label(String(localized: "Refresh"), systemImage: "arrow.clockwise")
@@ -673,6 +760,7 @@ struct FeedRow: View {
 
     @Environment(FeedStore.self) private var store
     let feed: Feed
+    var isInsidePinnedSection: Bool = false
     @State private var isHovered: Bool = false
 
     var body: some View {
@@ -683,9 +771,17 @@ struct FeedRow: View {
                 .animation(AppAnimation.hover, value: isHovered)
 
             VStack(alignment: .leading, spacing: 1) {
-                Text(feed.title)
-                    .font(.system(size: 13, weight: .regular))
-                    .lineLimit(1)
+                HStack(spacing: 4) {
+                    Text(feed.title)
+                        .font(.system(size: 13, weight: .regular))
+                        .lineLimit(1)
+
+                    if feed.isPinned && !isInsidePinnedSection {
+                        Image(systemName: "pin.fill")
+                            .font(.system(size: 9))
+                            .foregroundStyle(AppTheme.Colors.accent.opacity(0.85))
+                    }
+                }
 
                 if !feed.description.isEmpty {
                     Text(feed.description)

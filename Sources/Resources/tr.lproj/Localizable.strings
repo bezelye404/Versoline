@@ -9,6 +9,9 @@
 
 /* Sidebar */
 "Library" = "Kütüphane";
+"Pinned" = "Sabitlenenler";
+"Pin Feed" = "Akışı Sabitle";
+"Unpin Feed" = "Sabitlemeyi Kaldır";
 "All Articles" = "Tüm Makaleler";
 "Bookmarks" = "Favoriler";
 "Folders" = "Klasörler";

@@ -32,9 +32,10 @@ enum SmartMergeEngine {
                     // Feed is deleted on remote; do not keep in local resultFeeds
                     resultSyncFeeds.append(remote)
                 } else {
-                    // Both have the feed; preserve local or newer title/folder
+                    // Both have the feed; preserve local or newer title/folder/isPinned
                     let resolvedTitle = local.title.isEmpty ? remote.title : local.title
                     let resolvedFolder = local.folderId ?? remote.folderId
+                    let resolvedPinned = local.isPinned || (remote.isPinned ?? false)
                     let merged = Feed(
                         id: local.id,
                         title: resolvedTitle,
@@ -44,7 +45,8 @@ enum SmartMergeEngine {
                         lastUpdated: local.lastUpdated,
                         folderId: resolvedFolder,
                         etag: local.etag,
-                        lastModifiedHeader: local.lastModifiedHeader
+                        lastModifiedHeader: local.lastModifiedHeader,
+                        isPinned: resolvedPinned
                     )
                     resultFeeds.append(merged)
 
@@ -53,6 +55,7 @@ enum SmartMergeEngine {
                         title: resolvedTitle,
                         url: local.url,
                         folderId: resolvedFolder,
+                        isPinned: resolvedPinned,
                         updatedAt: max(remote.updatedAt, now),
                         deletedAt: nil
                     )
@@ -67,6 +70,7 @@ enum SmartMergeEngine {
                         title: local.title,
                         url: local.url,
                         folderId: local.folderId,
+                        isPinned: local.isPinned,
                         updatedAt: now,
                         deletedAt: nil
                     )
@@ -82,7 +86,8 @@ enum SmartMergeEngine {
                     id: remote.id,
                     title: remote.title,
                     url: remote.url,
-                    folderId: remote.folderId
+                    folderId: remote.folderId,
+                    isPinned: remote.isPinned ?? false
                 )
                 resultFeeds.append(newFeed)
                 resultSyncFeeds.append(remote)

@@ -9,6 +9,9 @@
 
 /* Sidebar */
 "Library" = "Library";
+"Pinned" = "Pinned";
+"Pin Feed" = "Pin Feed";
+"Unpin Feed" = "Unpin Feed";
 "All Articles" = "All Articles";
 "Bookmarks" = "Bookmarks";
 "Folders" = "Folders";
