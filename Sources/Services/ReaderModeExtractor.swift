@@ -11,7 +11,7 @@ final class ReaderModeExtractor {
 
     private init() {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let cacheDir = appSupport.appendingPathComponent("EasyRSS/ReaderCache", isDirectory: true)
+        let cacheDir = appSupport.appendingPathComponent("EasyRSS/ReaderCache_v2", isDirectory: true)
         try? FileManager.default.createDirectory(at: cacheDir, withIntermediateDirectories: true)
         self.cacheDirectory = cacheDir
         memoryCache.countLimit = 15
@@ -88,23 +88,34 @@ final class ReaderModeExtractor {
         author: String?,
         pubDate: Date?,
         htmlContent: String,
-        link: String
+        link: String,
+        includeHeader: Bool = false
     ) -> String {
-        var headerHTML = "<h1>\(title)</h1>"
-        var metaItems: [String] = []
-        if let author, !author.isEmpty {
-            metaItems.append(author)
+        var headerHTML = ""
+        if includeHeader {
+            headerHTML = "<h1>\(title)</h1>"
+            var metaItems: [String] = []
+            if let author, !author.isEmpty {
+                metaItems.append(author)
+            }
+            if let pubDate {
+                let df = DateFormatter()
+                df.dateStyle = .medium
+                df.timeStyle = .short
+                metaItems.append(df.string(from: pubDate))
+            }
+            if !metaItems.isEmpty {
+                headerHTML += "<p style=\"opacity: 0.6; font-size: 0.9em; margin-bottom: 1.5em;\">\(metaItems.joined(separator: " • "))</p>"
+            }
         }
-        if let pubDate {
-            let df = DateFormatter()
-            df.dateStyle = .medium
-            df.timeStyle = .short
-            metaItems.append(df.string(from: pubDate))
+
+        // Clean out any duplicate leading <h1> that may exist in htmlContent so native SwiftUI header is the single source of truth
+        var cleaned = htmlContent
+        if let firstH1Range = cleaned.range(of: #"^\s*<h1[^>]*>[\s\S]*?</h1>"#, options: [.regularExpression, .caseInsensitive]) {
+            cleaned.removeSubrange(firstH1Range)
         }
-        if !metaItems.isEmpty {
-            headerHTML += "<p style=\"opacity: 0.6; font-size: 0.9em; margin-bottom: 1.5em;\">\(metaItems.joined(separator: " • "))</p>"
-        }
-        return headerHTML + "<div class=\"reader-body\">" + htmlContent + "</div>"
+
+        return headerHTML + "<div class=\"reader-body\">" + cleaned + "</div>"
     }
 
     func extract(
@@ -130,7 +141,8 @@ final class ReaderModeExtractor {
                 author: author,
                 pubDate: pubDate,
                 htmlContent: fallbackContent,
-                link: urlString
+                link: urlString,
+                includeHeader: false
             )
             saveToCache(urlString: urlString, content: formatted, storeInMemory: false)
             return formatted
@@ -138,7 +150,7 @@ final class ReaderModeExtractor {
 
         guard let url = URL(string: urlString) else {
             if let fallbackContent, !fallbackContent.isEmpty {
-                return formatFeedContentAsReaderHTML(title: title ?? "", author: author, pubDate: pubDate, htmlContent: fallbackContent, link: urlString)
+                return formatFeedContentAsReaderHTML(title: title ?? "", author: author, pubDate: pubDate, htmlContent: fallbackContent, link: urlString, includeHeader: false)
             }
             return nil
         }
@@ -155,18 +167,14 @@ final class ReaderModeExtractor {
             if let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) {
                 let html = String(decoding: data, as: UTF8.self)
                 if let cleanedBody = extractArticleHTML(from: html, baseURL: url), !cleanedBody.isEmpty {
-                    let fullFormatted: String
-                    if cleanedBody.contains("<h1") {
-                        fullFormatted = cleanedBody
-                    } else {
-                        fullFormatted = formatFeedContentAsReaderHTML(
-                            title: title ?? "",
-                            author: author,
-                            pubDate: pubDate,
-                            htmlContent: cleanedBody,
-                            link: urlString
-                        )
-                    }
+                    let fullFormatted = formatFeedContentAsReaderHTML(
+                        title: title ?? "",
+                        author: author,
+                        pubDate: pubDate,
+                        htmlContent: cleanedBody,
+                        link: urlString,
+                        includeHeader: false
+                    )
                     saveToCache(urlString: urlString, content: fullFormatted, storeInMemory: false)
                     return fullFormatted
                 }

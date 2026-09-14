@@ -24,6 +24,7 @@ struct ArticleDetailView: View {
     @State private var speechSynthesizer = AVSpeechSynthesizer()
     @State private var speechDelegate = ArticleSpeechDelegate()
     @State private var isVideoTheater: Bool = false
+    @Namespace private var animationNamespace
 
     private let networkMonitor = NetworkMonitor.shared
 
@@ -57,44 +58,51 @@ struct ArticleDetailView: View {
     var body: some View {
         Group {
             if let item = currentItem {
-                VStack(spacing: 0) {
+                ZStack(alignment: .top) {
+                    if isVideoTheater {
+                        Color.black.ignoresSafeArea()
+                    }
+
+                    // Main Content Layer
+                    VStack(spacing: 0) {
+                        if !isVideoTheater {
+                            if item.isPodcast {
+                                if activeViewMode == .inAppBrowser {
+                                    VStack(spacing: 0) {
+                                        Spacer().frame(height: 52)
+                                        inAppBrowserView(item: item)
+                                    }
+                                } else {
+                                    podcastFullPageView(item: item)
+                                }
+                            } else if !item.isYouTube {
+                                standardArticleFullPageView(item: item)
+                            }
+                        }
+
+                        // YouTube Built-in Player (Seamlessly expands in-app without reload)
+                        if let videoID = item.youtubeVideoID {
+                            YouTubePlayerView(videoID: videoID, title: item.title, link: item.link, isTheaterMode: $isVideoTheater)
+                                .frame(maxWidth: .infinity, maxHeight: isVideoTheater ? .infinity : nil)
+                                .padding(.horizontal, isVideoTheater ? 0 : 24)
+                                .padding(.top, isVideoTheater ? 0 : 56)
+                                .padding(.bottom, isVideoTheater ? 0 : 12)
+                        }
+
+                        if !isVideoTheater && item.isYouTube {
+                            articleContent(item: item)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                    // Floating Glass Overlay Toolbar
                     if !isVideoTheater {
                         floatingToolbar(item: item)
                             .transition(.asymmetric(
-                                insertion: .opacity.combined(with: .move(edge: .top)),
-                                removal: .opacity
+                                insertion: .opacity.combined(with: .offset(y: -12)),
+                                removal: .opacity.combined(with: .offset(y: -12))
                             ))
-                        Divider()
-                    }
-
-                    ZStack {
-                        if isVideoTheater {
-                            Color.black.ignoresSafeArea()
-                        }
-
-                        VStack(spacing: 0) {
-                            if !isVideoTheater {
-                                if item.isPodcast {
-                                    podcastHeroMediaCard(item: item)
-                                        .padding(.top, 14)
-                                } else if !item.isYouTube {
-                                    standardArticleHeader(item: item)
-                                    Divider()
-                                }
-                            }
-
-                            // YouTube Built-in Player (Seamlessly expands in-app without reload)
-                            if let videoID = item.youtubeVideoID {
-                                YouTubePlayerView(videoID: videoID, title: item.title, link: item.link, isTheaterMode: $isVideoTheater)
-                                    .frame(maxWidth: .infinity, maxHeight: isVideoTheater ? .infinity : nil)
-                                    .padding(.horizontal, isVideoTheater ? 0 : 20)
-                                    .padding(.vertical, isVideoTheater ? 0 : 12)
-                            }
-
-                            if !isVideoTheater {
-                                articleContent(item: item)
-                            }
-                        }
+                            .zIndex(100)
                     }
                 }
                 .id(item.id)
@@ -168,7 +176,7 @@ struct ArticleDetailView: View {
     @ViewBuilder
     private func floatingToolbar(item: FeedItem) -> some View {
         HStack(alignment: .center) {
-            // Left: Feed Title & Favicon
+            // Left: Feed Title & Favicon in a translucent capsule
             HStack(spacing: 6) {
                 if let feed = currentFeed {
                     FaviconView(hostOrURL: feed.url, size: 14)
@@ -191,19 +199,62 @@ struct ArticleDetailView: View {
                     .foregroundStyle(.secondary)
                 }
             }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(.ultraThinMaterial, in: Capsule())
+            .overlay(Capsule().stroke(Color.primary.opacity(0.08), lineWidth: 0.5))
+            .shadow(color: Color.black.opacity(0.08), radius: 6, y: 2)
 
             Spacer(minLength: 12)
 
-            // Right: Floating Pill Capsule Toolbar
+            // Right: Floating Pill Capsule Toolbar with Interactive Bubble
             HStack(spacing: 8) {
-                // Reading Mode Switcher
-                Picker("", selection: $activeViewMode) {
-                    Text(String(localized: "Reader")).tag(ReadingViewMode.reader)
-                    Text(String(localized: "Web")).tag(ReadingViewMode.inAppBrowser)
+                // Reading Mode Sliding Bubble Switcher
+                HStack(spacing: 0) {
+                    Button {
+                        withAnimation(.spring(response: 0.32, dampingFraction: 0.76)) {
+                            activeViewMode = .reader
+                        }
+                    } label: {
+                        Text(String(localized: "Reader"))
+                            .font(.system(size: 11, weight: activeViewMode == .reader ? .semibold : .medium))
+                            .foregroundStyle(activeViewMode == .reader ? Color.primary : Color.secondary)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background {
+                                if activeViewMode == .reader {
+                                    Capsule()
+                                        .fill(Color(nsColor: .controlBackgroundColor))
+                                        .shadow(color: Color.black.opacity(0.12), radius: 3, y: 1)
+                                        .matchedGeometryEffect(id: "readingModeBubble", in: animationNamespace)
+                                }
+                            }
+                    }
+                    .buttonStyle(.plain)
+
+                    Button {
+                        withAnimation(.spring(response: 0.32, dampingFraction: 0.76)) {
+                            activeViewMode = .inAppBrowser
+                        }
+                    } label: {
+                        Text(String(localized: "Web"))
+                            .font(.system(size: 11, weight: activeViewMode == .inAppBrowser ? .semibold : .medium))
+                            .foregroundStyle(activeViewMode == .inAppBrowser ? Color.primary : Color.secondary)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background {
+                                if activeViewMode == .inAppBrowser {
+                                    Capsule()
+                                        .fill(Color(nsColor: .controlBackgroundColor))
+                                        .shadow(color: Color.black.opacity(0.12), radius: 3, y: 1)
+                                        .matchedGeometryEffect(id: "readingModeBubble", in: animationNamespace)
+                                }
+                            }
+                    }
+                    .buttonStyle(.plain)
                 }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-                .frame(width: 128)
+                .padding(2)
+                .background(Color.primary.opacity(0.06), in: Capsule())
                 .onChange(of: activeViewMode) { _, newMode in
                     if newMode == .reader && (extractedReaderHTML == nil || !ReaderModeExtractor.shared.isSubstantiveContent(extractedReaderHTML ?? "")) {
                         loadReaderMode(for: item, forceWeb: false)
@@ -275,13 +326,14 @@ struct ArticleDetailView: View {
 
                 // Bookmark
                 Button {
-                    withAnimation(.spring(response: 0.28, dampingFraction: 0.72)) {
+                    withAnimation(.spring(response: 0.28, dampingFraction: 0.65)) {
                         store.toggleBookmark(item)
                     }
                 } label: {
                     Image(systemName: item.isBookmarked ? "star.fill" : "star")
-                        .font(.system(size: 12))
+                        .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(item.isBookmarked ? .orange : .secondary)
+                        .scaleEffect(item.isBookmarked ? 1.15 : 1.0)
                         .contentTransition(.symbolEffect(.replace))
                 }
                 .buttonStyle(.borderless)
@@ -289,13 +341,14 @@ struct ArticleDetailView: View {
 
                 // Read Status
                 Button {
-                    withAnimation(.spring(response: 0.28, dampingFraction: 0.72)) {
+                    withAnimation(.spring(response: 0.28, dampingFraction: 0.65)) {
                         store.toggleReadStatus(item)
                     }
                 } label: {
                     Image(systemName: item.isRead ? "circle" : "checkmark.circle.fill")
-                        .font(.system(size: 12))
+                        .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(item.isRead ? .secondary : Color.accentColor)
+                        .scaleEffect(item.isRead ? 1.0 : 1.12)
                         .contentTransition(.symbolEffect(.replace))
                 }
                 .buttonStyle(.borderless)
@@ -306,7 +359,9 @@ struct ArticleDetailView: View {
 
                 // Text-to-speech
                 Button {
-                    toggleSpeech(item: item)
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        toggleSpeech(item: item)
+                    }
                 } label: {
                     Image(systemName: isSpeaking ? "stop.fill" : "speaker.wave.2")
                         .font(.system(size: 12))
@@ -351,9 +406,9 @@ struct ArticleDetailView: View {
             .padding(.vertical, 5)
             .background(.ultraThinMaterial, in: Capsule())
             .overlay(Capsule().stroke(Color.primary.opacity(0.08), lineWidth: 0.5))
-            .shadow(color: Color.black.opacity(0.08), radius: 6, y: 2)
+            .shadow(color: Color.black.opacity(0.10), radius: 8, y: 3)
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 24)
         .padding(.top, 12)
         .padding(.bottom, 6)
     }
@@ -400,12 +455,22 @@ struct ArticleDetailView: View {
         .padding(.horizontal, 24)
         .padding(.top, 14)
         .padding(.bottom, 12)
-    }
-
-    // MARK: - Podcast Hero Media Card
+    }    // MARK: - Standard Article Full Page View
 
     @ViewBuilder
-    private func podcastHeroMediaCard(item: FeedItem) -> some View {
+    private func standardArticleFullPageView(item: FeedItem) -> some View {
+        VStack(spacing: 0) {
+            standardArticleHeader(item: item)
+                .padding(.top, 52)
+            Divider()
+            articleContent(item: item)
+        }
+    }
+
+    // MARK: - Podcast Full Page Scroll View
+
+    @ViewBuilder
+    private func podcastFullPageView(item: FeedItem) -> some View {
         let player = AudioPlayerService.shared
         let isCurrentEpisode = player.currentEpisode?.id == item.id
         let isPlaying = isCurrentEpisode && player.isPlaying
@@ -413,191 +478,105 @@ struct ArticleDetailView: View {
         let isDownloaded = downloadService.isDownloaded(item.id)
         let isDownloading = downloadService.activeDownloads[item.id] != nil
 
-        VStack(spacing: 14) {
-            // Large Centered Square Artwork with Floating Glass Play Button
-            ZStack {
-                let artworkURL = currentFeed?.imageURL.flatMap { URL(string: $0) }
-                AsyncImage(url: artworkURL) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(1, contentMode: .fill)
-                    default:
-                        ZStack {
-                            LinearGradient(
-                                colors: [Color.accentColor.opacity(0.35), Color.accentColor.opacity(0.12)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                            Image(systemName: "headphones")
-                                .font(.system(size: 60, weight: .ultraLight))
-                                .foregroundStyle(Color.accentColor)
-                        }
-                    }
-                }
-                .frame(width: 220, height: 220)
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .stroke(Color.primary.opacity(0.08), lineWidth: 1)
-                )
-                .shadow(color: Color.black.opacity(0.18), radius: 14, x: 0, y: 7)
+        ScrollView {
+            VStack(spacing: 20) {
+                // Top spacer so content glides beneath the floating toolbar
+                Spacer().frame(height: 48)
 
-                // Large Glass Play/Pause Button
-                Button {
-                    player.play(item: item, feedTitle: currentFeed?.title, store: store)
-                } label: {
-                    ZStack {
-                        Circle()
-                            .fill(.ultraThinMaterial)
-                            .frame(width: 62, height: 62)
-                            .shadow(color: Color.black.opacity(0.28), radius: 10, y: 4)
-
-                        if isCurrentEpisode && player.isBuffering {
-                            ProgressView()
-                                .controlSize(.regular)
-                        } else {
-                            Image(systemName: isPlaying ? "pause.fill" : "play.fill")
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundStyle(.primary)
-                                .offset(x: isPlaying ? 0 : 2)
-                        }
-                    }
-                }
-                .buttonStyle(.plain)
-                .help(isPlaying ? String(localized: "Pause") : String(localized: "Play Episode"))
-            }
-            .padding(.top, 4)
-
-            // Minimalist Scrubber Bar
-            VStack(spacing: 5) {
-                let totalDur = isCurrentEpisode && player.duration > 0 ? player.duration : (Double(item.audioDuration ?? "0") ?? 1.0)
-                let currTime = isCurrentEpisode ? player.currentTime : item.playbackPosition
-
-                Slider(
-                    value: Binding(
-                        get: { isCurrentEpisode ? player.currentTime : item.playbackPosition },
-                        set: { val in
-                            if isCurrentEpisode {
-                                player.seek(to: val)
+                // 1. Large Centered Square Artwork with Floating Glass Play Button
+                ZStack {
+                    let artworkURL = currentFeed?.imageURL.flatMap { URL(string: $0) }
+                    AsyncImage(url: artworkURL) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(1, contentMode: .fill)
+                        default:
+                            ZStack {
+                                LinearGradient(
+                                    colors: [Color.accentColor.opacity(0.35), Color.accentColor.opacity(0.12)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                                Image(systemName: "headphones")
+                                    .font(.system(size: 64, weight: .ultraLight))
+                                    .foregroundStyle(Color.accentColor)
                             }
                         }
-                    ),
-                    in: 0...max(totalDur, 1.0)
-                )
-                .controlSize(.mini)
-                .tint(Color.accentColor)
-
-                HStack {
-                    Text(formatDuration(currTime))
-                        .font(.system(size: 11, weight: .medium, design: .monospaced))
-                        .foregroundStyle(.secondary)
-
-                    Spacer()
-
-                    let remaining = totalDur > currTime ? totalDur - currTime : 0
-                    Text(totalDur > 1 ? "-\(formatDuration(remaining))" : "--:--")
-                        .font(.system(size: 11, weight: .medium, design: .monospaced))
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .frame(maxWidth: 380)
-
-            // Transport Controls Row
-            HStack(spacing: 20) {
-                Button {
-                    if isCurrentEpisode {
-                        player.skipBackward(seconds: 15)
                     }
-                } label: {
-                    Image(systemName: "gobackward.15")
-                        .font(.system(size: 16))
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
-                .help(String(localized: "Skip backward 15 seconds"))
+                    .frame(width: 260, height: 260)
+                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .stroke(Color.primary.opacity(0.08), lineWidth: 1)
+                    )
+                    .shadow(color: Color.black.opacity(0.22), radius: 18, x: 0, y: 8)
 
-                // Speed Menu
-                Menu {
-                    ForEach(AudioPlayerService.availableRates, id: \.self) { rate in
-                        Button {
-                            player.setPlaybackRate(rate)
-                        } label: {
-                            HStack {
-                                Text(String(format: "%.2fx", rate))
-                                if player.playbackRate == rate {
-                                    Image(systemName: "checkmark")
+                    // Large Glass Play/Pause Button
+                    Button {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.72)) {
+                            player.play(item: item, feedTitle: currentFeed?.title, store: store)
+                        }
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .fill(.ultraThinMaterial)
+                                .frame(width: 68, height: 68)
+                                .shadow(color: Color.black.opacity(0.32), radius: 12, y: 5)
+
+                            if isCurrentEpisode && player.isBuffering {
+                                ProgressView()
+                                    .controlSize(.regular)
+                            } else {
+                                Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                                    .font(.system(size: 26, weight: .bold))
+                                    .foregroundStyle(.primary)
+                                    .offset(x: isPlaying ? 0 : 2)
+                                    .contentTransition(.symbolEffect(.replace))
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .help(isPlaying ? String(localized: "Pause") : String(localized: "Play Episode"))
+                }
+
+                // 2. Minimalist Scrubber Bar
+                VStack(spacing: 5) {
+                    let totalDur = isCurrentEpisode && player.duration > 0 ? player.duration : (Double(item.audioDuration ?? "0") ?? 1.0)
+                    let currTime = isCurrentEpisode ? player.currentTime : item.playbackPosition
+
+                    Slider(
+                        value: Binding(
+                            get: { isCurrentEpisode ? player.currentTime : item.playbackPosition },
+                            set: { val in
+                                if isCurrentEpisode {
+                                    player.seek(to: val)
                                 }
                             }
-                        }
-                    }
-                } label: {
-                    Text(String(format: "%.2fx", player.playbackRate))
-                        .font(.system(size: 11, weight: .semibold))
-                        .padding(.horizontal, 7)
-                        .padding(.vertical, 3)
-                        .background(Color.secondary.opacity(0.12))
-                        .clipShape(Capsule())
-                }
-                .menuStyle(.borderlessButton)
-                .fixedSize()
-                .help(String(localized: "Playback Speed"))
+                        ),
+                        in: 0...max(totalDur, 1.0)
+                    )
+                    .controlSize(.mini)
+                    .tint(Color.accentColor)
 
-                // Sleep Timer Menu
-                Menu {
-                    Button(String(localized: "Turn Off Timer")) {
-                        player.cancelSleepTimer()
-                    }
-                    Divider()
-                    Button("15 " + String(localized: "minutes")) { player.startSleepTimer(minutes: 15) }
-                    Button("30 " + String(localized: "minutes")) { player.startSleepTimer(minutes: 30) }
-                    Button("45 " + String(localized: "minutes")) { player.startSleepTimer(minutes: 45) }
-                    Button("60 " + String(localized: "minutes")) { player.startSleepTimer(minutes: 60) }
-                    Button(String(localized: "End of Episode")) { player.startSleepTimerUntilEndOfEpisode() }
-                } label: {
-                    Image(systemName: player.sleepTimerRemainingSeconds != nil ? "moon.zzz.fill" : "moon.zzz")
-                        .font(.system(size: 14))
-                        .foregroundStyle(player.sleepTimerRemainingSeconds != nil ? Color.accentColor : Color.secondary)
-                }
-                .menuStyle(.borderlessButton)
-                .fixedSize()
-                .help(String(localized: "Sleep Timer"))
+                    HStack {
+                        Text(formatDuration(currTime))
+                            .font(.system(size: 11, weight: .medium, design: .monospaced))
+                            .foregroundStyle(.secondary)
 
-                Button {
-                    if isCurrentEpisode {
-                        player.skipForward(seconds: 15)
-                    }
-                } label: {
-                    Image(systemName: "goforward.15")
-                        .font(.system(size: 16))
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
-                .help(String(localized: "Skip forward 15 seconds"))
+                        Spacer()
 
-                Button {
-                    if isDownloaded {
-                        downloadService.deleteDownload(for: item.id)
-                    } else if !isDownloading {
-                        downloadService.downloadEpisode(item)
-                    }
-                } label: {
-                    if isDownloading {
-                        ProgressView()
-                            .controlSize(.small)
-                    } else {
-                        Image(systemName: isDownloaded ? "arrow.down.circle.fill" : "arrow.down.circle")
-                            .font(.system(size: 16))
-                            .foregroundStyle(isDownloaded ? Color.green : Color.secondary)
+                        let remaining = totalDur > currTime ? totalDur - currTime : 0
+                        Text(totalDur > 1 ? "-\(formatDuration(remaining))" : "--:--")
+                            .font(.system(size: 11, weight: .medium, design: .monospaced))
+                            .foregroundStyle(.secondary)
                     }
                 }
-                .buttonStyle(.plain)
-                .help(isDownloaded ? String(localized: "Downloaded (Click to delete)") : String(localized: "Download Episode"))
-            }
+                .frame(maxWidth: 420)
+                .padding(.horizontal, 24)
 
-            // Episode Information & Typography
-            VStack(spacing: 6) {
+                // 3. Date & Duration Pill
                 let pillText = heroDateDurationPill(date: item.pubDate, duration: item.formattedDuration)
                 if !pillText.isEmpty {
                     Text(pillText)
@@ -606,13 +585,16 @@ struct ArticleDetailView: View {
                         .tracking(0.8)
                 }
 
+                // 4. Episode Title
                 Text(item.title)
                     .font(.title2.weight(.bold))
                     .multilineTextAlignment(.center)
                     .textSelection(.enabled)
-                    .lineSpacing(2)
-                    .padding(.horizontal, 16)
+                    .lineSpacing(3)
+                    .frame(maxWidth: 600)
+                    .padding(.horizontal, 24)
 
+                // 5. Podcast Feed Title & Subtitle with Equalizer
                 HStack(spacing: 6) {
                     if let feedTitle = currentFeed?.title {
                         Text(feedTitle)
@@ -623,52 +605,166 @@ struct ArticleDetailView: View {
                         EqualizerWaveformView(isPlaying: true, barWidth: 2, maxHeight: 12)
                     }
                 }
-            }
 
-            // Clickable Chapters
-            let chapters = parseChapters(from: item.itemDescription + " " + (extractedReaderHTML ?? item.content ?? ""))
-            if !chapters.isEmpty {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
-                        ForEach(chapters) { ch in
+                // 6. Transport Controls Row
+                HStack(spacing: 24) {
+                    Button {
+                        if isCurrentEpisode {
+                            player.skipBackward(seconds: 15)
+                        }
+                    } label: {
+                        Image(systemName: "gobackward.15")
+                            .font(.system(size: 18))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.secondary)
+                    .help(String(localized: "Skip backward 15 seconds"))
+
+                    // Speed Menu
+                    Menu {
+                        ForEach(AudioPlayerService.availableRates, id: \.self) { rate in
                             Button {
-                                if player.currentEpisode?.id != item.id {
-                                    player.play(item: item, feedTitle: currentFeed?.title, store: store)
-                                }
-                                player.seek(to: ch.seconds)
+                                player.setPlaybackRate(rate)
                             } label: {
-                                HStack(spacing: 4) {
-                                    Text(ch.timestamp)
-                                        .font(.caption2.monospacedDigit().weight(.semibold))
-                                        .foregroundStyle(Color.accentColor)
-                                    Text(ch.title)
-                                        .font(.caption2)
-                                        .foregroundStyle(.primary)
-                                        .lineLimit(1)
+                                HStack {
+                                    Text(String(format: "%.2fx", rate))
+                                    if player.playbackRate == rate {
+                                        Image(systemName: "checkmark")
+                                    }
                                 }
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.secondary.opacity(0.08))
-                                .clipShape(Capsule())
                             }
-                            .buttonStyle(.plain)
+                        }
+                    } label: {
+                        Text(String(format: "%.2fx", player.playbackRate))
+                            .font(.system(size: 11, weight: .semibold))
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 3)
+                            .background(Color.secondary.opacity(0.12))
+                            .clipShape(Capsule())
+                    }
+                    .menuStyle(.borderlessButton)
+                    .fixedSize()
+                    .help(String(localized: "Playback Speed"))
+
+                    // Sleep Timer Menu
+                    Menu {
+                        Button(String(localized: "Turn Off Timer")) {
+                            player.cancelSleepTimer()
+                        }
+                        Divider()
+                        Button("15 " + String(localized: "minutes")) { player.startSleepTimer(minutes: 15) }
+                        Button("30 " + String(localized: "minutes")) { player.startSleepTimer(minutes: 30) }
+                        Button("45 " + String(localized: "minutes")) { player.startSleepTimer(minutes: 45) }
+                        Button("60 " + String(localized: "minutes")) { player.startSleepTimer(minutes: 60) }
+                        Button(String(localized: "End of Episode")) { player.startSleepTimerUntilEndOfEpisode() }
+                    } label: {
+                        Image(systemName: player.sleepTimerRemainingSeconds != nil ? "moon.zzz.fill" : "moon.zzz")
+                            .font(.system(size: 15))
+                            .foregroundStyle(player.sleepTimerRemainingSeconds != nil ? Color.accentColor : Color.secondary)
+                    }
+                    .menuStyle(.borderlessButton)
+                    .fixedSize()
+                    .help(String(localized: "Sleep Timer"))
+
+                    Button {
+                        if isCurrentEpisode {
+                            player.skipForward(seconds: 15)
+                        }
+                    } label: {
+                        Image(systemName: "goforward.15")
+                            .font(.system(size: 18))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.secondary)
+                    .help(String(localized: "Skip forward 15 seconds"))
+
+                    Button {
+                        if isDownloaded {
+                            downloadService.deleteDownload(for: item.id)
+                        } else if !isDownloading {
+                            downloadService.downloadEpisode(item)
+                        }
+                    } label: {
+                        if isDownloading {
+                            ProgressView()
+                                .controlSize(.small)
+                        } else {
+                            Image(systemName: isDownloaded ? "arrow.down.circle.fill" : "arrow.down.circle")
+                                .font(.system(size: 18))
+                                .foregroundStyle(isDownloaded ? Color.green : Color.secondary)
                         }
                     }
-                    .padding(.horizontal, 16)
+                    .buttonStyle(.plain)
+                    .help(isDownloaded ? String(localized: "Downloaded (Click to delete)") : String(localized: "Download Episode"))
                 }
+                .padding(.vertical, 4)
+
+                // 7. Clickable Chapters
+                let chapters = parseChapters(from: item.itemDescription + " " + (extractedReaderHTML ?? item.content ?? ""))
+                if !chapters.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(chapters) { ch in
+                                Button {
+                                    if player.currentEpisode?.id != item.id {
+                                        player.play(item: item, feedTitle: currentFeed?.title, store: store)
+                                    }
+                                    player.seek(to: ch.seconds)
+                                } label: {
+                                    HStack(spacing: 4) {
+                                        Text(ch.timestamp)
+                                            .font(.caption2.monospacedDigit().weight(.semibold))
+                                            .foregroundStyle(Color.accentColor)
+                                        Text(ch.title)
+                                            .font(.caption2)
+                                            .foregroundStyle(.primary)
+                                            .lineLimit(1)
+                                    }
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 5)
+                                    .background(Color.secondary.opacity(0.08))
+                                    .clipShape(Capsule())
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .padding(.horizontal, 24)
+                    }
+                }
+
+                // 8. Episode Show Notes
+                Divider()
+                    .padding(.horizontal, 24)
+                    .padding(.top, 8)
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("SHOW NOTES")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(.secondary)
+                        .tracking(0.8)
+
+                    let showNotesText = cleanShowNotesText(from: item.content ?? item.itemDescription)
+                    Text(showNotesText)
+                        .font(.system(size: 14))
+                        .lineSpacing(5)
+                        .foregroundStyle(.primary)
+                        .textSelection(.enabled)
+                }
+                .frame(maxWidth: 800, alignment: .leading)
+                .padding(.horizontal, 24)
+
+                Spacer().frame(height: 48)
             }
         }
-        .padding(.vertical, 14)
-        .frame(maxWidth: .infinity)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color(nsColor: .controlBackgroundColor).opacity(0.5))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
-        )
-        .padding(.horizontal, 20)
+    }
+
+    private func cleanShowNotesText(from raw: String) -> String {
+        var text = raw
+        text = text.replacingOccurrences(of: #"(?i)<br\s*/?>"#, with: "\n", options: .regularExpression)
+        text = text.replacingOccurrences(of: #"(?i)</(?:p|div|li|h[1-6])>"#, with: "\n\n", options: .regularExpression)
+        return text.strippingHTML()
+            .replacingOccurrences(of: #"\n{3,}"#, with: "\n\n", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private func formatDuration(_ seconds: Double) -> String {
