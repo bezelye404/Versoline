@@ -404,6 +404,8 @@ private struct StorageSettingsTab: View {
     @State private var clearedOfflineCache = false
     @State private var clearedPodcastDownloads = false
     @State private var clearedWebCache = false
+    @State private var showResetConfirmation = false
+    @State private var resetCompleted = false
 
     private var formattedDatabaseSize: String {
         let bytes = store.databaseSizeBytes
@@ -523,9 +525,37 @@ private struct StorageSettingsTab: View {
                         .foregroundStyle(.green)
                 }
             }
+
+            Section("Factory Reset") {
+                Button(role: .destructive) {
+                    showResetConfirmation = true
+                } label: {
+                    Label("Reset All Data & Settings...", systemImage: "trash.fill")
+                        .foregroundStyle(.red)
+                }
+
+                Text("Permanently removes all feeds, articles, folders, bookmarks, offline data, and restores all settings to default.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                if resetCompleted {
+                    Text("All data and settings have been reset.")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                }
+            }
         }
         .formStyle(.grouped)
         .padding(10)
+        .alert("Reset All Data and Settings?", isPresented: $showResetConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Reset Everything", role: .destructive) {
+                store.resetAllDataAndSettings()
+                resetCompleted = true
+            }
+        } message: {
+            Text("This will permanently delete all feeds, articles, bookmarks, folders, offline downloads, and restore all settings to their default values. This action cannot be undone.")
+        }
     }
 }
 

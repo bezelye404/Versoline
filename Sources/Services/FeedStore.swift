@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import WebKit
 
 struct FullscreenVideoContext: Identifiable, Equatable {
     var id: String { videoID }
@@ -512,6 +513,49 @@ final class FeedStore {
     func clearOfflineCache() {
         ReaderModeExtractor.shared.clearDiskCache()
         AppLogger.shared.log("Offline reader cache cleared", level: .info, category: .storage)
+    }
+
+    func resetAllDataAndSettings() {
+        AppLogger.shared.log("Initiating complete factory reset of all data and settings", level: .warning, category: .storage)
+
+        // 1. Cancel any pending background saves
+        pendingSaveTask?.cancel()
+        pendingSaveTask = nil
+
+        // 2. Clear in-memory feed, item, and folder state
+        feeds.removeAll()
+        items.removeAll()
+        folders.removeAll()
+
+        // 3. Invalidate caches and reset aggregate counts
+        invalidateItemCaches()
+        compactMemory()
+        updateCachedCounts()
+
+        // 4. Remove all files from Application Support/EasyRSS directory
+        if let fileList = try? FileManager.default.contentsOfDirectory(at: saveURL, includingPropertiesForKeys: nil) {
+            for file in fileList {
+                try? FileManager.default.removeItem(at: file)
+            }
+        }
+
+        // 5. Clear offline cache, favicon disk cache, and downloaded podcasts
+        ReaderModeExtractor.shared.clearDiskCache()
+        FaviconService.shared.clearDiskCache()
+        PodcastDownloadService.shared.deleteAllDownloads()
+
+        // 6. Clear WebKit website storage and shared URL cache
+        let types = WKWebsiteDataStore.allWebsiteDataTypes()
+        WKWebsiteDataStore.default().removeData(ofTypes: types, modifiedSince: .distantPast) {}
+        URLCache.shared.removeAllCachedResponses()
+
+        // 7. Reset all UserDefaults / AppStorage
+        if let bundleID = Bundle.main.bundleIdentifier {
+            UserDefaults.standard.removePersistentDomain(forName: bundleID)
+            UserDefaults.standard.synchronize()
+        }
+
+        AppLogger.shared.log("Factory reset complete: all feeds, articles, downloads and settings removed", level: .info, category: .storage)
     }
 
 
