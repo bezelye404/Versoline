@@ -314,6 +314,16 @@
 "Show Quick & Deep Reads" = "Show Quick & Deep Reads";
 "Adds 'Quick Reads (<3m)' and 'Deep Reads (>7m)' filters to the Smart Streams section in your sidebar." = "Adds 'Quick Reads (<3m)' and 'Deep Reads (>7m)' filters to the Smart Streams section in your sidebar.";
 
+/* Settings: Factory Reset */
+"Factory Reset" = "Factory Reset";
+"Reset All Data & Settings..." = "Reset All Data & Settings...";
+"Reset All Data and Settings?" = "Reset All Data and Settings?";
+"Permanently removes all feeds, articles, folders, bookmarks, offline data, and restores all settings to default." = "Permanently removes all feeds, articles, folders, bookmarks, offline data, and restores all settings to default.";
+"This will permanently delete all feeds, articles, bookmarks, folders, offline downloads, and restore all settings to their default values. This action cannot be undone." = "This will permanently delete all feeds, articles, bookmarks, folders, offline downloads, and restore all settings to their default values. This action cannot be undone.";
+"Reset Everything" = "Reset Everything";
+"All data and settings have been reset." = "All data and settings have been reset.";
+
+
 
 
 

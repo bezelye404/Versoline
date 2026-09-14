@@ -314,6 +314,16 @@
 "Show Quick & Deep Reads" = "Hızlı ve Derin Okumaları Göster";
 "Adds 'Quick Reads (<3m)' and 'Deep Reads (>7m)' filters to the Smart Streams section in your sidebar." = "Kenar çubuğundaki Akıllı Akışlar bölümüne 'Hızlı Okumalar (<3dk)' ve 'Derin Okumalar (>7dk)' filtrelerini ekler.";
 
+/* Settings: Factory Reset */
+"Factory Reset" = "Fabrika Ayarlarına Sıfırla";
+"Reset All Data & Settings..." = "Tüm Verileri ve Ayarları Sıfırla...";
+"Reset All Data and Settings?" = "Tüm Verileri ve Ayarları Sıfırla?";
+"Permanently removes all feeds, articles, folders, bookmarks, offline data, and restores all settings to default." = "Tüm akışları, makaleleri, klasörleri, favorileri, çevrimdışı verileri kalıcı olarak siler ve tüm ayarları varsayılana döndürür.";
+"This will permanently delete all feeds, articles, bookmarks, folders, offline downloads, and restore all settings to their default values. This action cannot be undone." = "Bu işlem tüm akışları, makaleleri, favorileri, klasörleri, çevrimdışı indirmeleri kalıcı olarak silecek ve tüm ayarları varsayılan değerlerine döndürecektir. Bu işlem geri alınamaz.";
+"Reset Everything" = "Her Şeyi Sıfırla";
+"All data and settings have been reset." = "Tüm veriler ve ayarlar sıfırlandı.";
+
+
 
 
 
