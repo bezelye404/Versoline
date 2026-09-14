@@ -281,4 +281,20 @@
 "Share..." = "Paylaş...";
 "Copy Link" = "Bağlantıyı Kopyala";
 
+/* YouTube Built-In Player */
+"Close Player" = "Oynatıcıyı Kapat";
+"Watch on YouTube" = "YouTube'da İzle";
+"Stop video and free memory" = "Videoyu durdur ve belleği boşalt";
+"Play" = "Oynat";
+"Pause" = "Duraklat";
+"Seek Backward 10s" = "10 Saniye Geri";
+"Seek Forward 10s" = "10 Saniye İleri";
+"Playback Speed" = "Oynatma Hızı";
+"Mute" = "Sesi Kapat";
+"Unmute" = "Sesi Aç";
+"Volume" = "Ses Düzeyi";
+"Picture in Picture" = "Resim İçinde Resim";
+"Fullscreen" = "Tam Ekran";
+"Exit Fullscreen" = "Tam Ekrandan Çık";
+
 

@@ -178,7 +178,7 @@ struct SidebarView: View {
     }
 
     private func toggleFolder(_ folderId: UUID) {
-        withAnimation(.easeInOut(duration: 0.18)) {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.82)) {
             var set = Set(collapsedFolderIdsRaw.components(separatedBy: ",").filter { !$0.isEmpty })
             if set.contains(folderId.uuidString) {
                 set.remove(folderId.uuidString)
@@ -197,7 +197,7 @@ struct SidebarView: View {
                     FolderStreamRow(folder: folder)
                         .dropDestination(for: String.self) { items, _ in
                             guard let idStr = items.first, let feedId = UUID(uuidString: idStr) else { return false }
-                            withAnimation(.easeInOut(duration: 0.18)) {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.82)) {
                                 store.moveFeed(feedId, toFolder: folder.id)
                             }
                             return true
@@ -233,7 +233,7 @@ struct SidebarView: View {
                 }
             } header: {
                 Button {
-                    withAnimation(.easeInOut(duration: 0.18)) {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.82)) {
                         isUncategorizedExpanded.toggle()
                     }
                 } label: {
