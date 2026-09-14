@@ -243,6 +243,24 @@ struct FeedListView: View {
                     .navigationTitle(title)
                     .toolbar {
                         ToolbarItem(placement: .automatic) {
+                            if case .feed(let feedId) = selection, let currentFeed = store.feed(for: feedId) {
+                                Button {
+                                    AppHaptics.tap()
+                                    withAnimation(AppAnimation.snappy) {
+                                        store.togglePin(feedId: feedId)
+                                    }
+                                } label: {
+                                    Label(
+                                        currentFeed.isPinned ? String(localized: "Unpin Feed") : String(localized: "Pin Feed"),
+                                        systemImage: currentFeed.isPinned ? "pin.fill" : "pin"
+                                    )
+                                }
+                                .help(currentFeed.isPinned ? String(localized: "Unpin Feed") : String(localized: "Pin Feed"))
+                                .keyboardShortcut("p", modifiers: [.command, .shift])
+                            }
+                        }
+
+                        ToolbarItem(placement: .automatic) {
                             let unreadItems = items.filter { !$0.isRead }
                             if !unreadItems.isEmpty {
                                 Button {

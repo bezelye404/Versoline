@@ -202,6 +202,7 @@ final class SyncCoordinator {
             title: feed.title,
             url: feed.url,
             folderId: feed.folderId,
+            isPinned: feed.isPinned,
             updatedAt: Date(),
             deletedAt: nil
         )

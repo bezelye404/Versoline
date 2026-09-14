@@ -23,6 +23,7 @@ struct SyncFeed: Codable, Identifiable, Equatable, Sendable {
     var title: String
     let url: String
     var folderId: UUID?
+    var isPinned: Bool?
     var updatedAt: Date
     var deletedAt: Date?
 
