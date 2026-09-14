@@ -9,20 +9,27 @@ A very lightweight, swiss-knife RSS reader built for macOS. Written in Swift and
 ### Feeds & Content
 
 - **RSS & Atom**: Supports standard RSS 2.0 and Atom feeds.
-- **YouTube Channels**: Paste any channel handle (`@.........`), channel URL, or channel name to automatically resolve and subscribe to its video feed.
+- **YouTube Channels & Videos**:
+  - Paste any channel handle (`@...`), channel URL, or video link to resolve and subscribe.
+  - Dedicated Videos section in the sidebar with native embedded playback and zero-reload fullscreen mode.
 - **Subreddits & Users**: Add feeds for any subreddit or Reddit user with custom sorting (`hot`, `new`, `top`, `rising`) and time filters.
 - **Podcasts**:
   - In-app iTunes podcast search engine.
-  - Streaming audio playback with mini player, scrub bar, playback speed (0.75x–2.0x), and sleep timer.
+  - Streaming playback with scrub bar, playback speed (0.5x–2.0x), sleep timer, and up-next queue.
   - Offline episode download management (`.mp3`).
-  - Chapter and timestamp detection with instant jump.
-- **Curated Catalog**: 460+ verified feeds across tech, news, science, podcasts, and video channels, automatically synced from remote CDN with local caching.
+  - Chapter and timestamp detection with instant seek.
+- **Universal Mini Player**: Persistent bottom dock player for podcasts and videos with playback speed, scrubber, volume control, fullscreen toggle, and single-click navigation back to the origin article.
+- **Smart Streams**: Automatic filtering for Quick Reads (< 3 min) and Deep Reads (> 7 min).
+- **Curated Catalog**: 460+ verified feeds across tech, news, science, podcasts, and video channels, synced from remote CDN with local caching.
 - **OPML Support**: Import and export OPML 2.0 subscription lists.
 
 ### Reading Experience
 
 - **Reader Mode**: Distraction-free article view stripping ads, wrappers, and tracking scripts.
-- **Customizable Typography**: 5 themes (System, Light, Sepia, Dark, OLED Black), 4 font families, adjustable font size, and line spacing.
+- **Themes & Palettes**: 5 full-app color palettes (Slate, Sepia, Sage, Dusk, Monochrome) coordinating the sidebar, list, card accents, and reader backgrounds in dynamic light and dark modes.
+- **Typography & Bionic Reading**: 4 font families, adjustable font size, line spacing, native Bionic Reading mode, and code syntax highlighting.
+- **Reading Insights**: Reading habits overview powered by Apple Charts.
+- **Quote Cards**: Generate formatted quote snippet cards from article excerpts and copy them to the clipboard.
 - **In-App Web Browser**: Optional live WebKit browser mode equipped with a built-in content blocker targeting ad and tracking networks.
 - **Text-to-Speech**: Native system speech synthesis for reading articles aloud.
 - **Smart Folders**: Keyword-based rule engine that dynamically groups matching articles from any feed into folders.
@@ -40,7 +47,8 @@ A very lightweight, swiss-knife RSS reader built for macOS. Written in Swift and
 
 ## Architecture & Privacy
 
-- **Zero External Dependencies**: Uses only Apple system frameworks (`SwiftUI`, `WebKit`, `AVFoundation`, `MediaPlayer`, `Network`).
+- **Zero External Dependencies**: Uses only Apple system frameworks (`SwiftUI`, `WebKit`, `AVFoundation`, `MediaPlayer`, `Network`, `Charts`).
+- **Low Resource Usage**: Downsampled favicon caching, single-instance video WebProcess reparenting, and lightweight in-memory storage keeping memory usage minimal.
 - **Offline First**: Articles, downloaded episodes, favicons, and feeds are stored locally in `~/Library/Application Support/EasyRSS`.
 - **No Accounts, No Telemetry**: No third-party analytics, no account requirements, and no intermediary servers. Requests are made directly between your Mac and the feed hosts.
 
