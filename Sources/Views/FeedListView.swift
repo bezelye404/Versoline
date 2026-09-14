@@ -513,7 +513,7 @@ struct FeedItemRow: View {
 
     private var mediaThumbnailURL: URL? {
         if let yt = item.youtubeThumbnailURL { return yt }
-        if let img = feedImageURL, let url = URL(string: img) { return url }
+        if item.isPodcast, let img = feedImageURL, let url = URL(string: img) { return url }
         return nil
     }
 
@@ -523,13 +523,14 @@ struct FeedItemRow: View {
         HStack(alignment: .center, spacing: 10) {
             // Main text column
             HStack(alignment: .top, spacing: 8) {
-                // Unread indicator dot
+                // Unread indicator bubble dot
                 Circle()
                     .fill(item.isRead ? Color.clear : Color.accentColor)
                     .frame(width: 7, height: 7)
-                    .scaleEffect(item.isRead ? 0.6 : 1.0)
+                    .scaleEffect(item.isRead ? 0.0 : 1.0)
+                    .opacity(item.isRead ? 0.0 : 1.0)
                     .padding(.top, isCompactListMode ? 4 : 5)
-                    .animation(.spring(response: 0.28, dampingFraction: 0.72), value: item.isRead)
+                    .animation(.spring(response: 0.32, dampingFraction: 0.68), value: item.isRead)
 
                 VStack(alignment: .leading, spacing: isCompactListMode ? 2 : 4) {
                     // Title and Bookmark
@@ -659,17 +660,7 @@ struct FeedItemRow: View {
                 }
             }
         }
-        .padding(.vertical, isCompactListMode ? 2 : 5)
-        .padding(.horizontal, 4)
-        .background(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(isHovered ? Color.primary.opacity(0.04) : Color.clear)
-        )
+        .padding(.vertical, isCompactListMode ? 2 : 4)
         .contentShape(Rectangle())
-        .onHover { hovering in
-            withAnimation(.easeInOut(duration: 0.18)) {
-                isHovered = hovering
-            }
-        }
     }
 }

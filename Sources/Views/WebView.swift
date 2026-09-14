@@ -213,7 +213,7 @@ struct WebView: NSViewRepresentable {
                 line-height: \(lineHeight.rawValue);
                 color: \(theme.textColorCSS);
                 background-color: \(theme.backgroundColorCSS);
-                padding: 0 8px;
+                padding: 0 24px;
                 max-width: 800px;
                 margin: 0 auto;
                 word-wrap: break-word;
