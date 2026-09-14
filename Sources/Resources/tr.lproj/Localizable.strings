@@ -309,10 +309,11 @@
 "Lifestyle & Health" = "Yaşam & Sağlık";
 "No articles matching this category found in your library yet." = "Kütüphanenizde henüz bu kategoriyle eşleşen makale bulunamadı.";
 
-/* Settings: Streams & Sidebar */
-"Sidebar & Smart Streams" = "Kenar Çubuğu & Akıllı Akışlar";
-"Show Reading Time Streams" = "Okuma Süresi Akışlarını Göster";
-"Adds 'Quick Reads (<3m)' and 'Deep Reads (>7m)' filters under Smart Streams in the sidebar." = "Kenar çubuğundaki Akıllı Akışlar altına 'Hızlı Okumalar (<3dk)' ve 'Derin Okumalar (>7dk)' filtrelerini ekler.";
+/* Settings: Reading Time Filters */
+"Reading Time Filters" = "Okuma Süresi Filtreleri";
+"Show Quick & Deep Reads" = "Hızlı ve Derin Okumaları Göster";
+"Adds 'Quick Reads (<3m)' and 'Deep Reads (>7m)' filters to the Smart Streams section in your sidebar." = "Kenar çubuğundaki Akıllı Akışlar bölümüne 'Hızlı Okumalar (<3dk)' ve 'Derin Okumalar (>7dk)' filtrelerini ekler.";
+
 
 
 

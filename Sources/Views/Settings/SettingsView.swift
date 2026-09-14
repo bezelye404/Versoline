@@ -148,9 +148,9 @@ private struct GeneralSettingsTab: View {
                     .foregroundStyle(.secondary)
             }
 
-            Section("Sidebar & Smart Streams") {
-                Toggle("Show Reading Time Streams", isOn: $showReadingTimeStreams)
-                Text("Adds 'Quick Reads (<3m)' and 'Deep Reads (>7m)' filters under Smart Streams in the sidebar.")
+            Section("Reading Time Filters") {
+                Toggle("Show Quick & Deep Reads", isOn: $showReadingTimeStreams)
+                Text("Adds 'Quick Reads (<3m)' and 'Deep Reads (>7m)' filters to the Smart Streams section in your sidebar.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
