@@ -66,6 +66,7 @@ private struct GeneralSettingsTab: View {
     @AppStorage(AppSettingsKeys.preferredExternalBrowser) private var preferredExternalBrowserRaw = ExternalBrowserOption.systemDefault.rawValue
     @AppStorage(AppSettingsKeys.offlinePrecacheEnabled) private var offlinePrecacheEnabled = false
     @AppStorage(AppSettingsKeys.isContentBlockerEnabled) private var isContentBlockerEnabled = true
+    @AppStorage(AppSettingsKeys.showReadingTimeStreams) private var showReadingTimeStreams = false
 
     var body: some View {
         Form {
@@ -143,6 +144,13 @@ private struct GeneralSettingsTab: View {
             Section {
                 Toggle("Show Menu Bar Icon", isOn: $showMenuBarIcon)
                 Text("Keeps an easyRSS status icon in your macOS top menu bar with an unread badge.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section("Sidebar & Smart Streams") {
+                Toggle("Show Reading Time Streams", isOn: $showReadingTimeStreams)
+                Text("Adds 'Quick Reads (<3m)' and 'Deep Reads (>7m)' filters under Smart Streams in the sidebar.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

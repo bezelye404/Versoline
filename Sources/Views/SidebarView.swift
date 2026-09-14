@@ -21,6 +21,7 @@ struct SidebarView: View {
     // Collapsible sections persistence
     @AppStorage("collapsedFolderIds") private var collapsedFolderIdsRaw: String = ""
     @AppStorage("isUncategorizedExpanded") private var isUncategorizedExpanded: Bool = true
+    @AppStorage(AppSettingsKeys.showReadingTimeStreams) private var showReadingTimeStreams = false
 
     var body: some View {
         List(selection: $selectedItem) {
@@ -237,23 +238,39 @@ struct SidebarView: View {
 
     @ViewBuilder
     private var smartStreamsSection: some View {
-        Section(String(localized: "Smart Streams")) {
-            NavigationLink(value: SidebarItem.quickReads) {
-                sidebarRow(
-                    title: String(localized: "Quick Reads (<3m)"),
-                    systemImage: "bolt",
-                    count: store.quickReadsCount(),
-                    accentColor: theme.accentColor
-                )
-            }
+        let activeCategories = store.activeSmartCategories
+        if showReadingTimeStreams || !activeCategories.isEmpty {
+            Section(String(localized: "Smart Streams")) {
+                if showReadingTimeStreams {
+                    NavigationLink(value: SidebarItem.quickReads) {
+                        sidebarRow(
+                            title: String(localized: "Quick Reads (<3m)"),
+                            systemImage: "bolt",
+                            count: store.quickReadsCount(),
+                            accentColor: theme.accentColor
+                        )
+                    }
 
-            NavigationLink(value: SidebarItem.longReads) {
-                sidebarRow(
-                    title: String(localized: "Deep Reads (>7m)"),
-                    systemImage: "book.closed",
-                    count: store.longReadsCount(),
-                    accentColor: theme.bookmarkColor
-                )
+                    NavigationLink(value: SidebarItem.longReads) {
+                        sidebarRow(
+                            title: String(localized: "Deep Reads (>7m)"),
+                            systemImage: "book.closed",
+                            count: store.longReadsCount(),
+                            accentColor: theme.bookmarkColor
+                        )
+                    }
+                }
+
+                ForEach(activeCategories) { category in
+                    NavigationLink(value: SidebarItem.smartCategory(category)) {
+                        sidebarRow(
+                            title: category.displayName,
+                            systemImage: category.systemImage,
+                            count: store.smartCategoryCount(category),
+                            accentColor: category.accentColor
+                        )
+                    }
+                }
             }
         }
     }

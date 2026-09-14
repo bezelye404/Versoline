@@ -16,6 +16,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
     private var currentPubDate: String = ""
     private var currentAuthor: String = ""
     private var currentContent: String = ""
+    private var currentCategory: String = ""
     private var isInsideItem: Bool = false
     private var isInsideChannel: Bool = false
     private var isInsideImage: Bool = false
@@ -220,6 +221,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
             currentPubDate = ""
             currentAuthor = ""
             currentContent = ""
+            currentCategory = ""
             currentAudioURL = nil
             currentAudioDuration = ""
             currentAudioType = nil
@@ -295,6 +297,13 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
                 }
             }
 
+        case "category":
+            if isInsideItem {
+                if let term = attributeDict["term"], !term.isEmpty {
+                    currentCategory = term
+                }
+            }
+
         default:
             break
         }
@@ -350,6 +359,11 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
                 currentAudioDuration += trimmed
             }
 
+        case "category":
+            if isInsideItem {
+                currentCategory += trimmed
+            }
+
         default:
             break
         }
@@ -374,6 +388,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
             let cleanAuthor = currentAuthor.strippingHTML()
             let cleanDesc = currentDescription.decodingHTMLEntities().trimmingCharacters(in: .whitespacesAndNewlines)
             let cleanContent = currentContent.decodingHTMLEntities().trimmingCharacters(in: .whitespacesAndNewlines)
+            let cleanCategory = currentCategory.strippingHTML().trimmingCharacters(in: .whitespacesAndNewlines)
             let precomputedSnippet = cleanDesc.strippingHTML()
             let itemLink = currentLink.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -395,6 +410,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
                 isRead: false,
                 content: nil,
                 snippet: precomputedSnippet,
+                category: cleanCategory.isEmpty ? nil : cleanCategory,
                 audioURL: currentAudioURL,
                 audioDuration: currentAudioDuration.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : currentAudioDuration.trimmingCharacters(in: .whitespacesAndNewlines),
                 audioType: currentAudioType,
