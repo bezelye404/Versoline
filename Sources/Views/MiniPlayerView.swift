@@ -43,27 +43,31 @@ struct MiniPlayerView: View {
                     // MARK: - Left: Episode Info, Artwork & Equalizer
                     HStack(spacing: 10) {
                         ZStack {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.accentColor.opacity(0.12))
-                                .frame(width: 40, height: 40)
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .fill(Color.primary.opacity(0.04))
+                                .frame(width: 36, height: 36)
 
                             if let feed = store.feed(for: episode.feedId) {
-                                FaviconView(hostOrURL: feed.url, size: 22)
+                                FaviconView(hostOrURL: feed.url, size: 20)
                             } else {
                                 Image(systemName: "headphones")
-                                    .font(.system(size: 18))
-                                    .foregroundStyle(Color.accentColor)
+                                    .font(.system(size: 16))
+                                    .foregroundStyle(AppTheme.Colors.podcast)
                             }
                         }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.5)
+                        )
 
                         VStack(alignment: .leading, spacing: 2) {
-                            HStack(spacing: 6) {
+                            HStack(spacing: 5) {
                                 Text(episode.title)
-                                    .font(.system(size: 13, weight: .medium))
+                                    .font(.system(size: 12, weight: .medium))
                                     .lineLimit(1)
                                     .truncationMode(.tail)
 
-                                EqualizerWaveformView(isPlaying: player.isPlaying)
+                                EqualizerWaveformView(isPlaying: player.isPlaying, barWidth: 1.5, maxHeight: 9)
                             }
 
                             Text(player.currentFeedTitle ?? episode.author ?? String(localized: "Podcast"))
@@ -72,7 +76,7 @@ struct MiniPlayerView: View {
                                 .lineLimit(1)
                         }
                     }
-                    .frame(minWidth: 160, idealWidth: 220, maxWidth: 280, alignment: .leading)
+                    .frame(minWidth: 150, idealWidth: 200, maxWidth: 260, alignment: .leading)
 
                     Spacer(minLength: 8)
 
@@ -81,22 +85,26 @@ struct MiniPlayerView: View {
                         // Buttons
                         HStack(spacing: 14) {
                             Button {
+                                AppHaptics.tap()
                                 player.skipBackward(seconds: 15)
                             } label: {
                                 Image(systemName: "gobackward.15")
-                                    .font(.system(size: 14))
+                                    .font(.system(size: 13))
                             }
                             .buttonStyle(.plain)
                             .foregroundStyle(.secondary)
                             .help(String(localized: "Skip backward 15 seconds"))
 
                             Button {
-                                player.togglePlayPause()
+                                AppHaptics.tap()
+                                withAnimation(AppAnimation.bouncy) {
+                                    player.togglePlayPause()
+                                }
                             } label: {
                                 ZStack {
                                     Circle()
-                                        .fill(Color.accentColor)
-                                        .frame(width: 32, height: 32)
+                                        .fill(AppTheme.Colors.accent)
+                                        .frame(width: 30, height: 30)
 
                                     if player.isBuffering {
                                         ProgressView()
@@ -104,9 +112,10 @@ struct MiniPlayerView: View {
                                             .colorInvert()
                                     } else {
                                         Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
-                                            .font(.system(size: 14))
+                                            .font(.system(size: 13, weight: .semibold))
                                             .foregroundStyle(.white)
                                             .offset(x: player.isPlaying ? 0 : 1)
+                                            .contentTransition(.symbolEffect(.replace))
                                     }
                                 }
                             }
@@ -114,10 +123,11 @@ struct MiniPlayerView: View {
                             .help(player.isPlaying ? String(localized: "Pause") : String(localized: "Play"))
 
                             Button {
+                                AppHaptics.tap()
                                 player.skipForward(seconds: 15)
                             } label: {
                                 Image(systemName: "goforward.15")
-                                    .font(.system(size: 14))
+                                    .font(.system(size: 13))
                             }
                             .buttonStyle(.plain)
                             .foregroundStyle(.secondary)
@@ -125,11 +135,11 @@ struct MiniPlayerView: View {
                         }
 
                         // Scrubber Slider
-                        HStack(spacing: 8) {
+                        HStack(spacing: 7) {
                             Text(formatTime(player.currentTime))
-                                .font(.system(size: 11, design: .monospaced))
+                                .font(.system(size: 10, design: .monospaced))
                                 .foregroundStyle(.secondary)
-                                .frame(width: 44, alignment: .trailing)
+                                .frame(width: 42, alignment: .trailing)
 
                             Slider(
                                 value: Binding(
@@ -139,20 +149,20 @@ struct MiniPlayerView: View {
                                 in: 0...max(player.duration, 1.0)
                             )
                             .controlSize(.mini)
-                            .tint(Color.accentColor)
+                            .tint(AppTheme.Colors.accent)
 
                             Text(player.duration > 0 ? formatRemainingTime(current: player.currentTime, total: player.duration) : "--:--")
-                                .font(.system(size: 11, design: .monospaced))
+                                .font(.system(size: 10, design: .monospaced))
                                 .foregroundStyle(.secondary)
-                                .frame(width: 48, alignment: .leading)
+                                .frame(width: 44, alignment: .leading)
                         }
                     }
-                    .frame(maxWidth: 480)
+                    .frame(maxWidth: 440)
 
                     Spacer(minLength: 8)
 
                     // MARK: - Right: Tools (Speed, Sleep Timer, Queue, Share, Volume, Close)
-                    HStack(spacing: 10) {
+                    HStack(spacing: 8) {
                         // Playback Speed Menu
                         Menu {
                             ForEach(AudioPlayerService.availableRates, id: \.self) { rate in
@@ -169,11 +179,10 @@ struct MiniPlayerView: View {
                             }
                         } label: {
                             Text(String(format: "%.2fx", player.playbackRate))
-                                .font(.system(size: 11, weight: .semibold))
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 3)
-                                .background(Color.secondary.opacity(0.12))
-                                .clipShape(RoundedRectangle(cornerRadius: 5))
+                                .font(.system(size: 10, weight: .semibold))
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 2)
+                                .background(Color.primary.opacity(0.06), in: RoundedRectangle(cornerRadius: 4, style: .continuous))
                         }
                         .menuStyle(.borderlessButton)
                         .fixedSize()
@@ -201,37 +210,40 @@ struct MiniPlayerView: View {
                                 player.startSleepTimerUntilEndOfEpisode()
                             }
                         } label: {
-                            HStack(spacing: 3) {
+                            HStack(spacing: 2) {
                                 Image(systemName: player.sleepTimerRemainingSeconds != nil ? "moon.zzz.fill" : "moon.zzz")
                                     .font(.system(size: 11))
                                 if let remaining = player.sleepTimerRemainingSeconds {
                                     Text("\(max(1, remaining / 60))m")
-                                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                                        .font(.system(size: 9, weight: .semibold, design: .monospaced))
                                 }
                             }
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 3)
-                            .background(player.sleepTimerRemainingSeconds != nil ? Color.accentColor.opacity(0.18) : Color.secondary.opacity(0.12))
-                            .foregroundStyle(player.sleepTimerRemainingSeconds != nil ? Color.accentColor : Color.secondary)
-                            .clipShape(RoundedRectangle(cornerRadius: 5))
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 2)
+                            .background(
+                                player.sleepTimerRemainingSeconds != nil ? AppTheme.Colors.accent.opacity(0.12) : Color.primary.opacity(0.06),
+                                in: RoundedRectangle(cornerRadius: 4, style: .continuous)
+                            )
+                            .foregroundStyle(player.sleepTimerRemainingSeconds != nil ? AppTheme.Colors.accent : Color.secondary)
                         }
                         .menuStyle(.borderlessButton)
                         .help(String(localized: "Sleep Timer"))
 
                         // Up Next Queue Popover
                         Button {
+                            AppHaptics.tap()
                             showQueuePopover.toggle()
                         } label: {
                             ZStack(alignment: .topTrailing) {
                                 Image(systemName: "list.bullet")
-                                    .font(.system(size: 12))
-                                    .foregroundStyle(showQueuePopover || !player.queue.isEmpty ? Color.accentColor : Color.secondary)
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(showQueuePopover || !player.queue.isEmpty ? AppTheme.Colors.accent : Color.secondary)
 
                                 if !player.queue.isEmpty {
                                     Circle()
-                                        .fill(Color.accentColor)
-                                        .frame(width: 5, height: 5)
-                                        .offset(x: 3, y: -2)
+                                        .fill(AppTheme.Colors.accent)
+                                        .frame(width: 4, height: 4)
+                                        .offset(x: 2, y: -2)
                                 }
                             }
                             .padding(4)
@@ -245,6 +257,7 @@ struct MiniPlayerView: View {
 
                         // Share Timestamp Button
                         Button {
+                            AppHaptics.tap()
                             shareTimestamp(for: episode)
                         } label: {
                             Image(systemName: "square.and.arrow.up")
@@ -261,6 +274,7 @@ struct MiniPlayerView: View {
                                 .font(.system(size: 11))
                                 .foregroundStyle(.secondary)
                                 .onTapGesture {
+                                    AppHaptics.tap()
                                     if player.volume > 0 {
                                         player.volume = 0
                                     } else {
@@ -273,15 +287,18 @@ struct MiniPlayerView: View {
                                 in: 0.0...1.0
                             )
                             .controlSize(.mini)
-                            .frame(width: 48)
+                            .frame(width: 44)
                         }
 
                         // Close Player
                         Button {
-                            player.close()
+                            AppHaptics.tap()
+                            withAnimation(AppAnimation.pageReveal) {
+                                player.close()
+                            }
                         } label: {
                             Image(systemName: "xmark")
-                                .font(.system(size: 11, weight: .semibold))
+                                .font(.system(size: 10, weight: .semibold))
                                 .foregroundStyle(.tertiary)
                                 .padding(4)
                                 .contentShape(Rectangle())
@@ -289,11 +306,11 @@ struct MiniPlayerView: View {
                         .buttonStyle(.plain)
                         .help(String(localized: "Close Player"))
                     }
-                    .frame(minWidth: 200, alignment: .trailing)
+                    .frame(minWidth: 190, alignment: .trailing)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(.regularMaterial)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 7)
+                .background(.ultraThinMaterial)
             }
             .transition(.move(edge: .bottom).combined(with: .opacity))
         }

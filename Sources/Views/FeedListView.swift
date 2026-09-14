@@ -108,23 +108,26 @@ struct FeedListView: View {
                             HStack(spacing: 6) {
                                 Image(systemName: "wifi.slash")
                                     .font(.caption2)
-                                Text(String(localized: "Offline Mode - Showing cached articles"))
+                                Text(String(localized: "Offline Mode — Showing cached articles"))
                                     .font(.caption2.weight(.medium))
                                 Spacer()
                             }
-                            .padding(.horizontal, 12)
+                            .padding(.horizontal, 14)
                             .padding(.vertical, 5)
-                            .background(Color.secondary.opacity(0.1))
+                            .background(Color.primary.opacity(0.04))
                             .foregroundStyle(.secondary)
+                            .overlay(alignment: .bottom) {
+                                Divider()
+                            }
                         }
 
                         if items.isEmpty && !searchText.isEmpty {
                             VStack(spacing: 12) {
                                 Image(systemName: "magnifyingglass")
-                                    .font(.system(size: 40, weight: .ultraLight))
+                                    .font(.system(size: 36, weight: .ultraLight))
                                     .foregroundStyle(.quaternary)
-                                Text("No results found")
-                                    .font(.subheadline)
+                                Text(String(localized: "No results found"))
+                                    .font(.subheadline.weight(.medium))
                                     .foregroundStyle(.secondary)
                                 Text(String(format: String(localized: "No articles matching \"%@\"."), searchText))
                                     .font(.caption)
@@ -137,6 +140,7 @@ struct FeedListView: View {
                             List(selection: Binding(
                                 get: { selectedArticle },
                                 set: { newSelection in
+                                    AppHaptics.tap()
                                     withAnimation(AppAnimation.slidingPill) {
                                         selectedArticle = newSelection
                                     }
@@ -153,32 +157,38 @@ struct FeedListView: View {
                                     )
                                     .tag(item)
                                     .listRowBackground(EmptyView())
-                                    .listRowInsets(EdgeInsets(top: 2, leading: 6, bottom: 2, trailing: 6))
+                                    .listRowInsets(EdgeInsets(top: 2, leading: 8, bottom: 2, trailing: 8))
                                     .listRowSeparator(.hidden)
                                     .contextMenu {
                                         itemContextMenu(item: item)
                                     }
                                     .swipeActions(edge: .leading, allowsFullSwipe: true) {
                                         Button {
-                                            store.toggleReadStatus(item)
+                                            AppHaptics.tap()
+                                            withAnimation(AppAnimation.quickFeedback) {
+                                                store.toggleReadStatus(item)
+                                            }
                                         } label: {
                                             Label(
                                                 item.isRead ? String(localized: "Mark as Unread") : String(localized: "Mark as Read"),
                                                 systemImage: item.isRead ? "circle" : "checkmark.circle"
                                             )
                                         }
-                                        .tint(.blue)
+                                        .tint(AppTheme.Colors.accent)
                                     }
                                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                         Button {
-                                            store.toggleBookmark(item)
+                                            AppHaptics.tap()
+                                            withAnimation(AppAnimation.bouncy) {
+                                                store.toggleBookmark(item)
+                                            }
                                         } label: {
                                             Label(
                                                 item.isBookmarked ? String(localized: "Remove Bookmark") : String(localized: "Bookmark"),
                                                 systemImage: item.isBookmarked ? "star.slash" : "star.fill"
                                             )
                                         }
-                                        .tint(.orange)
+                                        .tint(AppTheme.Colors.bookmark)
                                     }
                                 }
 
@@ -192,7 +202,7 @@ struct FeedListView: View {
                             }
                             .listStyle(.plain)
                             .safeAreaInset(edge: .top) {
-                                Color.clear.frame(height: 4)
+                                Color.clear.frame(height: 2)
                             }
                         }
                     }
@@ -202,14 +212,20 @@ struct FeedListView: View {
                             let unreadItems = items.filter { !$0.isRead }
                             if !unreadItems.isEmpty {
                                 Button {
-                                    store.markAllAsRead(items: unreadItems)
+                                    AppHaptics.notifySuccess()
+                                    withAnimation(AppAnimation.quickFeedback) {
+                                        store.markAllAsRead(items: unreadItems)
+                                    }
                                 } label: {
                                     Label(String(localized: "Mark All as Read"), systemImage: "checkmark.circle")
                                 }
                                 .help(String(localized: "Mark All as Read in Current View"))
                             } else if case .feed(let feedId) = selection, !items.isEmpty {
                                 Button {
-                                    store.markAllAsUnread(feedId: feedId)
+                                    AppHaptics.notifySuccess()
+                                    withAnimation(AppAnimation.quickFeedback) {
+                                        store.markAllAsUnread(feedId: feedId)
+                                    }
                                 } label: {
                                     Label(String(localized: "Mark All as Unread"), systemImage: "circle")
                                 }
@@ -226,88 +242,24 @@ struct FeedListView: View {
                         displayLimit = 60
                     }
                     .background {
-                        Group {
-                            // Standard command shortcuts
-                            Button("Toggle Read Status") {
-                                if let selected = selectedArticle {
-                                    store.toggleReadStatus(selected)
-                                }
-                            }
-                            .keyboardShortcut("u", modifiers: .command)
-
-                            // Power-User Single Key Shortcuts (J/K/M/S/O)
-                            if enableSingleKeyShortcuts {
-                                Button("Next Article") {
-                                    selectNextArticle(in: items)
-                                }
-                                .keyboardShortcut("j", modifiers: [])
-
-                                Button("Previous Article") {
-                                    selectPreviousArticle(in: items)
-                                }
-                                .keyboardShortcut("k", modifiers: [])
-
-                                Button("Toggle Read Single Key") {
-                                    if let selected = selectedArticle {
-                                        store.toggleReadStatus(selected)
-                                    }
-                                }
-                                .keyboardShortcut("m", modifiers: [])
-
-                                Button("Toggle Bookmark Single Key") {
-                                    if let selected = selectedArticle {
-                                        store.toggleBookmark(selected)
-                                    }
-                                }
-                                .keyboardShortcut("s", modifiers: [])
-
-                                Button("Open In Browser Single Key") {
-                                    if let selected = selectedArticle, let url = URL(string: selected.link) {
-                                        let browser = ExternalBrowserOption(rawValue: preferredExternalBrowserRaw) ?? .systemDefault
-                                        browser.open(url: url)
-                                    }
-                                }
-                                .keyboardShortcut("o", modifiers: [])
-
-                                Button("Space Paged Reading") {
-                                    handleSpacebarNavigation(in: items)
-                                }
-                                .keyboardShortcut(.space, modifiers: [])
-
-                                Button("Space Paged Reading Up") {
-                                    handleShiftSpacebarNavigation(in: items)
-                                }
-                                .keyboardShortcut(.space, modifiers: [.shift])
-                            }
-                        }
-                        .frame(width: 0, height: 0)
-                        .opacity(0)
+                        keyboardShortcutsBridge(in: items)
                     }
                 }
             } else {
-                VStack(spacing: 16) {
-                    Image(systemName: "newspaper")
-                        .font(.system(size: 48, weight: .ultraLight))
+                VStack(spacing: 12) {
+                    Image(systemName: "sidebar.left")
+                        .font(.system(size: 36, weight: .ultraLight))
                         .foregroundStyle(.quaternary)
-                    Text("Welcome")
-                        .font(.title3)
+                    Text(String(localized: "Select a Feed"))
+                        .font(.subheadline.weight(.medium))
                         .foregroundStyle(.secondary)
-                    Text("Select a feed or category from the sidebar.")
-                        .font(.subheadline)
-                        .foregroundStyle(.tertiary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .id(selection)
-        .transition(.asymmetric(
-            insertion: .opacity.combined(with: .offset(y: 8)),
-            removal: .opacity
-        ))
-        .animation(.spring(response: 0.32, dampingFraction: 0.82), value: selection)
     }
 
-    // MARK: - Inline Search Bar (Keeps middle column self-contained)
+    // MARK: - Inline Search Bar
 
     private var inlineSearchBar: some View {
         HStack(spacing: 6) {
@@ -315,7 +267,7 @@ struct FeedListView: View {
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(.secondary)
 
-            TextField(String(localized: "Search Articles"), text: $searchText)
+            TextField(String(localized: "Search articles..."), text: $searchText)
                 .textFieldStyle(.plain)
                 .font(.system(size: 12))
 
@@ -325,67 +277,125 @@ struct FeedListView: View {
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 11))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.tertiary)
                 }
                 .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 5)
-        .background(Color(nsColor: .controlBackgroundColor).opacity(0.85), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(Color.primary.opacity(0.04), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .stroke(Color.primary.opacity(0.08), lineWidth: 0.5)
+                .stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.5)
         )
-        .padding(.horizontal, 10)
-        .padding(.top, 8)
-        .padding(.bottom, 4)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
     }
 
-    // MARK: - Article Navigation
+    // MARK: - Keyboard Shortcuts
+
+    @ViewBuilder
+    private func keyboardShortcutsBridge(in items: [FeedItem]) -> some View {
+        Group {
+            Button("Toggle Read Status") {
+                if let selected = selectedArticle {
+                    AppHaptics.tap()
+                    withAnimation(AppAnimation.quickFeedback) {
+                        store.toggleReadStatus(selected)
+                    }
+                }
+            }
+            .keyboardShortcut("u", modifiers: .command)
+
+            if enableSingleKeyShortcuts {
+                Button("Next Article") {
+                    selectNextArticle(in: items)
+                }
+                .keyboardShortcut("j", modifiers: [])
+
+                Button("Previous Article") {
+                    selectPreviousArticle(in: items)
+                }
+                .keyboardShortcut("k", modifiers: [])
+
+                Button("Toggle Read Single Key") {
+                    if let selected = selectedArticle {
+                        AppHaptics.tap()
+                        withAnimation(AppAnimation.quickFeedback) {
+                            store.toggleReadStatus(selected)
+                        }
+                    }
+                }
+                .keyboardShortcut("m", modifiers: [])
+
+                Button("Toggle Bookmark Single Key") {
+                    if let selected = selectedArticle {
+                        AppHaptics.tap()
+                        withAnimation(AppAnimation.bouncy) {
+                            store.toggleBookmark(selected)
+                        }
+                    }
+                }
+                .keyboardShortcut("s", modifiers: [])
+
+                Button("Open in Browser Single Key") {
+                    if let selected = selectedArticle, let url = URL(string: selected.link) {
+                        let browser = ExternalBrowserOption(rawValue: preferredExternalBrowserRaw) ?? .systemDefault
+                        browser.open(url: url)
+                    }
+                }
+                .keyboardShortcut("o", modifiers: [])
+
+                Button("Spacebar Advance") {
+                    handleSpacebarNavigation(in: items)
+                }
+                .keyboardShortcut(.space, modifiers: [])
+
+                Button("Shift Spacebar Reverse") {
+                    handleShiftSpacebarNavigation(in: items)
+                }
+                .keyboardShortcut(.space, modifiers: .shift)
+            }
+        }
+        .opacity(0)
+        .allowsHitTesting(false)
+    }
 
     private func selectNextArticle(in items: [FeedItem]) {
         guard !items.isEmpty else { return }
-        guard let current = selectedArticle,
-              let index = items.firstIndex(where: { $0.id == current.id }) else {
-            withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
-                selectedArticle = items.first
+        AppHaptics.tap()
+        if let current = selectedArticle, let idx = items.firstIndex(where: { $0.id == current.id }) {
+            let nextIndex = idx + 1
+            if nextIndex < items.count {
+                selectArticleWithExpansion(items[nextIndex], in: items)
             }
-            return
-        }
-        let nextIndex = min(index + 1, items.count - 1)
-        if nextIndex >= displayLimit {
-            displayLimit = min(displayLimit + 40, items.count)
-        }
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
-            selectedArticle = items[nextIndex]
+        } else {
+            selectArticleWithExpansion(items[0], in: items)
         }
     }
 
     private func selectPreviousArticle(in items: [FeedItem]) {
         guard !items.isEmpty else { return }
-        guard let current = selectedArticle,
-              let index = items.firstIndex(where: { $0.id == current.id }) else {
-            withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
-                selectedArticle = items.first
+        AppHaptics.tap()
+        if let current = selectedArticle, let idx = items.firstIndex(where: { $0.id == current.id }) {
+            let prevIndex = idx - 1
+            if prevIndex >= 0 {
+                selectArticleWithExpansion(items[prevIndex], in: items)
             }
-            return
-        }
-        let prevIndex = max(index - 1, 0)
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
-            selectedArticle = items[prevIndex]
+        } else {
+            selectArticleWithExpansion(items[0], in: items)
         }
     }
 
     private func handleSpacebarNavigation(in items: [FeedItem]) {
         guard !items.isEmpty else { return }
         guard let current = selectedArticle else {
-            withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+            withAnimation(AppAnimation.slidingPill) {
                 selectedArticle = items.first
             }
             return
         }
-        // Advance to next unread article if any, otherwise next article in list
         let subsequent = items.drop(while: { $0.id != current.id }).dropFirst()
         if let nextUnread = subsequent.first(where: { !$0.isRead }) {
             selectArticleWithExpansion(nextUnread, in: items)
@@ -402,7 +412,7 @@ struct FeedListView: View {
         if let idx = items.firstIndex(where: { $0.id == article.id }), idx >= displayLimit {
             displayLimit = min(idx + 20, items.count)
         }
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+        withAnimation(AppAnimation.slidingPill) {
             selectedArticle = article
         }
     }
@@ -412,19 +422,25 @@ struct FeedListView: View {
     @ViewBuilder
     private func itemContextMenu(item: FeedItem) -> some View {
         Button {
-            store.toggleReadStatus(item)
+            AppHaptics.tap()
+            withAnimation(AppAnimation.quickFeedback) {
+                store.toggleReadStatus(item)
+            }
         } label: {
             Label(
-                item.isRead ? "Mark as Unread" : "Mark as Read",
+                item.isRead ? String(localized: "Mark as Unread") : String(localized: "Mark as Read"),
                 systemImage: item.isRead ? "circle" : "checkmark.circle"
             )
         }
 
         Button {
-            store.toggleBookmark(item)
+            AppHaptics.tap()
+            withAnimation(AppAnimation.bouncy) {
+                store.toggleBookmark(item)
+            }
         } label: {
             Label(
-                item.isBookmarked ? "Remove Bookmark" : "Add Bookmark",
+                item.isBookmarked ? String(localized: "Remove Bookmark") : String(localized: "Add Bookmark"),
                 systemImage: item.isBookmarked ? "star.fill" : "star"
             )
         }
@@ -436,7 +452,7 @@ struct FeedListView: View {
                 let browser = ExternalBrowserOption(rawValue: preferredExternalBrowserRaw) ?? .systemDefault
                 browser.open(url: url)
             } label: {
-                Label("Open in Browser", systemImage: "arrow.up.right.square")
+                Label(String(localized: "Open in Browser"), systemImage: "arrow.up.right.square")
             }
         }
 
@@ -446,30 +462,30 @@ struct FeedListView: View {
             Button {
                 AudioPlayerService.shared.playNext(item)
             } label: {
-                Label("Play Next", systemImage: "text.badge.plus")
+                Label(String(localized: "Play Next"), systemImage: "text.badge.plus")
             }
 
             Button {
                 AudioPlayerService.shared.addToQueue(item)
             } label: {
-                Label("Add to Queue", systemImage: "text.append")
+                Label(String(localized: "Add to Queue"), systemImage: "text.append")
             }
         }
     }
 
-    // MARK: - Empty State
+    // MARK: - Empty State (Editorial, Minimalist & Calm)
 
     @ViewBuilder
     private func emptyState(for item: SidebarItem) -> some View {
         VStack(spacing: 14) {
             if item == .unread {
-                Image(systemName: "checkmark.seal.fill")
-                    .font(.system(size: 52, weight: .light))
-                    .foregroundStyle(Color.accentColor.gradient)
+                Image(systemName: "checkmark.seal")
+                    .font(.system(size: 44, weight: .ultraLight))
+                    .foregroundStyle(.secondary)
                     .padding(.bottom, 2)
 
-                Text(String(localized: "All Caught Up!"))
-                    .font(.title3.weight(.semibold))
+                Text(String(localized: "All Caught Up"))
+                    .font(.title3.weight(.medium))
                     .foregroundStyle(.primary)
 
                 Text(String(localized: "You have no unread articles. Enjoy your day!"))
@@ -478,31 +494,23 @@ struct FeedListView: View {
                     .multilineTextAlignment(.center)
             } else {
                 Image(systemName: emptyStateIcon(for: item))
-                    .font(.system(size: 48, weight: .ultraLight))
+                    .font(.system(size: 44, weight: .ultraLight))
                     .foregroundStyle(.quaternary)
+                    .padding(.bottom, 2)
+
+                Text(emptyStateTitle(for: item))
+                    .font(.title3.weight(.medium))
+                    .foregroundStyle(.primary)
 
                 Text(emptyStateText(for: item))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-            }
-
-            if item == .podcasts {
-                Button {
-                    showPodcastSearch = true
-                } label: {
-                    Label(String(localized: "Find Podcasts..."), systemImage: "waveform.and.magnifyingglass")
-                        .font(.system(size: 13, weight: .medium))
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.regular)
-                .padding(.top, 4)
-                .sheet(isPresented: $showPodcastSearch) {
-                    AddFeedSheet(initialTab: .podcastSearch)
-                }
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .navigationTitle(title)
+        .padding()
     }
 
     private func emptyStateIcon(for item: SidebarItem) -> String {
@@ -518,21 +526,34 @@ struct FeedListView: View {
         }
     }
 
+    private func emptyStateTitle(for item: SidebarItem) -> String {
+        switch item {
+        case .all: return String(localized: "No Articles")
+        case .unread: return String(localized: "All Caught Up")
+        case .today: return String(localized: "No Articles Today")
+        case .bookmarks: return String(localized: "No Bookmarks")
+        case .podcasts: return String(localized: "No Podcasts")
+        case .downloaded: return String(localized: "No Downloads")
+        case .folder: return String(localized: "Folder is Empty")
+        case .feed: return String(localized: "Feed is Empty")
+        }
+    }
+
     private func emptyStateText(for item: SidebarItem) -> String {
         switch item {
         case .all: return String(localized: "No articles yet. Start by adding a feed.")
         case .unread: return String(localized: "No unread articles.")
-        case .today: return String(localized: "No articles from today.")
-        case .bookmarks: return String(localized: "No bookmarked articles yet.")
-        case .podcasts: return String(localized: "No podcast episodes yet.")
-        case .downloaded: return String(localized: "No downloaded episodes yet.")
-        case .folder: return String(localized: "No articles in this folder yet.")
-        case .feed: return String(localized: "No articles in this feed yet.")
+        case .today: return String(localized: "No articles published today.")
+        case .bookmarks: return String(localized: "Star articles to save them for later.")
+        case .podcasts: return String(localized: "Subscribe to podcast feeds to see episodes here.")
+        case .downloaded: return String(localized: "Downloaded podcast episodes will appear here for offline playback.")
+        case .folder: return String(localized: "Move feeds into this folder from the sidebar.")
+        case .feed: return String(localized: "No articles found in this feed.")
         }
     }
 }
 
-// MARK: - Feed Item Row
+// MARK: - Feed Item Row (Calm, Editorial & GPU Composited)
 
 struct FeedItemRow: View {
 
@@ -567,18 +588,17 @@ struct FeedItemRow: View {
     var body: some View {
         HStack(alignment: .center, spacing: 10) {
             // Main text column
-            HStack(alignment: .top, spacing: 10) {
-                // Unread indicator bubble dot with bounce transition
+            HStack(alignment: .top, spacing: 9) {
+                // Unread indicator dot: Doygunluktan uzak, net ve sade bir nokta
                 ZStack {
                     if !item.isRead {
                         Circle()
-                            .fill(Color.accentColor)
-                            .frame(width: 8, height: 8)
-                            .shadow(color: Color.accentColor.opacity(0.45), radius: 3)
-                            .transition(.scale(scale: 1.4).combined(with: .opacity))
+                            .fill(AppTheme.Colors.unreadDot)
+                            .frame(width: 7, height: 7)
+                            .transition(.scale(scale: 1.3).combined(with: .opacity))
                     }
                 }
-                .frame(width: 10, height: 10)
+                .frame(width: 8, height: 8)
                 .padding(.top, isCompactListMode ? 4 : 5)
                 .animation(AppAnimation.bouncy, value: item.isRead)
 
@@ -586,17 +606,15 @@ struct FeedItemRow: View {
                     // Title and Bookmark
                     HStack(alignment: .top, spacing: 6) {
                         Text(item.title)
-                            .font(.system(.body, design: .default, weight: item.isRead ? .regular : .semibold))
+                            .font(.system(size: 13, weight: item.isRead ? .regular : .semibold))
                             .lineLimit(isCompactListMode ? 1 : 2)
                             .foregroundStyle(item.isRead ? .secondary : .primary)
 
                         if item.isBookmarked {
                             Image(systemName: "star.fill")
-                                .font(.caption2.weight(.bold))
-                                .foregroundStyle(Color.orange)
-                                .rotationEffect(.degrees(item.isBookmarked ? 0 : -35))
-                                .scaleEffect(item.isBookmarked ? 1.0 : 0.5)
-                                .transition(.scale(scale: 1.3).combined(with: .opacity))
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundStyle(AppTheme.Colors.bookmark)
+                                .transition(.scale(scale: 1.2).combined(with: .opacity))
                                 .animation(AppAnimation.bouncy, value: item.isBookmarked)
                         }
                     }
@@ -604,10 +622,10 @@ struct FeedItemRow: View {
                     // Content snippet
                     if !isCompactListMode && !item.snippet.isEmpty {
                         Text(item.snippet)
-                            .font(.caption)
+                            .font(.system(size: 12))
                             .foregroundStyle(.secondary)
                             .lineLimit(2)
-                            .lineSpacing(2)
+                            .lineSpacing(1.5)
                     }
 
                     // Metadata row
@@ -639,7 +657,7 @@ struct FeedItemRow: View {
                             let isDownloaded = PodcastDownloadService.shared.isDownloaded(item.id)
                             HStack(spacing: 4) {
                                 if isPlayingThis {
-                                    EqualizerWaveformView(isPlaying: true, barWidth: 2, maxHeight: 10)
+                                    EqualizerWaveformView(isPlaying: true, barWidth: 2, maxHeight: 9)
                                 } else {
                                     Image(systemName: "headphones")
                                 }
@@ -649,28 +667,28 @@ struct FeedItemRow: View {
                                 if isDownloaded {
                                     Image(systemName: "arrow.down.circle.fill")
                                         .font(.system(size: 8))
-                                        .foregroundStyle(Color.green)
+                                        .foregroundStyle(AppTheme.Colors.success)
                                 }
                             }
                             .font(.caption2.weight(.medium))
-                            .foregroundStyle(isPlayingThis ? Color.accentColor : Color.secondary)
+                            .foregroundStyle(isPlayingThis ? AppTheme.Colors.accent : Color.secondary)
                             .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(isPlayingThis ? Color.accentColor.opacity(0.12) : Color.secondary.opacity(0.08))
+                            .padding(.vertical, 1.5)
+                            .background(Color.primary.opacity(0.05))
                             .clipShape(Capsule())
                         }
 
                         if item.isYouTube {
                             HStack(spacing: 4) {
                                 Image(systemName: "play.rectangle.fill")
-                                    .foregroundStyle(.red)
-                                Text("YouTube")
+                                    .foregroundStyle(AppTheme.Colors.youtube)
+                                Text(String(localized: "YouTube"))
                             }
                             .font(.caption2.weight(.medium))
                             .foregroundStyle(.secondary)
                             .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.secondary.opacity(0.08))
+                            .padding(.vertical, 1.5)
+                            .background(Color.primary.opacity(0.05))
                             .clipShape(Capsule())
                         }
                     }
@@ -678,9 +696,9 @@ struct FeedItemRow: View {
                 }
             }
 
-            // Media thumbnail (if YouTube, podcast, or feed image exists)
+            // Media thumbnail
             if let mediaURL = mediaThumbnailURL {
-                let thumbSize: CGFloat = isCompactListMode ? 38 : 50
+                let thumbSize: CGFloat = isCompactListMode ? 36 : 46
                 AsyncImage(url: mediaURL) { phase in
                     switch phase {
                     case .success(let image):
@@ -688,50 +706,46 @@ struct FeedItemRow: View {
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                     default:
-                        Color.secondary.opacity(0.08)
+                        Color.secondary.opacity(0.06)
                     }
                 }
                 .frame(width: thumbSize, height: thumbSize)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.Metrics.thumbnailCornerRadius, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .stroke(Color.primary.opacity(0.08), lineWidth: 0.5)
+                    RoundedRectangle(cornerRadius: AppTheme.Metrics.thumbnailCornerRadius, style: .continuous)
+                        .stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.5)
                 )
-                .shadow(color: Color.black.opacity(0.08), radius: 3, y: 1)
                 .overlay(alignment: .center) {
                     if item.isPodcast || item.isYouTube {
                         Circle()
                             .fill(.ultraThinMaterial)
-                            .frame(width: 22, height: 22)
+                            .frame(width: 20, height: 20)
                             .overlay(
                                 Image(systemName: "play.fill")
-                                    .font(.system(size: 9, weight: .bold))
-                                    .foregroundStyle(item.isYouTube ? .red : .primary)
+                                    .font(.system(size: 8, weight: .bold))
+                                    .foregroundStyle(item.isYouTube ? AppTheme.Colors.youtube : .primary)
                                     .offset(x: 1)
                             )
-                            .shadow(color: .black.opacity(0.2), radius: 3, y: 1)
                     }
                 }
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, isCompactListMode ? 6 : 8)
+        .padding(.horizontal, 10)
+        .padding(.vertical, isCompactListMode ? 5 : 7)
         .background {
             if isSelected {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(Color.accentColor.opacity(0.14))
+                RoundedRectangle(cornerRadius: AppTheme.Metrics.cardCornerRadius, style: .continuous)
+                    .fill(AppTheme.Colors.cardSelected)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .stroke(Color.accentColor.opacity(0.35), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: AppTheme.Metrics.cardCornerRadius, style: .continuous)
+                            .stroke(AppTheme.Colors.cardSelectedBorder, lineWidth: 0.8)
                     )
-                    .shadow(color: Color.accentColor.opacity(0.10), radius: 6, y: 2)
             } else if isHovered {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(Color(nsColor: .controlBackgroundColor).opacity(0.65))
-                    .shadow(color: Color.black.opacity(0.04), radius: 4, y: 1)
+                RoundedRectangle(cornerRadius: AppTheme.Metrics.cardCornerRadius, style: .continuous)
+                    .fill(AppTheme.Colors.cardHover)
             }
         }
-        .scaleEffect(isPressed ? 0.98 : (isHovered && !isSelected ? 1.008 : 1.0))
+        .scaleEffect(isPressed ? 0.985 : (isHovered && !isSelected ? 1.004 : 1.0))
         .animation(AppAnimation.hover, value: isHovered)
         .animation(AppAnimation.cardPress, value: isPressed)
         .animation(AppAnimation.slidingPill, value: isSelected)

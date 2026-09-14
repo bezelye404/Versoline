@@ -29,8 +29,8 @@ struct SocialFeedsView: View {
 
         var color: Color {
             switch self {
-            case .youtube: return .red
-            case .reddit: return .orange
+            case .youtube: return AppTheme.Colors.youtube
+            case .reddit: return AppTheme.Colors.bookmark
             }
         }
     }

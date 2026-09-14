@@ -15,6 +15,7 @@ struct QueuePopoverView: View {
 
                 if !player.queue.isEmpty {
                     Button(String(localized: "Clear All")) {
+                        AppHaptics.tap()
                         player.clearQueue()
                     }
                     .buttonStyle(.plain)
@@ -66,17 +67,19 @@ struct QueuePopoverView: View {
                                 Spacer()
 
                                 Button {
+                                    AppHaptics.tap()
                                     player.play(item: item, store: store)
                                     player.removeFromQueue(at: index)
                                 } label: {
                                     Image(systemName: "play.fill")
                                         .font(.system(size: 10))
-                                        .foregroundStyle(Color.accentColor)
+                                        .foregroundStyle(AppTheme.Colors.accent)
                                 }
                                 .buttonStyle(.plain)
                                 .help(String(localized: "Play Now"))
 
                                 Button {
+                                    AppHaptics.tap()
                                     player.removeFromQueue(at: index)
                                 } label: {
                                     Image(systemName: "xmark")
@@ -88,8 +91,8 @@ struct QueuePopoverView: View {
                             }
                             .padding(.horizontal, 8)
                             .padding(.vertical, 6)
-                            .background(Color.secondary.opacity(0.06))
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .background(Color.primary.opacity(0.04))
+                            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                         }
                     }
                 }

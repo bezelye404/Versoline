@@ -63,7 +63,7 @@ struct ArticleDetailView: View {
                         if item.isPodcast {
                             if activeViewMode == .inAppBrowser {
                                 VStack(spacing: 0) {
-                                    Spacer().frame(height: 52)
+                                    Spacer().frame(height: 50)
                                     inAppBrowserView(item: item)
                                 }
                             } else {
@@ -73,12 +73,12 @@ struct ArticleDetailView: View {
                             standardArticleFullPageView(item: item)
                         }
 
-                        // YouTube Built-in Player (Seamlessly expands in-app without reload)
+                        // YouTube Built-in Player (Expands cleanly in-app)
                         if let videoID = item.youtubeVideoID {
                             YouTubePlayerView(videoID: videoID, title: item.title, link: item.link)
                                 .frame(maxWidth: .infinity)
                                 .padding(.horizontal, 24)
-                                .padding(.top, 56)
+                                .padding(.top, 54)
                                 .padding(.bottom, 12)
                         }
 
@@ -91,15 +91,15 @@ struct ArticleDetailView: View {
                     // Floating Glass Overlay Toolbar
                     floatingToolbar(item: item)
                         .transition(.asymmetric(
-                            insertion: .opacity.combined(with: .offset(y: -12)),
-                            removal: .opacity.combined(with: .offset(y: -12))
+                            insertion: .opacity.combined(with: .offset(y: -8)),
+                            removal: .opacity.combined(with: .offset(y: -8))
                         ))
                         .zIndex(100)
                 }
                 .id(item.id)
                 .transition(.asymmetric(
-                    insertion: .opacity.combined(with: .offset(y: 16)),
-                    removal: .opacity.combined(with: .offset(y: -8))
+                    insertion: .opacity.combined(with: .offset(y: 12)),
+                    removal: .opacity.combined(with: .offset(y: -6))
                 ))
                 .animation(AppAnimation.pageReveal, value: item.id)
                 .onChange(of: item.id) { _, _ in
@@ -113,15 +113,15 @@ struct ArticleDetailView: View {
                     WebView.flushMemoryCache()
                 }
             } else {
-                VStack(spacing: 16) {
+                VStack(spacing: 14) {
                     Image(systemName: "newspaper")
-                        .font(.system(size: 48, weight: .ultraLight))
+                        .font(.system(size: 40, weight: .ultraLight))
                         .foregroundStyle(.quaternary)
-                    Text("Select an article")
-                        .font(.title3)
+                    Text(String(localized: "Select an Article"))
+                        .font(.subheadline.weight(.medium))
                         .foregroundStyle(.secondary)
-                    Text("Select an article from the list on the left to read.")
-                        .font(.subheadline)
+                    Text(String(localized: "Choose an article from the list to begin reading."))
+                        .font(.caption)
                         .foregroundStyle(.tertiary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -160,47 +160,46 @@ struct ArticleDetailView: View {
         return parts.joined(separator: " · ")
     }
 
-    // MARK: - Floating Pill Toolbar
+    // MARK: - Floating Pill Toolbar (Calm, Editorial & Ultra-Thin Glass)
 
     @ViewBuilder
     private func floatingToolbar(item: FeedItem) -> some View {
         HStack(alignment: .center) {
-            // Left: Feed Title & Favicon in a translucent capsule
+            // Left: Feed Identity Capsule
             HStack(spacing: 6) {
                 if let feed = currentFeed {
                     FaviconView(hostOrURL: feed.url, size: 14)
                     Text(feed.title)
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
 
                 if !networkMonitor.isConnected {
-                    HStack(spacing: 4) {
+                    HStack(spacing: 3) {
                         Image(systemName: "wifi.slash")
                         Text(String(localized: "Offline"))
                     }
-                    .font(.system(size: 10, weight: .semibold))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color.secondary.opacity(0.12))
-                    .clipShape(Capsule())
+                    .font(.system(size: 9, weight: .semibold))
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 1.5)
+                    .background(Color.primary.opacity(0.06), in: Capsule())
                     .foregroundStyle(.secondary)
                 }
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
             .background(.ultraThinMaterial, in: Capsule())
-            .overlay(Capsule().stroke(Color.primary.opacity(0.08), lineWidth: 0.5))
-            .shadow(color: Color.black.opacity(0.08), radius: 6, y: 2)
+            .overlay(Capsule().stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.5))
 
             Spacer(minLength: 12)
 
-            // Right: Floating Pill Capsule Toolbar with Interactive Bubble
-            HStack(spacing: 8) {
+            // Right: Floating Control Group
+            HStack(spacing: 6) {
                 // Reading Mode Sliding Bubble Switcher
                 HStack(spacing: 0) {
                     Button {
+                        AppHaptics.tap()
                         withAnimation(AppAnimation.slidingPill) {
                             activeViewMode = .reader
                         }
@@ -208,13 +207,13 @@ struct ArticleDetailView: View {
                         Text(String(localized: "Reader"))
                             .font(.system(size: 11, weight: activeViewMode == .reader ? .semibold : .medium))
                             .foregroundStyle(activeViewMode == .reader ? Color.primary : Color.secondary)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
+                            .padding(.horizontal, 9)
+                            .padding(.vertical, 3)
                             .background {
                                 if activeViewMode == .reader {
                                     Capsule()
                                         .fill(Color(nsColor: .controlBackgroundColor))
-                                        .shadow(color: Color.black.opacity(0.12), radius: 3, y: 1)
+                                        .shadow(color: Color.black.opacity(0.08), radius: 2, y: 1)
                                         .matchedGeometryEffect(id: "readingModeBubble", in: animationNamespace)
                                 }
                             }
@@ -222,6 +221,7 @@ struct ArticleDetailView: View {
                     .buttonStyle(.plain)
 
                     Button {
+                        AppHaptics.tap()
                         withAnimation(AppAnimation.slidingPill) {
                             activeViewMode = .inAppBrowser
                         }
@@ -229,13 +229,13 @@ struct ArticleDetailView: View {
                         Text(String(localized: "Web"))
                             .font(.system(size: 11, weight: activeViewMode == .inAppBrowser ? .semibold : .medium))
                             .foregroundStyle(activeViewMode == .inAppBrowser ? Color.primary : Color.secondary)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
+                            .padding(.horizontal, 9)
+                            .padding(.vertical, 3)
                             .background {
                                 if activeViewMode == .inAppBrowser {
                                     Capsule()
                                         .fill(Color(nsColor: .controlBackgroundColor))
-                                        .shadow(color: Color.black.opacity(0.12), radius: 3, y: 1)
+                                        .shadow(color: Color.black.opacity(0.08), radius: 2, y: 1)
                                         .matchedGeometryEffect(id: "readingModeBubble", in: animationNamespace)
                                 }
                             }
@@ -243,7 +243,7 @@ struct ArticleDetailView: View {
                     .buttonStyle(.plain)
                 }
                 .padding(2)
-                .background(Color.primary.opacity(0.06), in: Capsule())
+                .background(Color.primary.opacity(0.05), in: Capsule())
                 .onChange(of: activeViewMode) { _, newMode in
                     if newMode == .reader && (extractedReaderHTML == nil || !ReaderModeExtractor.shared.isSubstantiveContent(extractedReaderHTML ?? "")) {
                         loadReaderMode(for: item, forceWeb: false)
@@ -252,34 +252,34 @@ struct ArticleDetailView: View {
 
                 // Appearance Menu
                 Menu {
-                    Picker("Theme", selection: $readerThemeRaw) {
+                    Picker(String(localized: "Theme"), selection: $readerThemeRaw) {
                         ForEach(ReaderTheme.allCases) { theme in
                             Text(theme.title).tag(theme.rawValue)
                         }
                     }
                     Divider()
-                    Picker("Font Family", selection: $readerFontFamilyRaw) {
+                    Picker(String(localized: "Font Family"), selection: $readerFontFamilyRaw) {
                         ForEach(ReaderFontFamily.allCases) { font in
                             Text(font.title).tag(font.rawValue)
                         }
                     }
-                    Picker("Line Spacing", selection: $readerLineHeightRaw) {
+                    Picker(String(localized: "Line Spacing"), selection: $readerLineHeightRaw) {
                         ForEach(ReaderLineHeight.allCases) { lh in
                             Text(lh.title).tag(lh.rawValue)
                         }
                     }
                     Divider()
                     HStack {
-                        Button("Smaller Font") {
+                        Button(String(localized: "Smaller Font")) {
                             if readerFontSize > 12 { readerFontSize -= 2 }
                         }
-                        Button("Larger Font") {
+                        Button(String(localized: "Larger Font")) {
                             if readerFontSize < 32 { readerFontSize += 2 }
                         }
                     }
                 } label: {
                     Image(systemName: "textformat.size")
-                        .font(.system(size: 12))
+                        .font(.system(size: 11))
                         .foregroundStyle(.secondary)
                 }
                 .menuStyle(.borderlessButton)
@@ -289,40 +289,42 @@ struct ArticleDetailView: View {
                 // Reload or Content Blocker
                 if activeViewMode == .reader {
                     Button {
+                        AppHaptics.tap()
                         loadReaderMode(for: item, forceWeb: true)
                     } label: {
                         Image(systemName: "arrow.clockwise")
-                            .font(.system(size: 12))
-                            .foregroundStyle(isLoadingReaderMode ? Color.accentColor : Color.secondary)
+                            .font(.system(size: 11))
+                            .foregroundStyle(isLoadingReaderMode ? AppTheme.Colors.accent : Color.secondary)
                     }
                     .buttonStyle(.borderless)
                     .disabled(isLoadingReaderMode)
                     .help(String(localized: "Fetch / Reload Full Article from Web"))
                 } else {
                     Button {
+                        AppHaptics.tap()
                         isContentBlockerEnabled.toggle()
                     } label: {
                         Image(systemName: isContentBlockerEnabled ? "shield.fill" : "shield.slash")
-                            .font(.system(size: 12))
-                            .foregroundStyle(isContentBlockerEnabled ? Color.accentColor : Color.secondary)
+                            .font(.system(size: 11))
+                            .foregroundStyle(isContentBlockerEnabled ? AppTheme.Colors.accent : Color.secondary)
                     }
                     .buttonStyle(.borderless)
                     .help(isContentBlockerEnabled ? String(localized: "Content Blocker Active") : String(localized: "Content Blocker Disabled"))
                 }
 
                 Divider()
-                    .frame(height: 12)
+                    .frame(height: 10)
 
                 // Bookmark
                 Button {
+                    AppHaptics.tap()
                     withAnimation(AppAnimation.bouncy) {
                         store.toggleBookmark(item)
                     }
                 } label: {
                     Image(systemName: item.isBookmarked ? "star.fill" : "star")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(item.isBookmarked ? Color.orange : Color.secondary)
-                        .scaleEffect(item.isBookmarked ? 1.15 : 1.0)
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(item.isBookmarked ? AppTheme.Colors.bookmark : Color.secondary)
                         .contentTransition(.symbolEffect(.replace))
                 }
                 .buttonStyle(.borderless)
@@ -330,37 +332,38 @@ struct ArticleDetailView: View {
 
                 // Read Status
                 Button {
+                    AppHaptics.tap()
                     withAnimation(AppAnimation.bouncy) {
                         store.toggleReadStatus(item)
                     }
                 } label: {
                     Image(systemName: item.isRead ? "circle" : "checkmark.circle.fill")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(item.isRead ? Color.secondary : Color.accentColor)
-                        .scaleEffect(item.isRead ? 1.0 : 1.12)
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(item.isRead ? Color.secondary : AppTheme.Colors.accent)
                         .contentTransition(.symbolEffect(.replace))
                 }
                 .buttonStyle(.borderless)
                 .help(item.isRead ? String(localized: "Mark as Unread") : String(localized: "Mark as Read"))
 
                 Divider()
-                    .frame(height: 12)
+                    .frame(height: 10)
 
                 // Text-to-speech
                 Button {
+                    AppHaptics.tap()
                     withAnimation(AppAnimation.bouncy) {
                         toggleSpeech(item: item)
                     }
                 } label: {
                     Image(systemName: isSpeaking ? "stop.fill" : "speaker.wave.2")
-                        .font(.system(size: 12))
-                        .foregroundStyle(isSpeaking ? Color.accentColor : Color.secondary)
+                        .font(.system(size: 11))
+                        .foregroundStyle(isSpeaking ? AppTheme.Colors.accent : Color.secondary)
                         .contentTransition(.symbolEffect(.replace))
                 }
                 .buttonStyle(.borderless)
                 .help(isSpeaking ? String(localized: "Stop Reading") : String(localized: "Read Aloud"))
 
-                // Share & Open in browser
+                // Share & External Actions
                 Menu {
                     Button {
                         shareArticleOrEpisode(item: item)
@@ -384,21 +387,20 @@ struct ArticleDetailView: View {
                     }
                 } label: {
                     Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 12))
+                        .font(.system(size: 11))
                         .foregroundStyle(Color.secondary)
                 }
                 .menuStyle(.borderlessButton)
                 .fixedSize()
                 .help(String(localized: "Share & External Actions"))
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
+            .padding(.horizontal, 9)
+            .padding(.vertical, 4)
             .background(.ultraThinMaterial, in: Capsule())
-            .overlay(Capsule().stroke(Color.primary.opacity(0.08), lineWidth: 0.5))
-            .shadow(color: Color.black.opacity(0.10), radius: 8, y: 3)
+            .overlay(Capsule().stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.5))
         }
-        .padding(.horizontal, 24)
-        .padding(.top, 12)
+        .padding(.horizontal, 20)
+        .padding(.top, 10)
         .padding(.bottom, 6)
     }
 
@@ -406,29 +408,29 @@ struct ArticleDetailView: View {
 
     @ViewBuilder
     private func standardArticleHeader(item: FeedItem) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             let readingTime = calculateReadingTime(item: item)
             let pillText = heroDateDurationPill(date: item.pubDate, duration: readingTime)
             if !pillText.isEmpty {
                 Text(pillText)
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(.secondary)
-                    .tracking(0.8)
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(.tertiary)
+                    .tracking(0.6)
             }
 
             Text(item.title)
-                .font(.title.weight(.bold))
+                .font(.system(size: 24, weight: .bold))
                 .textSelection(.enabled)
-                .lineSpacing(4)
+                .lineSpacing(3)
                 .fixedSize(horizontal: false, vertical: true)
 
             HStack(spacing: 8) {
                 if let feedTitle = currentFeed?.title {
                     HStack(spacing: 5) {
-                        FaviconView(hostOrURL: currentFeed?.url ?? item.link, size: 14)
+                        FaviconView(hostOrURL: currentFeed?.url ?? item.link, size: 13)
                         Text(feedTitle)
                     }
-                    .font(.subheadline.weight(.medium))
+                    .font(.caption.weight(.medium))
                     .foregroundStyle(.secondary)
                 }
 
@@ -436,21 +438,23 @@ struct ArticleDetailView: View {
                     Text("·")
                         .foregroundStyle(.tertiary)
                     Label(author, systemImage: "person")
-                        .font(.subheadline)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
         }
         .padding(.horizontal, 24)
-        .padding(.top, 14)
+        .padding(.top, 12)
         .padding(.bottom, 12)
-    }    // MARK: - Standard Article Full Page View
+    }
+
+    // MARK: - Standard Article Full Page View
 
     @ViewBuilder
     private func standardArticleFullPageView(item: FeedItem) -> some View {
         VStack(spacing: 0) {
             standardArticleHeader(item: item)
-                .padding(.top, 52)
+                .padding(.top, 48)
             Divider()
             articleContent(item: item)
         }
@@ -468,11 +472,10 @@ struct ArticleDetailView: View {
         let isDownloading = downloadService.activeDownloads[item.id] != nil
 
         ScrollView {
-            VStack(spacing: 20) {
-                // Top spacer so content glides beneath the floating toolbar
-                Spacer().frame(height: 48)
+            VStack(spacing: 18) {
+                Spacer().frame(height: 44)
 
-                // 1. Large Centered Square Artwork with Floating Glass Play Button
+                // 1. Artwork presentation
                 ZStack {
                     let artworkURL = currentFeed?.imageURL.flatMap { URL(string: $0) }
                     AsyncImage(url: artworkURL) { phase in
@@ -483,43 +486,42 @@ struct ArticleDetailView: View {
                                 .aspectRatio(1, contentMode: .fill)
                         default:
                             ZStack {
-                                LinearGradient(
-                                    colors: [Color.accentColor.opacity(0.35), Color.accentColor.opacity(0.12)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
+                                Color.primary.opacity(0.04)
                                 Image(systemName: "headphones")
-                                    .font(.system(size: 64, weight: .ultraLight))
-                                    .foregroundStyle(Color.accentColor)
+                                    .font(.system(size: 56, weight: .ultraLight))
+                                    .foregroundStyle(AppTheme.Colors.podcast)
                             }
                         }
                     }
-                    .frame(width: 260, height: 260)
-                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .frame(width: 240, height: 240)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .stroke(Color.primary.opacity(0.08), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.8)
                     )
-                    .shadow(color: Color.black.opacity(0.22), radius: 18, x: 0, y: 8)
 
-                    // Large Glass Play/Pause Button
+                    // Glass Play/Pause Button
                     Button {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.72)) {
+                        AppHaptics.tap()
+                        withAnimation(AppAnimation.bouncy) {
                             player.play(item: item, feedTitle: currentFeed?.title, store: store)
                         }
                     } label: {
                         ZStack {
                             Circle()
                                 .fill(.ultraThinMaterial)
-                                .frame(width: 68, height: 68)
-                                .shadow(color: Color.black.opacity(0.32), radius: 12, y: 5)
+                                .frame(width: 60, height: 60)
+                                .overlay(
+                                    Circle()
+                                        .stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.5)
+                                )
 
                             if isCurrentEpisode && player.isBuffering {
                                 ProgressView()
                                     .controlSize(.regular)
                             } else {
                                 Image(systemName: isPlaying ? "pause.fill" : "play.fill")
-                                    .font(.system(size: 26, weight: .bold))
+                                    .font(.system(size: 22, weight: .bold))
                                     .foregroundStyle(.primary)
                                     .offset(x: isPlaying ? 0 : 2)
                                     .contentTransition(.symbolEffect(.replace))
@@ -531,7 +533,7 @@ struct ArticleDetailView: View {
                 }
 
                 // 2. Minimalist Scrubber Bar
-                VStack(spacing: 5) {
+                VStack(spacing: 4) {
                     let totalDur = isCurrentEpisode && player.duration > 0 ? player.duration : (Double(item.audioDuration ?? "0") ?? 1.0)
                     let currTime = isCurrentEpisode ? player.currentTime : item.playbackPosition
 
@@ -547,7 +549,7 @@ struct ArticleDetailView: View {
                         in: 0...max(totalDur, 1.0)
                     )
                     .controlSize(.mini)
-                    .tint(Color.accentColor)
+                    .tint(AppTheme.Colors.accent)
 
                     HStack {
                         Text(formatDuration(currTime))
@@ -562,25 +564,25 @@ struct ArticleDetailView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                .frame(maxWidth: 420)
+                .frame(maxWidth: 380)
                 .padding(.horizontal, 24)
 
                 // 3. Date & Duration Pill
                 let pillText = heroDateDurationPill(date: item.pubDate, duration: item.formattedDuration)
                 if !pillText.isEmpty {
                     Text(pillText)
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundStyle(.secondary)
-                        .tracking(0.8)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(.tertiary)
+                        .tracking(0.6)
                 }
 
                 // 4. Episode Title
                 Text(item.title)
-                    .font(.title2.weight(.bold))
+                    .font(.title3.weight(.bold))
                     .multilineTextAlignment(.center)
                     .textSelection(.enabled)
-                    .lineSpacing(3)
-                    .frame(maxWidth: 600)
+                    .lineSpacing(2)
+                    .frame(maxWidth: 560)
                     .padding(.horizontal, 24)
 
                 // 5. Podcast Feed Title & Subtitle with Equalizer
@@ -591,19 +593,20 @@ struct ArticleDetailView: View {
                             .foregroundStyle(.secondary)
                     }
                     if isPlaying {
-                        EqualizerWaveformView(isPlaying: true, barWidth: 2, maxHeight: 12)
+                        EqualizerWaveformView(isPlaying: true, barWidth: 2, maxHeight: 11)
                     }
                 }
 
                 // 6. Transport Controls Row
-                HStack(spacing: 24) {
+                HStack(spacing: 20) {
                     Button {
                         if isCurrentEpisode {
+                            AppHaptics.tap()
                             player.skipBackward(seconds: 15)
                         }
                     } label: {
                         Image(systemName: "gobackward.15")
-                            .font(.system(size: 18))
+                            .font(.system(size: 16))
                     }
                     .buttonStyle(.plain)
                     .foregroundStyle(.secondary)
@@ -626,9 +629,9 @@ struct ArticleDetailView: View {
                     } label: {
                         Text(String(format: "%.2fx", player.playbackRate))
                             .font(.system(size: 11, weight: .semibold))
-                            .padding(.horizontal, 7)
-                            .padding(.vertical, 3)
-                            .background(Color.secondary.opacity(0.12))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.primary.opacity(0.06))
                             .clipShape(Capsule())
                     }
                     .menuStyle(.borderlessButton)
@@ -648,8 +651,8 @@ struct ArticleDetailView: View {
                         Button(String(localized: "End of Episode")) { player.startSleepTimerUntilEndOfEpisode() }
                     } label: {
                         Image(systemName: player.sleepTimerRemainingSeconds != nil ? "moon.zzz.fill" : "moon.zzz")
-                            .font(.system(size: 15))
-                            .foregroundStyle(player.sleepTimerRemainingSeconds != nil ? Color.accentColor : Color.secondary)
+                            .font(.system(size: 14))
+                            .foregroundStyle(player.sleepTimerRemainingSeconds != nil ? AppTheme.Colors.accent : Color.secondary)
                     }
                     .menuStyle(.borderlessButton)
                     .fixedSize()
@@ -657,17 +660,19 @@ struct ArticleDetailView: View {
 
                     Button {
                         if isCurrentEpisode {
+                            AppHaptics.tap()
                             player.skipForward(seconds: 15)
                         }
                     } label: {
                         Image(systemName: "goforward.15")
-                            .font(.system(size: 18))
+                            .font(.system(size: 16))
                     }
                     .buttonStyle(.plain)
                     .foregroundStyle(.secondary)
                     .help(String(localized: "Skip forward 15 seconds"))
 
                     Button {
+                        AppHaptics.tap()
                         if isDownloaded {
                             downloadService.deleteDownload(for: item.id)
                         } else if !isDownloading {
@@ -679,8 +684,8 @@ struct ArticleDetailView: View {
                                 .controlSize(.small)
                         } else {
                             Image(systemName: isDownloaded ? "arrow.down.circle.fill" : "arrow.down.circle")
-                                .font(.system(size: 18))
-                                .foregroundStyle(isDownloaded ? Color.green : Color.secondary)
+                                .font(.system(size: 16))
+                                .foregroundStyle(isDownloaded ? AppTheme.Colors.success : Color.secondary)
                         }
                     }
                     .buttonStyle(.plain)
@@ -692,9 +697,10 @@ struct ArticleDetailView: View {
                 let chapters = parseChapters(from: item.itemDescription + " " + (extractedReaderHTML ?? item.content ?? ""))
                 if !chapters.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
+                        HStack(spacing: 7) {
                             ForEach(chapters) { ch in
                                 Button {
+                                    AppHaptics.tap()
                                     if player.currentEpisode?.id != item.id {
                                         player.play(item: item, feedTitle: currentFeed?.title, store: store)
                                     }
@@ -703,15 +709,15 @@ struct ArticleDetailView: View {
                                     HStack(spacing: 4) {
                                         Text(ch.timestamp)
                                             .font(.caption2.monospacedDigit().weight(.semibold))
-                                            .foregroundStyle(Color.accentColor)
+                                            .foregroundStyle(AppTheme.Colors.accent)
                                         Text(ch.title)
                                             .font(.caption2)
                                             .foregroundStyle(.primary)
                                             .lineLimit(1)
                                     }
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 5)
-                                    .background(Color.secondary.opacity(0.08))
+                                    .padding(.horizontal, 9)
+                                    .padding(.vertical, 4)
+                                    .background(Color.primary.opacity(0.05))
                                     .clipShape(Capsule())
                                 }
                                 .buttonStyle(.plain)
@@ -724,22 +730,22 @@ struct ArticleDetailView: View {
                 // 8. Episode Show Notes
                 Divider()
                     .padding(.horizontal, 24)
-                    .padding(.top, 8)
+                    .padding(.top, 6)
 
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("SHOW NOTES")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundStyle(.secondary)
-                        .tracking(0.8)
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(String(localized: "SHOW NOTES"))
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(.tertiary)
+                        .tracking(0.6)
 
                     let showNotesText = cleanShowNotesText(from: item.content ?? item.itemDescription)
                     Text(showNotesText)
-                        .font(.system(size: 14))
-                        .lineSpacing(5)
+                        .font(.system(size: 13))
+                        .lineSpacing(4)
                         .foregroundStyle(.primary)
                         .textSelection(.enabled)
                 }
-                .frame(maxWidth: 800, alignment: .leading)
+                .frame(maxWidth: 720, alignment: .leading)
                 .padding(.horizontal, 24)
 
                 Spacer().frame(height: 48)
@@ -828,7 +834,7 @@ struct ArticleDetailView: View {
                     ))
             }
         }
-        .animation(.spring(response: 0.32, dampingFraction: 0.85), value: activeViewMode)
+        .animation(AppAnimation.slidingPill, value: activeViewMode)
     }
 
     // MARK: - In-App Browser Mode
@@ -838,7 +844,7 @@ struct ArticleDetailView: View {
         if !networkMonitor.isConnected {
             VStack(spacing: 12) {
                 Image(systemName: "wifi.slash")
-                    .font(.system(size: 36, weight: .ultraLight))
+                    .font(.system(size: 32, weight: .ultraLight))
                     .foregroundStyle(.quaternary)
                 Text(String(localized: "Live web page unavailable offline."))
                     .font(.headline)
@@ -873,11 +879,11 @@ struct ArticleDetailView: View {
     @ViewBuilder
     private func readerModeView(item: FeedItem) -> some View {
         if isLoadingReaderMode {
-            VStack(spacing: 14) {
+            VStack(spacing: 12) {
                 ProgressView()
                     .controlSize(.regular)
                 Text(String(localized: "Extracting article text..."))
-                    .font(.subheadline)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -896,7 +902,6 @@ struct ArticleDetailView: View {
                 }
             }
         } else {
-            // Fallback to item content formatted as reader mode HTML if reader extraction yielded nothing
             let fallbackHTML = ReaderModeExtractor.shared.formatFeedContentAsReaderHTML(
                 title: item.title,
                 author: item.author,
@@ -920,30 +925,34 @@ struct ArticleDetailView: View {
 
     @ViewBuilder
     private func summaryNoticeBanner(item: FeedItem) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 10) {
             Image(systemName: "doc.text.magnifyingglass")
-                .foregroundStyle(Color.accentColor)
-                .font(.system(size: 15))
+                .foregroundStyle(.secondary)
+                .font(.system(size: 13))
 
             Text(String(localized: "Showing feed summary. Tap to fetch full article from web."))
-                .font(.subheadline)
+                .font(.caption)
                 .foregroundStyle(.secondary)
 
             Spacer()
 
             Button {
+                AppHaptics.tap()
                 loadReaderMode(for: item, forceWeb: true)
             } label: {
                 Label(String(localized: "Fetch Full Article"), systemImage: "arrow.down.circle")
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.bordered)
             .controlSize(.small)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-        .padding(12)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.5)
+        )
+        .padding(10)
     }
 
     // MARK: - Reader Mode Logic
@@ -954,7 +963,6 @@ struct ArticleDetailView: View {
             return
         }
 
-        // Reddit and YouTube feeds contain full post HTML inside the RSS enclosure
         let isReddit = item.link.lowercased().contains("reddit.com")
         let isYouTube = item.link.lowercased().contains("youtube.com") || item.link.lowercased().contains("youtu.be")
 
@@ -1026,20 +1034,6 @@ struct ArticleDetailView: View {
         let words = text.split(whereSeparator: { $0.isWhitespace }).count
         let minutes = max(1, Int(ceil(Double(words) / 200.0)))
         return String(format: String(localized: "%d min read"), minutes)
-    }
-
-    // MARK: - Date Formatting
-
-    private static let articleDateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale.autoupdatingCurrent
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        return formatter
-    }()
-
-    private func formattedDate(_ date: Date) -> String {
-        Self.articleDateFormatter.string(from: date)
     }
 }
 

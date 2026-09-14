@@ -3,14 +3,15 @@ import SwiftUI
 struct EqualizerWaveformView: View {
 
     let isPlaying: Bool
-    var tint: Color = .accentColor
-    var barWidth: CGFloat = 2.5
-    var maxHeight: CGFloat = 14
+    var tint: Color = AppTheme.Colors.accent
+    var barWidth: CGFloat = 2.0
+    var maxHeight: CGFloat = 12
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var phase: CGFloat = 0.0
 
     var body: some View {
-        HStack(alignment: .bottom, spacing: 2) {
+        HStack(alignment: .bottom, spacing: 1.5) {
             bar(multiplier: 0.8, offset: 0.2)
             bar(multiplier: 1.0, offset: 0.6)
             bar(multiplier: 0.7, offset: 0.9)
@@ -18,32 +19,33 @@ struct EqualizerWaveformView: View {
         }
         .frame(height: maxHeight)
         .onAppear {
-            if isPlaying {
-                withAnimation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true)) {
-                    phase = 1.0
-                }
-            }
+            updateAnimation(playing: isPlaying)
         }
         .onChange(of: isPlaying) { _, playing in
-            if playing {
-                withAnimation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true)) {
-                    phase = 1.0
-                }
-            } else {
-                withAnimation(.easeOut(duration: 0.2)) {
-                    phase = 0.0
-                }
+            updateAnimation(playing: playing)
+        }
+    }
+
+    private func updateAnimation(playing: Bool) {
+        if playing && !reduceMotion {
+            withAnimation(.easeInOut(duration: 0.55).repeatForever(autoreverses: true)) {
+                phase = 1.0
+            }
+        } else {
+            withAnimation(.easeOut(duration: 0.15)) {
+                phase = 0.0
             }
         }
     }
 
     @ViewBuilder
     private func bar(multiplier: CGFloat, offset: CGFloat) -> some View {
-        let baseHeight: CGFloat = 3.5
-        let dynamicHeight = isPlaying ? (baseHeight + (maxHeight - baseHeight) * multiplier * (0.3 + 0.7 * abs(sin((phase + offset) * .pi)))) : baseHeight
+        let minScale: CGFloat = 0.25
+        let currentScale: CGFloat = (isPlaying && !reduceMotion) ? (minScale + (1.0 - minScale) * multiplier * (0.3 + 0.7 * abs(sin((phase + offset) * .pi)))) : (isPlaying ? 0.6 : minScale)
 
         RoundedRectangle(cornerRadius: barWidth / 2)
             .fill(tint)
-            .frame(width: barWidth, height: dynamicHeight)
+            .frame(width: barWidth, height: maxHeight)
+            .scaleEffect(y: currentScale, anchor: .bottom)
     }
 }
