@@ -39,7 +39,18 @@ struct ContentView: View {
                     .background(currentTheme.detailBackground)
             }
 
-            MiniPlayerView()
+            MiniPlayerView(onNavigateToArticle: { item in
+                if let feed = store.feed(for: item.feedId) {
+                    selectedSidebarItem = .feed(feed.id)
+                } else if item.isPodcast {
+                    selectedSidebarItem = .podcasts
+                } else if item.isYouTube {
+                    selectedSidebarItem = .videos
+                } else {
+                    selectedSidebarItem = .all
+                }
+                selectedArticle = item
+            })
         }
         .environment(\.appTheme, currentTheme)
         .tint(currentTheme.accentColor)

@@ -9,7 +9,7 @@ enum SidebarItem: Hashable, Identifiable {
     case downloaded
     case quickReads
     case longReads
-    case media
+    case videos
     case folder(UUID)
     case feed(UUID)
 
@@ -23,7 +23,7 @@ enum SidebarItem: Hashable, Identifiable {
         case .downloaded: return "sidebar-downloaded"
         case .quickReads: return "sidebar-quick-reads"
         case .longReads: return "sidebar-long-reads"
-        case .media: return "sidebar-media"
+        case .videos: return "sidebar-videos"
         case .folder(let uuid): return "sidebar-folder-\(uuid.uuidString)"
         case .feed(let uuid): return "sidebar-feed-\(uuid.uuidString)"
         }

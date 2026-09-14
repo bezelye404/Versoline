@@ -50,6 +50,8 @@ final class AudioPlayerService {
     // MARK: - Playback Control
 
     func play(item: FeedItem, feedTitle: String? = nil, store: FeedStore) {
+        VideoPlayerService.shared.pause()
+
         guard let urlString = item.audioURL, let streamURL = URL(string: urlString) else {
             errorMessage = "Invalid audio stream URL."
             return
@@ -181,6 +183,7 @@ final class AudioPlayerService {
     }
 
     func resume() {
+        VideoPlayerService.shared.pause()
         guard let player else { return }
         player.rate = playbackRate
         isPlaying = true

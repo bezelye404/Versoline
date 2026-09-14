@@ -158,6 +158,15 @@ struct SidebarView: View {
                 )
             }
 
+            NavigationLink(value: SidebarItem.videos) {
+                sidebarRow(
+                    title: String(localized: "Videos"),
+                    systemImage: "play.rectangle",
+                    count: store.videoCount(),
+                    accentColor: Color.red.opacity(0.9)
+                )
+            }
+
             let downloadedCount = store.downloadedItemsCount()
             if downloadedCount > 0 {
                 NavigationLink(value: SidebarItem.downloaded) {
@@ -244,15 +253,6 @@ struct SidebarView: View {
                     systemImage: "book.closed",
                     count: store.longReadsCount(),
                     accentColor: theme.bookmarkColor
-                )
-            }
-
-            NavigationLink(value: SidebarItem.media) {
-                sidebarRow(
-                    title: String(localized: "Media & Video"),
-                    systemImage: "play.rectangle",
-                    count: store.mediaCount(),
-                    accentColor: AppTheme.Colors.podcast
                 )
             }
         }
