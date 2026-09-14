@@ -309,10 +309,11 @@
 "Lifestyle & Health" = "Lifestyle & Health";
 "No articles matching this category found in your library yet." = "No articles matching this category found in your library yet.";
 
-/* Settings: Streams & Sidebar */
-"Sidebar & Smart Streams" = "Sidebar & Smart Streams";
-"Show Reading Time Streams" = "Show Reading Time Streams";
-"Adds 'Quick Reads (<3m)' and 'Deep Reads (>7m)' filters under Smart Streams in the sidebar." = "Adds 'Quick Reads (<3m)' and 'Deep Reads (>7m)' filters under Smart Streams in the sidebar.";
+/* Settings: Reading Time Filters */
+"Reading Time Filters" = "Reading Time Filters";
+"Show Quick & Deep Reads" = "Show Quick & Deep Reads";
+"Adds 'Quick Reads (<3m)' and 'Deep Reads (>7m)' filters to the Smart Streams section in your sidebar." = "Adds 'Quick Reads (<3m)' and 'Deep Reads (>7m)' filters to the Smart Streams section in your sidebar.";
+
 
 
 

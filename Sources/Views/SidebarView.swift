@@ -238,38 +238,35 @@ struct SidebarView: View {
 
     @ViewBuilder
     private var smartStreamsSection: some View {
-        let activeCategories = store.activeSmartCategories
-        if showReadingTimeStreams || !activeCategories.isEmpty {
-            Section(String(localized: "Smart Streams")) {
-                if showReadingTimeStreams {
-                    NavigationLink(value: SidebarItem.quickReads) {
-                        sidebarRow(
-                            title: String(localized: "Quick Reads (<3m)"),
-                            systemImage: "bolt",
-                            count: store.quickReadsCount(),
-                            accentColor: theme.accentColor
-                        )
-                    }
-
-                    NavigationLink(value: SidebarItem.longReads) {
-                        sidebarRow(
-                            title: String(localized: "Deep Reads (>7m)"),
-                            systemImage: "book.closed",
-                            count: store.longReadsCount(),
-                            accentColor: theme.bookmarkColor
-                        )
-                    }
+        Section(String(localized: "Smart Streams")) {
+            if showReadingTimeStreams {
+                NavigationLink(value: SidebarItem.quickReads) {
+                    sidebarRow(
+                        title: String(localized: "Quick Reads (<3m)"),
+                        systemImage: "bolt",
+                        count: store.quickReadsCount(),
+                        accentColor: theme.accentColor
+                    )
                 }
 
-                ForEach(activeCategories) { category in
-                    NavigationLink(value: SidebarItem.smartCategory(category)) {
-                        sidebarRow(
-                            title: category.displayName,
-                            systemImage: category.systemImage,
-                            count: store.smartCategoryCount(category),
-                            accentColor: category.accentColor
-                        )
-                    }
+                NavigationLink(value: SidebarItem.longReads) {
+                    sidebarRow(
+                        title: String(localized: "Deep Reads (>7m)"),
+                        systemImage: "book.closed",
+                        count: store.longReadsCount(),
+                        accentColor: theme.bookmarkColor
+                    )
+                }
+            }
+
+            ForEach(SmartCategory.allCases) { category in
+                NavigationLink(value: SidebarItem.smartCategory(category)) {
+                    sidebarRow(
+                        title: category.displayName,
+                        systemImage: category.systemImage,
+                        count: store.smartCategoryCount(category),
+                        accentColor: category.accentColor
+                    )
                 }
             }
         }
