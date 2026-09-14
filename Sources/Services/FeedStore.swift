@@ -1146,12 +1146,21 @@ final class FeedStore {
             categoryMap[cat] = catItems.sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
         }
 
+        // Pre-classify feeds into Smart Categories
+        var feedsPerCategory: [SmartCategory: [Feed]] = [:]
+        for feed in feeds {
+            if let cat = SmartCategoryClassifier.classify(feed: feed) {
+                feedsPerCategory[cat, default: []].append(feed)
+            }
+        }
+
         var categoryCounts: [SmartCategory: Int] = [:]
         var activeCats: [SmartCategory] = []
         for cat in SmartCategory.allCases {
-            let count = categoryMap[cat]?.count ?? 0
-            categoryCounts[cat] = count
-            if count > 0 {
+            let itemsCount = categoryMap[cat]?.count ?? 0
+            let feedsCount = feedsPerCategory[cat]?.count ?? 0
+            categoryCounts[cat] = itemsCount
+            if itemsCount > 0 || feedsCount > 0 {
                 activeCats.append(cat)
             }
         }

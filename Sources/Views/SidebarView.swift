@@ -21,6 +21,7 @@ struct SidebarView: View {
     // Collapsible sections persistence
     @AppStorage("collapsedFolderIds") private var collapsedFolderIdsRaw: String = ""
     @AppStorage("isPinnedExpanded") private var isPinnedExpanded: Bool = true
+    @AppStorage("isSmartStreamsExpanded") private var isSmartStreamsExpanded: Bool = true
     @AppStorage("isUncategorizedExpanded") private var isUncategorizedExpanded: Bool = true
     @AppStorage(AppSettingsKeys.showReadingTimeStreams) private var showReadingTimeStreams = false
 
@@ -107,6 +108,11 @@ struct SidebarView: View {
         .onChange(of: selectedItem) { _, _ in
             selectedArticle = nil
             AppHaptics.tap()
+        }
+        .onChange(of: store.activeSmartCategories) { _, active in
+            if case .smartCategory(let cat) = selectedItem, !active.contains(cat) {
+                selectedItem = .all
+            }
         }
     }
 
@@ -307,40 +313,91 @@ struct SidebarView: View {
         }
     }
 
-    // MARK: - Smart Streams Section
+    // MARK: - Smart Streams Section (Dynamic & Zero Clutter)
 
     @ViewBuilder
     private var smartStreamsSection: some View {
-        Section(String(localized: "Smart Streams")) {
-            if showReadingTimeStreams {
-                NavigationLink(value: SidebarItem.quickReads) {
-                    sidebarRow(
-                        title: String(localized: "Quick Reads (<3m)"),
-                        systemImage: "bolt",
-                        count: store.quickReadsCount(),
-                        accentColor: theme.accentColor
-                    )
-                }
+        let activeCategories = store.activeSmartCategories
+        let showQuick = showReadingTimeStreams && store.quickReadsCount() > 0
+        let showLong = showReadingTimeStreams && store.longReadsCount() > 0
+        let totalCount = activeCategories.count + (showQuick ? 1 : 0) + (showLong ? 1 : 0)
 
-                NavigationLink(value: SidebarItem.longReads) {
-                    sidebarRow(
-                        title: String(localized: "Deep Reads (>7m)"),
-                        systemImage: "book.closed",
-                        count: store.longReadsCount(),
-                        accentColor: theme.bookmarkColor
-                    )
-                }
-            }
+        if totalCount > 0 {
+            Section {
+                if isSmartStreamsExpanded {
+                    if showQuick {
+                        NavigationLink(value: SidebarItem.quickReads) {
+                            sidebarRow(
+                                title: String(localized: "Quick Reads (<3m)"),
+                                systemImage: "bolt",
+                                count: store.quickReadsCount(),
+                                accentColor: theme.accentColor
+                            )
+                        }
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
 
-            ForEach(SmartCategory.allCases) { category in
-                NavigationLink(value: SidebarItem.smartCategory(category)) {
-                    sidebarRow(
-                        title: category.displayName,
-                        systemImage: category.systemImage,
-                        count: store.smartCategoryCount(category),
-                        accentColor: category.accentColor
-                    )
+                    if showLong {
+                        NavigationLink(value: SidebarItem.longReads) {
+                            sidebarRow(
+                                title: String(localized: "Deep Reads (>7m)"),
+                                systemImage: "book.closed",
+                                count: store.longReadsCount(),
+                                accentColor: theme.bookmarkColor
+                            )
+                        }
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
+
+                    ForEach(activeCategories) { category in
+                        NavigationLink(value: SidebarItem.smartCategory(category)) {
+                            sidebarRow(
+                                title: category.displayName,
+                                systemImage: category.systemImage,
+                                count: store.smartCategoryCount(category),
+                                accentColor: category.accentColor
+                            )
+                        }
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
                 }
+            } header: {
+                Button {
+                    AppHaptics.tap()
+                    withAnimation(AppAnimation.accordion) {
+                        isSmartStreamsExpanded.toggle()
+                    }
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(.secondary)
+                            .frame(width: 14, height: 14)
+                            .rotationEffect(.degrees(isSmartStreamsExpanded ? 90 : 0))
+                            .animation(AppAnimation.snappy, value: isSmartStreamsExpanded)
+
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 11))
+                            .foregroundStyle(AppTheme.Colors.accent)
+
+                        Text(String(localized: "Smart Streams"))
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(.secondary)
+
+                        Spacer()
+
+                        Text("\(totalCount)")
+                            .font(.system(size: 10, weight: .medium, design: .monospaced))
+                            .foregroundStyle(AppTheme.Colors.badgeText)
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1)
+                            .background(AppTheme.Colors.badgeBackground, in: Capsule())
+                            .contentTransition(.numericText())
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .padding(.vertical, 3)
             }
         }
     }
