@@ -142,24 +142,21 @@ struct YouTubePlayerView: View {
                 Color.black
 
                 // YouTube HQ Thumbnail
-                AsyncImage(url: URL(string: "https://img.youtube.com/vi/\(videoID)/hqdefault.jpg")) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: geo.size.width, height: geo.size.height)
-                            .clipped()
-                            .scaleEffect(isThumbnailHovered ? 1.03 : 1.0)
-                            .animation(.spring(response: 0.45, dampingFraction: 0.8), value: isThumbnailHovered)
-                    default:
-                        ZStack {
-                            Color.black
-                            ProgressView()
-                                .controlSize(.small)
-                        }
+                DownsampledImageView(
+                    url: URL(string: "https://img.youtube.com/vi/\(videoID)/hqdefault.jpg"),
+                    targetSize: geo.size,
+                    contentMode: .fill
+                ) {
+                    ZStack {
+                        Color.black
+                        ProgressView()
+                            .controlSize(.small)
                     }
                 }
+                .frame(width: geo.size.width, height: geo.size.height)
+                .clipped()
+                .scaleEffect(isThumbnailHovered ? 1.03 : 1.0)
+                .animation(.spring(response: 0.45, dampingFraction: 0.8), value: isThumbnailHovered)
 
                 // Dark Cinema Gradient
                 LinearGradient(

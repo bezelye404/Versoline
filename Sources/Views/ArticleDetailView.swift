@@ -23,7 +23,7 @@ struct ArticleDetailView: View {
     @State private var extractedReaderHTML: String? = nil
     @State private var isLoadingReaderMode = false
     @State private var isSpeaking = false
-    @State private var speechSynthesizer = AVSpeechSynthesizer()
+    @State private var speechSynthesizer: AVSpeechSynthesizer? = nil
     @State private var speechDelegate = ArticleSpeechDelegate()
     @State private var showQuoteCardSheet = false
     @State private var navigatedArticleCount = 0
@@ -974,20 +974,24 @@ struct ArticleDetailView: View {
         } else {
             let textToRead = cleanTextForSpeech(item: item)
             guard !textToRead.isEmpty else { return }
+            let synth = speechSynthesizer ?? AVSpeechSynthesizer()
+            speechSynthesizer = synth
             speechDelegate.onFinish = { [self] in
                 self.isSpeaking = false
+                self.speechSynthesizer = nil
             }
-            speechSynthesizer.delegate = speechDelegate
+            synth.delegate = speechDelegate
             let utterance = AVSpeechUtterance(string: textToRead)
             utterance.rate = AVSpeechUtteranceDefaultSpeechRate
-            speechSynthesizer.speak(utterance)
+            synth.speak(utterance)
             isSpeaking = true
         }
     }
 
     private func stopSpeech() {
         if isSpeaking {
-            speechSynthesizer.stopSpeaking(at: .immediate)
+            speechSynthesizer?.stopSpeaking(at: .immediate)
+            speechSynthesizer = nil
             isSpeaking = false
         }
     }

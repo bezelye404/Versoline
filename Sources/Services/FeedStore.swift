@@ -176,6 +176,7 @@ final class FeedStore {
             let cappedItems = parsedItems.count > Self.maxItemsPerFeed ? Array(parsedItems.prefix(Self.maxItemsPerFeed)) : parsedItems
             items[newFeedId] = cappedItems
             isLoading = false
+            updateSmartCategoryCaches()
             save()
             SyncCoordinator.shared.notifyFeedAddedOrUpdated(feed)
             AppLogger.shared.log("Successfully added feed \"\(feed.title)\" with \(cappedItems.count) items", level: .info, category: .storage)
@@ -191,6 +192,7 @@ final class FeedStore {
         AppLogger.shared.log("Removing feed \"\(feed.title)\"", level: .info, category: .storage)
         feeds.removeAll { $0.id == feed.id }
         items.removeValue(forKey: feed.id)
+        updateSmartCategoryCaches()
         save()
         SyncCoordinator.shared.notifyFeedDeleted(id: feed.id)
     }
@@ -210,6 +212,7 @@ final class FeedStore {
 
             applyFeedUpdate(feedId: feed.id, result: result)
             isLoading = false
+            updateSmartCategoryCaches()
             save()
         } catch {
             let errorMsg = String(format: String(localized: "Refresh failed: %@"), error.localizedDescription)
@@ -269,6 +272,7 @@ final class FeedStore {
 
         lastRefreshDate = Date()
         isLoading = false
+        updateSmartCategoryCaches()
         save()
         AppLogger.shared.log("All feeds refresh finished", level: .info, category: .network)
     }
@@ -585,6 +589,7 @@ final class FeedStore {
         invalidateItemCaches()
         compactMemory()
         updateCachedCounts()
+        updateSmartCategoryCaches()
 
         // 4. Remove all files from Application Support/EasyRSS directory
         if let fileList = try? FileManager.default.contentsOfDirectory(at: saveURL, includingPropertiesForKeys: nil) {
@@ -727,12 +732,14 @@ final class FeedStore {
             }
         }
         self.updateCachedCounts()
+        self.updateSmartCategoryCaches()
     }
 
     func applyIncomingFeedDeletion(id: UUID) {
         self.feeds.removeAll { $0.id == id }
         self.items.removeValue(forKey: id)
         self.updateCachedCounts()
+        self.updateSmartCategoryCaches()
     }
 
     // MARK: - Podcasts
@@ -1043,6 +1050,7 @@ final class FeedStore {
         }
 
         isLoading = false
+        updateSmartCategoryCaches()
         save()
         AppLogger.shared.log("OPML import finished. Total feeds now: \(feeds.count)", level: .info, category: .storage)
     }
@@ -1129,6 +1137,10 @@ final class FeedStore {
         self.cachedFeedsInFolder = inFolder
         self.cachedUncategorizedFeeds = uncategorized
         self.cachedPinnedFeeds = pinned
+    }
+
+    func updateSmartCategoryCaches() {
+        let map = self.cachedFeedMap.isEmpty ? Dictionary(uniqueKeysWithValues: feeds.map { ($0.id, $0) }) : self.cachedFeedMap
 
         // Pre-classify items into Smart Categories (O(1) lookups during UI navigation)
         var categoryMap: [SmartCategory: [FeedItem]] = [:]
@@ -1180,12 +1192,12 @@ final class FeedStore {
     func save(immediate: Bool = false) {
         updateCachedCounts()
 
-        let data = StorageData(feeds: feeds, items: items, folders: folders)
         let dir = saveURL
 
         if immediate {
             pendingSaveTask?.cancel()
             pendingSaveTask = nil
+            let data = StorageData(feeds: feeds, items: items, folders: folders)
             Self.performSave(data: data, to: dir)
             return
         }
@@ -1194,6 +1206,7 @@ final class FeedStore {
         pendingSaveTask = Task { @MainActor in
             try? await Task.sleep(nanoseconds: 800_000_000) // 800ms debounce
             guard !Task.isCancelled else { return }
+            let data = StorageData(feeds: self.feeds, items: self.items, folders: self.folders)
             Task.detached(priority: .utility) {
                 Self.performSave(data: data, to: dir)
             }
@@ -1252,7 +1265,7 @@ final class FeedStore {
                         }
                         // Offload heavy HTML or large descriptions to reader disk cache
                         if cleaned.itemDescription.count > 300 || cleaned.itemDescription.contains("<") {
-                            ReaderModeExtractor.shared.saveToCache(urlString: cleaned.link, content: cleaned.itemDescription, storeInMemory: false)
+                            ReaderModeExtractor.shared.saveToCache(urlString: cleaned.link, content: cleaned.itemDescription, storeInMemory: false, overwrite: false)
                             cleaned.itemDescription = cleaned.snippet
                         }
                         // Clean up any legacy items where an image enclosure was saved as audioURL
@@ -1280,6 +1293,7 @@ final class FeedStore {
                 }
                 self.items = sanitizedItems
                 self.updateCachedCounts()
+                self.updateSmartCategoryCaches()
 
                 let totalItemsCount = self.items.values.reduce(0) { $0 + $1.count }
                 AppLogger.shared.log(

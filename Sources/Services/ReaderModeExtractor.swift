@@ -16,10 +16,30 @@ final class ReaderModeExtractor {
         self.cacheDirectory = cacheDir
         memoryCache.countLimit = 15
         memoryCache.totalCostLimit = 2 * 1024 * 1024 // 2MB RAM limit
+        cleanupLegacyDirectories()
     }
 
     func clearMemoryCache() {
         memoryCache.removeAllObjects()
+    }
+
+    func cleanupLegacyDirectories() {
+        let fm = FileManager.default
+        guard let appSupport = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return }
+        let easyRSSDir = appSupport.appendingPathComponent("EasyRSS", isDirectory: true)
+
+        let legacyDirNames = ["ReaderCache", "ReaderCache_v1", "ReaderCache_v2", "ImageCache"]
+        for legacyName in legacyDirNames {
+            let legacyURL = easyRSSDir.appendingPathComponent(legacyName, isDirectory: true)
+            if fm.fileExists(atPath: legacyURL.path) {
+                do {
+                    try fm.removeItem(at: legacyURL)
+                    AppLogger.shared.log("Cleaned up legacy cache directory: \(legacyName)", level: .info, category: .storage)
+                } catch {
+                    AppLogger.shared.log("Failed to remove legacy directory \(legacyName): \(error.localizedDescription)", level: .error, category: .storage)
+                }
+            }
+        }
     }
 
     // MARK: - Cache Helpers
@@ -71,11 +91,14 @@ final class ReaderModeExtractor {
         return nil
     }
 
-    func saveToCache(urlString: String, content: String, storeInMemory: Bool = true) {
+    func saveToCache(urlString: String, content: String, storeInMemory: Bool = true, overwrite: Bool = true) {
         if storeInMemory {
             memoryCache.setObject(content as NSString, forKey: urlString as NSString)
         }
         let diskURL = fileURL(for: urlString)
+        if !overwrite && FileManager.default.fileExists(atPath: diskURL.path) {
+            return
+        }
         Task.detached(priority: .utility) {
             try? content.data(using: .utf8)?.write(to: diskURL, options: .atomic)
         }

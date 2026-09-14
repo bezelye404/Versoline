@@ -138,25 +138,19 @@ struct PodcastSearchView: View {
 
         HStack(alignment: .top, spacing: 14) {
             // Artwork
-            AsyncImage(url: URL(string: podcast.artworkURL ?? "")) { phase in
-                switch phase {
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                case .failure, .empty:
-                    ZStack {
-                        Color.secondary.opacity(0.12)
-                        Image(systemName: "headphones")
-                            .font(.system(size: 26))
-                            .foregroundStyle(.secondary)
-                    }
-                @unknown default:
+            DownsampledImageView(
+                url: URL(string: podcast.artworkURL ?? ""),
+                targetSize: CGSize(width: 72, height: 72),
+                contentMode: .fill,
+                cornerRadius: 10
+            ) {
+                ZStack {
                     Color.secondary.opacity(0.12)
+                    Image(systemName: "headphones")
+                        .font(.system(size: 26))
+                        .foregroundStyle(.secondary)
                 }
             }
-            .frame(width: 72, height: 72)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
             .shadow(color: .black.opacity(0.12), radius: 3, x: 0, y: 1)
 
             // Info Column
