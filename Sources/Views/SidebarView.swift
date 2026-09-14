@@ -19,7 +19,6 @@ struct SidebarView: View {
     @AppStorage("collapsedFolderIds") private var collapsedFolderIdsRaw: String = ""
     @AppStorage("isUncategorizedExpanded") private var isUncategorizedExpanded: Bool = true
 
-
     var body: some View {
         List(selection: $selectedItem) {
             librarySection
@@ -44,92 +43,121 @@ struct SidebarView: View {
                 managingFolderId = nil
             }
         }
-        .alert("New Folder", isPresented: $showAddFolder) {
-            TextField("Folder Name", text: $newFolderName)
-            Button("Add") {
-                if !newFolderName.trimmingCharacters(in: .whitespaces).isEmpty {
-                    store.addFolder(name: newFolderName.trimmingCharacters(in: .whitespaces))
+        .alert(String(localized: "New Folder"), isPresented: $showAddFolder) {
+            TextField(String(localized: "Folder Name"), text: $newFolderName)
+            Button(String(localized: "Add")) {
+                let trimmed = newFolderName.trimmingCharacters(in: .whitespaces)
+                if !trimmed.isEmpty {
+                    store.addFolder(name: trimmed)
+                    AppHaptics.notifySuccess()
                     newFolderName = ""
                 }
             }
-            Button("Cancel", role: .cancel) {
+            Button(String(localized: "Cancel"), role: .cancel) {
                 newFolderName = ""
             }
         } message: {
-            Text("Enter a name for the new folder.")
+            Text(String(localized: "Enter a name for the new folder."))
         }
-        .alert("Rename Folder", isPresented: .init(
+        .alert(String(localized: "Rename Folder"), isPresented: .init(
             get: { renamingFolderId != nil },
             set: { if !$0 { renamingFolderId = nil } }
         )) {
-            TextField("Folder Name", text: $renameText)
-            Button("Save") {
-                if let folderId = renamingFolderId,
-                   !renameText.trimmingCharacters(in: .whitespaces).isEmpty {
-                    store.renameFolder(folderId, name: renameText.trimmingCharacters(in: .whitespaces))
+            TextField(String(localized: "Folder Name"), text: $renameText)
+            Button(String(localized: "Save")) {
+                let trimmed = renameText.trimmingCharacters(in: .whitespaces)
+                if let folderId = renamingFolderId, !trimmed.isEmpty {
+                    store.renameFolder(folderId, name: trimmed)
+                    AppHaptics.notifySuccess()
                 }
                 renamingFolderId = nil
                 renameText = ""
             }
-            Button("Cancel", role: .cancel) {
+            Button(String(localized: "Cancel"), role: .cancel) {
                 renamingFolderId = nil
                 renameText = ""
             }
         }
-        .alert("Smart Folder Rules", isPresented: .init(
+        .alert(String(localized: "Smart Folder Rules"), isPresented: .init(
             get: { editingSmartFolder != nil },
             set: { if !$0 { editingSmartFolder = nil } }
         )) {
-            TextField("Keywords (comma separated)", text: $smartKeywordsText)
-            Button("Save Rules", action: saveSmartFolderRules)
-            Button("Clear Rules", role: .destructive, action: clearSmartFolderRules)
-            Button("Cancel", role: .cancel) {
+            TextField(String(localized: "Keywords (comma separated)"), text: $smartKeywordsText)
+            Button(String(localized: "Save Rules"), action: saveSmartFolderRules)
+            Button(String(localized: "Clear Rules"), role: .destructive, action: clearSmartFolderRules)
+            Button(String(localized: "Cancel"), role: .cancel) {
                 editingSmartFolder = nil
                 smartKeywordsText = ""
             }
         } message: {
-            Text("Enter comma-separated keywords (e.g. apple, swift, ai). Any matching article across all feeds will be aggregated into this folder.")
+            Text(String(localized: "Enter comma-separated keywords (e.g. apple, swift, ai). Any matching article across all feeds will be aggregated into this folder."))
         }
         .onChange(of: selectedItem) { _, _ in
             selectedArticle = nil
+            AppHaptics.tap()
         }
     }
 
-    // MARK: - Sections
+    // MARK: - Library Section
 
     @ViewBuilder
     private var librarySection: some View {
-        Section("Library") {
+        Section(String(localized: "Library")) {
             NavigationLink(value: SidebarItem.all) {
-                Label("All Articles", systemImage: "tray.full")
-                    .badge(store.totalItemCount)
+                sidebarRow(
+                    title: String(localized: "All Articles"),
+                    systemImage: "tray.full",
+                    count: store.totalItemCount,
+                    accentColor: .secondary
+                )
             }
 
             NavigationLink(value: SidebarItem.unread) {
-                Label("Unread", systemImage: "envelope.badge")
-                    .badge(store.totalUnreadCount())
+                sidebarRow(
+                    title: String(localized: "Unread"),
+                    systemImage: "envelope.badge",
+                    count: store.totalUnreadCount(),
+                    accentColor: AppTheme.Colors.unreadDot,
+                    isProminent: store.totalUnreadCount() > 0
+                )
             }
 
             NavigationLink(value: SidebarItem.today) {
-                Label("Today", systemImage: "clock")
-                    .badge(store.todayItemsCount())
+                sidebarRow(
+                    title: String(localized: "Today"),
+                    systemImage: "clock",
+                    count: store.todayItemsCount(),
+                    accentColor: .secondary
+                )
             }
 
             NavigationLink(value: SidebarItem.bookmarks) {
-                Label("Bookmarks", systemImage: "star")
-                    .badge(store.bookmarkCount())
+                sidebarRow(
+                    title: String(localized: "Bookmarks"),
+                    systemImage: "star",
+                    count: store.bookmarkCount(),
+                    accentColor: AppTheme.Colors.bookmark
+                )
             }
 
             NavigationLink(value: SidebarItem.podcasts) {
-                Label("Podcasts", systemImage: "headphones")
-                    .badge(store.podcastCount())
+                sidebarRow(
+                    title: String(localized: "Podcasts"),
+                    systemImage: "headphones",
+                    count: store.podcastCount(),
+                    accentColor: AppTheme.Colors.podcast
+                )
             }
 
             let downloadedCount = store.downloadedItemsCount()
             if downloadedCount > 0 {
                 NavigationLink(value: SidebarItem.downloaded) {
-                    Label("Downloaded", systemImage: "arrow.down.circle")
-                        .badge(downloadedCount)
+                    sidebarRow(
+                        title: String(localized: "Downloaded"),
+                        systemImage: "arrow.down.circle",
+                        count: downloadedCount,
+                        accentColor: AppTheme.Colors.success
+                    )
                 }
             }
 
@@ -137,24 +165,68 @@ struct SidebarView: View {
                 managingFolderId = nil
                 showFolderManagement = true
             } label: {
-                HStack {
-                    Label("Folders", systemImage: "folder")
+                HStack(spacing: 8) {
+                    Image(systemName: "folder")
+                        .font(.system(size: 14, weight: .regular))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 18)
+
+                    Text(String(localized: "Folders"))
+                        .font(.system(size: 13, weight: .regular))
                         .foregroundStyle(.primary)
 
                     Spacer()
 
                     if !store.folders.isEmpty {
                         Text("\(store.folders.count)")
-                            .font(.caption2.weight(.semibold))
-                            .foregroundStyle(.secondary)
+                            .font(.system(size: 11, weight: .medium, design: .monospaced))
+                            .foregroundStyle(AppTheme.Colors.badgeText)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 1)
-                            .background(Color.secondary.opacity(0.12), in: Capsule())
+                            .background(AppTheme.Colors.badgeBackground, in: Capsule())
                     }
                 }
             }
             .buttonStyle(.plain)
             .padding(.vertical, 2)
+        }
+    }
+
+    // MARK: - Row Helper
+
+    @ViewBuilder
+    private func sidebarRow(
+        title: String,
+        systemImage: String,
+        count: Int,
+        accentColor: Color,
+        isProminent: Bool = false
+    ) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: systemImage)
+                .font(.system(size: 14, weight: .regular))
+                .foregroundStyle(accentColor)
+                .frame(width: 18)
+
+            Text(title)
+                .font(.system(size: 13, weight: .regular))
+                .foregroundStyle(.primary)
+
+            Spacer()
+
+            if count > 0 {
+                Text("\(count)")
+                    .font(.system(size: 11, weight: isProminent ? .semibold : .medium, design: .monospaced))
+                    .foregroundStyle(isProminent ? AppTheme.Colors.activeBadgeText : AppTheme.Colors.badgeText)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 1)
+                    .background(
+                        isProminent ? AppTheme.Colors.activeBadgeBackground : AppTheme.Colors.badgeBackground,
+                        in: Capsule()
+                    )
+                    .contentTransition(.numericText())
+                    .animation(AppAnimation.bouncy, value: count)
+            }
         }
     }
 
@@ -164,7 +236,8 @@ struct SidebarView: View {
     }
 
     private func toggleFolder(_ folderId: UUID) {
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.82)) {
+        AppHaptics.tap()
+        withAnimation(AppAnimation.accordion) {
             var set = Set(collapsedFolderIdsRaw.components(separatedBy: ",").filter { !$0.isEmpty })
             if set.contains(folderId.uuidString) {
                 set.remove(folderId.uuidString)
@@ -175,6 +248,8 @@ struct SidebarView: View {
         }
     }
 
+    // MARK: - Folders Section
+
     @ViewBuilder
     private var foldersSection: some View {
         ForEach(store.folders) { folder in
@@ -184,9 +259,10 @@ struct SidebarView: View {
                     FolderStreamRow(folder: folder)
                         .dropDestination(for: String.self) { items, _ in
                             guard let idStr = items.first, let feedId = UUID(uuidString: idStr) else { return false }
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.82)) {
+                            withAnimation(AppAnimation.snappy) {
                                 store.moveFeed(feedId, toFolder: folder.id)
                             }
+                            AppHaptics.notifySuccess()
                             return true
                         }
                         .transition(.opacity.combined(with: .move(edge: .top)))
@@ -206,6 +282,8 @@ struct SidebarView: View {
         }
     }
 
+    // MARK: - Uncategorized Section
+
     @ViewBuilder
     private var uncategorizedSection: some View {
         let uncategorized = store.uncategorizedFeeds()
@@ -223,34 +301,35 @@ struct SidebarView: View {
                 }
             } header: {
                 Button {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.82)) {
+                    AppHaptics.tap()
+                    withAnimation(AppAnimation.accordion) {
                         isUncategorizedExpanded.toggle()
                     }
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "chevron.right")
-                            .font(.system(size: 11, weight: .bold))
+                            .font(.system(size: 10, weight: .semibold))
                             .foregroundStyle(.secondary)
-                            .frame(width: 16, height: 16)
+                            .frame(width: 14, height: 14)
                             .rotationEffect(.degrees(isUncategorizedExpanded ? 90 : 0))
-                            .animation(.spring(response: 0.28, dampingFraction: 0.75), value: isUncategorizedExpanded)
+                            .animation(AppAnimation.snappy, value: isUncategorizedExpanded)
 
                         Image(systemName: "tray")
-                            .font(.system(size: 13))
+                            .font(.system(size: 12))
                             .foregroundStyle(.secondary)
 
                         Text(store.folders.isEmpty ? String(localized: "Feeds") : String(localized: "Uncategorized"))
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(.primary)
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(.secondary)
 
                         Spacer()
 
                         Text("\(uncategorized.count)")
-                            .font(.caption2.weight(.medium))
-                            .foregroundStyle(.secondary)
+                            .font(.system(size: 10, weight: .medium, design: .monospaced))
+                            .foregroundStyle(AppTheme.Colors.badgeText)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1)
-                            .background(Color.secondary.opacity(0.12), in: Capsule())
+                            .background(AppTheme.Colors.badgeBackground, in: Capsule())
                             .contentTransition(.numericText())
                     }
                     .contentShape(Rectangle())
@@ -259,14 +338,17 @@ struct SidebarView: View {
                 .padding(.vertical, 3)
                 .dropDestination(for: String.self) { items, _ in
                     guard let idStr = items.first, let feedId = UUID(uuidString: idStr) else { return false }
-                    withAnimation(.easeInOut(duration: 0.18)) {
+                    withAnimation(AppAnimation.snappy) {
                         store.moveFeed(feedId, toFolder: nil)
                     }
+                    AppHaptics.notifySuccess()
                     return true
                 }
             }
         }
     }
+
+    // MARK: - Empty State
 
     @ViewBuilder
     private var emptyStateSection: some View {
@@ -274,23 +356,21 @@ struct SidebarView: View {
             Section {
                 VStack(spacing: 12) {
                     Image(systemName: "newspaper")
-                        .font(.system(size: 36, weight: .light))
+                        .font(.system(size: 32, weight: .ultraLight))
                         .foregroundStyle(.tertiary)
 
-                    Text("No feeds added yet")
+                    Text(String(localized: "No feeds added yet"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
 
-                    HStack(spacing: 8) {
-                        Button("Add Feed") {
-                            showAddFeed = true
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.small)
+                    Button(String(localized: "Add Feed")) {
+                        showAddFeed = true
                     }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 24)
+                .padding(.vertical, 20)
             }
         }
     }
@@ -308,6 +388,7 @@ struct SidebarView: View {
         }
         let finalKeywords: [String]? = parsedKeywords.isEmpty ? nil : parsedKeywords
         store.updateFolderKeywords(folder.id, keywords: finalKeywords)
+        AppHaptics.notifySuccess()
         editingSmartFolder = nil
         smartKeywordsText = ""
     }
@@ -315,6 +396,7 @@ struct SidebarView: View {
     private func clearSmartFolderRules() {
         guard let folder = editingSmartFolder else { return }
         store.updateFolderKeywords(folder.id, keywords: nil)
+        AppHaptics.notifySuccess()
         editingSmartFolder = nil
         smartKeywordsText = ""
     }
@@ -331,38 +413,38 @@ struct SidebarView: View {
         } label: {
             HStack(spacing: 6) {
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 11, weight: .bold))
+                    .font(.system(size: 10, weight: .semibold))
                     .foregroundStyle(.secondary)
-                    .frame(width: 16, height: 16)
+                    .frame(width: 14, height: 14)
                     .rotationEffect(.degrees(expanded ? 90 : 0))
-                    .animation(.spring(response: 0.28, dampingFraction: 0.75), value: expanded)
+                    .animation(AppAnimation.snappy, value: expanded)
 
                 Image(systemName: folder.isSmartFolder ? "folder.badge.gearshape" : "folder")
-                    .font(.system(size: 13))
-                    .foregroundStyle(folder.isSmartFolder ? Color.accentColor : Color.secondary)
+                    .font(.system(size: 12))
+                    .foregroundStyle(folder.isSmartFolder ? AppTheme.Colors.accent : Color.secondary)
 
                 Text(folder.name)
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(.primary)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.secondary)
 
                 if folder.isSmartFolder {
-                    Text("Smart")
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundStyle(.tint)
+                    Text(String(localized: "Smart"))
+                        .font(.system(size: 8, weight: .bold))
+                        .foregroundStyle(AppTheme.Colors.accent)
                         .padding(.horizontal, 4)
                         .padding(.vertical, 1)
-                        .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 3))
+                        .background(AppTheme.Colors.accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 3))
                 }
 
                 Spacer()
 
                 if feedsCount > 0 {
                     Text("\(feedsCount)")
-                        .font(.caption2.weight(.medium))
-                        .foregroundStyle(.secondary)
+                        .font(.system(size: 10, weight: .medium, design: .monospaced))
+                        .foregroundStyle(AppTheme.Colors.badgeText)
                         .padding(.horizontal, 5)
                         .padding(.vertical, 1)
-                        .background(Color.secondary.opacity(0.12), in: Capsule())
+                        .background(AppTheme.Colors.badgeBackground, in: Capsule())
                         .contentTransition(.numericText())
                 }
             }
@@ -372,9 +454,10 @@ struct SidebarView: View {
         .padding(.vertical, 3)
         .dropDestination(for: String.self) { items, _ in
             guard let idStr = items.first, let feedId = UUID(uuidString: idStr) else { return false }
-            withAnimation(.easeInOut(duration: 0.18)) {
+            withAnimation(AppAnimation.snappy) {
                 store.moveFeed(feedId, toFolder: folder.id)
             }
+            AppHaptics.notifySuccess()
             return true
         }
         .contextMenu {
@@ -382,7 +465,7 @@ struct SidebarView: View {
                 managingFolderId = folder.id
                 showFolderManagement = true
             } label: {
-                Label("Manage Feeds...", systemImage: "folder.badge.gearshape")
+                Label(String(localized: "Manage Feeds..."), systemImage: "folder.badge.gearshape")
             }
 
             Divider()
@@ -391,7 +474,7 @@ struct SidebarView: View {
                 smartKeywordsText = folder.keywords?.joined(separator: ", ") ?? ""
                 editingSmartFolder = folder
             } label: {
-                Label(folder.isSmartFolder ? "Edit Smart Rules..." : "Set Smart Rules...", systemImage: "sparkles")
+                Label(folder.isSmartFolder ? String(localized: "Edit Smart Rules...") : String(localized: "Set Smart Rules..."), systemImage: "sparkles")
             }
 
             Divider()
@@ -400,13 +483,13 @@ struct SidebarView: View {
                 renameText = folder.name
                 renamingFolderId = folder.id
             } label: {
-                Label("Rename", systemImage: "pencil")
+                Label(String(localized: "Rename"), systemImage: "pencil")
             }
 
             Button(role: .destructive) {
                 store.removeFolder(folder.id)
             } label: {
-                Label("Delete Folder", systemImage: "trash")
+                Label(String(localized: "Delete Folder"), systemImage: "trash")
             }
         }
     }
@@ -418,28 +501,27 @@ struct SidebarView: View {
         Button {
             Task { await store.refreshFeed(feed) }
         } label: {
-            Label("Refresh", systemImage: "arrow.clockwise")
+            Label(String(localized: "Refresh"), systemImage: "arrow.clockwise")
         }
 
         if store.allRead(feedId: feed.id) {
             Button {
                 store.markAllAsUnread(feedId: feed.id)
             } label: {
-                Label("Mark All as Unread", systemImage: "circle")
+                Label(String(localized: "Mark All as Unread"), systemImage: "circle")
             }
         } else {
             Button {
                 store.markAllAsRead(feedId: feed.id)
             } label: {
-                Label("Mark All as Read", systemImage: "checkmark.circle")
+                Label(String(localized: "Mark All as Read"), systemImage: "checkmark.circle")
             }
         }
 
         Divider()
 
-        // Move to folder submenu
         if !store.folders.isEmpty || feed.folderId != nil {
-            Menu("Move to Folder") {
+            Menu(String(localized: "Move to Folder")) {
                 ForEach(store.folders) { folder in
                     if feed.folderId != folder.id {
                         Button(folder.name) {
@@ -450,7 +532,7 @@ struct SidebarView: View {
 
                 if feed.folderId != nil {
                     Divider()
-                    Button("Remove from Folder") {
+                    Button(String(localized: "Remove from Folder")) {
                         store.moveFeed(feed.id, toFolder: nil)
                     }
                 }
@@ -466,7 +548,7 @@ struct SidebarView: View {
             }
             store.removeFeed(feed)
         } label: {
-            Label("Delete Feed", systemImage: "trash")
+            Label(String(localized: "Delete Feed"), systemImage: "trash")
         }
     }
 }
@@ -480,12 +562,26 @@ struct FolderStreamRow: View {
 
     var body: some View {
         NavigationLink(value: SidebarItem.folder(folder.id)) {
-            if folder.isSmartFolder {
-                Label("Smart Stream", systemImage: "sparkles")
-                    .badge(store.itemsCountForFolder(folder.id))
-            } else {
-                Label("All in Folder", systemImage: "tray.2")
-                    .badge(store.itemsCountForFolder(folder.id))
+            HStack(spacing: 8) {
+                Image(systemName: folder.isSmartFolder ? "sparkles" : "tray.2")
+                    .font(.system(size: 13))
+                    .foregroundStyle(folder.isSmartFolder ? AppTheme.Colors.accent : Color.secondary)
+                    .frame(width: 18)
+
+                Text(folder.isSmartFolder ? String(localized: "Smart Stream") : String(localized: "All in Folder"))
+                    .font(.system(size: 13))
+
+                Spacer()
+
+                let count = store.itemsCountForFolder(folder.id)
+                if count > 0 {
+                    Text("\(count)")
+                        .font(.system(size: 11, weight: .medium, design: .monospaced))
+                        .foregroundStyle(AppTheme.Colors.badgeText)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 1)
+                        .background(AppTheme.Colors.badgeBackground, in: Capsule())
+                }
             }
         }
     }
@@ -500,20 +596,20 @@ struct FeedRow: View {
     @State private var isHovered: Bool = false
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 8) {
             FaviconView(hostOrURL: feed.url, size: 16)
-                .frame(width: 20, height: 20)
-                .scaleEffect(isHovered ? 1.08 : 1.0)
+                .frame(width: 18, height: 18)
+                .scaleEffect(isHovered ? 1.05 : 1.0)
                 .animation(AppAnimation.hover, value: isHovered)
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(feed.title)
-                    .font(.system(.body, design: .default, weight: .medium))
+                    .font(.system(size: 13, weight: .regular))
                     .lineLimit(1)
 
                 if !feed.description.isEmpty {
                     Text(feed.description)
-                        .font(.caption)
+                        .font(.caption2)
                         .foregroundStyle(.tertiary)
                         .lineLimit(1)
                 }
@@ -524,11 +620,11 @@ struct FeedRow: View {
             let unread = store.unreadCount(for: feed.id)
             if unread > 0 {
                 Text("\(unread)")
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 7)
-                    .padding(.vertical, 2)
-                    .background(Color.secondary.opacity(0.85), in: Capsule())
+                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(AppTheme.Colors.activeBadgeText)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 1)
+                    .background(AppTheme.Colors.activeBadgeBackground, in: Capsule())
                     .contentTransition(.numericText())
                     .animation(AppAnimation.bouncy, value: unread)
             }

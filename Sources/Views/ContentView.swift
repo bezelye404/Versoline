@@ -41,13 +41,14 @@ struct ContentView: View {
                 }
 
                 Button {
+                    AppHaptics.tap()
                     Task {
                         await store.refreshAllFeeds(force: true)
                     }
                 } label: {
-                    Label("Refresh", systemImage: "arrow.clockwise")
+                    Label(String(localized: "Refresh"), systemImage: "arrow.clockwise")
                 }
-                .help("Refresh all feeds")
+                .help(String(localized: "Refresh all feeds"))
                 .keyboardShortcut("r", modifiers: .command)
                 .disabled(store.isLoading)
                 // Unified Add Menu: URL, Curated Catalog, Podcast Search & OPML

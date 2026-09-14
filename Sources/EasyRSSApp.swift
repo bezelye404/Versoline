@@ -129,43 +129,124 @@ struct EasyRSSApp: App {
     }
 }
 
-// MARK: - App Animation Engine (Apple HIG Motion & GPU-Composited Guidelines)
+// MARK: - App Design Theme (Editorial, Restrained & Native macOS)
+
+enum AppTheme {
+
+    // MARK: - Colors (Sade, doymamış, neondan ve gradyanlardan uzak renkler)
+    enum Colors {
+        /// Ana vurgu: Doğal, göz yormayan macOS sistem mavisi
+        static let accent = Color.accentColor
+
+        /// Okunmamış göstergesi: Canlı neon yerine zarif ve net bir mavi tonu
+        static let unreadDot = Color.accentColor
+
+        /// Yıldız / Yerimi: Aşırı doygun olmayan sıcak kehribar / altın tonu
+        static let bookmark = Color(nsColor: .systemOrange).opacity(0.92)
+
+        /// Çevrimdışı / İkaz durumu: Sakin sarı/kehribar
+        static let warning = Color(nsColor: .systemYellow)
+
+        /// İndirme / Başarılı durum: Doymamış, doğal yeşil
+        static let success = Color(nsColor: .systemGreen).opacity(0.9)
+
+        /// YouTube göstergesi: Neon yerine doğal tuğla/koyu kırmızı
+        static let youtube = Color(nsColor: .systemRed).opacity(0.85)
+
+        /// Podcast mikro-etiket rengi: Muted nötr mor/indigo
+        static let podcast = Color(nsColor: .systemIndigo).opacity(0.85)
+
+        // MARK: Arka Plan ve Yüzeyler (Glass & Neutral Surfaces)
+        /// Kart hover arka planı: Çok hafif saydam kontrol dolgusu
+        static let cardHover = Color(nsColor: .controlBackgroundColor).opacity(0.55)
+
+        /// Seçili kart arka planı: Doygunluktan uzak, hafif vurgulu dolgu
+        static let cardSelected = Color.accentColor.opacity(0.10)
+
+        /// Seçili kart sınır çizgisi: İnce, zarif vurgu çizgisi
+        static let cardSelectedBorder = Color.accentColor.opacity(0.24)
+
+        /// İnce ayraç ve sınır çizgileri (Hairline borders)
+        static let hairlineBorder = Color.primary.opacity(0.06)
+        static let subtleBorder = Color.primary.opacity(0.09)
+
+        /// Hap ve sayaç dolguları
+        static let badgeBackground = Color.primary.opacity(0.06)
+        static let badgeText = Color.secondary
+
+        /// Aktif sayaç rozeti dolgusu
+        static let activeBadgeBackground = Color.accentColor.opacity(0.12)
+        static let activeBadgeText = Color.accentColor
+    }
+
+    // MARK: - Radius & Spacing Tokens
+    enum Metrics {
+        static let cardCornerRadius: CGFloat = 9
+        static let pillCornerRadius: CGFloat = 20
+        static let thumbnailCornerRadius: CGFloat = 7
+        static let floatingBarCornerRadius: CGFloat = 22
+    }
+}
+
+// MARK: - Dokunsal Haptik Geri Bildirim (AppKit Haptics)
+
+enum AppHaptics {
+    /// Hafif seçim tıklaması (okundu, yıldız, sekme değiştirme)
+    @MainActor
+    static func tap() {
+        NSHapticFeedbackManager.defaultPerformer.perform(
+            .alignment,
+            performanceTime: .default
+        )
+    }
+
+    /// Onay / İşlem tamamlandı tıklaması
+    @MainActor
+    static func notifySuccess() {
+        NSHapticFeedbackManager.defaultPerformer.perform(
+            .generic,
+            performanceTime: .default
+        )
+    }
+}
+
+// MARK: - Animasyon Motoru (Apple HIG Motion & GPU-Composited Guidelines)
 
 enum AppAnimation {
-    /// Crisp snappy spring for fast state changes and list entries (0.22s)
-    static let snappy = Animation.snappy(duration: 0.22, extraBounce: 0.08)
+    /// Hızlı ve hassas yay: Liste güncellemeleri, segment değişimleri (0.22s)
+    static let snappy = Animation.snappy(duration: 0.22, extraBounce: 0.05)
 
-    /// Tactile bouncy spring for micro-interactions: stars, bookmarks, checks, unread bubble pop (0.26s)
-    static let bouncy = Animation.bouncy(duration: 0.26, extraBounce: 0.15)
+    /// Hafif mikro-etkileşim yayı: Yıldızlama, okundu ikonu, sayaç balonu (0.24s)
+    static let bouncy = Animation.bouncy(duration: 0.24, extraBounce: 0.10)
 
-    /// Fluid sliding spring for matchedGeometry capsules, sliding pills, and segment switches (0.28s)
-    static let slidingPill = Animation.spring(response: 0.28, dampingFraction: 0.76)
+    /// Akıcı kayan kapsül yayı: Okuma modu switch'i ve seçim kapsülü (0.26s)
+    static let slidingPill = Animation.spring(response: 0.26, dampingFraction: 0.78)
 
-    /// Snappy card press response when tapping or clicking rows (0.16s)
-    static let cardPress = Animation.interactiveSpring(response: 0.16, dampingFraction: 0.72)
+    /// Kart tıklama/dokunma tepkisi: Basılma hissi (0.15s)
+    static let cardPress = Animation.interactiveSpring(response: 0.15, dampingFraction: 0.75)
 
-    /// Smooth page reveal spring when switching articles or opening detail panes (0.28s)
-    static let pageReveal = Animation.spring(response: 0.28, dampingFraction: 0.84)
+    /// Pürüzsüz sayfa ve makale geçiş yayı (0.26s)
+    static let pageReveal = Animation.spring(response: 0.26, dampingFraction: 0.85)
 
-    /// Gentle accordion expansion for folders and dropdowns (0.26s)
-    static let accordion = Animation.spring(response: 0.26, dampingFraction: 0.82)
+    /// Klasör akordeon açılma yayı (0.24s)
+    static let accordion = Animation.spring(response: 0.24, dampingFraction: 0.82)
 
-    /// Subtle hover transition (0.15s)
-    static let hover = Animation.easeInOut(duration: 0.15)
+    /// Pürüzsüz hover geçişi (0.12s)
+    static let hover = Animation.easeInOut(duration: 0.12)
 
-    /// Quick easeOut for read/unread state changes (0.15s per guide.md)
-    static let quickFeedback = Animation.easeOut(duration: 0.15)
+    /// Hızlı durum değişimi için easeOut (0.14s)
+    static let quickFeedback = Animation.easeOut(duration: 0.14)
 
-    /// Fallback animation when accessibilityReduceMotion is enabled
-    static let reduced = Animation.easeInOut(duration: 0.15)
+    /// Erişilebilirlik (Reduce Motion) aktifken kullanılacak sade fade geçişi
+    static let reduced = Animation.easeInOut(duration: 0.14)
 
-    /// Returns the appropriate animation respecting accessibilityReduceMotion
+    /// Reduce Motion durumuna göre uygun animasyonu döndürür
     static func motion(_ animation: Animation, reduceMotion: Bool) -> Animation {
         reduceMotion ? reduced : animation
     }
 
-    /// Calculate staggered delay for cascading list animations (capped at 0.18s max delay)
+    /// Liste elemanlarının basamaklı belirmesi için gecikme (maksimum 0.15s)
     static func stagger(index: Int) -> Double {
-        min(Double(index) * 0.02, 0.18)
+        min(Double(index) * 0.015, 0.15)
     }
 }
