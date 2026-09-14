@@ -133,13 +133,21 @@ struct FeedListView: View {
 
                         let visibleItems: [FeedItem] = searchText.isEmpty ? Array(items.prefix(displayLimit)) : items
 
-                        List(selection: $selectedArticle) {
+                        List(selection: Binding(
+                            get: { selectedArticle },
+                            set: { newSelection in
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+                                    selectedArticle = newSelection
+                                }
+                            }
+                        )) {
                             ForEach(visibleItems) { item in
                                 let feed = store.feed(for: item.feedId)
                                 FeedItemRow(
                                     item: item,
                                     feedTitle: showFeedName ? feed?.title : nil,
-                                    feedURL: feed?.url ?? URL(string: item.link)?.host
+                                    feedURL: feed?.url ?? URL(string: item.link)?.host,
+                                    feedImageURL: feed?.imageURL
                                 )
                                 .tag(item)
                                 .contextMenu {
@@ -283,6 +291,12 @@ struct FeedListView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
+        .id(selection)
+        .transition(.asymmetric(
+            insertion: .opacity.combined(with: .offset(y: 8)),
+            removal: .opacity
+        ))
+        .animation(.spring(response: 0.32, dampingFraction: 0.82), value: selection)
     }
 
     // MARK: - Article Navigation
@@ -291,31 +305,41 @@ struct FeedListView: View {
         guard !items.isEmpty else { return }
         guard let current = selectedArticle,
               let index = items.firstIndex(where: { $0.id == current.id }) else {
-            selectedArticle = items.first
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+                selectedArticle = items.first
+            }
             return
         }
         let nextIndex = min(index + 1, items.count - 1)
         if nextIndex >= displayLimit {
             displayLimit = min(displayLimit + 40, items.count)
         }
-        selectedArticle = items[nextIndex]
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+            selectedArticle = items[nextIndex]
+        }
     }
 
     private func selectPreviousArticle(in items: [FeedItem]) {
         guard !items.isEmpty else { return }
         guard let current = selectedArticle,
               let index = items.firstIndex(where: { $0.id == current.id }) else {
-            selectedArticle = items.first
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+                selectedArticle = items.first
+            }
             return
         }
         let prevIndex = max(index - 1, 0)
-        selectedArticle = items[prevIndex]
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+            selectedArticle = items[prevIndex]
+        }
     }
 
     private func handleSpacebarNavigation(in items: [FeedItem]) {
         guard !items.isEmpty else { return }
         guard let current = selectedArticle else {
-            selectedArticle = items.first
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+                selectedArticle = items.first
+            }
             return
         }
         // Advance to next unread article if any, otherwise next article in list
@@ -335,7 +359,9 @@ struct FeedListView: View {
         if let idx = items.firstIndex(where: { $0.id == article.id }), idx >= displayLimit {
             displayLimit = min(idx + 20, items.count)
         }
-        selectedArticle = article
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+            selectedArticle = article
+        }
     }
 
     // MARK: - Context Menu
@@ -471,6 +497,7 @@ struct FeedItemRow: View {
     let item: FeedItem
     var feedTitle: String? = nil
     var feedURL: String? = nil
+    var feedImageURL: String? = nil
 
     private static let relativeDateTimeFormatter: RelativeDateTimeFormatter = {
         let formatter = RelativeDateTimeFormatter()
@@ -484,18 +511,29 @@ struct FeedItemRow: View {
         return Self.relativeDateTimeFormatter.localizedString(for: date, relativeTo: Date())
     }
 
+    private var mediaThumbnailURL: URL? {
+        if let yt = item.youtubeThumbnailURL { return yt }
+        if let img = feedImageURL, let url = URL(string: img) { return url }
+        return nil
+    }
+
+    @State private var isHovered: Bool = false
+
     var body: some View {
-        VStack(alignment: .leading, spacing: isCompactListMode ? 2 : 6) {
+        HStack(alignment: .center, spacing: 10) {
+            // Main text column
             HStack(alignment: .top, spacing: 8) {
-                // Unread indicator
+                // Unread indicator dot
                 Circle()
                     .fill(item.isRead ? Color.clear : Color.accentColor)
                     .frame(width: 7, height: 7)
-                    .padding(.top, isCompactListMode ? 4 : 6)
-                    .animation(.spring(response: 0.25, dampingFraction: 0.7), value: item.isRead)
+                    .scaleEffect(item.isRead ? 0.6 : 1.0)
+                    .padding(.top, isCompactListMode ? 4 : 5)
+                    .animation(.spring(response: 0.28, dampingFraction: 0.72), value: item.isRead)
 
                 VStack(alignment: .leading, spacing: isCompactListMode ? 2 : 4) {
-                    HStack(spacing: 6) {
+                    // Title and Bookmark
+                    HStack(alignment: .top, spacing: 6) {
                         Text(item.title)
                             .font(.system(.body, design: .default, weight: item.isRead ? .regular : .semibold))
                             .lineLimit(isCompactListMode ? 1 : 2)
@@ -509,6 +547,7 @@ struct FeedItemRow: View {
                         }
                     }
 
+                    // Content snippet
                     if !isCompactListMode && !item.snippet.isEmpty {
                         Text(item.snippet)
                             .font(.caption)
@@ -517,6 +556,7 @@ struct FeedItemRow: View {
                             .lineSpacing(2)
                     }
 
+                    // Metadata row
                     HStack(spacing: 8) {
                         if let feedTitle, !feedTitle.isEmpty {
                             HStack(spacing: 4) {
@@ -543,7 +583,7 @@ struct FeedItemRow: View {
                             let player = AudioPlayerService.shared
                             let isPlayingThis = player.currentEpisode?.id == item.id && player.isPlaying
                             let isDownloaded = PodcastDownloadService.shared.isDownloaded(item.id)
-                            HStack(spacing: 3) {
+                            HStack(spacing: 4) {
                                 if isPlayingThis {
                                     EqualizerWaveformView(isPlaying: true, barWidth: 2, maxHeight: 10)
                                 } else {
@@ -567,7 +607,7 @@ struct FeedItemRow: View {
                         }
 
                         if item.isYouTube {
-                            HStack(spacing: 3) {
+                            HStack(spacing: 4) {
                                 Image(systemName: "play.rectangle.fill")
                                     .foregroundStyle(.red)
                                 Text("YouTube")
@@ -583,8 +623,53 @@ struct FeedItemRow: View {
                     .padding(.top, 1)
                 }
             }
+
+            // Media thumbnail (if YouTube, podcast, or feed image exists)
+            if let mediaURL = mediaThumbnailURL {
+                let thumbSize: CGFloat = isCompactListMode ? 38 : 50
+                AsyncImage(url: mediaURL) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    default:
+                        Color.secondary.opacity(0.08)
+                    }
+                }
+                .frame(width: thumbSize, height: thumbSize)
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .stroke(Color.primary.opacity(0.08), lineWidth: 0.5)
+                )
+                .overlay(alignment: .center) {
+                    if item.isPodcast || item.isYouTube {
+                        Circle()
+                            .fill(.ultraThinMaterial)
+                            .frame(width: 22, height: 22)
+                            .overlay(
+                                Image(systemName: "play.fill")
+                                    .font(.system(size: 9, weight: .bold))
+                                    .foregroundStyle(item.isYouTube ? .red : .primary)
+                                    .offset(x: 1)
+                            )
+                            .shadow(color: .black.opacity(0.2), radius: 3, y: 1)
+                    }
+                }
+            }
         }
-        .padding(.vertical, isCompactListMode ? 2 : 4)
+        .padding(.vertical, isCompactListMode ? 2 : 5)
+        .padding(.horizontal, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(isHovered ? Color.primary.opacity(0.04) : Color.clear)
+        )
         .contentShape(Rectangle())
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.18)) {
+                isHovered = hovering
+            }
+        }
     }
 }

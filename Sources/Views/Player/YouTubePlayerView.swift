@@ -141,39 +141,18 @@ final class PlayerBridgeController: NSObject, ObservableObject, WKScriptMessageH
     }
 
     func toggleFullscreen() {
-        let js = """
-        (function() {
-            var v = document.querySelector('video') || document.getElementById('player-wrap');
-            if (document.fullscreenElement || document.webkitFullscreenElement) {
-                if (document.exitFullscreen) { document.exitFullscreen(); }
-                else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
-            } else {
-                if (v && v.requestFullscreen) { v.requestFullscreen(); }
-                else if (v && v.webkitRequestFullscreen) { v.webkitRequestFullscreen(); }
-                else if (v && v.webkitEnterFullscreen) { v.webkitEnterFullscreen(); }
-                else if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen(); }
-            }
-        })();
-        """
-        webView?.evaluateJavaScript(js, completionHandler: nil)
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+            isFullscreen.toggle()
+        }
     }
 
     func triggerPictureInPicture() {
+        // Broadcast PiP toggle directly to the video subframe
         let js = """
         (function() {
-            var video = document.querySelector('video');
-            if (!video) {
-                var ifr = document.querySelector('iframe');
-                if (ifr && ifr.contentDocument) {
-                    video = ifr.contentDocument.querySelector('video');
-                }
-            }
-            if (video) {
-                if (document.pictureInPictureElement) {
-                    document.exitPictureInPicture();
-                } else if (video.requestPictureInPicture) {
-                    video.requestPictureInPicture();
-                }
+            window.postMessage('pip_toggle', '*');
+            for (var i = 0; i < window.frames.length; i++) {
+                try { window.frames[i].postMessage('pip_toggle', '*'); } catch(e) {}
             }
         })();
         """
@@ -188,6 +167,7 @@ struct YouTubePlayerView: View {
     let videoID: String
     let title: String
     let link: String
+    var isTheaterMode: Binding<Bool>? = nil
 
     @StateObject private var bridge = PlayerBridgeController()
     @State private var isPlayerActive: Bool = false
@@ -198,10 +178,11 @@ struct YouTubePlayerView: View {
             ZStack {
                 if isPlayerActive {
                     NativeVideoPlayerCanvas(videoID: videoID, title: title, bridge: bridge)
-                        .aspectRatio(16/9, contentMode: .fit)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .aspectRatio(bridge.isFullscreen ? nil : 16/9, contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: bridge.isFullscreen ? .infinity : nil)
+                        .clipShape(RoundedRectangle(cornerRadius: bridge.isFullscreen ? 0 : 12, style: .continuous))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            RoundedRectangle(cornerRadius: bridge.isFullscreen ? 0 : 12, style: .continuous)
                                 .stroke(Color.white.opacity(0.12), lineWidth: 1)
                         )
                         .transition(.opacity.combined(with: .scale(scale: 0.98)))
@@ -219,8 +200,9 @@ struct YouTubePlayerView: View {
             .frame(maxWidth: .infinity)
             .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 5)
 
-            // Video Control & Metadata Row
-            HStack(spacing: 12) {
+            // Video Control & Metadata Row (Hidden in Fullscreen Theater)
+            if !bridge.isFullscreen {
+                HStack(spacing: 12) {
                 Label("YouTube", systemImage: "play.rectangle.fill")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.red)
@@ -257,16 +239,31 @@ struct YouTubePlayerView: View {
                 }
             }
             .padding(.horizontal, 4)
+            }
         }
-        .padding(12)
+        .padding(bridge.isFullscreen ? 0 : 12)
         .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color(nsColor: .controlBackgroundColor).opacity(0.55))
+            RoundedRectangle(cornerRadius: bridge.isFullscreen ? 0 : 14, style: .continuous)
+                .fill(bridge.isFullscreen ? Color.black : Color(nsColor: .controlBackgroundColor).opacity(0.55))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+            RoundedRectangle(cornerRadius: bridge.isFullscreen ? 0 : 14, style: .continuous)
+                .stroke(bridge.isFullscreen ? Color.clear : Color.primary.opacity(0.06), lineWidth: 1)
         )
+        .onChange(of: bridge.isFullscreen) { _, val in
+            if isTheaterMode?.wrappedValue != val {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                    isTheaterMode?.wrappedValue = val
+                }
+            }
+        }
+        .onChange(of: isTheaterMode?.wrappedValue) { _, val in
+            if let val, bridge.isFullscreen != val {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                    bridge.isFullscreen = val
+                }
+            }
+        }
     }
 
     // MARK: - Click-To-Play Thumbnail Cover (0 MB WebKit RAM)
@@ -372,7 +369,45 @@ struct NativeVideoPlayerCanvas: View {
                     resetControlsTimer()
                 }
 
-            // 3. Bottom Gradient Vignette (Ensures contrast against bright videos)
+            // 3. Top Cinema Header (When Fullscreen Theater)
+            if bridge.isFullscreen {
+                VStack {
+                    HStack(spacing: 10) {
+                        Label("YouTube", systemImage: "play.rectangle.fill")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(.red)
+
+                        Text(title)
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+
+                        Spacer()
+
+                        Button {
+                            bridge.toggleFullscreen()
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 20))
+                                .foregroundStyle(.white.opacity(0.85))
+                        }
+                        .buttonStyle(.plain)
+                        .keyboardShortcut(.escape, modifiers: [])
+                        .help(String(localized: "Exit Fullscreen"))
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .background(
+                        LinearGradient(colors: [Color.black.opacity(0.85), Color.clear], startPoint: .top, endPoint: .bottom)
+                    )
+                    .opacity(isControlsVisible || !bridge.isPlaying ? 1.0 : 0.0)
+                    .animation(.easeInOut(duration: 0.3), value: isControlsVisible)
+
+                    Spacer()
+                }
+            }
+
+            // 4. Bottom Gradient Vignette (Ensures contrast against bright videos)
             VStack {
                 Spacer()
                 LinearGradient(
@@ -736,7 +771,7 @@ struct NativePlayerScrubber: View {
     }
 }
 
-// MARK: - Headless Hardware Video Canvas (WKWebView with Bidirectional JS Bridge)
+// MARK: - Headless Hardware Video Canvas (WKWebView with Subframe PiP & Fullscreen Bridge)
 
 struct CustomHeadlessWebView: NSViewRepresentable {
     let videoID: String
@@ -751,6 +786,46 @@ struct CustomHeadlessWebView: NSViewRepresentable {
         let weakHandler = WeakScriptMessageHandler(delegate: bridge)
         configuration.userContentController.add(weakHandler, name: "customPlayerBridge")
 
+        // Injected Subframe Script: Runs directly inside the YouTube iframe (forMainFrameOnly: false)
+        // This gives direct, same-origin access to the HTML5 <video> element for Picture-in-Picture & Fullscreen!
+        let subframeScript = """
+        (function() {
+            window.addEventListener('message', function(e) {
+                if (e.data === 'pip_toggle') {
+                    var v = document.querySelector('video');
+                    if (v) {
+                        if (document.pictureInPictureElement) {
+                            document.exitPictureInPicture();
+                        } else if (v.requestPictureInPicture) {
+                            v.requestPictureInPicture();
+                        } else if (v.webkitSetPresentationMode) {
+                            var mode = v.webkitPresentationMode === 'picture-in-picture' ? 'inline' : 'picture-in-picture';
+                            v.webkitSetPresentationMode(mode);
+                        }
+                    }
+                } else if (e.data === 'fullscreen_toggle') {
+                    var v = document.querySelector('video');
+                    if (v) {
+                        if (document.fullscreenElement || document.webkitFullscreenElement) {
+                            if (document.exitFullscreen) document.exitFullscreen();
+                            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                        } else {
+                            if (v.requestFullscreen) v.requestFullscreen();
+                            else if (v.webkitRequestFullscreen) v.webkitRequestFullscreen();
+                            else if (v.webkitEnterFullscreen) v.webkitEnterFullscreen();
+                        }
+                    }
+                }
+            });
+        })();
+        """
+        let userScript = WKUserScript(
+            source: subframeScript,
+            injectionTime: .atDocumentEnd,
+            forMainFrameOnly: false
+        )
+        configuration.userContentController.addUserScript(userScript)
+
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.wantsLayer = true
         webView.layer?.backgroundColor = NSColor.black.cgColor
@@ -763,23 +838,27 @@ struct CustomHeadlessWebView: NSViewRepresentable {
             <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
             <style>
                 * { margin: 0; padding: 0; box-sizing: border-box; }
-                html, body {
-                    width: 100%;
-                    height: 100%;
-                    background: #000000;
-                    overflow: hidden;
+                :root, html, body, :-webkit-full-screen, :fullscreen {
+                    width: 100% !important;
+                    height: 100% !important;
+                    background-color: #000000 !important;
+                    overflow: hidden !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
                 }
                 #player-wrap {
-                    width: 100%;
-                    height: 100%;
+                    width: 100% !important;
+                    height: 100% !important;
                     position: absolute;
                     top: 0; left: 0;
+                    background-color: #000000 !important;
                     pointer-events: none;
                 }
-                iframe {
-                    width: 100%;
-                    height: 100%;
-                    border: none;
+                #player, iframe {
+                    width: 100% !important;
+                    height: 100% !important;
+                    border: none !important;
+                    background-color: #000000 !important;
                 }
             </style>
         </head>

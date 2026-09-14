@@ -192,8 +192,9 @@ struct SidebarView: View {
     @ViewBuilder
     private var foldersSection: some View {
         ForEach(store.folders) { folder in
+            let expanded = isFolderExpanded(folder.id)
             Section {
-                if isFolderExpanded(folder.id) {
+                if expanded {
                     FolderStreamRow(folder: folder)
                         .dropDestination(for: String.self) { items, _ in
                             guard let idStr = items.first, let feedId = UUID(uuidString: idStr) else { return false }
@@ -202,6 +203,7 @@ struct SidebarView: View {
                             }
                             return true
                         }
+                        .transition(.opacity.combined(with: .move(edge: .top)))
 
                     ForEach(store.feedsInFolder(folder.id)) { feed in
                         NavigationLink(value: SidebarItem.feed(feed.id)) {
@@ -209,6 +211,7 @@ struct SidebarView: View {
                         }
                         .contextMenu { feedContextMenu(feed: feed) }
                         .draggable(feed.id.uuidString)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
                     }
                 }
             } header: {
@@ -229,6 +232,7 @@ struct SidebarView: View {
                         }
                         .contextMenu { feedContextMenu(feed: feed) }
                         .draggable(feed.id.uuidString)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
                     }
                 }
             } header: {
@@ -238,10 +242,12 @@ struct SidebarView: View {
                     }
                 } label: {
                     HStack(spacing: 6) {
-                        Image(systemName: isUncategorizedExpanded ? "chevron.down" : "chevron.right")
+                        Image(systemName: "chevron.right")
                             .font(.system(size: 11, weight: .bold))
                             .foregroundStyle(.secondary)
                             .frame(width: 16, height: 16)
+                            .rotationEffect(.degrees(isUncategorizedExpanded ? 90 : 0))
+                            .animation(.spring(response: 0.28, dampingFraction: 0.75), value: isUncategorizedExpanded)
 
                         Image(systemName: "tray")
                             .font(.system(size: 13))
@@ -259,6 +265,7 @@ struct SidebarView: View {
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1)
                             .background(Color.secondary.opacity(0.12), in: Capsule())
+                            .contentTransition(.numericText())
                     }
                     .contentShape(Rectangle())
                 }
@@ -337,10 +344,12 @@ struct SidebarView: View {
             toggleFolder(folder.id)
         } label: {
             HStack(spacing: 6) {
-                Image(systemName: expanded ? "chevron.down" : "chevron.right")
+                Image(systemName: "chevron.right")
                     .font(.system(size: 11, weight: .bold))
                     .foregroundStyle(.secondary)
                     .frame(width: 16, height: 16)
+                    .rotationEffect(.degrees(expanded ? 90 : 0))
+                    .animation(.spring(response: 0.28, dampingFraction: 0.75), value: expanded)
 
                 Image(systemName: folder.isSmartFolder ? "folder.badge.gearshape" : "folder")
                     .font(.system(size: 13))
@@ -368,6 +377,7 @@ struct SidebarView: View {
                         .padding(.horizontal, 5)
                         .padding(.vertical, 1)
                         .background(Color.secondary.opacity(0.12), in: Capsule())
+                        .contentTransition(.numericText())
                 }
             }
             .contentShape(Rectangle())
