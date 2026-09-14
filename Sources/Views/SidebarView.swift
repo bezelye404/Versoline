@@ -28,24 +28,8 @@ struct SidebarView: View {
             emptyStateSection
         }
         .listStyle(.sidebar)
-        .navigationTitle("easyRSS")
-        .toolbar {
-            ToolbarItemGroup(placement: .automatic) {
-                Button {
-                    managingFolderId = nil
-                    showFolderManagement = true
-                } label: {
-                    Label("Folders", systemImage: "folder.badge.gearshape")
-                }
-                .help("Manage folders and feeds")
-
-                Button {
-                    showAddFolder = true
-                } label: {
-                    Label("Add Folder", systemImage: "folder.badge.plus")
-                }
-                .help("Add new folder")
-            }
+        .safeAreaInset(edge: .top) {
+            Color.clear.frame(height: 6)
         }
         .sheet(isPresented: $showAddFeed) {
             AddFeedSheet()
@@ -511,11 +495,14 @@ struct FeedRow: View {
 
     @Environment(FeedStore.self) private var store
     let feed: Feed
+    @State private var isHovered: Bool = false
 
     var body: some View {
         HStack(spacing: 10) {
             FaviconView(hostOrURL: feed.url, size: 16)
                 .frame(width: 20, height: 20)
+                .scaleEffect(isHovered ? 1.08 : 1.0)
+                .animation(AppAnimation.hover, value: isHovered)
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(feed.title)
@@ -539,9 +526,14 @@ struct FeedRow: View {
                     .foregroundStyle(.white)
                     .padding(.horizontal, 7)
                     .padding(.vertical, 2)
-                    .background(.secondary, in: Capsule())
+                    .background(Color.secondary.opacity(0.85), in: Capsule())
+                    .contentTransition(.numericText())
+                    .animation(AppAnimation.bouncy, value: unread)
             }
         }
         .padding(.vertical, 2)
+        .onHover { hovering in
+            isHovered = hovering
+        }
     }
 }

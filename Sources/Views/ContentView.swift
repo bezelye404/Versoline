@@ -11,6 +11,9 @@ struct ContentView: View {
     @State private var showConsole = false
     @State private var showShortcutsHelp = false
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
+    @State private var showAddFolder = false
+    @State private var newFolderName = ""
+    @State private var showFolderManagement = false
     @AppStorage(AppSettingsKeys.isCompactListMode) private var isCompactListMode = false
 
     // 30 minutes (1800 seconds) auto-refresh timer
@@ -73,6 +76,20 @@ struct ContentView: View {
                     Divider()
 
                     Button {
+                        showAddFolder = true
+                    } label: {
+                        Label(String(localized: "New Folder..."), systemImage: "folder.badge.plus")
+                    }
+
+                    Button {
+                        showFolderManagement = true
+                    } label: {
+                        Label(String(localized: "Manage Folders..."), systemImage: "folder")
+                    }
+
+                    Divider()
+
+                    Button {
                         importOPML()
                     } label: {
                         Label(String(localized: "Import OPML..."), systemImage: "square.and.arrow.down")
@@ -87,7 +104,7 @@ struct ContentView: View {
                 } label: {
                     Label(String(localized: "Add"), systemImage: "plus")
                 }
-                .help(String(localized: "Add feed, browse catalog, search podcasts, or import OPML"))
+                .help(String(localized: "Add feed, folder, catalog, podcasts, or OPML"))
 
                 // View & Tools Menu (Compact mode, Shortcuts HUD, Console)
                 Menu {
@@ -118,6 +135,24 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showAddFeed) {
             AddFeedSheet(initialTab: addFeedTab)
+        }
+        .sheet(isPresented: $showFolderManagement) {
+            FolderManagementView()
+        }
+        .alert(String(localized: "New Folder"), isPresented: $showAddFolder) {
+            TextField(String(localized: "Folder Name"), text: $newFolderName)
+            Button(String(localized: "Add")) {
+                let trimmed = newFolderName.trimmingCharacters(in: .whitespaces)
+                if !trimmed.isEmpty {
+                    store.addFolder(name: trimmed)
+                    newFolderName = ""
+                }
+            }
+            Button(String(localized: "Cancel"), role: .cancel) {
+                newFolderName = ""
+            }
+        } message: {
+            Text(String(localized: "Enter a name for the new folder."))
         }
         .sheet(isPresented: $showConsole) {
             ConsoleView()

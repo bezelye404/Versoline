@@ -136,7 +136,7 @@ struct FeedListView: View {
                         List(selection: Binding(
                             get: { selectedArticle },
                             set: { newSelection in
-                                withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+                                withAnimation(AppAnimation.slidingPill) {
                                     selectedArticle = newSelection
                                 }
                             }
@@ -145,11 +145,15 @@ struct FeedListView: View {
                                 let feed = store.feed(for: item.feedId)
                                 FeedItemRow(
                                     item: item,
+                                    isSelected: selectedArticle?.id == item.id,
                                     feedTitle: showFeedName ? feed?.title : nil,
                                     feedURL: feed?.url ?? URL(string: item.link)?.host,
                                     feedImageURL: feed?.imageURL
                                 )
                                 .tag(item)
+                                .listRowBackground(EmptyView())
+                                .listRowInsets(EdgeInsets(top: 2, leading: 6, bottom: 2, trailing: 6))
+                                .listRowSeparator(.hidden)
                                 .contextMenu {
                                     itemContextMenu(item: item)
                                 }
@@ -185,7 +189,10 @@ struct FeedListView: View {
                                     }
                             }
                         }
-                        .listStyle(.inset)
+                        .listStyle(.plain)
+                        .safeAreaInset(edge: .top) {
+                            Color.clear.frame(height: 6)
+                        }
                     .searchable(text: $searchText, prompt: Text("Search Articles"))
                     .navigationTitle(title)
                     .toolbar {
@@ -495,6 +502,7 @@ struct FeedItemRow: View {
 
     @AppStorage(AppSettingsKeys.isCompactListMode) private var isCompactListMode = false
     let item: FeedItem
+    var isSelected: Bool = false
     var feedTitle: String? = nil
     var feedURL: String? = nil
     var feedImageURL: String? = nil
@@ -518,19 +526,25 @@ struct FeedItemRow: View {
     }
 
     @State private var isHovered: Bool = false
+    @State private var isPressed: Bool = false
 
     var body: some View {
         HStack(alignment: .center, spacing: 10) {
             // Main text column
-            HStack(alignment: .top, spacing: 8) {
-                // Unread indicator bubble dot
-                Circle()
-                    .fill(item.isRead ? Color.clear : Color.accentColor)
-                    .frame(width: 7, height: 7)
-                    .scaleEffect(item.isRead ? 0.0 : 1.0)
-                    .opacity(item.isRead ? 0.0 : 1.0)
-                    .padding(.top, isCompactListMode ? 4 : 5)
-                    .animation(.spring(response: 0.32, dampingFraction: 0.68), value: item.isRead)
+            HStack(alignment: .top, spacing: 10) {
+                // Unread indicator bubble dot with bounce transition
+                ZStack {
+                    if !item.isRead {
+                        Circle()
+                            .fill(Color.accentColor)
+                            .frame(width: 8, height: 8)
+                            .shadow(color: Color.accentColor.opacity(0.45), radius: 3)
+                            .transition(.scale(scale: 1.4).combined(with: .opacity))
+                    }
+                }
+                .frame(width: 10, height: 10)
+                .padding(.top, isCompactListMode ? 4 : 5)
+                .animation(AppAnimation.bouncy, value: item.isRead)
 
                 VStack(alignment: .leading, spacing: isCompactListMode ? 2 : 4) {
                     // Title and Bookmark
@@ -542,9 +556,12 @@ struct FeedItemRow: View {
 
                         if item.isBookmarked {
                             Image(systemName: "star.fill")
-                                .font(.caption2)
-                                .foregroundStyle(Color.accentColor)
-                                .transition(.scale.combined(with: .opacity))
+                                .font(.caption2.weight(.bold))
+                                .foregroundStyle(Color.orange)
+                                .rotationEffect(.degrees(item.isBookmarked ? 0 : -35))
+                                .scaleEffect(item.isBookmarked ? 1.0 : 0.5)
+                                .transition(.scale(scale: 1.3).combined(with: .opacity))
+                                .animation(AppAnimation.bouncy, value: item.isBookmarked)
                         }
                     }
 
@@ -644,6 +661,7 @@ struct FeedItemRow: View {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .stroke(Color.primary.opacity(0.08), lineWidth: 0.5)
                 )
+                .shadow(color: Color.black.opacity(0.08), radius: 3, y: 1)
                 .overlay(alignment: .center) {
                     if item.isPodcast || item.isYouTube {
                         Circle()
@@ -660,7 +678,30 @@ struct FeedItemRow: View {
                 }
             }
         }
-        .padding(.vertical, isCompactListMode ? 2 : 4)
+        .padding(.horizontal, 12)
+        .padding(.vertical, isCompactListMode ? 6 : 8)
+        .background {
+            if isSelected {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Color.accentColor.opacity(0.14))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .stroke(Color.accentColor.opacity(0.35), lineWidth: 1)
+                    )
+                    .shadow(color: Color.accentColor.opacity(0.10), radius: 6, y: 2)
+            } else if isHovered {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Color(nsColor: .controlBackgroundColor).opacity(0.65))
+                    .shadow(color: Color.black.opacity(0.04), radius: 4, y: 1)
+            }
+        }
+        .scaleEffect(isPressed ? 0.98 : (isHovered && !isSelected ? 1.008 : 1.0))
+        .animation(AppAnimation.hover, value: isHovered)
+        .animation(AppAnimation.cardPress, value: isPressed)
+        .animation(AppAnimation.slidingPill, value: isSelected)
         .contentShape(Rectangle())
+        .onHover { hovering in
+            isHovered = hovering
+        }
     }
 }

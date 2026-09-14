@@ -128,3 +128,30 @@ struct EasyRSSApp: App {
         }
     }
 }
+
+// MARK: - App Animation Engine (Apple HIG & Reeder Physics)
+
+enum AppAnimation {
+    /// Tactile bouncy spring for micro-interactions: stars, bookmarks, checks, unread bubble pop
+    static let bouncy = Animation.spring(response: 0.28, dampingFraction: 0.62)
+
+    /// Fluid sliding spring for matchedGeometry capsules, sliding pills, and segment switches
+    static let slidingPill = Animation.spring(response: 0.32, dampingFraction: 0.74)
+
+    /// Snappy card press response when tapping or clicking rows
+    static let cardPress = Animation.spring(response: 0.20, dampingFraction: 0.70)
+
+    /// Smooth page reveal spring when switching articles or opening detail panes
+    static let pageReveal = Animation.spring(response: 0.36, dampingFraction: 0.82)
+
+    /// Gentle accordion expansion for folders and dropdowns
+    static let accordion = Animation.spring(response: 0.34, dampingFraction: 0.80)
+
+    /// Subtle hover transition
+    static let hover = Animation.spring(response: 0.24, dampingFraction: 0.78)
+
+    /// Calculate staggered delay for cascading list animations (capped at 0.3s max delay)
+    static func stagger(index: Int) -> Double {
+        min(Double(index) * 0.03, 0.30)
+    }
+}
