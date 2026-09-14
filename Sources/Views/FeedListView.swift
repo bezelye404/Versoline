@@ -718,18 +718,12 @@ struct FeedItemRow: View {
             // Media thumbnail
             if let mediaURL = mediaThumbnailURL {
                 let thumbSize: CGFloat = isCompactListMode ? 36 : 46
-                AsyncImage(url: mediaURL) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    default:
-                        Color.secondary.opacity(0.06)
-                    }
-                }
-                .frame(width: thumbSize, height: thumbSize)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.Metrics.thumbnailCornerRadius, style: .continuous))
+                DownsampledImageView(
+                    url: mediaURL,
+                    targetSize: CGSize(width: thumbSize, height: thumbSize),
+                    contentMode: .fill,
+                    cornerRadius: AppTheme.Metrics.thumbnailCornerRadius
+                )
                 .overlay(
                     RoundedRectangle(cornerRadius: AppTheme.Metrics.thumbnailCornerRadius, style: .continuous)
                         .stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.5)

@@ -88,7 +88,6 @@ struct ArticleDetailView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .id(item.id)
                 .transition(.asymmetric(
                     insertion: .opacity.combined(with: .offset(y: 12)),
                     removal: .opacity.combined(with: .offset(y: -6))
@@ -407,28 +406,31 @@ struct ArticleDetailView: View {
 
                 // 1. Artwork presentation
                 ZStack {
-                    let artworkURL = currentFeed?.imageURL.flatMap { URL(string: $0) }
-                    AsyncImage(url: artworkURL) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .aspectRatio(1, contentMode: .fill)
-                        default:
-                            ZStack {
-                                Color.primary.opacity(0.04)
-                                Image(systemName: "headphones")
-                                    .font(.system(size: 56, weight: .ultraLight))
-                                    .foregroundStyle(AppTheme.Colors.podcast)
-                            }
+                    if let artworkURL = currentFeed?.imageURL.flatMap({ URL(string: $0) }) {
+                        DownsampledImageView(
+                            url: artworkURL,
+                            targetSize: CGSize(width: 240, height: 240),
+                            contentMode: .fill,
+                            cornerRadius: 16
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.8)
+                        )
+                    } else {
+                        ZStack {
+                            Color.primary.opacity(0.04)
+                            Image(systemName: "headphones")
+                                .font(.system(size: 56, weight: .ultraLight))
+                                .foregroundStyle(AppTheme.Colors.podcast)
                         }
+                        .frame(width: 240, height: 240)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.8)
+                        )
                     }
-                    .frame(width: 240, height: 240)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.8)
-                    )
 
                     // Glass Play/Pause Button
                     Button {
