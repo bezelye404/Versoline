@@ -47,7 +47,14 @@ struct FeedListView: View {
         case .all:
             base = store.allItems()
         case .unread:
-            base = store.unreadItems()
+            let unread = store.unreadItems()
+            if let current = selectedArticle, !unread.contains(where: { $0.id == current.id }) {
+                var combined = unread
+                combined.append(current)
+                base = combined.sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
+            } else {
+                base = unread
+            }
         case .today:
             base = store.todayItems()
         case .bookmarks:
@@ -137,12 +144,18 @@ struct FeedListView: View {
                         } else {
                             let visibleItems: [FeedItem] = searchText.isEmpty ? Array(items.prefix(displayLimit)) : items
 
-                            List(selection: Binding(
-                                get: { selectedArticle },
-                                set: { newSelection in
-                                    AppHaptics.tap()
-                                    withAnimation(AppAnimation.slidingPill) {
-                                        selectedArticle = newSelection
+                            List(selection: Binding<UUID?>(
+                                get: { selectedArticle?.id },
+                                set: { newId in
+                                    guard let newId else {
+                                        selectedArticle = nil
+                                        return
+                                    }
+                                    if let found = items.first(where: { $0.id == newId }) {
+                                        AppHaptics.tap()
+                                        withAnimation(AppAnimation.slidingPill) {
+                                            selectedArticle = found
+                                        }
                                     }
                                 }
                             )) {
@@ -155,10 +168,16 @@ struct FeedListView: View {
                                         feedURL: feed?.url ?? URL(string: item.link)?.host,
                                         feedImageURL: feed?.imageURL
                                     )
-                                    .tag(item)
+                                    .tag(item.id)
                                     .listRowBackground(EmptyView())
                                     .listRowInsets(EdgeInsets(top: 2, leading: 8, bottom: 2, trailing: 8))
                                     .listRowSeparator(.hidden)
+                                    .onTapGesture {
+                                        AppHaptics.tap()
+                                        withAnimation(AppAnimation.slidingPill) {
+                                            selectedArticle = item
+                                        }
+                                    }
                                     .contextMenu {
                                         itemContextMenu(item: item)
                                     }
@@ -233,9 +252,9 @@ struct FeedListView: View {
                             }
                         }
                     }
-                    .onChange(of: selectedArticle) { _, newItem in
-                        if let newItem {
-                            store.markAsRead(newItem)
+                    .onChange(of: selectedArticle?.id) { _, newId in
+                        if let newId, let item = items.first(where: { $0.id == newId }), !item.isRead {
+                            store.markAsRead(item)
                         }
                     }
                     .onChange(of: selection) {

@@ -43,10 +43,13 @@ struct ArticleDetailView: View {
         ExternalBrowserOption(rawValue: preferredExternalBrowserRaw) ?? .systemDefault
     }
 
-    // Always read fresh data from store
+    // Always read fresh data from store with safe fallback to selectedItem
     private var currentItem: FeedItem? {
         guard let item = selectedItem else { return nil }
-        return store.items[item.feedId]?.first { $0.id == item.id }
+        if let fresh = store.items[item.feedId]?.first(where: { $0.id == item.id || $0.link == item.link }) {
+            return fresh
+        }
+        return item
     }
 
     private var currentFeed: Feed? {
@@ -57,45 +60,34 @@ struct ArticleDetailView: View {
     var body: some View {
         Group {
             if let item = currentItem {
-                ZStack(alignment: .top) {
-                    // Main Content Layer
-                    VStack(spacing: 0) {
-                        if item.isPodcast {
-                            if activeViewMode == .inAppBrowser {
-                                VStack(spacing: 0) {
-                                    Spacer().frame(height: 50)
-                                    inAppBrowserView(item: item)
-                                }
-                            } else {
-                                podcastFullPageView(item: item)
+                VStack(spacing: 0) {
+                    // Dedicated, non-overlapping Top Bar
+                    readerTopBar(item: item)
+
+                    Divider()
+
+                    // Main Reader / Media Content Layer
+                    if item.isPodcast {
+                        if activeViewMode == .inAppBrowser {
+                            inAppBrowserView(item: item)
+                        } else {
+                            podcastFullPageView(item: item)
+                        }
+                    } else if item.isYouTube {
+                        VStack(spacing: 0) {
+                            if let videoID = item.youtubeVideoID {
+                                YouTubePlayerView(videoID: videoID, title: item.title, link: item.link)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.horizontal, 24)
+                                    .padding(.vertical, 12)
                             }
-                        } else if !item.isYouTube {
-                            standardArticleFullPageView(item: item)
-                        }
-
-                        // YouTube Built-in Player (Expands cleanly in-app)
-                        if let videoID = item.youtubeVideoID {
-                            YouTubePlayerView(videoID: videoID, title: item.title, link: item.link)
-                                .frame(maxWidth: .infinity)
-                                .padding(.horizontal, 24)
-                                .padding(.top, 54)
-                                .padding(.bottom, 12)
-                        }
-
-                        if item.isYouTube {
                             articleContent(item: item)
                         }
+                    } else {
+                        articleContent(item: item)
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-                    // Floating Glass Overlay Toolbar
-                    floatingToolbar(item: item)
-                        .transition(.asymmetric(
-                            insertion: .opacity.combined(with: .offset(y: -8)),
-                            removal: .opacity.combined(with: .offset(y: -8))
-                        ))
-                        .zIndex(100)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .id(item.id)
                 .transition(.asymmetric(
                     insertion: .opacity.combined(with: .offset(y: 12)),
@@ -160,15 +152,15 @@ struct ArticleDetailView: View {
         return parts.joined(separator: " · ")
     }
 
-    // MARK: - Floating Pill Toolbar (Calm, Editorial & Ultra-Thin Glass)
+    // MARK: - Reader Top Bar (Calm, Non-Overlapping & Integrated)
 
     @ViewBuilder
-    private func floatingToolbar(item: FeedItem) -> some View {
-        HStack(alignment: .center) {
-            // Left: Feed Identity Capsule
+    private func readerTopBar(item: FeedItem) -> some View {
+        HStack(alignment: .center, spacing: 10) {
+            // Left: Feed Identity & Offline Capsule
             HStack(spacing: 6) {
                 if let feed = currentFeed {
-                    FaviconView(hostOrURL: feed.url, size: 14)
+                    FaviconView(hostOrURL: feed.url, size: 13)
                     Text(feed.title)
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(.secondary)
@@ -187,15 +179,12 @@ struct ArticleDetailView: View {
                     .foregroundStyle(.secondary)
                 }
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(.ultraThinMaterial, in: Capsule())
-            .overlay(Capsule().stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.5))
+            .frame(maxWidth: 240, alignment: .leading)
 
-            Spacer(minLength: 12)
+            Spacer(minLength: 8)
 
-            // Right: Floating Control Group
-            HStack(spacing: 6) {
+            // Right: Control Group
+            HStack(spacing: 8) {
                 // Reading Mode Sliding Bubble Switcher
                 HStack(spacing: 0) {
                     Button {
@@ -394,70 +383,11 @@ struct ArticleDetailView: View {
                 .fixedSize()
                 .help(String(localized: "Share & External Actions"))
             }
-            .padding(.horizontal, 9)
-            .padding(.vertical, 4)
-            .background(.ultraThinMaterial, in: Capsule())
-            .overlay(Capsule().stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.5))
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 10)
-        .padding(.bottom, 6)
-    }
-
-    // MARK: - Standard Article Header
-
-    @ViewBuilder
-    private func standardArticleHeader(item: FeedItem) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            let readingTime = calculateReadingTime(item: item)
-            let pillText = heroDateDurationPill(date: item.pubDate, duration: readingTime)
-            if !pillText.isEmpty {
-                Text(pillText)
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(.tertiary)
-                    .tracking(0.6)
-            }
-
-            Text(item.title)
-                .font(.system(size: 24, weight: .bold))
-                .textSelection(.enabled)
-                .lineSpacing(3)
-                .fixedSize(horizontal: false, vertical: true)
-
-            HStack(spacing: 8) {
-                if let feedTitle = currentFeed?.title {
-                    HStack(spacing: 5) {
-                        FaviconView(hostOrURL: currentFeed?.url ?? item.link, size: 13)
-                        Text(feedTitle)
-                    }
-                    .font(.caption.weight(.medium))
-                    .foregroundStyle(.secondary)
-                }
-
-                if let author = item.author, !author.isEmpty {
-                    Text("·")
-                        .foregroundStyle(.tertiary)
-                    Label(author, systemImage: "person")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-        }
-        .padding(.horizontal, 24)
-        .padding(.top, 12)
-        .padding(.bottom, 12)
-    }
-
-    // MARK: - Standard Article Full Page View
-
-    @ViewBuilder
-    private func standardArticleFullPageView(item: FeedItem) -> some View {
-        VStack(spacing: 0) {
-            standardArticleHeader(item: item)
-                .padding(.top, 48)
-            Divider()
-            articleContent(item: item)
-        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .frame(height: 40)
+        .background(Color(nsColor: .windowBackgroundColor))
     }
 
     // MARK: - Podcast Full Page Scroll View
@@ -473,7 +403,7 @@ struct ArticleDetailView: View {
 
         ScrollView {
             VStack(spacing: 18) {
-                Spacer().frame(height: 44)
+                Spacer().frame(height: 14)
 
                 // 1. Artwork presentation
                 ZStack {
@@ -907,7 +837,9 @@ struct ArticleDetailView: View {
                 author: item.author,
                 pubDate: item.pubDate,
                 htmlContent: item.content ?? item.itemDescription,
-                link: item.link
+                link: item.link,
+                feedTitle: currentFeed?.title,
+                includeHeader: true
             )
             VStack(spacing: 0) {
                 WebView(
@@ -972,7 +904,9 @@ struct ArticleDetailView: View {
                 author: item.author,
                 pubDate: item.pubDate,
                 htmlContent: item.content ?? item.itemDescription,
-                link: item.link
+                link: item.link,
+                feedTitle: currentFeed?.title,
+                includeHeader: true
             )
             extractedReaderHTML = formatted
             ReaderModeExtractor.shared.saveToCache(urlString: item.link, content: formatted, storeInMemory: false)

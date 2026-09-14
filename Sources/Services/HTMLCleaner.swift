@@ -118,6 +118,22 @@ enum HTMLCleaner {
         }
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
+    private static let adTagPatterns: [String] = [
+        #"(?i)<(?:div|section|aside|figure|p|span)[^>]*(?:class|id)=["'][^"']*(?:reklam|adv-|advertisement|ad-banner|banner-ad|sponsor|dfp|google-ad|taboola|outbrain|ins-element|criteo)[^"']*["'][\s\S]*?</(?:div|section|aside|figure|p|span)>"#,
+        #"(?i)<a[^>]*(?:href|data-href)=["'][^"']*(?:doubleclick|googlesyndication|adclick|adservice|reklam|banner)[^"']*["'][^>]*>[\s\S]*?</a>"#,
+        #"(?i)<img[^>]*(?:class|alt|src)=["'][^"']*(?:reklam|ad-banner|sponsor|banner)[^"']*["'][^>]*>"#,
+        #"(?i)<ins[\s\S]*?</ins>"#,
+        #"(?i)<iframe[^>]*(?:google|doubleclick|taboola|outbrain|criteo)[\s\S]*?</iframe>"#
+    ]
+
+    /// Removes embedded ad banners, sponsor graphics, and tracking pixels from HTML.
+    static func stripAdvertisementsAndBanners(_ html: String) -> String {
+        var text = html
+        for pat in adTagPatterns {
+            text = text.replacingOccurrences(of: pat, with: "", options: .regularExpression)
+        }
+        return text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 }
 
 extension String {
@@ -132,5 +148,10 @@ extension String {
     func cleaningRSSBoilerplate() -> String {
         HTMLCleaner.removeBoilerplateNoise(self)
     }
+
+    func strippingAdsAndBanners() -> String {
+        HTMLCleaner.stripAdvertisementsAndBanners(self)
+    }
 }
+
 
