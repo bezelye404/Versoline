@@ -299,17 +299,32 @@ final class ImageDownsampleCache {
 }
 
 /// A lightweight, drop-in replacement for AsyncImage that guarantees zero memory bloat by downsampling bitmaps on decode.
-struct DownsampledImageView: View {
+struct DownsampledImageView<Placeholder: View>: View {
     let url: URL?
     let targetSize: CGSize
     var contentMode: ContentMode = .fill
     var cornerRadius: CGFloat = 0
+    private let placeholder: Placeholder
 
     @State private var loadedImage: NSImage?
 
     private var maxPixelSize: CGFloat {
         let scale = NSScreen.main?.backingScaleFactor ?? 2.0
         return max(targetSize.width, targetSize.height) * scale
+    }
+
+    init(
+        url: URL?,
+        targetSize: CGSize,
+        contentMode: ContentMode = .fill,
+        cornerRadius: CGFloat = 0,
+        @ViewBuilder placeholder: () -> Placeholder
+    ) {
+        self.url = url
+        self.targetSize = targetSize
+        self.contentMode = contentMode
+        self.cornerRadius = cornerRadius
+        self.placeholder = placeholder()
     }
 
     var body: some View {
@@ -320,7 +335,7 @@ struct DownsampledImageView: View {
                     .aspectRatio(contentMode: contentMode)
                     .transition(.opacity.animation(AppAnimation.quickFeedback))
             } else {
-                Color.secondary.opacity(0.06)
+                placeholder
             }
         }
         .frame(width: targetSize.width, height: targetSize.height)
@@ -332,6 +347,23 @@ struct DownsampledImageView: View {
             }
             loadedImage = await ImageDownsampleCache.shared.image(for: url, maxPixelSize: maxPixelSize)
         }
+    }
+}
+
+extension DownsampledImageView where Placeholder == Color {
+    init(
+        url: URL?,
+        targetSize: CGSize,
+        contentMode: ContentMode = .fill,
+        cornerRadius: CGFloat = 0
+    ) {
+        self.init(
+            url: url,
+            targetSize: targetSize,
+            contentMode: contentMode,
+            cornerRadius: cornerRadius,
+            placeholder: { Color.secondary.opacity(0.06) }
+        )
     }
 }
 

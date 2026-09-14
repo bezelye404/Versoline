@@ -120,19 +120,15 @@ struct MiniPlayerView: View {
                     }
                 case .video(let video):
                     if let thumbURL = video.youtubeThumbnailURL {
-                        AsyncImage(url: thumbURL) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 38, height: 38)
-                                    .clipped()
-                            default:
-                                Image(systemName: "play.rectangle.fill")
-                                    .font(.system(size: 18))
-                                    .foregroundStyle(.red)
-                            }
+                        DownsampledImageView(
+                            url: thumbURL,
+                            targetSize: CGSize(width: 38, height: 38),
+                            contentMode: .fill,
+                            cornerRadius: 6
+                        ) {
+                            Image(systemName: "play.rectangle.fill")
+                                .font(.system(size: 18))
+                                .foregroundStyle(.red)
                         }
                     } else {
                         Image(systemName: "play.rectangle.fill")

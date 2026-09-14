@@ -19,6 +19,7 @@ struct EasyRSSApp: App {
 
         Task { @MainActor in
             await ContentBlockerService.shared.prepare()
+            ReaderModeExtractor.shared.cleanupDiskCache(olderThanDays: 30)
         }
 
         // Memory optimization: Purge transient RAM caches and flush network/WebKit memory when the app is minimized, hidden or backgrounded
