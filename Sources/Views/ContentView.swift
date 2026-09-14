@@ -15,6 +15,11 @@ struct ContentView: View {
     @State private var newFolderName = ""
     @State private var showFolderManagement = false
     @AppStorage(AppSettingsKeys.isCompactListMode) private var isCompactListMode = false
+    @AppStorage(AppSettingsKeys.appColorPalette) private var appColorPaletteRaw = AppColorPalette.slate.rawValue
+
+    private var currentTheme: AppColorPalette {
+        AppColorPalette(rawValue: appColorPaletteRaw) ?? .slate
+    }
 
     // 30 minutes (1800 seconds) auto-refresh timer
     let autoRefreshTimer = Timer.publish(every: 1800, on: .main, in: .common).autoconnect()
@@ -24,15 +29,21 @@ struct ContentView: View {
             NavigationSplitView(columnVisibility: $columnVisibility) {
                 SidebarView(selectedItem: $selectedSidebarItem, selectedArticle: $selectedArticle)
                     .navigationSplitViewColumnWidth(min: 200, ideal: 240, max: 320)
+                    .background(currentTheme.windowBackground)
             } content: {
                 FeedListView(selection: selectedSidebarItem, selectedArticle: $selectedArticle)
                     .navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 480)
+                    .background(currentTheme.listBackground)
             } detail: {
                 ArticleDetailView(selectedItem: selectedArticle)
+                    .background(currentTheme.detailBackground)
             }
 
             MiniPlayerView()
         }
+        .environment(\.appTheme, currentTheme)
+        .tint(currentTheme.accentColor)
+        .background(currentTheme.windowBackground)
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 if store.isLoading {

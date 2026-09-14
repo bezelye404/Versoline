@@ -59,6 +59,7 @@ struct SettingsView: View {
 
 private struct GeneralSettingsTab: View {
 
+    @AppStorage(AppSettingsKeys.appColorPalette) private var appColorPaletteRaw = AppColorPalette.slate.rawValue
     @AppStorage(AppSettingsKeys.isCompactListMode) private var isCompactListMode = false
     @AppStorage(AppSettingsKeys.showFavicons) private var showFavicons = true
     @AppStorage(AppSettingsKeys.showMenuBarIcon) private var showMenuBarIcon = false
@@ -68,6 +69,63 @@ private struct GeneralSettingsTab: View {
 
     var body: some View {
         Form {
+            Section("Theme") {
+                VStack(spacing: 8) {
+                    ForEach(AppColorPalette.allCases) { palette in
+                        let isSelected = (appColorPaletteRaw == palette.rawValue)
+                        HStack(spacing: 12) {
+                            HStack(spacing: 4) {
+                                Circle()
+                                    .fill(palette.accentColor)
+                                    .frame(width: 14, height: 14)
+                                Circle()
+                                    .fill(palette.bookmarkColor)
+                                    .frame(width: 14, height: 14)
+                            }
+                            .padding(.horizontal, 4)
+
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(palette.title)
+                                    .font(.subheadline)
+                                    .fontWeight(isSelected ? .semibold : .regular)
+                                Text(palette.subtitle)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            Spacer()
+
+                            if isSelected {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(palette.accentColor)
+                                    .imageScale(.medium)
+                            }
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 7)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(isSelected ? palette.accentColor.opacity(0.10) : Color.primary.opacity(0.03))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .strokeBorder(isSelected ? palette.accentColor.opacity(0.35) : Color.clear, lineWidth: 1)
+                        )
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            withAnimation(AppAnimation.interactiveSpring) {
+                                appColorPaletteRaw = palette.rawValue
+                            }
+                            AppHaptics.selection()
+                        }
+                    }
+                }
+                .padding(.vertical, 4)
+                Text("Customizes the appearance, background tones, and accent colors across the entire app.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             Section {
                 Toggle("Compact Article List", isOn: $isCompactListMode)
                 Text("Hides article snippet summaries in the list to fit more articles on screen.")
@@ -129,6 +187,7 @@ private struct ReaderSettingsTab: View {
     @AppStorage(AppSettingsKeys.readerFontSize) private var readerFontSize = 16
     @AppStorage(AppSettingsKeys.readerLineHeight) private var readerLineHeightRaw = ReaderLineHeight.normal.rawValue
     @AppStorage(AppSettingsKeys.autoReaderMode) private var autoReaderMode = false
+    @AppStorage(AppSettingsKeys.isBionicReadingEnabled) private var isBionicReadingEnabled = false
 
     var body: some View {
         Form {
@@ -169,6 +228,13 @@ private struct ReaderSettingsTab: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+            }
+
+            Section("Reading Focus") {
+                Toggle("Bionic Reading", isOn: $isBionicReadingEnabled)
+                Text("Emboldens the initial characters of words to guide visual fixation and enhance reading flow.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             Section("Automation") {

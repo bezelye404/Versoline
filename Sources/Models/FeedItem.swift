@@ -105,6 +105,26 @@ struct FeedItem: Codable, Identifiable, Hashable {
         return URL(string: "https://img.youtube.com/vi/\(id)/hqdefault.jpg")
     }
 
+    // MARK: - Smart Streams Categorization (0 Byte Memory Overhead)
+
+    var estimatedReadingMinutes: Int {
+        let text = content ?? itemDescription
+        let wordCount = text.split(whereSeparator: { $0.isWhitespace || $0.isPunctuation }).count
+        return max(1, Int(ceil(Double(wordCount) / 200.0)))
+    }
+
+    var isQuickRead: Bool {
+        !isPodcast && estimatedReadingMinutes <= 3
+    }
+
+    var isLongRead: Bool {
+        !isPodcast && estimatedReadingMinutes >= 7
+    }
+
+    var isMedia: Bool {
+        isYouTube || isPodcast
+    }
+
     init(
         id: UUID = UUID(),
         feedId: UUID,
