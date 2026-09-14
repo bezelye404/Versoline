@@ -26,6 +26,7 @@ struct ArticleDetailView: View {
     @State private var speechSynthesizer = AVSpeechSynthesizer()
     @State private var speechDelegate = ArticleSpeechDelegate()
     @State private var showQuoteCardSheet = false
+    @State private var navigatedArticleCount = 0
     @Namespace private var animationNamespace
 
     private let networkMonitor = NetworkMonitor.shared
@@ -100,6 +101,18 @@ struct ArticleDetailView: View {
                 ))
                 .animation(AppAnimation.pageReveal, value: item.id)
                 .onChange(of: item.id) { _, _ in
+                    let videoPlayer = VideoPlayerService.shared
+                    // If a video was loaded but is NOT playing (paused, ended, or stopped),
+                    // and navigating to a non-video article, close it to free ~300MB WebKit & GPU memory
+                    if !videoPlayer.isPlaying && videoPlayer.currentVideo != nil && !item.isYouTube {
+                        videoPlayer.close()
+                    }
+
+                    navigatedArticleCount += 1
+                    if navigatedArticleCount % 15 == 0 {
+                        WebView.flushMemoryCache()
+                    }
+
                     resetStateForNewArticle(item: item)
                 }
                 .onAppear {
@@ -107,6 +120,10 @@ struct ArticleDetailView: View {
                 }
                 .onDisappear {
                     stopSpeech()
+                    let videoPlayer = VideoPlayerService.shared
+                    if !videoPlayer.isPlaying {
+                        videoPlayer.close()
+                    }
                     WebView.flushMemoryCache()
                 }
             } else {
@@ -827,52 +844,48 @@ struct ArticleDetailView: View {
 
     // MARK: - Reader Mode View
 
+    private func readerHTML(for item: FeedItem) -> String {
+        if let extracted = extractedReaderHTML, !extracted.isEmpty {
+            return extracted
+        }
+        return ReaderModeExtractor.shared.formatFeedContentAsReaderHTML(
+            title: item.title,
+            author: item.author,
+            pubDate: item.pubDate,
+            htmlContent: item.content ?? item.itemDescription,
+            link: item.link,
+            feedTitle: currentFeed?.title,
+            includeHeader: true
+        )
+    }
+
     @ViewBuilder
     private func readerModeView(item: FeedItem) -> some View {
-        if isLoadingReaderMode {
-            VStack(spacing: 12) {
+        let contentHTML = readerHTML(for: item)
+        let isSubstantive = extractedReaderHTML != nil && ReaderModeExtractor.shared.isSubstantiveContent(contentHTML)
+
+        VStack(spacing: 0) {
+            if isLoadingReaderMode {
+                // Subtle non-blocking top extraction progress indicator
                 ProgressView()
-                    .controlSize(.regular)
-                Text(String(localized: "Extracting article text..."))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .progressViewStyle(.linear)
+                    .controlSize(.small)
+                    .tint(theme.accentColor)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 4)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if let extracted = extractedReaderHTML, !extracted.isEmpty {
-            VStack(spacing: 0) {
-                WebView(
-                    html: extracted,
-                    fontSize: readerFontSize,
-                    theme: currentTheme,
-                    fontFamily: currentFontFamily,
-                    lineHeight: currentLineHeight,
-                    isBionicReadingEnabled: isBionicReadingEnabled
-                )
 
-                if !ReaderModeExtractor.shared.isSubstantiveContent(extracted) {
-                    summaryNoticeBanner(item: item)
-                }
-            }
-        } else {
-            let fallbackHTML = ReaderModeExtractor.shared.formatFeedContentAsReaderHTML(
-                title: item.title,
-                author: item.author,
-                pubDate: item.pubDate,
-                htmlContent: item.content ?? item.itemDescription,
-                link: item.link,
-                feedTitle: currentFeed?.title,
-                includeHeader: true
+            // Keep the WebView continuously mounted across article changes to reuse the same WebContent process
+            WebView(
+                html: contentHTML,
+                fontSize: readerFontSize,
+                theme: currentTheme,
+                fontFamily: currentFontFamily,
+                lineHeight: currentLineHeight,
+                isBionicReadingEnabled: isBionicReadingEnabled
             )
-            VStack(spacing: 0) {
-                WebView(
-                    html: fallbackHTML,
-                    fontSize: readerFontSize,
-                    theme: currentTheme,
-                    fontFamily: currentFontFamily,
-                    lineHeight: currentLineHeight,
-                    isBionicReadingEnabled: isBionicReadingEnabled
-                )
 
+            if !isSubstantive && !isLoadingReaderMode {
                 summaryNoticeBanner(item: item)
             }
         }
