@@ -331,6 +331,8 @@ struct AppSettingsKeys {
     static let appColorPalette = "appColorPalette"
     static let isBionicReadingEnabled = "isBionicReadingEnabled"
     static let showReadingTimeStreams = "showReadingTimeStreams"
+    static let isSyncEnabled = "isSyncEnabled"
+    static let isLocalPeerSyncEnabled = "isLocalPeerSyncEnabled"
 }
 
 

@@ -48,6 +48,11 @@
 		DCCBADE8B9C020813BFC8EA2 /* ReaderModeExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAFF94CE0115919DD1CD0EAA /* ReaderModeExtractor.swift */; };
 		F3F40F23F3F519D7193ECDB0 /* SidebarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD8A26D53207DCE596BE15D /* SidebarItem.swift */; };
 		F3F40F23F3F519D7193ECDB1 /* SmartCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD8A26D53207DCE596BE15E /* SmartCategory.swift */; };
+		F3F40F23F3F519D7193ECDB2 /* SyncModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD8A26D53207DCE596BE15F /* SyncModels.swift */; };
+		F3F40F23F3F519D7193ECDB3 /* SmartMergeEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD8A26D53207DCE596BE160 /* SmartMergeEngine.swift */; };
+		F3F40F23F3F519D7193ECDB4 /* ICloudDriveSyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD8A26D53207DCE596BE161 /* ICloudDriveSyncEngine.swift */; };
+		F3F40F23F3F519D7193ECDB5 /* LocalPeerSyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD8A26D53207DCE596BE162 /* LocalPeerSyncEngine.swift */; };
+		F3F40F23F3F519D7193ECDB6 /* SyncCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD8A26D53207DCE596BE163 /* SyncCoordinator.swift */; };
 		F5A9A06F36B551A1F9FD945C /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B7F4F5DB90608B6618A7E65 /* Feed.swift */; };
 		FB8B097CFEC850DED54C870D /* MiniPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76ABF999503ABD2777398A9C /* MiniPlayerView.swift */; };
 		FCCFD7AB89EA563D84733CC1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BBEB79D86CCB9835183130A /* ContentView.swift */; };
@@ -90,6 +95,11 @@
 		BAD249BD2CAF152E722B8469 /* QueuePopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuePopoverView.swift; sourceTree = "<group>"; };
 		BCD8A26D53207DCE596BE15D /* SidebarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarItem.swift; sourceTree = "<group>"; };
 		BCD8A26D53207DCE596BE15E /* SmartCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartCategory.swift; sourceTree = "<group>"; };
+		BCD8A26D53207DCE596BE15F /* SyncModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncModels.swift; sourceTree = "<group>"; };
+		BCD8A26D53207DCE596BE160 /* SmartMergeEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartMergeEngine.swift; sourceTree = "<group>"; };
+		BCD8A26D53207DCE596BE161 /* ICloudDriveSyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICloudDriveSyncEngine.swift; sourceTree = "<group>"; };
+		BCD8A26D53207DCE596BE162 /* LocalPeerSyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalPeerSyncEngine.swift; sourceTree = "<group>"; };
+		BCD8A26D53207DCE596BE163 /* SyncCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncCoordinator.swift; sourceTree = "<group>"; };
 		C46448E4B4BDB9E77DE9D8ED /* SocialFeedsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialFeedsView.swift; sourceTree = "<group>"; };
 		CEC1EECA81855474954BF2FD /* AddFeedSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFeedSheet.swift; sourceTree = "<group>"; };
 		D1EED837EB946665F961D18F /* PodcastSearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastSearchService.swift; sourceTree = "<group>"; };
@@ -163,6 +173,7 @@
 				30661282BE6ABC87FCE97CDD /* PodcastSearchResult.swift */,
 				BCD8A26D53207DCE596BE15D /* SidebarItem.swift */,
 				BCD8A26D53207DCE596BE15E /* SmartCategory.swift */,
+				BCD8A26D53207DCE596BE15F /* SyncModels.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -194,8 +205,20 @@
 				AAFF94CE0115919DD1CD0EAA /* ReaderModeExtractor.swift */,
 				D1FBFB7658763A93FCF1CB77 /* RSSParser.swift */,
 				67BBCE8B97014AFDED151896 /* SocialFeedResolver.swift */,
+				9D3D886F11646C03AE033E8C /* Sync */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		9D3D886F11646C03AE033E8C /* Sync */ = {
+			isa = PBXGroup;
+			children = (
+				BCD8A26D53207DCE596BE161 /* ICloudDriveSyncEngine.swift */,
+				BCD8A26D53207DCE596BE162 /* LocalPeerSyncEngine.swift */,
+				BCD8A26D53207DCE596BE160 /* SmartMergeEngine.swift */,
+				BCD8A26D53207DCE596BE163 /* SyncCoordinator.swift */,
+			);
+			path = Sync;
 			sourceTree = "<group>";
 		};
 		E336F086FEC190A74F711383 /* Sources */ = {
@@ -327,6 +350,11 @@
 				4AE06182FA3218E2F97389F4 /* SettingsView.swift in Sources */,
 				F3F40F23F3F519D7193ECDB0 /* SidebarItem.swift in Sources */,
 				F3F40F23F3F519D7193ECDB1 /* SmartCategory.swift in Sources */,
+				F3F40F23F3F519D7193ECDB2 /* SyncModels.swift in Sources */,
+				F3F40F23F3F519D7193ECDB3 /* SmartMergeEngine.swift in Sources */,
+				F3F40F23F3F519D7193ECDB4 /* ICloudDriveSyncEngine.swift in Sources */,
+				F3F40F23F3F519D7193ECDB5 /* LocalPeerSyncEngine.swift in Sources */,
+				F3F40F23F3F519D7193ECDB6 /* SyncCoordinator.swift in Sources */,
 				B3C8AEF1FFB7EC4A24C517A1 /* SidebarView.swift in Sources */,
 				1FD0F7F263DCB353E5A25AE4 /* SocialFeedResolver.swift in Sources */,
 				71E74D30740C868D66D0A3CD /* SocialFeedsView.swift in Sources */,
