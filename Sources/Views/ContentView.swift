@@ -160,6 +160,22 @@ struct ContentView: View {
         .sheet(isPresented: $showShortcutsHelp) {
             KeyboardShortcutsHelpView()
         }
+        .overlay {
+            if let video = store.fullscreenVideo {
+                FullscreenVideoModal(
+                    videoID: video.videoID,
+                    title: video.title,
+                    link: video.link,
+                    onClose: {
+                        withAnimation(AppAnimation.pageReveal) {
+                            store.fullscreenVideo = nil
+                        }
+                    }
+                )
+                .transition(.opacity.combined(with: .scale(scale: 0.98)))
+                .zIndex(999)
+            }
+        }
         .alert("Error", isPresented: .init(
             get: { store.errorMessage != nil },
             set: { if !$0 { store.errorMessage = nil } }

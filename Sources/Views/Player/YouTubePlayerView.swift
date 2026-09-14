@@ -164,6 +164,8 @@ final class PlayerBridgeController: NSObject, ObservableObject, WKScriptMessageH
 
 struct YouTubePlayerView: View {
 
+    @Environment(FeedStore.self) private var store
+
     let videoID: String
     let title: String
     let link: String
@@ -177,15 +179,25 @@ struct YouTubePlayerView: View {
         VStack(alignment: .leading, spacing: 10) {
             ZStack {
                 if isPlayerActive {
-                    NativeVideoPlayerCanvas(videoID: videoID, title: title, bridge: bridge)
-                        .aspectRatio(bridge.isFullscreen ? nil : 16/9, contentMode: .fit)
-                        .frame(maxWidth: .infinity, maxHeight: bridge.isFullscreen ? .infinity : nil)
-                        .clipShape(RoundedRectangle(cornerRadius: bridge.isFullscreen ? 0 : 12, style: .continuous))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: bridge.isFullscreen ? 0 : 12, style: .continuous)
-                                .stroke(Color.white.opacity(0.12), lineWidth: 1)
-                        )
-                        .transition(.opacity.combined(with: .scale(scale: 0.98)))
+                    NativeVideoPlayerCanvas(
+                        videoID: videoID,
+                        title: title,
+                        bridge: bridge,
+                        isModalFullscreen: false,
+                        onToggleFullscreen: {
+                            bridge.pause()
+                            withAnimation(AppAnimation.pageReveal) {
+                                store.fullscreenVideo = FullscreenVideoContext(videoID: videoID, title: title, link: link)
+                            }
+                        }
+                    )
+                    .aspectRatio(16/9, contentMode: .fit)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                    )
+                    .transition(.opacity.combined(with: .scale(scale: 0.98)))
                 } else {
                     thumbnailCover
                         .aspectRatio(16/9, contentMode: .fit)
@@ -200,9 +212,8 @@ struct YouTubePlayerView: View {
             .frame(maxWidth: .infinity)
             .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 5)
 
-            // Video Control & Metadata Row (Hidden in Fullscreen Theater)
-            if !bridge.isFullscreen {
-                HStack(spacing: 12) {
+            // Video Control & Metadata Row
+            HStack(spacing: 12) {
                 Label("YouTube", systemImage: "play.rectangle.fill")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.red)
@@ -239,29 +250,19 @@ struct YouTubePlayerView: View {
                 }
             }
             .padding(.horizontal, 4)
-            }
         }
-        .padding(bridge.isFullscreen ? 0 : 12)
+        .padding(12)
         .background(
-            RoundedRectangle(cornerRadius: bridge.isFullscreen ? 0 : 14, style: .continuous)
-                .fill(bridge.isFullscreen ? Color.black : Color(nsColor: .controlBackgroundColor).opacity(0.55))
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(nsColor: .controlBackgroundColor).opacity(0.55))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: bridge.isFullscreen ? 0 : 14, style: .continuous)
-                .stroke(bridge.isFullscreen ? Color.clear : Color.primary.opacity(0.06), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
         )
-        .onChange(of: bridge.isFullscreen) { _, val in
-            if isTheaterMode?.wrappedValue != val {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
-                    isTheaterMode?.wrappedValue = val
-                }
-            }
-        }
-        .onChange(of: isTheaterMode?.wrappedValue) { _, val in
-            if let val, bridge.isFullscreen != val {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
-                    bridge.isFullscreen = val
-                }
+        .onChange(of: store.fullscreenVideo) { _, val in
+            if val != nil {
+                bridge.pause()
             }
         }
     }
@@ -342,6 +343,8 @@ struct NativeVideoPlayerCanvas: View {
     let videoID: String
     let title: String
     @ObservedObject var bridge: PlayerBridgeController
+    var isModalFullscreen: Bool = false
+    var onToggleFullscreen: (() -> Void)? = nil
 
     @State private var isControlsVisible: Bool = true
     @State private var hideWorkItem: DispatchWorkItem?
@@ -360,7 +363,11 @@ struct NativeVideoPlayerCanvas: View {
             Color.clear
                 .contentShape(Rectangle())
                 .onTapGesture(count: 2) {
-                    bridge.toggleFullscreen()
+                    if let onToggle = onToggleFullscreen {
+                        onToggle()
+                    } else {
+                        bridge.toggleFullscreen()
+                    }
                     resetControlsTimer()
                 }
                 .onTapGesture(count: 1) {
@@ -368,44 +375,6 @@ struct NativeVideoPlayerCanvas: View {
                     triggerPulse(icon: bridge.isPlaying ? "play.fill" : "pause.fill")
                     resetControlsTimer()
                 }
-
-            // 3. Top Cinema Header (When Fullscreen Theater)
-            if bridge.isFullscreen {
-                VStack {
-                    HStack(spacing: 10) {
-                        Label("YouTube", systemImage: "play.rectangle.fill")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundStyle(.red)
-
-                        Text(title)
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundStyle(.white)
-                            .lineLimit(1)
-
-                        Spacer()
-
-                        Button {
-                            bridge.toggleFullscreen()
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 20))
-                                .foregroundStyle(.white.opacity(0.85))
-                        }
-                        .buttonStyle(.plain)
-                        .keyboardShortcut(.escape, modifiers: [])
-                        .help(String(localized: "Exit Fullscreen"))
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .background(
-                        LinearGradient(colors: [Color.black.opacity(0.85), Color.clear], startPoint: .top, endPoint: .bottom)
-                    )
-                    .opacity(isControlsVisible || !bridge.isPlaying ? 1.0 : 0.0)
-                    .animation(.easeInOut(duration: 0.3), value: isControlsVisible)
-
-                    Spacer()
-                }
-            }
 
             // 4. Bottom Gradient Vignette (Ensures contrast against bright videos)
             VStack {
@@ -545,10 +514,14 @@ struct NativeVideoPlayerCanvas: View {
 
             // Fullscreen Button
             PlayerHUDButton(
-                icon: bridge.isFullscreen ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right",
-                tooltip: bridge.isFullscreen ? String(localized: "Exit Fullscreen") : String(localized: "Fullscreen")
+                icon: isModalFullscreen ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right",
+                tooltip: isModalFullscreen ? String(localized: "Exit Fullscreen") : String(localized: "Fullscreen")
             ) {
-                bridge.toggleFullscreen()
+                if let onToggle = onToggleFullscreen {
+                    onToggle()
+                } else {
+                    bridge.toggleFullscreen()
+                }
                 resetControlsTimer()
             }
         }
@@ -666,6 +639,79 @@ struct NativeVideoPlayerCanvas: View {
             return String(format: "%d:%02d:%02d", hours, minutes, secs)
         } else {
             return String(format: "%02d:%02d", minutes, secs)
+        }
+    }
+}
+
+// MARK: - Full-Window Cinematic Video Modal
+
+struct FullscreenVideoModal: View {
+    let videoID: String
+    let title: String
+    let link: String
+    let onClose: () -> Void
+
+    @StateObject private var bridge = PlayerBridgeController()
+
+    var body: some View {
+        ZStack {
+            Color.black
+                .ignoresSafeArea()
+
+            // 16:9 Video Canvas Centered in Full Window
+            NativeVideoPlayerCanvas(
+                videoID: videoID,
+                title: title,
+                bridge: bridge,
+                isModalFullscreen: true,
+                onToggleFullscreen: onClose
+            )
+            .aspectRatio(16/9, contentMode: .fit)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            // Top Bar: Clean Frosted Title Pill + Exit Fullscreen Button
+            VStack {
+                HStack(spacing: 12) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "play.rectangle.fill")
+                            .font(.system(size: 13))
+                            .foregroundStyle(.red)
+
+                        Text(title)
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(.white)
+                            .lineLimit(1)
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 7)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .overlay(Capsule().stroke(Color.white.opacity(0.15), lineWidth: 0.5))
+                    .shadow(color: Color.black.opacity(0.4), radius: 8, y: 3)
+
+                    Spacer()
+
+                    Button {
+                        onClose()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundStyle(.white.opacity(0.9))
+                    }
+                    .buttonStyle(.plain)
+                    .keyboardShortcut(.escape, modifiers: [])
+                    .help(String(localized: "Exit Fullscreen (Esc)"))
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 20)
+
+                Spacer()
+            }
+        }
+        .onAppear {
+            bridge.play()
+        }
+        .onDisappear {
+            bridge.pause()
         }
     }
 }
