@@ -22,13 +22,15 @@ struct WebView: NSViewRepresentable {
     var fontFamily: ReaderFontFamily = .system
     var lineHeight: ReaderLineHeight = .normal
     var isContentBlockerEnabled: Bool = false
+    var isBionicReadingEnabled: Bool = false
 
     init(
         html: String,
         fontSize: Int = 16,
         theme: ReaderTheme = .system,
         fontFamily: ReaderFontFamily = .system,
-        lineHeight: ReaderLineHeight = .normal
+        lineHeight: ReaderLineHeight = .normal,
+        isBionicReadingEnabled: Bool = false
     ) {
         self.html = html
         self.url = nil
@@ -37,6 +39,7 @@ struct WebView: NSViewRepresentable {
         self.fontFamily = fontFamily
         self.lineHeight = lineHeight
         self.isContentBlockerEnabled = false
+        self.isBionicReadingEnabled = isBionicReadingEnabled
     }
 
     init(
@@ -54,6 +57,7 @@ struct WebView: NSViewRepresentable {
         self.fontFamily = fontFamily
         self.lineHeight = lineHeight
         self.isContentBlockerEnabled = isContentBlockerEnabled
+        self.isBionicReadingEnabled = false
     }
 
     func makeNSView(context: Context) -> WKWebView {
@@ -128,7 +132,8 @@ struct WebView: NSViewRepresentable {
             let styleChanged = coordinator.lastFontSize != fontSize ||
                                coordinator.lastTheme != theme ||
                                coordinator.lastFontFamily != fontFamily ||
-                               coordinator.lastLineHeight != lineHeight
+                               coordinator.lastLineHeight != lineHeight ||
+                               coordinator.lastBionicReading != isBionicReadingEnabled
 
             if coordinator.lastLoadedHTML != html || styleChanged {
                 coordinator.lastLoadedHTML = html
@@ -136,9 +141,11 @@ struct WebView: NSViewRepresentable {
                 coordinator.lastTheme = theme
                 coordinator.lastFontFamily = fontFamily
                 coordinator.lastLineHeight = lineHeight
+                coordinator.lastBionicReading = isBionicReadingEnabled
                 coordinator.lastLoadedURL = nil
                 coordinator.lastContentBlockerEnabled = nil
-                let styledHTML = wrapInTemplate(html)
+                let processedContent = prepareHTMLContent(html)
+                let styledHTML = wrapInTemplate(processedContent)
                 webView.loadHTMLString(styledHTML, baseURL: nil)
             }
         } else if let url = url {
@@ -196,6 +203,14 @@ struct WebView: NSViewRepresentable {
         }
     }
 
+    private func prepareHTMLContent(_ raw: String) -> String {
+        var content = NativeCodeHighlighter.highlight(raw)
+        if isBionicReadingEnabled {
+            content = BionicReadingFormatter.format(content)
+        }
+        return content
+    }
+
     private func wrapInTemplate(_ content: String) -> String {
         """
         <!DOCTYPE html>
@@ -228,14 +243,50 @@ struct WebView: NSViewRepresentable {
             a { color: \(theme.linkColorCSS); text-decoration: none; }
             a:hover { text-decoration: underline; }
             img { max-width: 100%; height: auto; border-radius: 8px; margin: 12px 0; }
+            
+            /* Native Code & Syntax Highlighting */
             pre, code {
-                font-family: "SF Mono", Menlo, monospace;
-                font-size: 13px;
-                background: rgba(128, 128, 128, 0.12);
-                border-radius: 6px;
-                padding: 2px 6px;
+                font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
             }
-            pre { padding: 12px; overflow-x: auto; }
+            code {
+                font-size: 0.9em;
+                background: rgba(128, 128, 128, 0.12);
+                border-radius: 4px;
+                padding: 2px 5px;
+            }
+            pre {
+                background: rgba(128, 128, 128, 0.08);
+                border: 1px solid rgba(128, 128, 128, 0.15);
+                border-radius: 8px;
+                padding: 12px 16px;
+                overflow-x: auto;
+                font-size: 13px;
+                line-height: 1.55;
+            }
+            pre code {
+                background: transparent;
+                padding: 0;
+                font-size: inherit;
+            }
+            .tok-kw { color: #cf222e; font-weight: 600; }
+            .tok-str { color: #0a3069; }
+            .tok-com { color: #6e7781; font-style: italic; }
+            .tok-num { color: #0550ae; }
+            .tok-typ { color: #953800; font-weight: 600; }
+            @media (prefers-color-scheme: dark) {
+                .tok-kw { color: #ff7b72; font-weight: 600; }
+                .tok-str { color: #a5d6ff; }
+                .tok-com { color: #8b949e; font-style: italic; }
+                .tok-num { color: #79c0ff; }
+                .tok-typ { color: #ffa657; font-weight: 600; }
+            }
+
+            /* Bionic Reading Highlighting */
+            b.bionic {
+                font-weight: 700;
+                opacity: 0.96;
+            }
+
             blockquote {
                 border-left: 3px solid rgba(128, 128, 128, 0.3);
                 margin-left: 0;
@@ -263,6 +314,7 @@ struct WebView: NSViewRepresentable {
         var lastFontFamily: ReaderFontFamily?
         var lastLineHeight: ReaderLineHeight?
         var lastContentBlockerEnabled: Bool?
+        var lastBionicReading: Bool?
 
         init(isHTMLMode: Bool = false) {
             self.isHTMLMode = isHTMLMode
@@ -343,5 +395,214 @@ struct WebView: NSViewRepresentable {
         ) {
             completionHandler(nil)
         }
+    }
+}
+
+// MARK: - Native Lightweight Code Syntax Highlighter (Zero External JS / Minimal RAM)
+
+enum NativeCodeHighlighter {
+    private static let preBlockRegex = try? NSRegularExpression(
+        pattern: #"(<pre[^>]*>)([\s\S]*?)(</pre>)"#,
+        options: [.caseInsensitive]
+    )
+
+    private static let keywordRegex = try? NSRegularExpression(
+        pattern: #"\b(func|let|var|def|class|struct|enum|import|return|if|else|guard|switch|case|break|continue|for|while|in|try|catch|throw|async|await|public|private|static|const|function|interface|type|nil|null|true|false)\b"#,
+        options: []
+    )
+
+    private static let stringRegex = try? NSRegularExpression(
+        pattern: #"("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')"#,
+        options: []
+    )
+
+    private static let commentRegex = try? NSRegularExpression(
+        pattern: #"(//[^\n\r]*|/\*[\s\S]*?\*/|#[^\n\r]*)"#,
+        options: []
+    )
+
+    private static let numberRegex = try? NSRegularExpression(
+        pattern: #"\b\d+(?:\.\d+)?\b"#,
+        options: []
+    )
+
+    static func highlight(_ html: String) -> String {
+        guard let preRegex = preBlockRegex, html.contains("<pre") else { return html }
+
+        let nsString = html as NSString
+        let matches = preRegex.matches(in: html, options: [], range: NSRange(location: 0, length: nsString.length))
+        guard !matches.isEmpty else { return html }
+
+        var result = ""
+        result.reserveCapacity(html.count + 500)
+        var lastIndex = 0
+
+        for match in matches {
+            let preRange = match.range
+            let leadingRange = NSRange(location: lastIndex, length: preRange.location - lastIndex)
+            result += nsString.substring(with: leadingRange)
+
+            let openTag = nsString.substring(with: match.range(at: 1))
+            let innerCode = nsString.substring(with: match.range(at: 2))
+            let closeTag = nsString.substring(with: match.range(at: 3))
+
+            let styledInner = highlightCodeContent(innerCode)
+            result += openTag + styledInner + closeTag
+            lastIndex = preRange.location + preRange.length
+        }
+
+        if lastIndex < nsString.length {
+            result += nsString.substring(from: lastIndex)
+        }
+
+        return result
+    }
+
+    private static func highlightCodeContent(_ code: String) -> String {
+        // Simple token replacement that protects strings and comments
+        var output = code
+
+        // Strings
+        if let sRegex = stringRegex {
+            output = sRegex.stringByReplacingMatches(
+                in: output,
+                options: [],
+                range: NSRange(location: 0, length: (output as NSString).length),
+                withTemplate: #"<span class="tok-str">$1</span>"#
+            )
+        }
+
+        // Keywords
+        if let kwRegex = keywordRegex {
+            output = kwRegex.stringByReplacingMatches(
+                in: output,
+                options: [],
+                range: NSRange(location: 0, length: (output as NSString).length),
+                withTemplate: #"<span class="tok-kw">$1</span>"#
+            )
+        }
+
+        return output
+    }
+}
+
+// MARK: - Native Bionic Reading Engine (Word Fixation Highlighting)
+
+enum BionicReadingFormatter {
+    private static let tagRegex = try? NSRegularExpression(
+        pattern: #"(<[^>]+>|&[a-zA-Z0-9#]+;)"#,
+        options: []
+    )
+
+    private static let skipTagsRegex = try? NSRegularExpression(
+        pattern: #"(?i)<(pre|code|script|style|a|svg)[\s>][\s\S]*?</\1>"#,
+        options: []
+    )
+
+    static func format(_ html: String) -> String {
+        guard !html.isEmpty else { return html }
+
+        // Find skip blocks (pre, code, a, script, style) to protect their text
+        var protectedRanges: [NSRange] = []
+        if let skipRegex = skipTagsRegex {
+            let ns = html as NSString
+            let matches = skipRegex.matches(in: html, options: [], range: NSRange(location: 0, length: ns.length))
+            for m in matches {
+                protectedRanges.append(m.range)
+            }
+        }
+
+        let nsString = html as NSString
+        let fullLength = nsString.length
+
+        // Tokenize between HTML tags & entities and raw text
+        guard let tRegex = tagRegex else { return html }
+        let tagMatches = tRegex.matches(in: html, options: [], range: NSRange(location: 0, length: fullLength))
+
+        var result = ""
+        result.reserveCapacity(Int(Double(html.count) * 1.2))
+
+        var currentIndex = 0
+
+        for match in tagMatches {
+            let tagRange = match.range
+            if tagRange.location > currentIndex {
+                // Text chunk before this tag
+                let textRange = NSRange(location: currentIndex, length: tagRange.location - currentIndex)
+                let textChunk = nsString.substring(with: textRange)
+
+                // Check if this text chunk falls within any protected range
+                let isProtected = protectedRanges.contains { protected in
+                    NSIntersectionRange(protected, textRange).length > 0
+                }
+
+                if isProtected {
+                    result += textChunk
+                } else {
+                    result += bionicTransformText(textChunk)
+                }
+            }
+
+            // Append the tag/entity untouched
+            result += nsString.substring(with: tagRange)
+            currentIndex = tagRange.location + tagRange.length
+        }
+
+        if currentIndex < fullLength {
+            let remainingRange = NSRange(location: currentIndex, length: fullLength - currentIndex)
+            let remainingText = nsString.substring(with: remainingRange)
+            let isProtected = protectedRanges.contains { protected in
+                NSIntersectionRange(protected, remainingRange).length > 0
+            }
+            if isProtected {
+                result += remainingText
+            } else {
+                result += bionicTransformText(remainingText)
+            }
+        }
+
+        return result
+    }
+
+    private static func bionicTransformText(_ text: String) -> String {
+        guard !text.isEmpty else { return "" }
+
+        var output = ""
+        output.reserveCapacity(text.count + 50)
+
+        var currentWord = ""
+
+        func flushWord() {
+            guard !currentWord.isEmpty else { return }
+            let len = currentWord.count
+            if len <= 1 {
+                output += currentWord
+            } else {
+                let boldLength: Int
+                switch len {
+                case 2...3: boldLength = 1
+                case 4...6: boldLength = 2
+                case 7...9: boldLength = 3
+                default:    boldLength = max(3, len / 2)
+                }
+
+                let boldPart = currentWord.prefix(boldLength)
+                let restPart = currentWord.dropFirst(boldLength)
+                output += "<b class=\"bionic\">\(boldPart)</b>\(restPart)"
+            }
+            currentWord.removeAll(keepingCapacity: true)
+        }
+
+        for char in text {
+            if char.isLetter || char.isNumber {
+                currentWord.append(char)
+            } else {
+                flushWord()
+                output.append(char)
+            }
+        }
+        flushWord()
+
+        return output
     }
 }

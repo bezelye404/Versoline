@@ -5,6 +5,7 @@ import AVFoundation
 struct ArticleDetailView: View {
 
     @Environment(FeedStore.self) private var store
+    @Environment(\.appTheme) private var theme
 
     @AppStorage(AppSettingsKeys.readerFontSize) private var readerFontSize = 16
     @AppStorage(AppSettingsKeys.readerTheme) private var readerThemeRaw = ReaderTheme.system.rawValue
@@ -14,6 +15,7 @@ struct ArticleDetailView: View {
     @AppStorage(AppSettingsKeys.defaultReadingMode) private var defaultReadingModeRaw = ReadingViewMode.reader.rawValue
     @AppStorage(AppSettingsKeys.preferredExternalBrowser) private var preferredExternalBrowserRaw = ExternalBrowserOption.systemDefault.rawValue
     @AppStorage(AppSettingsKeys.isContentBlockerEnabled) private var isContentBlockerEnabled = true
+    @AppStorage(AppSettingsKeys.isBionicReadingEnabled) private var isBionicReadingEnabled = false
 
     let selectedItem: FeedItem?
 
@@ -23,12 +25,16 @@ struct ArticleDetailView: View {
     @State private var isSpeaking = false
     @State private var speechSynthesizer = AVSpeechSynthesizer()
     @State private var speechDelegate = ArticleSpeechDelegate()
+    @State private var showQuoteCardSheet = false
     @Namespace private var animationNamespace
 
     private let networkMonitor = NetworkMonitor.shared
 
     private var currentTheme: ReaderTheme {
-        ReaderTheme(rawValue: readerThemeRaw) ?? .system
+        if readerThemeRaw == ReaderTheme.system.rawValue {
+            return theme.readerThemeDefault
+        }
+        return ReaderTheme(rawValue: readerThemeRaw) ?? theme.readerThemeDefault
     }
 
     private var currentFontFamily: ReaderFontFamily {
@@ -119,6 +125,11 @@ struct ArticleDetailView: View {
                 .onAppear {
                     WebView.flushMemoryCache()
                 }
+            }
+        }
+        .sheet(isPresented: $showQuoteCardSheet) {
+            if let item = currentItem {
+                QuoteCardSheet(item: item, feedTitle: currentFeed?.title)
             }
         }
     }
@@ -257,6 +268,8 @@ struct ArticleDetailView: View {
                         }
                     }
                     Divider()
+                    Toggle(String(localized: "Bionic Reading"), isOn: $isBionicReadingEnabled)
+                    Divider()
                     HStack {
                         Button(String(localized: "Smaller Font")) {
                             if readerFontSize > 12 { readerFontSize -= 2 }
@@ -312,7 +325,7 @@ struct ArticleDetailView: View {
                 } label: {
                     Image(systemName: item.isBookmarked ? "star.fill" : "star")
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(item.isBookmarked ? AppTheme.Colors.bookmark : Color.secondary)
+                        .foregroundStyle(item.isBookmarked ? theme.bookmarkColor : Color.secondary)
                         .contentTransition(.symbolEffect(.replace))
                 }
                 .buttonStyle(.borderless)
@@ -327,7 +340,7 @@ struct ArticleDetailView: View {
                 } label: {
                     Image(systemName: item.isRead ? "circle" : "checkmark.circle.fill")
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(item.isRead ? Color.secondary : AppTheme.Colors.accent)
+                        .foregroundStyle(item.isRead ? Color.secondary : theme.accentColor)
                         .contentTransition(.symbolEffect(.replace))
                 }
                 .buttonStyle(.borderless)
@@ -345,7 +358,7 @@ struct ArticleDetailView: View {
                 } label: {
                     Image(systemName: isSpeaking ? "stop.fill" : "speaker.wave.2")
                         .font(.system(size: 11))
-                        .foregroundStyle(isSpeaking ? AppTheme.Colors.accent : Color.secondary)
+                        .foregroundStyle(isSpeaking ? theme.accentColor : Color.secondary)
                         .contentTransition(.symbolEffect(.replace))
                 }
                 .buttonStyle(.borderless)
@@ -357,6 +370,12 @@ struct ArticleDetailView: View {
                         shareArticleOrEpisode(item: item)
                     } label: {
                         Label(String(localized: "Share..."), systemImage: "square.and.arrow.up")
+                    }
+
+                    Button {
+                        showQuoteCardSheet = true
+                    } label: {
+                        Label(String(localized: "Create Quote Card"), systemImage: "quote.opening")
                     }
 
                     if let url = URL(string: item.link) {
@@ -386,7 +405,7 @@ struct ArticleDetailView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
         .frame(height: 40)
-        .background(Color(nsColor: .windowBackgroundColor))
+        .background(theme.detailBackground)
     }
 
     // MARK: - Podcast Full Page Scroll View
@@ -826,7 +845,8 @@ struct ArticleDetailView: View {
                     fontSize: readerFontSize,
                     theme: currentTheme,
                     fontFamily: currentFontFamily,
-                    lineHeight: currentLineHeight
+                    lineHeight: currentLineHeight,
+                    isBionicReadingEnabled: isBionicReadingEnabled
                 )
 
                 if !ReaderModeExtractor.shared.isSubstantiveContent(extracted) {
@@ -849,7 +869,8 @@ struct ArticleDetailView: View {
                     fontSize: readerFontSize,
                     theme: currentTheme,
                     fontFamily: currentFontFamily,
-                    lineHeight: currentLineHeight
+                    lineHeight: currentLineHeight,
+                    isBionicReadingEnabled: isBionicReadingEnabled
                 )
 
                 summaryNoticeBanner(item: item)
@@ -999,4 +1020,210 @@ struct PodcastChapter: Identifiable, Hashable {
     let timestamp: String
     let seconds: Double
     let title: String
+}
+
+// MARK: - Quote Card Generator & Preview (Native ImageRenderer / Zero External Deps)
+
+struct QuoteCardSheet: View {
+    let item: FeedItem
+    let feedTitle: String?
+    @Environment(\.dismiss) private var dismiss
+    @State private var quoteText: String = ""
+    @State private var selectedPalette: AppColorPalette = .slate
+    @State private var isCopied: Bool = false
+
+    init(item: FeedItem, feedTitle: String?) {
+        self.item = item
+        self.feedTitle = feedTitle
+        let initial = item.itemDescription.strippingHTML().trimmingCharacters(in: .whitespacesAndNewlines)
+        _quoteText = State(initialValue: initial.isEmpty ? item.title : String(initial.prefix(280)))
+    }
+
+    var body: some View {
+        VStack(spacing: 16) {
+            // Header
+            HStack {
+                Text(String(localized: "Quote Card Generator"))
+                    .font(.headline)
+                Spacer()
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                        .imageScale(.large)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 16)
+
+            // Live Preview Card
+            QuoteCardPreview(
+                quote: quoteText,
+                articleTitle: item.title,
+                author: item.author,
+                feedTitle: feedTitle ?? "easyRSS",
+                palette: selectedPalette
+            )
+            .padding(.horizontal, 20)
+
+            // Edit Quote
+            VStack(alignment: .leading, spacing: 6) {
+                Text(String(localized: "Quote Text:"))
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+
+                TextEditor(text: $quoteText)
+                    .font(.system(size: 13))
+                    .frame(height: 60)
+                    .padding(4)
+                    .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 6))
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(AppTheme.Colors.hairlineBorder, lineWidth: 1))
+            }
+            .padding(.horizontal, 20)
+
+            // Palette selector
+            HStack(spacing: 12) {
+                Text(String(localized: "Palette:"))
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+
+                ForEach(AppColorPalette.allCases) { palette in
+                    Button {
+                        selectedPalette = palette
+                    } label: {
+                        Circle()
+                            .fill(palette.accentColor)
+                            .frame(width: 18, height: 18)
+                            .overlay(
+                                Circle()
+                                    .strokeBorder(Color.white, lineWidth: selectedPalette == palette ? 2 : 0)
+                            )
+                            .overlay(
+                                Circle()
+                                    .strokeBorder(selectedPalette == palette ? palette.accentColor : Color.clear, lineWidth: 1)
+                                    .scaleEffect(1.3)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                }
+                Spacer()
+            }
+            .padding(.horizontal, 20)
+
+            Divider()
+
+            // Actions
+            HStack {
+                Spacer()
+                Button {
+                    copyCardToPasteboard()
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: isCopied ? "checkmark" : "doc.on.doc")
+                        Text(isCopied ? String(localized: "Copied!") : String(localized: "Copy Image to Clipboard"))
+                    }
+                    .fontWeight(.semibold)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(selectedPalette.accentColor, in: RoundedRectangle(cornerRadius: 8))
+                    .foregroundStyle(.white)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 16)
+        }
+        .frame(width: 520)
+        .background(Color(nsColor: .windowBackgroundColor))
+    }
+
+    @MainActor
+    private func copyCardToPasteboard() {
+        let card = QuoteCardPreview(
+            quote: quoteText,
+            articleTitle: item.title,
+            author: item.author,
+            feedTitle: feedTitle ?? "easyRSS",
+            palette: selectedPalette
+        )
+        let renderer = ImageRenderer(content: card)
+        renderer.scale = 2.0 // High-DPI Retina
+        if let image = renderer.nsImage {
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.writeObjects([image])
+            AppHaptics.notification()
+            isCopied = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                isCopied = false
+            }
+        }
+    }
+}
+
+struct QuoteCardPreview: View {
+    let quote: String
+    let articleTitle: String
+    let author: String?
+    let feedTitle: String
+    let palette: AppColorPalette
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 8) {
+                Circle()
+                    .fill(palette.accentColor)
+                    .frame(width: 10, height: 10)
+                Text(feedTitle)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Image(systemName: "quote.opening")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(palette.accentColor.opacity(0.4))
+            }
+
+            Text("“\(quote)”")
+                .font(.system(size: 15, weight: .medium, design: .serif))
+                .lineSpacing(4)
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Divider()
+                .opacity(0.4)
+
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(articleTitle)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                    if let author, !author.isEmpty {
+                        Text(author)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                Spacer()
+                Text("easyRSS")
+                    .font(.system(size: 9, weight: .heavy, design: .monospaced))
+                    .foregroundStyle(palette.accentColor)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(palette.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 4))
+            }
+        }
+        .padding(20)
+        .frame(width: 480)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(nsColor: .controlBackgroundColor))
+                .shadow(color: Color.black.opacity(0.06), radius: 10, y: 4)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .strokeBorder(palette.accentColor.opacity(0.2), lineWidth: 1)
+        )
+    }
 }

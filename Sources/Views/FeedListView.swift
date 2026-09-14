@@ -3,6 +3,7 @@ import SwiftUI
 struct FeedListView: View {
 
     @Environment(FeedStore.self) private var store
+    @Environment(\.appTheme) private var theme
     let selection: SidebarItem?
     @Binding var selectedArticle: FeedItem?
     @State private var searchText = ""
@@ -21,6 +22,9 @@ struct FeedListView: View {
         case .bookmarks: return String(localized: "Bookmarks")
         case .podcasts: return String(localized: "Podcasts")
         case .downloaded: return String(localized: "Downloaded Episodes")
+        case .quickReads: return String(localized: "Quick Reads")
+        case .longReads: return String(localized: "Deep Reads")
+        case .media: return String(localized: "Media & Video")
         case .folder(let id): return store.folders.first(where: { $0.id == id })?.name ?? String(localized: "Folder")
         case .feed(let id): return store.feed(for: id)?.title ?? String(localized: "Feed")
         case nil: return ""
@@ -29,7 +33,7 @@ struct FeedListView: View {
 
     private var showFeedName: Bool {
         switch selection {
-        case .all, .bookmarks, .unread, .today, .podcasts, .downloaded, .folder: return true
+        case .all, .bookmarks, .unread, .today, .podcasts, .downloaded, .quickReads, .longReads, .media, .folder: return true
         default: return false
         }
     }
@@ -63,6 +67,12 @@ struct FeedListView: View {
             base = store.podcastItems()
         case .downloaded:
             base = store.downloadedItems()
+        case .quickReads:
+            base = store.quickReadItems()
+        case .longReads:
+            base = store.longReadItems()
+        case .media:
+            base = store.mediaItems()
         case .folder(let id):
             base = store.itemsForFolder(id)
         case .feed(let id):
@@ -220,6 +230,8 @@ struct FeedListView: View {
                                 }
                             }
                             .listStyle(.plain)
+                            .scrollContentBackground(.hidden)
+                            .background(theme.listBackground)
                             .safeAreaInset(edge: .top) {
                                 Color.clear.frame(height: 2)
                             }
@@ -540,6 +552,9 @@ struct FeedListView: View {
         case .bookmarks: return "star"
         case .podcasts: return "headphones"
         case .downloaded: return "arrow.down.circle"
+        case .quickReads: return "bolt"
+        case .longReads: return "book.closed"
+        case .media: return "play.rectangle"
         case .folder: return "folder"
         case .feed: return "newspaper"
         }
@@ -553,6 +568,9 @@ struct FeedListView: View {
         case .bookmarks: return String(localized: "No Bookmarks")
         case .podcasts: return String(localized: "No Podcasts")
         case .downloaded: return String(localized: "No Downloads")
+        case .quickReads: return String(localized: "No Quick Reads")
+        case .longReads: return String(localized: "No Deep Reads")
+        case .media: return String(localized: "No Media Articles")
         case .folder: return String(localized: "Folder is Empty")
         case .feed: return String(localized: "Feed is Empty")
         }
@@ -566,6 +584,9 @@ struct FeedListView: View {
         case .bookmarks: return String(localized: "Star articles to save them for later.")
         case .podcasts: return String(localized: "Subscribe to podcast feeds to see episodes here.")
         case .downloaded: return String(localized: "Downloaded podcast episodes will appear here for offline playback.")
+        case .quickReads: return String(localized: "Short articles (< 3 minutes) will appear here for quick reading.")
+        case .longReads: return String(localized: "In-depth articles (7+ minutes) will appear here for deep reading.")
+        case .media: return String(localized: "Articles containing YouTube videos or podcasts will appear here.")
         case .folder: return String(localized: "Move feeds into this folder from the sidebar.")
         case .feed: return String(localized: "No articles found in this feed.")
         }
@@ -576,6 +597,7 @@ struct FeedListView: View {
 
 struct FeedItemRow: View {
 
+    @Environment(\.appTheme) private var theme
     @AppStorage(AppSettingsKeys.isCompactListMode) private var isCompactListMode = false
     let item: FeedItem
     var isSelected: Bool = false
@@ -608,11 +630,11 @@ struct FeedItemRow: View {
         HStack(alignment: .center, spacing: 10) {
             // Main text column
             HStack(alignment: .top, spacing: 9) {
-                // Unread indicator dot: Doygunluktan uzak, net ve sade bir nokta
+                // Unread indicator dot
                 ZStack {
                     if !item.isRead {
                         Circle()
-                            .fill(AppTheme.Colors.unreadDot)
+                            .fill(theme.unreadDotColor)
                             .frame(width: 7, height: 7)
                             .transition(.scale(scale: 1.3).combined(with: .opacity))
                     }
@@ -632,7 +654,7 @@ struct FeedItemRow: View {
                         if item.isBookmarked {
                             Image(systemName: "star.fill")
                                 .font(.system(size: 10, weight: .semibold))
-                                .foregroundStyle(AppTheme.Colors.bookmark)
+                                .foregroundStyle(theme.bookmarkColor)
                                 .transition(.scale(scale: 1.2).combined(with: .opacity))
                                 .animation(AppAnimation.bouncy, value: item.isBookmarked)
                         }
@@ -748,14 +770,18 @@ struct FeedItemRow: View {
         .background {
             if isSelected {
                 RoundedRectangle(cornerRadius: AppTheme.Metrics.cardCornerRadius, style: .continuous)
-                    .fill(AppTheme.Colors.cardSelected)
+                    .fill(theme.cardSelected)
                     .overlay(
                         RoundedRectangle(cornerRadius: AppTheme.Metrics.cardCornerRadius, style: .continuous)
-                            .stroke(AppTheme.Colors.cardSelectedBorder, lineWidth: 0.8)
+                            .stroke(theme.cardSelectedBorder, lineWidth: 1.0)
                     )
             } else if isHovered {
                 RoundedRectangle(cornerRadius: AppTheme.Metrics.cardCornerRadius, style: .continuous)
-                    .fill(AppTheme.Colors.cardHover)
+                    .fill(theme.cardBackground)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: AppTheme.Metrics.cardCornerRadius, style: .continuous)
+                            .stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.6)
+                    )
             }
         }
         .scaleEffect(isPressed ? 0.985 : (isHovered && !isSelected ? 1.004 : 1.0))

@@ -116,6 +116,22 @@ struct EasyRSSApp: App {
 
             Divider()
 
+            let recentUnread = Array(store.unreadItems().prefix(5))
+            if !recentUnread.isEmpty {
+                Text("Recent Unread")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                ForEach(recentUnread) { item in
+                    Button(item.title) {
+                        NSApp.activate(ignoringOtherApps: true)
+                        if let window = NSApp.windows.first(where: { !($0 is NSPanel) }) {
+                            window.makeKeyAndOrderFront(nil)
+                        }
+                    }
+                }
+                Divider()
+            }
+
             Button("Open easyRSS") {
                 NSApp.activate(ignoringOtherApps: true)
                 if let window = NSApp.windows.first(where: { !($0 is NSPanel) }) {
@@ -145,20 +161,36 @@ struct EasyRSSApp: App {
     }
 }
 
-// MARK: - App Design Theme (Editorial, Restrained & Native macOS)
+// MARK: - App Design Theme Environment & Tokens
+
+private struct AppThemeKey: EnvironmentKey {
+    static let defaultValue: AppColorPalette = .slate
+}
+
+extension EnvironmentValues {
+    var appTheme: AppColorPalette {
+        get { self[AppThemeKey.self] }
+        set { self[AppThemeKey.self] = newValue }
+    }
+}
 
 enum AppTheme {
 
-    // MARK: - Colors (Sade, doymamış, neondan ve gradyanlardan uzak renkler)
+    // MARK: - Colors (Sade, doymamış renk paleti ve yüzeyler)
     enum Colors {
-        /// Ana vurgu: Doğal, göz yormayan macOS sistem mavisi
-        static let accent = Color.accentColor
+        private static var currentPalette: AppColorPalette {
+            let raw = UserDefaults.standard.string(forKey: AppSettingsKeys.appColorPalette) ?? AppColorPalette.slate.rawValue
+            return AppColorPalette(rawValue: raw) ?? .slate
+        }
 
-        /// Okunmamış göstergesi: Canlı neon yerine zarif ve net bir mavi tonu
-        static let unreadDot = Color.accentColor
+        /// Ana vurgu: Seçili sakin paletin doğal rengi
+        static var accent: Color { currentPalette.accentColor }
 
-        /// Yıldız / Yerimi: Aşırı doygun olmayan sıcak kehribar / altın tonu
-        static let bookmark = Color(nsColor: .systemOrange).opacity(0.92)
+        /// Okunmamış göstergesi: Zarif ve net bir nokta
+        static var unreadDot: Color { currentPalette.unreadDotColor }
+
+        /// Yıldız / Yerimi: Sıcak kehribar / altın tonu
+        static var bookmark: Color { currentPalette.bookmarkColor }
 
         /// Çevrimdışı / İkaz durumu: Sakin sarı/kehribar
         static let warning = Color(nsColor: .systemYellow)
@@ -166,24 +198,24 @@ enum AppTheme {
         /// İndirme / Başarılı durum: Doymamış, doğal yeşil
         static let success = Color(nsColor: .systemGreen).opacity(0.9)
 
-        /// YouTube göstergesi: Neon yerine doğal tuğla/koyu kırmızı
+        /// YouTube göstergesi: Doğal tuğla/koyu kırmızı
         static let youtube = Color(nsColor: .systemRed).opacity(0.85)
 
-        /// Podcast mikro-etiket rengi: Muted nötr mor/indigo
+        /// Podcast mikro-etiket rengi: Nötr mor/indigo
         static let podcast = Color(nsColor: .systemIndigo).opacity(0.85)
 
-        // MARK: Arka Plan ve Yüzeyler (Glass & Neutral Surfaces)
+        // MARK: Arka Plan ve Yüzeyler
         /// Kart hover arka planı: Çok hafif saydam kontrol dolgusu
-        static let cardHover = Color(nsColor: .controlBackgroundColor).opacity(0.55)
+        static let cardHover = Color.primary.opacity(0.04)
 
-        /// Seçili kart arka planı: Doygunluktan uzak, hafif vurgulu dolgu
-        static let cardSelected = Color.accentColor.opacity(0.10)
+        /// Seçili kart arka planı
+        static var cardSelected: Color { currentPalette.cardSelected }
 
-        /// Seçili kart sınır çizgisi: İnce, zarif vurgu çizgisi
-        static let cardSelectedBorder = Color.accentColor.opacity(0.24)
+        /// Seçili kart kenarlık çizgisi
+        static var cardSelectedBorder: Color { currentPalette.cardSelectedBorder }
 
-        /// İnce ayraç ve sınır çizgileri (Hairline borders)
-        static let hairlineBorder = Color.primary.opacity(0.06)
+        /// Ultra ince sınır çizgileri (Hairline borders)
+        static let hairlineBorder = Color.primary.opacity(0.08)
         static let subtleBorder = Color.primary.opacity(0.09)
 
         /// Hap ve sayaç dolguları
@@ -191,8 +223,8 @@ enum AppTheme {
         static let badgeText = Color.secondary
 
         /// Aktif sayaç rozeti dolgusu
-        static let activeBadgeBackground = Color.accentColor.opacity(0.12)
-        static let activeBadgeText = Color.accentColor
+        static var activeBadgeBackground: Color { accent.opacity(0.14) }
+        static var activeBadgeText: Color { accent }
     }
 
     // MARK: - Radius & Spacing Tokens
@@ -216,6 +248,15 @@ enum AppHaptics {
         )
     }
 
+    /// Seçim değişikliği bildirimi
+    @MainActor
+    static func selection() {
+        NSHapticFeedbackManager.defaultPerformer.perform(
+            .alignment,
+            performanceTime: .default
+        )
+    }
+
     /// Onay / İşlem tamamlandı tıklaması
     @MainActor
     static func notifySuccess() {
@@ -223,6 +264,12 @@ enum AppHaptics {
             .generic,
             performanceTime: .default
         )
+    }
+
+    /// Genel bildirim tıklaması
+    @MainActor
+    static func notification() {
+        notifySuccess()
     }
 }
 
@@ -237,6 +284,9 @@ enum AppAnimation {
 
     /// Akıcı kayan kapsül yayı: Okuma modu switch'i ve seçim kapsülü (0.26s)
     static let slidingPill = Animation.spring(response: 0.26, dampingFraction: 0.78)
+
+    /// Etkileşimli buton/seçim yayı (0.22s)
+    static let interactiveSpring = Animation.interactiveSpring(response: 0.22, dampingFraction: 0.80)
 
     /// Kart tıklama/dokunma tepkisi: Basılma hissi (0.15s)
     static let cardPress = Animation.interactiveSpring(response: 0.15, dampingFraction: 0.75)

@@ -7,6 +7,9 @@ enum SidebarItem: Hashable, Identifiable {
     case bookmarks
     case podcasts
     case downloaded
+    case quickReads
+    case longReads
+    case media
     case folder(UUID)
     case feed(UUID)
 
@@ -18,8 +21,20 @@ enum SidebarItem: Hashable, Identifiable {
         case .bookmarks: return "sidebar-bookmarks"
         case .podcasts: return "sidebar-podcasts"
         case .downloaded: return "sidebar-downloaded"
+        case .quickReads: return "sidebar-quick-reads"
+        case .longReads: return "sidebar-long-reads"
+        case .media: return "sidebar-media"
         case .folder(let uuid): return "sidebar-folder-\(uuid.uuidString)"
         case .feed(let uuid): return "sidebar-feed-\(uuid.uuidString)"
         }
     }
+}
+
+// MARK: - Daily Reading Stat Model for Native Charts
+
+struct DailyReadingStat: Identifiable, Hashable {
+    let id = UUID()
+    let day: String
+    let date: Date
+    let count: Int
 }

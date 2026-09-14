@@ -107,7 +107,9 @@ enum HTMLCleaner {
         #"(?i)paylaş[\s\S]{0,40}(?:facebook|x|whatsapp|linkedin|nsosyal|bağlantıyı kopyala)[\s\S]{0,120}"#,
         #"(?i)(?:facebook|twitter|whatsapp|linkedin|telegram|reddit)\s+ile\s+paylaş[^\n<]{0,100}"#,
         #"(?i)bizi\s+(?:sosyal medyada|x'te|twitter'da|facebook'ta)\s+takip edin[^\n<]{0,100}"#,
-        #"(?i)giriş:\s*\d{1,2}\s+[a-zA-ZğüşıöçĞÜŞİÖÇ]+\s+\d{4}[^\n<]*güncelleme:\s*\d{1,2}\s+[a-zA-ZğüşıöçĞÜŞİÖÇ]+\s+\d{4}[^\n<]*"#
+        #"(?i)giriş:\s*\d{1,2}\s+[a-zA-ZğüşıöçĞÜŞİÖÇ]+\s+\d{4}[^\n<]*güncelleme:\s*\d{1,2}\s+[a-zA-ZğüşıöçĞÜŞİÖÇ]+\s+\d{4}[^\n<]*"#,
+        #"(?i)<script[\s\S]*?</script>"#,
+        #"(?i)<noscript[\s\S]*?</noscript>"#
     ]
 
     /// Removes repetitive RSS social sharing footers, clickbait headers, and timestamp boilerplate.
@@ -118,20 +120,24 @@ enum HTMLCleaner {
         }
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
+
     private static let adTagPatterns: [String] = [
         #"(?i)<(?:div|section|aside|figure|p|span)[^>]*(?:class|id)=["'][^"']*(?:reklam|adv-|advertisement|ad-banner|banner-ad|sponsor|dfp|google-ad|taboola|outbrain|ins-element|criteo)[^"']*["'][\s\S]*?</(?:div|section|aside|figure|p|span)>"#,
         #"(?i)<a[^>]*(?:href|data-href)=["'][^"']*(?:doubleclick|googlesyndication|adclick|adservice|reklam|banner)[^"']*["'][^>]*>[\s\S]*?</a>"#,
         #"(?i)<img[^>]*(?:class|alt|src)=["'][^"']*(?:reklam|ad-banner|sponsor|banner)[^"']*["'][^>]*>"#,
+        #"(?i)<img[^>]*(?:width=["'](?:0|1)["'][^>]*height=["'](?:0|1)["']|height=["'](?:0|1)["'][^>]*width=["'](?:0|1)["'])[^>]*>"#,
         #"(?i)<ins[\s\S]*?</ins>"#,
-        #"(?i)<iframe[^>]*(?:google|doubleclick|taboola|outbrain|criteo)[\s\S]*?</iframe>"#
+        #"(?i)<iframe[^>]*(?:google|doubleclick|taboola|outbrain|criteo|facebook\.com\/plugins|platform\.twitter)[\s\S]*?</iframe>"#
     ]
 
-    /// Removes embedded ad banners, sponsor graphics, and tracking pixels from HTML.
+    /// Removes embedded ad banners, sponsor graphics, tracking pixels and auxiliary iframes.
     static func stripAdvertisementsAndBanners(_ html: String) -> String {
         var text = html
         for pat in adTagPatterns {
             text = text.replacingOccurrences(of: pat, with: "", options: .regularExpression)
         }
+        // Remove empty paragraph tags
+        text = text.replacingOccurrences(of: #"(?i)<p>\s*(?:&nbsp;|\s)*</p>"#, with: "", options: .regularExpression)
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

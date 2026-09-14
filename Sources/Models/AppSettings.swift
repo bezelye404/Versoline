@@ -162,6 +162,156 @@ enum ExternalBrowserOption: String, CaseIterable, Identifiable {
     }
 }
 
+// MARK: - App Color Themes & Surfaces
+
+enum AppColorPalette: String, CaseIterable, Identifiable {
+    case slate
+    case sepia
+    case sage
+    case dusk
+    case monochrome
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .slate: return String(localized: "Slate")
+        case .sepia: return String(localized: "Sepia")
+        case .sage: return String(localized: "Sage")
+        case .dusk: return String(localized: "Dusk")
+        case .monochrome: return String(localized: "Monochrome")
+        }
+    }
+
+    var subtitle: String {
+        switch self {
+        case .slate: return String(localized: "Nordic Steel")
+        case .sepia: return String(localized: "Warm Editorial Paper")
+        case .sage: return String(localized: "Natural Herb & Stone")
+        case .dusk: return String(localized: "Muted Evening Violet")
+        case .monochrome: return String(localized: "Minimal High-Contrast")
+        }
+    }
+
+    // Accent Color
+    var accentColor: Color {
+        switch self {
+        case .slate: return Color(red: 0.28, green: 0.48, blue: 0.68)
+        case .sepia: return Color(red: 0.65, green: 0.38, blue: 0.22)
+        case .sage: return Color(red: 0.32, green: 0.50, blue: 0.40)
+        case .dusk: return Color(red: 0.48, green: 0.40, blue: 0.62)
+        case .monochrome: return Color.primary.opacity(0.85)
+        }
+    }
+
+    // Bookmark / Star
+    var bookmarkColor: Color {
+        switch self {
+        case .slate: return Color(red: 0.82, green: 0.58, blue: 0.24)
+        case .sepia: return Color(red: 0.72, green: 0.45, blue: 0.20)
+        case .sage: return Color(red: 0.68, green: 0.55, blue: 0.28)
+        case .dusk: return Color(red: 0.74, green: 0.52, blue: 0.38)
+        case .monochrome: return Color.primary.opacity(0.85)
+        }
+    }
+
+    var unreadDotColor: Color {
+        accentColor
+    }
+
+    // Window & Sidebar Base Background
+    var windowBackground: Color {
+        Color(nsColor: NSColor(name: nil) { appearance in
+            let isDark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            switch self {
+            case .slate:
+                return isDark ? NSColor(red: 0.11, green: 0.12, blue: 0.14, alpha: 1.0)
+                              : NSColor(red: 0.95, green: 0.96, blue: 0.97, alpha: 1.0)
+            case .sepia:
+                return isDark ? NSColor(red: 0.15, green: 0.13, blue: 0.11, alpha: 1.0)
+                              : NSColor(red: 0.98, green: 0.96, blue: 0.92, alpha: 1.0)
+            case .sage:
+                return isDark ? NSColor(red: 0.11, green: 0.13, blue: 0.12, alpha: 1.0)
+                              : NSColor(red: 0.94, green: 0.96, blue: 0.94, alpha: 1.0)
+            case .dusk:
+                return isDark ? NSColor(red: 0.13, green: 0.12, blue: 0.16, alpha: 1.0)
+                              : NSColor(red: 0.96, green: 0.95, blue: 0.97, alpha: 1.0)
+            case .monochrome:
+                return isDark ? NSColor(red: 0.10, green: 0.10, blue: 0.10, alpha: 1.0)
+                              : NSColor(red: 0.96, green: 0.96, blue: 0.96, alpha: 1.0)
+            }
+        })
+    }
+
+    // Article List & Detail Background
+    var listBackground: Color {
+        Color(nsColor: NSColor(name: nil) { appearance in
+            let isDark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            switch self {
+            case .slate:
+                return isDark ? NSColor(red: 0.13, green: 0.14, blue: 0.16, alpha: 1.0)
+                              : NSColor(red: 0.97, green: 0.98, blue: 0.99, alpha: 1.0)
+            case .sepia:
+                return isDark ? NSColor(red: 0.17, green: 0.15, blue: 0.12, alpha: 1.0)
+                              : NSColor(red: 0.96, green: 0.94, blue: 0.89, alpha: 1.0)
+            case .sage:
+                return isDark ? NSColor(red: 0.13, green: 0.15, blue: 0.13, alpha: 1.0)
+                              : NSColor(red: 0.96, green: 0.97, blue: 0.95, alpha: 1.0)
+            case .dusk:
+                return isDark ? NSColor(red: 0.15, green: 0.14, blue: 0.18, alpha: 1.0)
+                              : NSColor(red: 0.97, green: 0.96, blue: 0.98, alpha: 1.0)
+            case .monochrome:
+                return isDark ? NSColor(red: 0.12, green: 0.12, blue: 0.12, alpha: 1.0)
+                              : NSColor(red: 0.98, green: 0.98, blue: 0.98, alpha: 1.0)
+            }
+        })
+    }
+
+    // Card Surface Background
+    var cardBackground: Color {
+        Color(nsColor: NSColor(name: nil) { appearance in
+            let isDark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            switch self {
+            case .slate:
+                return isDark ? NSColor(red: 0.17, green: 0.18, blue: 0.21, alpha: 1.0)
+                              : NSColor(white: 1.0, alpha: 0.88)
+            case .sepia:
+                return isDark ? NSColor(red: 0.21, green: 0.18, blue: 0.15, alpha: 1.0)
+                              : NSColor(red: 0.99, green: 0.98, blue: 0.95, alpha: 0.95)
+            case .sage:
+                return isDark ? NSColor(red: 0.16, green: 0.19, blue: 0.17, alpha: 1.0)
+                              : NSColor(red: 0.98, green: 0.99, blue: 0.98, alpha: 0.92)
+            case .dusk:
+                return isDark ? NSColor(red: 0.19, green: 0.17, blue: 0.23, alpha: 1.0)
+                              : NSColor(red: 0.99, green: 0.98, blue: 1.0, alpha: 0.92)
+            case .monochrome:
+                return isDark ? NSColor(red: 0.16, green: 0.16, blue: 0.16, alpha: 1.0)
+                              : NSColor(white: 1.0, alpha: 0.95)
+            }
+        })
+    }
+
+    // Card Selection
+    var cardSelected: Color {
+        accentColor.opacity(0.14)
+    }
+
+    var cardSelectedBorder: Color {
+        accentColor.opacity(0.38)
+    }
+
+    var detailBackground: Color {
+        listBackground
+    }
+
+    var readerThemeDefault: ReaderTheme {
+        switch self {
+        case .sepia: return .sepia
+        case .slate, .sage, .dusk, .monochrome: return .system
+        }
+    }
+}
+
 struct AppSettingsKeys {
     static let readerTheme = "readerTheme"
     static let readerFontFamily = "readerFontFamily"
@@ -178,5 +328,8 @@ struct AppSettingsKeys {
     static let preferredExternalBrowser = "preferredExternalBrowser"
     static let offlinePrecacheEnabled = "offlinePrecacheEnabled"
     static let isContentBlockerEnabled = "isContentBlockerEnabled"
+    static let appColorPalette = "appColorPalette"
+    static let isBionicReadingEnabled = "isBionicReadingEnabled"
 }
+
 
