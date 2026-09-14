@@ -97,6 +97,24 @@ enum HTMLCleaner {
         return text.replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
+
+    private static let noisePatterns: [String] = [
+        #"(?i)linke tıkla[^\n\.<]{0,120}"#,
+        #"(?i)google favorilerine ekle[^\n\.<]{0,120}"#,
+        #"(?i)paylaş[\s\S]{0,40}(?:facebook|x|whatsapp|linkedin|nsosyal|bağlantıyı kopyala)[\s\S]{0,120}"#,
+        #"(?i)(?:facebook|twitter|whatsapp|linkedin|telegram|reddit)\s+ile\s+paylaş[^\n<]{0,100}"#,
+        #"(?i)bizi\s+(?:sosyal medyada|x'te|twitter'da|facebook'ta)\s+takip edin[^\n<]{0,100}"#,
+        #"(?i)giriş:\s*\d{1,2}\s+[a-zA-ZğüşıöçĞÜŞİÖÇ]+\s+\d{4}[^\n<]*güncelleme:\s*\d{1,2}\s+[a-zA-ZğüşıöçĞÜŞİÖÇ]+\s+\d{4}[^\n<]*"#
+    ]
+
+    /// Removes repetitive RSS social sharing footers, clickbait headers, and timestamp boilerplate.
+    static func removeBoilerplateNoise(_ string: String) -> String {
+        var text = string
+        for pat in noisePatterns {
+            text = text.replacingOccurrences(of: pat, with: "", options: .regularExpression)
+        }
+        return text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 }
 
 extension String {
@@ -107,4 +125,9 @@ extension String {
     func strippingHTML() -> String {
         HTMLCleaner.stripHTMLAndDecode(self)
     }
+
+    func cleaningRSSBoilerplate() -> String {
+        HTMLCleaner.removeBoilerplateNoise(self)
+    }
 }
+

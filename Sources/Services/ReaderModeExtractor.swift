@@ -109,8 +109,8 @@ final class ReaderModeExtractor {
             }
         }
 
-        // Clean out any duplicate leading <h1> that may exist in htmlContent so native SwiftUI header is the single source of truth
-        var cleaned = htmlContent
+        // Clean out any duplicate leading <h1> and boilerplate noise so native SwiftUI header is the single source of truth
+        var cleaned = htmlContent.cleaningRSSBoilerplate()
         if let firstH1Range = cleaned.range(of: #"^\s*<h1[^>]*>[\s\S]*?</h1>"#, options: [.regularExpression, .caseInsensitive]) {
             cleaned.removeSubrange(firstH1Range)
         }

@@ -107,11 +107,11 @@ struct ArticleDetailView: View {
                 }
                 .id(item.id)
                 .transition(.asymmetric(
-                    insertion: .opacity.combined(with: .offset(y: 8)),
-                    removal: .opacity
+                    insertion: .opacity.combined(with: .offset(y: 16)),
+                    removal: .opacity.combined(with: .offset(y: -8))
                 ))
-                .animation(.spring(response: 0.32, dampingFraction: 0.82), value: item.id)
-                .animation(.spring(response: 0.35, dampingFraction: 0.85), value: isVideoTheater)
+                .animation(AppAnimation.pageReveal, value: item.id)
+                .animation(AppAnimation.pageReveal, value: isVideoTheater)
                 .onChange(of: item.id) { _, _ in
                     resetStateForNewArticle(item: item)
                 }
@@ -212,7 +212,7 @@ struct ArticleDetailView: View {
                 // Reading Mode Sliding Bubble Switcher
                 HStack(spacing: 0) {
                     Button {
-                        withAnimation(.spring(response: 0.32, dampingFraction: 0.76)) {
+                        withAnimation(AppAnimation.slidingPill) {
                             activeViewMode = .reader
                         }
                     } label: {
@@ -233,7 +233,7 @@ struct ArticleDetailView: View {
                     .buttonStyle(.plain)
 
                     Button {
-                        withAnimation(.spring(response: 0.32, dampingFraction: 0.76)) {
+                        withAnimation(AppAnimation.slidingPill) {
                             activeViewMode = .inAppBrowser
                         }
                     } label: {
@@ -326,13 +326,13 @@ struct ArticleDetailView: View {
 
                 // Bookmark
                 Button {
-                    withAnimation(.spring(response: 0.28, dampingFraction: 0.65)) {
+                    withAnimation(AppAnimation.bouncy) {
                         store.toggleBookmark(item)
                     }
                 } label: {
                     Image(systemName: item.isBookmarked ? "star.fill" : "star")
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(item.isBookmarked ? .orange : .secondary)
+                        .foregroundStyle(item.isBookmarked ? Color.orange : Color.secondary)
                         .scaleEffect(item.isBookmarked ? 1.15 : 1.0)
                         .contentTransition(.symbolEffect(.replace))
                 }
@@ -341,13 +341,13 @@ struct ArticleDetailView: View {
 
                 // Read Status
                 Button {
-                    withAnimation(.spring(response: 0.28, dampingFraction: 0.65)) {
+                    withAnimation(AppAnimation.bouncy) {
                         store.toggleReadStatus(item)
                     }
                 } label: {
                     Image(systemName: item.isRead ? "circle" : "checkmark.circle.fill")
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(item.isRead ? .secondary : Color.accentColor)
+                        .foregroundStyle(item.isRead ? Color.secondary : Color.accentColor)
                         .scaleEffect(item.isRead ? 1.0 : 1.12)
                         .contentTransition(.symbolEffect(.replace))
                 }
@@ -359,7 +359,7 @@ struct ArticleDetailView: View {
 
                 // Text-to-speech
                 Button {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    withAnimation(AppAnimation.bouncy) {
                         toggleSpeech(item: item)
                     }
                 } label: {
