@@ -171,3 +171,167 @@ struct FaviconView: View {
         }
     }
 }
+
+// MARK: - High-Performance Downsampling Image Cache & View
+
+@MainActor
+final class ImageDownsampleCache {
+    static let shared = ImageDownsampleCache()
+
+    private let memoryCache = NSCache<NSString, NSImage>()
+    private let fileManager = FileManager.default
+    private let diskCacheURL: URL
+    private var inFlightTasks: [String: Task<NSImage?, Never>] = [:]
+
+    private init() {
+        let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let dir = appSupport.appendingPathComponent("EasyRSS/ImageCache_v1", isDirectory: true)
+        try? fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
+        self.diskCacheURL = dir
+
+        // Strict 4MB RAM ceiling for all downsampled thumbnails combined
+        memoryCache.countLimit = 40
+        memoryCache.totalCostLimit = 4 * 1024 * 1024
+    }
+
+    func clearMemory() {
+        memoryCache.removeAllObjects()
+    }
+
+    private func cacheKey(url: URL, maxPixelSize: CGFloat) -> String {
+        "\(url.absoluteString)_\(Int(maxPixelSize))"
+    }
+
+    private func diskFileURL(for key: String) -> URL {
+        let safeName = Data(key.utf8).base64EncodedString()
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "+", with: "-")
+            .prefix(100)
+        return diskCacheURL.appendingPathComponent("\(safeName).png")
+    }
+
+    func image(for url: URL, maxPixelSize: CGFloat) async -> NSImage? {
+        let key = cacheKey(url: url, maxPixelSize: maxPixelSize)
+        let nsKey = key as NSString
+
+        // 1. In-memory check
+        if let cached = memoryCache.object(forKey: nsKey) {
+            return cached
+        }
+
+        // 2. Disk cache check
+        let diskURL = diskFileURL(for: key)
+        if fileManager.fileExists(atPath: diskURL.path(percentEncoded: false)),
+           let diskData = try? Data(contentsOf: diskURL),
+           let downsampled = Self.downsample(data: diskData, maxPixelSize: maxPixelSize) {
+            let cost = Int(maxPixelSize * maxPixelSize * 4)
+            memoryCache.setObject(downsampled, forKey: nsKey, cost: cost)
+            return downsampled
+        }
+
+        // 3. Deduplicate in-flight network requests
+        if let existing = inFlightTasks[key] {
+            return await existing.value
+        }
+
+        let task = Task<NSImage?, Never> {
+            var request = URLRequest(url: url)
+            request.timeoutInterval = 10
+            request.setValue("EasyRSS/1.0", forHTTPHeaderField: "User-Agent")
+
+            do {
+                let (data, response) = try await URLSession.shared.data(for: request)
+                guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode), !data.isEmpty else {
+                    return nil
+                }
+
+                guard let downsampled = Self.downsample(data: data, maxPixelSize: maxPixelSize) else {
+                    return nil
+                }
+
+                let cost = Int(maxPixelSize * maxPixelSize * 4)
+                self.memoryCache.setObject(downsampled, forKey: nsKey, cost: cost)
+
+                // Save downsampled thumbnail representation to disk
+                Task.detached(priority: .utility) {
+                    if let tiff = downsampled.tiffRepresentation,
+                       let bitmap = NSBitmapImageRep(data: tiff),
+                       let pngData = bitmap.representation(using: .png, properties: [:]) {
+                        try? pngData.write(to: diskURL, options: .atomic)
+                    }
+                }
+
+                return downsampled
+            } catch {
+                return nil
+            }
+        }
+
+        inFlightTasks[key] = task
+        let result = await task.value
+        inFlightTasks.removeValue(forKey: key)
+        return result
+    }
+
+    /// High-performance CoreGraphics downsampling: Decodes directly into thumbnail pixels without instantiating full-resolution bitmap in RAM.
+    private static func downsample(data: Data, maxPixelSize: CGFloat) -> NSImage? {
+        let sourceOptions: [CFString: Any] = [
+            kCGImageSourceShouldCache: false
+        ]
+
+        guard let imageSource = CGImageSourceCreateWithData(data as CFData, sourceOptions as CFDictionary) else {
+            return nil
+        }
+
+        let downsampleOptions: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize
+        ]
+
+        guard let thumbnailCG = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, downsampleOptions as CFDictionary) else {
+            return nil
+        }
+
+        return NSImage(cgImage: thumbnailCG, size: NSSize(width: maxPixelSize / 2, height: maxPixelSize / 2))
+    }
+}
+
+/// A lightweight, drop-in replacement for AsyncImage that guarantees zero memory bloat by downsampling bitmaps on decode.
+struct DownsampledImageView: View {
+    let url: URL?
+    let targetSize: CGSize
+    var contentMode: ContentMode = .fill
+    var cornerRadius: CGFloat = 0
+
+    @State private var loadedImage: NSImage?
+
+    private var maxPixelSize: CGFloat {
+        let scale = NSScreen.main?.backingScaleFactor ?? 2.0
+        return max(targetSize.width, targetSize.height) * scale
+    }
+
+    var body: some View {
+        ZStack {
+            if let image = loadedImage {
+                Image(nsImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: contentMode)
+                    .transition(.opacity.animation(AppAnimation.quickFeedback))
+            } else {
+                Color.secondary.opacity(0.06)
+            }
+        }
+        .frame(width: targetSize.width, height: targetSize.height)
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+        .task(id: url) {
+            guard let url else {
+                loadedImage = nil
+                return
+            }
+            loadedImage = await ImageDownsampleCache.shared.image(for: url, maxPixelSize: maxPixelSize)
+        }
+    }
+}
+

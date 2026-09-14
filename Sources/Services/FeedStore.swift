@@ -60,7 +60,8 @@ final class FeedStore {
         cachedFolderItems.removeAll(keepingCapacity: false)
         cachedFeedItems.removeAll(keepingCapacity: false)
         let preserved = Set(items.values.flatMap { $0 }.filter { $0.isBookmarked }.map { $0.link })
-        ReaderModeExtractor.shared.enforceQuota(maxSizeBytes: 150 * 1024 * 1024, preservedLinks: preserved)
+        ReaderModeExtractor.shared.enforceQuota(maxSizeBytes: 50 * 1024 * 1024, preservedLinks: preserved)
+        ImageDownsampleCache.shared.clearMemory()
         AppLogger.shared.log("In-memory sorted caches compacted for background memory relief", level: .debug, category: .storage)
     }
 

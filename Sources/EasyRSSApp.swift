@@ -15,6 +15,8 @@ struct EasyRSSApp: App {
             diskCapacity: 25 * 1024 * 1024
         )
 
+        Self.setupMemoryPressureMonitor()
+
         Task { @MainActor in
             await ContentBlockerService.shared.prepare()
         }
@@ -41,8 +43,22 @@ struct EasyRSSApp: App {
         }
     }
 
+    private static var memoryPressureSource: (any DispatchSourceMemoryPressure)?
+
+    private static func setupMemoryPressureMonitor() {
+        let source = DispatchSource.makeMemoryPressureSource(eventMask: [.warning, .critical], queue: .main)
+        source.setEventHandler {
+            MainActor.assumeIsolated {
+                Self.purgeTransientMemory()
+            }
+        }
+        source.resume()
+        memoryPressureSource = source
+    }
+
     @MainActor
     private static func purgeTransientMemory() {
+        ImageDownsampleCache.shared.clearMemory()
         FaviconService.shared.clearMemoryCache()
         ReaderModeExtractor.shared.clearMemoryCache()
         PodcastSearchService.shared.clearCache()
