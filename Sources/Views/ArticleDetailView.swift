@@ -23,7 +23,6 @@ struct ArticleDetailView: View {
     @State private var isSpeaking = false
     @State private var speechSynthesizer = AVSpeechSynthesizer()
     @State private var speechDelegate = ArticleSpeechDelegate()
-    @State private var isVideoTheater: Bool = false
     @Namespace private var animationNamespace
 
     private let networkMonitor = NetworkMonitor.shared
@@ -59,51 +58,43 @@ struct ArticleDetailView: View {
         Group {
             if let item = currentItem {
                 ZStack(alignment: .top) {
-                    if isVideoTheater {
-                        Color.black.ignoresSafeArea()
-                    }
-
                     // Main Content Layer
                     VStack(spacing: 0) {
-                        if !isVideoTheater {
-                            if item.isPodcast {
-                                if activeViewMode == .inAppBrowser {
-                                    VStack(spacing: 0) {
-                                        Spacer().frame(height: 52)
-                                        inAppBrowserView(item: item)
-                                    }
-                                } else {
-                                    podcastFullPageView(item: item)
+                        if item.isPodcast {
+                            if activeViewMode == .inAppBrowser {
+                                VStack(spacing: 0) {
+                                    Spacer().frame(height: 52)
+                                    inAppBrowserView(item: item)
                                 }
-                            } else if !item.isYouTube {
-                                standardArticleFullPageView(item: item)
+                            } else {
+                                podcastFullPageView(item: item)
                             }
+                        } else if !item.isYouTube {
+                            standardArticleFullPageView(item: item)
                         }
 
                         // YouTube Built-in Player (Seamlessly expands in-app without reload)
                         if let videoID = item.youtubeVideoID {
-                            YouTubePlayerView(videoID: videoID, title: item.title, link: item.link, isTheaterMode: $isVideoTheater)
-                                .frame(maxWidth: .infinity, maxHeight: isVideoTheater ? .infinity : nil)
-                                .padding(.horizontal, isVideoTheater ? 0 : 24)
-                                .padding(.top, isVideoTheater ? 0 : 56)
-                                .padding(.bottom, isVideoTheater ? 0 : 12)
+                            YouTubePlayerView(videoID: videoID, title: item.title, link: item.link)
+                                .frame(maxWidth: .infinity)
+                                .padding(.horizontal, 24)
+                                .padding(.top, 56)
+                                .padding(.bottom, 12)
                         }
 
-                        if !isVideoTheater && item.isYouTube {
+                        if item.isYouTube {
                             articleContent(item: item)
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                     // Floating Glass Overlay Toolbar
-                    if !isVideoTheater {
-                        floatingToolbar(item: item)
-                            .transition(.asymmetric(
-                                insertion: .opacity.combined(with: .offset(y: -12)),
-                                removal: .opacity.combined(with: .offset(y: -12))
-                            ))
-                            .zIndex(100)
-                    }
+                    floatingToolbar(item: item)
+                        .transition(.asymmetric(
+                            insertion: .opacity.combined(with: .offset(y: -12)),
+                            removal: .opacity.combined(with: .offset(y: -12))
+                        ))
+                        .zIndex(100)
                 }
                 .id(item.id)
                 .transition(.asymmetric(
@@ -111,7 +102,6 @@ struct ArticleDetailView: View {
                     removal: .opacity.combined(with: .offset(y: -8))
                 ))
                 .animation(AppAnimation.pageReveal, value: item.id)
-                .animation(AppAnimation.pageReveal, value: isVideoTheater)
                 .onChange(of: item.id) { _, _ in
                     resetStateForNewArticle(item: item)
                 }
@@ -143,7 +133,6 @@ struct ArticleDetailView: View {
     }
 
     private func resetStateForNewArticle(item: FeedItem) {
-        isVideoTheater = false
         stopSpeech()
         let defaultMode = ReadingViewMode(rawValue: defaultReadingModeRaw) ?? .reader
         activeViewMode = defaultMode

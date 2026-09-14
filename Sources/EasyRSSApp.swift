@@ -129,29 +129,43 @@ struct EasyRSSApp: App {
     }
 }
 
-// MARK: - App Animation Engine (Apple HIG & Reeder Physics)
+// MARK: - App Animation Engine (Apple HIG Motion & GPU-Composited Guidelines)
 
 enum AppAnimation {
-    /// Tactile bouncy spring for micro-interactions: stars, bookmarks, checks, unread bubble pop
-    static let bouncy = Animation.spring(response: 0.28, dampingFraction: 0.62)
+    /// Crisp snappy spring for fast state changes and list entries (0.22s)
+    static let snappy = Animation.snappy(duration: 0.22, extraBounce: 0.08)
 
-    /// Fluid sliding spring for matchedGeometry capsules, sliding pills, and segment switches
-    static let slidingPill = Animation.spring(response: 0.32, dampingFraction: 0.74)
+    /// Tactile bouncy spring for micro-interactions: stars, bookmarks, checks, unread bubble pop (0.26s)
+    static let bouncy = Animation.bouncy(duration: 0.26, extraBounce: 0.15)
 
-    /// Snappy card press response when tapping or clicking rows
-    static let cardPress = Animation.spring(response: 0.20, dampingFraction: 0.70)
+    /// Fluid sliding spring for matchedGeometry capsules, sliding pills, and segment switches (0.28s)
+    static let slidingPill = Animation.spring(response: 0.28, dampingFraction: 0.76)
 
-    /// Smooth page reveal spring when switching articles or opening detail panes
-    static let pageReveal = Animation.spring(response: 0.36, dampingFraction: 0.82)
+    /// Snappy card press response when tapping or clicking rows (0.16s)
+    static let cardPress = Animation.interactiveSpring(response: 0.16, dampingFraction: 0.72)
 
-    /// Gentle accordion expansion for folders and dropdowns
-    static let accordion = Animation.spring(response: 0.34, dampingFraction: 0.80)
+    /// Smooth page reveal spring when switching articles or opening detail panes (0.28s)
+    static let pageReveal = Animation.spring(response: 0.28, dampingFraction: 0.84)
 
-    /// Subtle hover transition
-    static let hover = Animation.spring(response: 0.24, dampingFraction: 0.78)
+    /// Gentle accordion expansion for folders and dropdowns (0.26s)
+    static let accordion = Animation.spring(response: 0.26, dampingFraction: 0.82)
 
-    /// Calculate staggered delay for cascading list animations (capped at 0.3s max delay)
+    /// Subtle hover transition (0.15s)
+    static let hover = Animation.easeInOut(duration: 0.15)
+
+    /// Quick easeOut for read/unread state changes (0.15s per guide.md)
+    static let quickFeedback = Animation.easeOut(duration: 0.15)
+
+    /// Fallback animation when accessibilityReduceMotion is enabled
+    static let reduced = Animation.easeInOut(duration: 0.15)
+
+    /// Returns the appropriate animation respecting accessibilityReduceMotion
+    static func motion(_ animation: Animation, reduceMotion: Bool) -> Animation {
+        reduceMotion ? reduced : animation
+    }
+
+    /// Calculate staggered delay for cascading list animations (capped at 0.18s max delay)
     static func stagger(index: Int) -> Double {
-        min(Double(index) * 0.03, 0.30)
+        min(Double(index) * 0.02, 0.18)
     }
 }
