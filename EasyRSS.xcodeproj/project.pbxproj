@@ -26,6 +26,7 @@
 		5B3E5B6A2581C298263EA0EA /* ConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D69912A3269276DAF4FFAF45 /* ConsoleView.swift */; };
 		5C5E99C16EE7825CB24E9458 /* CuratedFeedManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795DF17736FD36D98F8A0532 /* CuratedFeedManager.swift */; };
 		5F8A527790BBD9AED729D7B1 /* AudioPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88847BD64845297886AEDBE0 /* AudioPlayerService.swift */; };
+		5F8A527790BBD9AED729D7C1 /* VideoPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88847BD64845297886AEDBF0 /* VideoPlayerService.swift */; };
 		63EFB75394FFF56972A9311D /* FaviconService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA044137A15A6712344733C7 /* FaviconService.swift */; };
 		65B7FEECD3E1AC13D26FCE75 /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038186F086CEE92C0BC58C16 /* Folder.swift */; };
 		68463FD00DEF51E690CC5C56 /* PodcastSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B5C58B4B0CD8303EF27EEB0 /* PodcastSearchView.swift */; };
@@ -77,6 +78,7 @@
 		8662D9AE64DB139E0FD25AC6 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		8685C42D6F5E40EA3963BC4D /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		88847BD64845297886AEDBE0 /* AudioPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerService.swift; sourceTree = "<group>"; };
+		88847BD64845297886AEDBF0 /* VideoPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerService.swift; sourceTree = "<group>"; };
 		9B7684318C6B5989562330B5 /* EasyRSS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EasyRSS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1ECF353593F446BEC8AA878 /* HTMLCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLCleaner.swift; sourceTree = "<group>"; };
 		A924150A9FB1F2E84DB62914 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
@@ -175,6 +177,7 @@
 			children = (
 				13820ADBEB009A4A7A212BFF /* AppLogger.swift */,
 				88847BD64845297886AEDBE0 /* AudioPlayerService.swift */,
+				88847BD64845297886AEDBF0 /* VideoPlayerService.swift */,
 				AD6EB7F5AE119EB8406DE3DC /* ContentBlockerService.swift */,
 				795DF17736FD36D98F8A0532 /* CuratedFeedManager.swift */,
 				BA044137A15A6712344733C7 /* FaviconService.swift */,
@@ -290,6 +293,7 @@
 				415C86EA71BF46636C7025B8 /* AppSettings.swift in Sources */,
 				BB886C0D4FDD7292F2D75A7B /* ArticleDetailView.swift in Sources */,
 				5F8A527790BBD9AED729D7B1 /* AudioPlayerService.swift in Sources */,
+				5F8A527790BBD9AED729D7C1 /* VideoPlayerService.swift in Sources */,
 				5B3E5B6A2581C298263EA0EA /* ConsoleView.swift in Sources */,
 				C21ECAC7212E4EE56A272D5C /* ContentBlockerService.swift in Sources */,
 				FCCFD7AB89EA563D84733CC1 /* ContentView.swift in Sources */,

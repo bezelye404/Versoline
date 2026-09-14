@@ -82,7 +82,7 @@ struct ArticleDetailView: View {
                     } else if item.isYouTube {
                         VStack(spacing: 0) {
                             if let videoID = item.youtubeVideoID {
-                                YouTubePlayerView(videoID: videoID, title: item.title, link: item.link)
+                                YouTubePlayerView(videoID: videoID, title: item.title, link: item.link, item: item)
                                     .frame(maxWidth: .infinity)
                                     .padding(.horizontal, 24)
                                     .padding(.vertical, 12)

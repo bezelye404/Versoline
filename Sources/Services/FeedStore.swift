@@ -567,12 +567,12 @@ final class FeedStore {
         longReadItems().count
     }
 
-    func mediaItems() -> [FeedItem] {
-        allItems().filter { $0.isMedia }
+    func videoItems() -> [FeedItem] {
+        allItems().filter { $0.isYouTube }
     }
 
-    func mediaCount() -> Int {
-        mediaItems().count
+    func videoCount() -> Int {
+        videoItems().count
     }
 
     // MARK: - Reading Statistics
