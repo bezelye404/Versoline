@@ -14,10 +14,12 @@ final class CuratedFeedManager {
         }
         set {
             internalCategories = newValue
+            cachedAllFeeds = nil
         }
     }
     private var internalCategories: [CuratedFeedCategory] = []
-    private var hasLoaded = false
+    private var cachedAllFeeds: [(category: String, feed: CuratedFeed)]? = nil
+    private(set) var hasLoaded = false
     private(set) var isUpdatingFromRemote = false
 
     private static let remoteManifestURL = URL(string: "https://raw.githubusercontent.com/bezelye404/easyRSS/main/Sources/Resources/curated_feeds.json")!
@@ -81,7 +83,11 @@ final class CuratedFeedManager {
                 request.setValue(storedETag, forHTTPHeaderField: "If-None-Match")
             }
 
-            guard let (data, response) = try? await URLSession.shared.data(for: request),
+            let sessionConfig = URLSessionConfiguration.ephemeral
+            sessionConfig.urlCache = nil
+            let session = URLSession(configuration: sessionConfig)
+
+            guard let (data, response) = try? await session.data(for: request),
                   let httpResponse = response as? HTTPURLResponse else {
                 await MainActor.run {
                     CuratedFeedManager.shared.isUpdatingFromRemote = false
@@ -111,7 +117,10 @@ final class CuratedFeedManager {
                 try? data.write(to: cacheDest, options: .atomic)
 
                 await MainActor.run {
-                    CuratedFeedManager.shared.categories = remoteCategories
+                    // Only retain in RAM if catalog is currently active/open
+                    if CuratedFeedManager.shared.hasLoaded {
+                        CuratedFeedManager.shared.categories = remoteCategories
+                    }
                     CuratedFeedManager.shared.isUpdatingFromRemote = false
                     AppLogger.shared.log("Updated curated feed catalog with \(remoteCategories.count) categories from remote CDN", level: .info, category: .network)
                 }
@@ -124,18 +133,27 @@ final class CuratedFeedManager {
     }
 
     var totalFeedCount: Int {
-        categories.reduce(0) { $0 + $1.feeds.count }
+        if !hasLoaded {
+            return 140
+        }
+        return internalCategories.reduce(0) { $0 + $1.feeds.count }
     }
 
     func allFeeds() -> [(category: String, feed: CuratedFeed)] {
-        categories.flatMap { cat in
+        if let cached = cachedAllFeeds {
+            return cached
+        }
+        let list = categories.flatMap { cat in
             cat.feeds.map { (category: cat.category, feed: $0) }
         }
+        cachedAllFeeds = list
+        return list
     }
 
     func clearMemory() {
-        guard hasLoaded else { return }
-        internalCategories = []
+        guard hasLoaded || !internalCategories.isEmpty else { return }
+        internalCategories.removeAll(keepingCapacity: false)
+        cachedAllFeeds = nil
         hasLoaded = false
         AppLogger.shared.log("Curated feed catalog purged from RAM", level: .debug, category: .storage)
     }

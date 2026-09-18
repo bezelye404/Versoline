@@ -158,7 +158,9 @@ struct ContentView: View {
                 .help(String(localized: "View Options & Tools"))
             }
         }
-        .sheet(isPresented: $showAddFeed) {
+        .sheet(isPresented: $showAddFeed, onDismiss: {
+            CuratedFeedManager.shared.clearMemory()
+        }) {
             AddFeedSheet(initialTab: addFeedTab)
         }
         .sheet(isPresented: $showFolderManagement) {
@@ -194,6 +196,7 @@ struct ContentView: View {
                     onClose: {
                         withAnimation(AppAnimation.pageReveal) {
                             store.fullscreenVideo = nil
+                            VideoPlayerService.shared.isFullscreen = false
                         }
                     }
                 )

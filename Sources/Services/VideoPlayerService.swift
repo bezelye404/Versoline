@@ -57,6 +57,8 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
     // Persistent WebKit Instance for zero-reload reparenting
     @ObservationIgnored var webView: WKWebView?
     @ObservationIgnored private var currentAttachedContainer: NSView?
+    @ObservationIgnored private weak var inlineContainer: NSView?
+    @ObservationIgnored private weak var fullscreenContainer: NSView?
 
     private override init() {
         super.init()
@@ -87,9 +89,23 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
 
     // MARK: - View Reparenting (Continuous Playback Without Reloading)
 
-    func attach(to container: NSView) {
+    func attach(to container: NSView, isFullscreen: Bool = false) {
         let wv = ensureWebViewCreated()
-        guard wv.superview != container else { return }
+        if isFullscreen {
+            fullscreenContainer = container
+        } else {
+            inlineContainer = container
+            // If fullscreen is active and its container is in a window, do not steal the webView
+            if let fc = fullscreenContainer, fc.window != nil, fc !== container {
+                return
+            }
+        }
+
+        guard wv.superview !== container else {
+            wv.needsLayout = true
+            wv.setNeedsDisplay(wv.bounds)
+            return
+        }
 
         wv.removeFromSuperview()
         wv.translatesAutoresizingMaskIntoConstraints = false
@@ -101,12 +117,43 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
             wv.bottomAnchor.constraint(equalTo: container.bottomAnchor)
         ])
         currentAttachedContainer = container
+
+        wv.needsLayout = true
+        wv.layoutSubtreeIfNeeded()
+        wv.setNeedsDisplay(wv.bounds)
+
+        // Dispatch resize event inside YouTube iframe so video canvas adapts immediately
+        executeJS("window.dispatchEvent(new Event('resize'));")
+
+        if isPlaying {
+            executeJS("if (window.player && player.playVideo) { player.playVideo(); }")
+        }
     }
 
     func detachIfAttached(to container: NSView) {
-        if let wv = webView, wv.superview == container {
-            wv.removeFromSuperview()
-            currentAttachedContainer = nil
+        if container === fullscreenContainer {
+            fullscreenContainer = nil
+            if let wv = webView, wv.superview === container {
+                wv.removeFromSuperview()
+                currentAttachedContainer = nil
+            }
+            // Seamlessly restore to inline container if available
+            if let inline = inlineContainer {
+                attach(to: inline, isFullscreen: false)
+            }
+        } else if container === inlineContainer {
+            inlineContainer = nil
+            if fullscreenContainer == nil {
+                if let wv = webView, wv.superview === container {
+                    wv.removeFromSuperview()
+                    currentAttachedContainer = nil
+                }
+            }
+        } else {
+            if let wv = webView, wv.superview === container {
+                wv.removeFromSuperview()
+                currentAttachedContainer = nil
+            }
         }
     }
 
@@ -210,6 +257,8 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
         }
         webView = nil
         currentAttachedContainer = nil
+        inlineContainer = nil
+        fullscreenContainer = nil
         isReady = false
         currentVideo = nil
         currentFeedTitle = nil
