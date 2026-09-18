@@ -21,6 +21,9 @@ struct EqualizerWaveformView: View {
         .onAppear {
             updateAnimation(playing: isPlaying)
         }
+        .onDisappear {
+            phase = 0.0
+        }
         .onChange(of: isPlaying) { _, playing in
             updateAnimation(playing: playing)
         }

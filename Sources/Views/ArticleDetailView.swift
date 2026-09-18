@@ -167,13 +167,17 @@ struct ArticleDetailView: View {
 
     // MARK: - Date & Duration Typography Helper
 
+    private static let heroDateFormatter: DateFormatter = {
+        let fmt = DateFormatter()
+        fmt.locale = Locale.autoupdatingCurrent
+        fmt.dateFormat = "MMM d"
+        return fmt
+    }()
+
     private func heroDateDurationPill(date: Date?, duration: String?) -> String {
         var parts: [String] = []
         if let date {
-            let fmt = DateFormatter()
-            fmt.locale = Locale.autoupdatingCurrent
-            fmt.dateFormat = "MMM d"
-            parts.append(fmt.string(from: date).uppercased())
+            parts.append(Self.heroDateFormatter.string(from: date).uppercased())
         }
         if let duration, !duration.isEmpty {
             parts.append(duration.uppercased())
@@ -1010,9 +1014,25 @@ struct ArticleDetailView: View {
     // MARK: - Reading Time Calculation
 
     private func calculateReadingTime(item: FeedItem) -> String {
-        let text = (extractedReaderHTML ?? item.content ?? item.itemDescription).strippingHTML()
-        let words = text.split(whereSeparator: { $0.isWhitespace }).count
-        let minutes = max(1, Int(ceil(Double(words) / 200.0)))
+        let raw = extractedReaderHTML ?? item.content ?? item.itemDescription
+        var wordCount = 0
+        var inWord = false
+        var inTag = false
+        for ch in raw {
+            if ch == "<" { inTag = true; continue }
+            if ch == ">" { inTag = false; continue }
+            if inTag { continue }
+            if ch.isWhitespace {
+                if inWord {
+                    wordCount += 1
+                    inWord = false
+                }
+            } else {
+                inWord = true
+            }
+        }
+        if inWord { wordCount += 1 }
+        let minutes = max(1, Int(ceil(Double(wordCount) / 200.0)))
         return String(format: String(localized: "%d min read"), minutes)
     }
 }

@@ -198,6 +198,9 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
         executeJS("if (window.stopProgressTimer) stopProgressTimer(); if (window.player && player.stopVideo) { player.stopVideo(); }")
         if let wv = webView {
             wv.stopLoading()
+            if let blankURL = URL(string: "about:blank") {
+                wv.load(URLRequest(url: blankURL))
+            }
             wv.removeFromSuperview()
             wv.navigationDelegate = nil
             wv.uiDelegate = nil
