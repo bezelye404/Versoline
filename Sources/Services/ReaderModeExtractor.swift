@@ -14,8 +14,8 @@ final class ReaderModeExtractor {
         let cacheDir = appSupport.appendingPathComponent("EasyRSS/ReaderCache_v3", isDirectory: true)
         try? FileManager.default.createDirectory(at: cacheDir, withIntermediateDirectories: true)
         self.cacheDirectory = cacheDir
-        memoryCache.countLimit = 15
-        memoryCache.totalCostLimit = 2 * 1024 * 1024 // 2MB RAM limit
+        memoryCache.countLimit = 5
+        memoryCache.totalCostLimit = 2 * 1024 * 1024 // Strict 2MB RAM ceiling
         cleanupLegacyDirectories()
     }
 
@@ -84,7 +84,7 @@ final class ReaderModeExtractor {
                 try? FileManager.default.removeItem(at: diskURL)
                 return nil
             }
-            memoryCache.setObject(html as NSString, forKey: nsKey)
+            memoryCache.setObject(html as NSString, forKey: nsKey, cost: html.utf8.count)
             return html
         }
 
@@ -93,7 +93,7 @@ final class ReaderModeExtractor {
 
     func saveToCache(urlString: String, content: String, storeInMemory: Bool = true, overwrite: Bool = true) {
         if storeInMemory {
-            memoryCache.setObject(content as NSString, forKey: urlString as NSString)
+            memoryCache.setObject(content as NSString, forKey: urlString as NSString, cost: content.utf8.count)
         }
         let diskURL = fileURL(for: urlString)
         if !overwrite && FileManager.default.fileExists(atPath: diskURL.path) {
@@ -119,6 +119,9 @@ final class ReaderModeExtractor {
         var cleaned = htmlContent
             .strippingAdsAndBanners()
             .cleaningRSSBoilerplate()
+
+        // Optimize all images with loading="lazy" and decoding="async" to prevent offscreen memory bloat
+        cleaned = Self.optimizeImagesForLowMemory(cleaned)
 
         // 2. Clean out duplicate leading <h1> or <h2> matching the title
         if let firstH1Range = cleaned.range(of: #"^\s*<h1[^>]*>[\s\S]*?</h1>"#, options: [.regularExpression, .caseInsensitive]) {
@@ -327,7 +330,51 @@ final class ReaderModeExtractor {
             )
         }
 
+        cleaned = Self.optimizeImagesForLowMemory(cleaned)
         return cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    // MARK: - Low-Memory Image Optimization (Lazy Loading + Async Decoding + Tracking Pixel Stripping)
+
+    private static let trackingPixelRegex = try? NSRegularExpression(
+        pattern: #"(?i)<img[^>]*(?:width=["'](?:0|1)["'][^>]*height=["'](?:0|1)["']|height=["'](?:0|1)["'][^>]*width=["'](?:0|1)["'])[^>]*>"#,
+        options: []
+    )
+
+    private static let missingLazyImgRegex = try? NSRegularExpression(
+        pattern: #"(<img\b(?![^>]*\bloading=)[^>]*?)(/?>)"#,
+        options: [.caseInsensitive]
+    )
+
+    private static let missingAsyncDecodeRegex = try? NSRegularExpression(
+        pattern: #"(<img\b(?![^>]*\bdecoding=)[^>]*?)(/?>)"#,
+        options: [.caseInsensitive]
+    )
+
+    static func optimizeImagesForLowMemory(_ html: String) -> String {
+        guard html.contains("<img") else { return html }
+
+        var result = html
+
+        // 1. Strip 1x1 tracking pixels/beacons
+        if let pixelRegex = trackingPixelRegex {
+            let ns = result as NSString
+            result = pixelRegex.stringByReplacingMatches(in: result, options: [], range: NSRange(location: 0, length: ns.length), withTemplate: "")
+        }
+
+        // 2. Inject loading="lazy" to all <img> tags that lack it
+        if let lazyRegex = missingLazyImgRegex {
+            let ns = result as NSString
+            result = lazyRegex.stringByReplacingMatches(in: result, options: [], range: NSRange(location: 0, length: ns.length), withTemplate: #"$1 loading="lazy"$2"#)
+        }
+
+        // 3. Inject decoding="async" to all <img> tags that lack it
+        if let asyncRegex = missingAsyncDecodeRegex {
+            let ns = result as NSString
+            result = asyncRegex.stringByReplacingMatches(in: result, options: [], range: NSRange(location: 0, length: ns.length), withTemplate: #"$1 decoding="async"$2"#)
+        }
+
+        return result
     }
 
     private func matches(for regex: String, in text: String) -> [String] {

@@ -83,11 +83,9 @@ final class FaviconService {
             let image = await downloadFavicon(forHost: host)
             if let image {
                 self.memoryCache.setObject(image, forKey: cacheKey, cost: 16 * 1024)
-                Task.detached(priority: .utility) {
-                    if let tiff = image.tiffRepresentation,
-                       let bitmap = NSBitmapImageRep(data: tiff),
-                       let png = bitmap.representation(using: .png, properties: [:]) {
-                        try? png.write(to: diskURL, options: .atomic)
+                if let cg = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+                    Task.detached(priority: .utility) {
+                        ImageDownsampleCache.writeCGImageToDisk(cg, destinationURL: diskURL)
                     }
                 }
             }
@@ -189,13 +187,78 @@ final class ImageDownsampleCache {
         try? fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
         self.diskCacheURL = dir
 
-        // Strict 4MB RAM ceiling for all downsampled thumbnails combined
-        memoryCache.countLimit = 40
-        memoryCache.totalCostLimit = 4 * 1024 * 1024
+        // Strict 2MB RAM ceiling and lower count limit for downsampled thumbnails
+        memoryCache.countLimit = 25
+        memoryCache.totalCostLimit = 2 * 1024 * 1024
     }
 
     func clearMemory() {
         memoryCache.removeAllObjects()
+    }
+
+    var diskCacheSizeBytes: Int64 {
+        guard let files = try? fileManager.contentsOfDirectory(at: diskCacheURL, includingPropertiesForKeys: [.fileSizeKey]) else {
+            return 0
+        }
+        var total: Int64 = 0
+        for file in files {
+            if let size = try? file.resourceValues(forKeys: [.fileSizeKey]).fileSize {
+                total += Int64(size)
+            }
+        }
+        return total
+    }
+
+    func clearDiskCache() {
+        memoryCache.removeAllObjects()
+        if let files = try? fileManager.contentsOfDirectory(at: diskCacheURL, includingPropertiesForKeys: nil) {
+            for file in files {
+                try? fileManager.removeItem(at: file)
+            }
+        }
+    }
+
+    func cleanupDiskCache(olderThanDays days: Int = 14) {
+        guard days > 0 else { return }
+        let cutoffDate = Date().addingTimeInterval(-Double(days * 86400))
+        guard let files = try? fileManager.contentsOfDirectory(at: diskCacheURL, includingPropertiesForKeys: [.contentModificationDateKey]) else {
+            return
+        }
+
+        for file in files {
+            if let values = try? file.resourceValues(forKeys: [.contentModificationDateKey]),
+               let modDate = values.contentModificationDate,
+               modDate < cutoffDate {
+                try? fileManager.removeItem(at: file)
+            }
+        }
+    }
+
+    func enforceQuota(maxSizeBytes: Int64 = 30 * 1024 * 1024) {
+        let currentSize = diskCacheSizeBytes
+        guard currentSize > maxSizeBytes else { return }
+        let targetSize = Int64(Double(maxSizeBytes) * 0.7)
+
+        guard let files = try? fileManager.contentsOfDirectory(
+            at: diskCacheURL,
+            includingPropertiesForKeys: [.fileSizeKey, .contentModificationDateKey]
+        ) else { return }
+
+        let sortedFiles = files.sorted { f1, f2 in
+            let d1 = (try? f1.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate ?? Date.distantPast
+            let d2 = (try? f2.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate ?? Date.distantPast
+            return d1 < d2
+        }
+
+        var remainingSize = currentSize
+        for file in sortedFiles {
+            guard remainingSize > targetSize else { break }
+            if let values = try? file.resourceValues(forKeys: [.fileSizeKey]),
+               let size = values.fileSize {
+                try? fileManager.removeItem(at: file)
+                remainingSize -= Int64(size)
+            }
+        }
     }
 
     private func cacheKey(url: URL, maxPixelSize: CGFloat) -> String {
@@ -225,8 +288,8 @@ final class ImageDownsampleCache {
            let diskData = try? Data(contentsOf: diskURL),
            let downsampled = Self.downsample(data: diskData, maxPixelSize: maxPixelSize) {
             let cost = Int(maxPixelSize * maxPixelSize * 4)
-            memoryCache.setObject(downsampled, forKey: nsKey, cost: cost)
-            return downsampled
+            memoryCache.setObject(downsampled.nsImage, forKey: nsKey, cost: cost)
+            return downsampled.nsImage
         }
 
         // 3. Deduplicate in-flight network requests
@@ -250,18 +313,15 @@ final class ImageDownsampleCache {
                 }
 
                 let cost = Int(maxPixelSize * maxPixelSize * 4)
-                self.memoryCache.setObject(downsampled, forKey: nsKey, cost: cost)
+                self.memoryCache.setObject(downsampled.nsImage, forKey: nsKey, cost: cost)
 
-                // Save downsampled thumbnail representation to disk
+                // Stream downsampled thumbnail CGImage directly to PNG on disk with zero intermediate TIFF allocations
+                let cgImage = downsampled.cgImage
                 Task.detached(priority: .utility) {
-                    if let tiff = downsampled.tiffRepresentation,
-                       let bitmap = NSBitmapImageRep(data: tiff),
-                       let pngData = bitmap.representation(using: .png, properties: [:]) {
-                        try? pngData.write(to: diskURL, options: .atomic)
-                    }
+                    Self.writeCGImageToDisk(cgImage, destinationURL: diskURL)
                 }
 
-                return downsampled
+                return downsampled.nsImage
             } catch {
                 return nil
             }
@@ -273,8 +333,14 @@ final class ImageDownsampleCache {
         return result
     }
 
+    static func writeCGImageToDisk(_ cgImage: CGImage, destinationURL: URL) {
+        guard let destination = CGImageDestinationCreateWithURL(destinationURL as CFURL, "public.png" as CFString, 1, nil) else { return }
+        CGImageDestinationAddImage(destination, cgImage, nil)
+        CGImageDestinationFinalize(destination)
+    }
+
     /// High-performance CoreGraphics downsampling: Decodes directly into thumbnail pixels without instantiating full-resolution bitmap in RAM.
-    private static func downsample(data: Data, maxPixelSize: CGFloat) -> NSImage? {
+    private static func downsample(data: Data, maxPixelSize: CGFloat) -> (nsImage: NSImage, cgImage: CGImage)? {
         let sourceOptions: [CFString: Any] = [
             kCGImageSourceShouldCache: false
         ]
@@ -294,7 +360,8 @@ final class ImageDownsampleCache {
             return nil
         }
 
-        return NSImage(cgImage: thumbnailCG, size: NSSize(width: maxPixelSize / 2, height: maxPixelSize / 2))
+        let nsImg = NSImage(cgImage: thumbnailCG, size: NSSize(width: maxPixelSize / 2, height: maxPixelSize / 2))
+        return (nsImg, thumbnailCG)
     }
 }
 

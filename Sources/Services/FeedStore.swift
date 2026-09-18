@@ -69,6 +69,8 @@ final class FeedStore {
         let preserved = Set(items.values.flatMap { $0 }.filter { $0.isBookmarked }.map { $0.link })
         ReaderModeExtractor.shared.enforceQuota(maxSizeBytes: 50 * 1024 * 1024, preservedLinks: preserved)
         ImageDownsampleCache.shared.clearMemory()
+        ImageDownsampleCache.shared.enforceQuota(maxSizeBytes: 30 * 1024 * 1024)
+        WebView.flushMemoryCache()
         AppLogger.shared.log("In-memory sorted caches compacted for background memory relief", level: .debug, category: .storage)
     }
 
@@ -166,9 +168,13 @@ final class FeedStore {
             feeds.append(feed)
             let parsedItems = result.items.map { item -> FeedItem in
                 var m = item
+                if let rawContent = m.content, !rawContent.isEmpty {
+                    ReaderModeExtractor.shared.saveToCache(urlString: m.link, content: rawContent, storeInMemory: false)
+                }
                 if m.itemDescription.count > 300 || m.itemDescription.contains("<") {
-                    ReaderModeExtractor.shared.saveToCache(urlString: m.link, content: m.itemDescription, storeInMemory: false)
-                    m.itemDescription = m.snippet
+                    ReaderModeExtractor.shared.saveToCache(urlString: m.link, content: m.itemDescription, storeInMemory: false, overwrite: false)
+                    let cleanDesc = m.itemDescription.strippingHTML()
+                    m.itemDescription = cleanDesc.count > 250 ? String(cleanDesc.prefix(250)) : cleanDesc
                 }
                 m.content = nil
                 return m
@@ -318,8 +324,9 @@ final class FeedStore {
                 mutableItem.content = nil
             }
             if mutableItem.itemDescription.count > 300 || mutableItem.itemDescription.contains("<") {
-                ReaderModeExtractor.shared.saveToCache(urlString: mutableItem.link, content: mutableItem.itemDescription, storeInMemory: false)
-                mutableItem.itemDescription = mutableItem.snippet
+                ReaderModeExtractor.shared.saveToCache(urlString: mutableItem.link, content: mutableItem.itemDescription, storeInMemory: false, overwrite: false)
+                let cleanDesc = mutableItem.itemDescription.strippingHTML()
+                mutableItem.itemDescription = cleanDesc.count > 250 ? String(cleanDesc.prefix(250)) : cleanDesc
             }
 
             return mutableItem
@@ -598,14 +605,16 @@ final class FeedStore {
             }
         }
 
-        // 5. Clear offline cache, favicon disk cache, and downloaded podcasts
+        // 5. Clear offline cache, favicon disk cache, image cache, and downloaded podcasts
         ReaderModeExtractor.shared.clearDiskCache()
         FaviconService.shared.clearDiskCache()
+        ImageDownsampleCache.shared.clearDiskCache()
         PodcastDownloadService.shared.deleteAllDownloads()
 
-        // 6. Clear WebKit website storage and shared URL cache
+        // 6. Clear WebKit website storage, memory cache, and shared URL cache
         let types = WKWebsiteDataStore.allWebsiteDataTypes()
         WKWebsiteDataStore.default().removeData(ofTypes: types, modifiedSince: .distantPast) {}
+        WebView.flushMemoryCache()
         URLCache.shared.removeAllCachedResponses()
 
         // 7. Reset all UserDefaults / AppStorage
@@ -1027,9 +1036,13 @@ final class FeedStore {
                     )
                     let parsed = result.items.map { item -> FeedItem in
                         var m = item
+                        if let rawContent = m.content, !rawContent.isEmpty {
+                            ReaderModeExtractor.shared.saveToCache(urlString: m.link, content: rawContent, storeInMemory: false)
+                        }
                         if m.itemDescription.count > 300 || m.itemDescription.contains("<") {
-                            ReaderModeExtractor.shared.saveToCache(urlString: m.link, content: m.itemDescription, storeInMemory: false)
-                            m.itemDescription = m.snippet
+                            ReaderModeExtractor.shared.saveToCache(urlString: m.link, content: m.itemDescription, storeInMemory: false, overwrite: false)
+                            let cleanDesc = m.itemDescription.strippingHTML()
+                            m.itemDescription = cleanDesc.count > 250 ? String(cleanDesc.prefix(250)) : cleanDesc
                         }
                         m.content = nil
                         return m
@@ -1257,16 +1270,17 @@ final class FeedStore {
                         if cleaned.title.contains("&") || cleaned.title.contains("<") {
                             cleaned.title = cleaned.title.strippingHTML()
                         }
-                        if cleaned.snippet.isEmpty {
-                            cleaned.snippet = cleaned.itemDescription.strippingHTML()
-                        }
-                        if cleaned.snippet.count > 250 {
-                            cleaned.snippet = String(cleaned.snippet.prefix(250))
+                        if let rawContent = cleaned.content, !rawContent.isEmpty {
+                            ReaderModeExtractor.shared.saveToCache(urlString: cleaned.link, content: rawContent, storeInMemory: false, overwrite: false)
+                            cleaned.content = nil
                         }
                         // Offload heavy HTML or large descriptions to reader disk cache
                         if cleaned.itemDescription.count > 300 || cleaned.itemDescription.contains("<") {
                             ReaderModeExtractor.shared.saveToCache(urlString: cleaned.link, content: cleaned.itemDescription, storeInMemory: false, overwrite: false)
-                            cleaned.itemDescription = cleaned.snippet
+                            let cleanDesc = cleaned.itemDescription.strippingHTML()
+                            cleaned.itemDescription = cleanDesc.count > 250 ? String(cleanDesc.prefix(250)) : cleanDesc
+                        } else if cleaned.itemDescription.count > 250 {
+                            cleaned.itemDescription = String(cleaned.itemDescription.prefix(250))
                         }
                         // Clean up any legacy items where an image enclosure was saved as audioURL
                         if !cleaned.isPodcast && cleaned.audioURL != nil {
