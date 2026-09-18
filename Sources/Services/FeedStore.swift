@@ -71,15 +71,25 @@ final class FeedStore {
         activeViewCache = nil
     }
 
-    func compactMemory() {
-        invalidateItemCaches()
-        let preserved = Set(items.values.flatMap { $0 }.filter { $0.isBookmarked }.map { $0.link })
-        ReaderModeExtractor.shared.enforceQuota(maxSizeBytes: 50 * 1024 * 1024, preservedLinks: preserved)
+    func compactMemory(deep: Bool = false) {
+        if deep {
+            invalidateItemCaches()
+        }
         ImageDownsampleCache.shared.clearMemory()
-        ImageDownsampleCache.shared.enforceQuota(maxSizeBytes: 30 * 1024 * 1024)
         CuratedFeedManager.shared.clearMemory()
         WebView.flushMemoryCache()
-        AppLogger.shared.log("In-memory sorted caches compacted for background memory relief", level: .debug, category: .storage)
+
+        if deep {
+            Task.detached(priority: .background) { [weak self] in
+                guard let self else { return }
+                let preserved = await MainActor.run {
+                    Set(self.items.values.flatMap { $0 }.filter { $0.isBookmarked }.map { $0.link })
+                }
+                await ReaderModeExtractor.shared.enforceQuota(maxSizeBytes: 50 * 1024 * 1024, preservedLinks: preserved)
+                await ImageDownsampleCache.shared.enforceQuota(maxSizeBytes: 30 * 1024 * 1024)
+            }
+        }
+        AppLogger.shared.log("In-memory transient caches compacted for background memory relief", level: .debug, category: .storage)
     }
 
     init() {
@@ -98,32 +108,22 @@ final class FeedStore {
         }
 
         NotificationCenter.default.addObserver(
-            forName: NSApplication.willResignActiveNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            MainActor.assumeIsolated {
-                self?.compactMemory()
-            }
-        }
-
-        NotificationCenter.default.addObserver(
-            forName: NSApplication.didHideNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            MainActor.assumeIsolated {
-                self?.compactMemory()
-            }
-        }
-
-        NotificationCenter.default.addObserver(
             forName: Notification.Name("EasyRSSCompactMemory"),
             object: nil,
             queue: .main
         ) { [weak self] _ in
             MainActor.assumeIsolated {
-                self?.compactMemory()
+                self?.compactMemory(deep: false)
+            }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name("EasyRSSDeepCompactMemory"),
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.compactMemory(deep: true)
             }
         }
 
@@ -189,11 +189,7 @@ final class FeedStore {
                 if let rawContent = m.content, !rawContent.isEmpty {
                     ReaderModeExtractor.shared.saveToCache(urlString: m.link, content: rawContent, storeInMemory: false)
                 }
-                if m.itemDescription.count > 300 || m.itemDescription.contains("<") {
-                    ReaderModeExtractor.shared.saveToCache(urlString: m.link, content: m.itemDescription, storeInMemory: false, overwrite: false)
-                    let cleanDesc = m.itemDescription.strippingHTML()
-                    m.itemDescription = cleanDesc.count > 180 ? String(cleanDesc.prefix(180)) : cleanDesc
-                } else if m.itemDescription.count > 180 {
+                if m.itemDescription.count > 180 {
                     m.itemDescription = String(m.itemDescription.prefix(180))
                 }
                 m.content = nil
@@ -341,16 +337,15 @@ final class FeedStore {
                     )
                 }
 
-                // Save raw content and large descriptions to disk reader cache so RAM remains completely lean
+                // Save raw content to disk reader cache ONLY for new items so RAM remains lean
+                let isNewItem = existingByLink[item.link] == nil
                 if let rawContent = mutableItem.content, !rawContent.isEmpty {
-                    ReaderModeExtractor.shared.saveToCache(urlString: mutableItem.link, content: rawContent, storeInMemory: false)
+                    if isNewItem {
+                        ReaderModeExtractor.shared.saveToCache(urlString: mutableItem.link, content: rawContent, storeInMemory: false)
+                    }
                     mutableItem.content = nil
                 }
-                if mutableItem.itemDescription.count > 300 || mutableItem.itemDescription.contains("<") {
-                    ReaderModeExtractor.shared.saveToCache(urlString: mutableItem.link, content: mutableItem.itemDescription, storeInMemory: false, overwrite: false)
-                    let cleanDesc = mutableItem.itemDescription.strippingHTML()
-                    mutableItem.itemDescription = cleanDesc.count > 180 ? String(cleanDesc.prefix(180)) : cleanDesc
-                } else if mutableItem.itemDescription.count > 180 {
+                if mutableItem.itemDescription.count > 180 {
                     mutableItem.itemDescription = String(mutableItem.itemDescription.prefix(180))
                 }
 
@@ -1076,11 +1071,7 @@ final class FeedStore {
                         if let rawContent = m.content, !rawContent.isEmpty {
                             ReaderModeExtractor.shared.saveToCache(urlString: m.link, content: rawContent, storeInMemory: false)
                         }
-                        if m.itemDescription.count > 300 || m.itemDescription.contains("<") {
-                            ReaderModeExtractor.shared.saveToCache(urlString: m.link, content: m.itemDescription, storeInMemory: false, overwrite: false)
-                            let cleanDesc = m.itemDescription.strippingHTML()
-                            m.itemDescription = cleanDesc.count > 180 ? String(cleanDesc.prefix(180)) : cleanDesc
-                        } else if m.itemDescription.count > 180 {
+                        if m.itemDescription.count > 180 {
                             m.itemDescription = String(m.itemDescription.prefix(180))
                         }
                         m.content = nil
@@ -1326,13 +1317,9 @@ final class FeedStore {
                             ReaderModeExtractor.shared.saveToCache(urlString: cleaned.link, content: rawContent, storeInMemory: false, overwrite: false)
                             cleaned.content = nil
                         }
-                        // Offload heavy HTML or large descriptions to reader disk cache
-                        if cleaned.itemDescription.count > 300 || cleaned.itemDescription.contains("<") {
-                            ReaderModeExtractor.shared.saveToCache(urlString: cleaned.link, content: cleaned.itemDescription, storeInMemory: false, overwrite: false)
+                        if cleaned.itemDescription.count > 180 {
                             let cleanDesc = cleaned.itemDescription.strippingHTML()
                             cleaned.itemDescription = cleanDesc.count > 180 ? String(cleanDesc.prefix(180)) : cleanDesc
-                        } else if cleaned.itemDescription.count > 180 {
-                            cleaned.itemDescription = String(cleaned.itemDescription.prefix(180))
                         }
                         // Clean up any legacy items where an image enclosure was saved as audioURL
                         if !cleaned.isPodcast && cleaned.audioURL != nil {

@@ -392,37 +392,9 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
             let precomputedSnippet = cleanDesc.strippingHTML()
             let itemLink = currentLink.trimmingCharacters(in: .whitespacesAndNewlines)
 
-            // Offload rich HTML to disk cache immediately for Reader Mode only if substantive full content exists.
             let parsedPubDate = parseDate(currentPubDate.trimmingCharacters(in: .whitespacesAndNewlines))
-            if !cleanContent.isEmpty && cleanContent.count > 600 && !itemLink.isEmpty {
-                Task { @MainActor in
-                    let formatted = ReaderModeExtractor.shared.formatFeedContentAsReaderHTML(
-                        title: cleanTitle.isEmpty ? itemLink : cleanTitle,
-                        author: cleanAuthor.isEmpty ? nil : cleanAuthor,
-                        pubDate: parsedPubDate,
-                        htmlContent: cleanContent,
-                        link: itemLink,
-                        feedTitle: nil,
-                        includeHeader: true
-                    )
-                    ReaderModeExtractor.shared.saveToCache(urlString: itemLink, content: formatted, storeInMemory: false)
-                }
-            } else if cleanContent.isEmpty && cleanDesc.count > 400 && !itemLink.isEmpty {
-                Task { @MainActor in
-                    let formatted = ReaderModeExtractor.shared.formatFeedContentAsReaderHTML(
-                        title: cleanTitle.isEmpty ? itemLink : cleanTitle,
-                        author: cleanAuthor.isEmpty ? nil : cleanAuthor,
-                        pubDate: parsedPubDate,
-                        htmlContent: cleanDesc,
-                        link: itemLink,
-                        feedTitle: nil,
-                        includeHeader: true
-                    )
-                    ReaderModeExtractor.shared.saveToCache(urlString: itemLink, content: formatted, storeInMemory: false, overwrite: false)
-                }
-            }
-
             let snippet = precomputedSnippet.count > 180 ? String(precomputedSnippet.prefix(180)) : precomputedSnippet
+            let rawRichContent: String? = !cleanContent.isEmpty ? cleanContent : (cleanDesc.count > 400 ? cleanDesc : nil)
 
             let item = FeedItem(
                 feedId: feedId,
@@ -432,7 +404,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
                 pubDate: parsedPubDate,
                 author: cleanAuthor.isEmpty ? nil : cleanAuthor,
                 isRead: false,
-                content: nil,
+                content: rawRichContent,
                 snippet: snippet,
                 category: cleanCategory.isEmpty ? nil : cleanCategory,
                 audioURL: currentAudioURL,

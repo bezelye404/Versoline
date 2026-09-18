@@ -53,6 +53,7 @@ struct EasyRSSApp: App {
         source.setEventHandler {
             MainActor.assumeIsolated {
                 Self.purgeTransientMemory()
+                NotificationCenter.default.post(name: Notification.Name("EasyRSSDeepCompactMemory"), object: nil)
             }
         }
         source.resume()
