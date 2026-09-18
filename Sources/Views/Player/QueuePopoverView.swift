@@ -4,6 +4,7 @@ struct QueuePopoverView: View {
 
     @State private var player = AudioPlayerService.shared
     @Environment(FeedStore.self) private var store
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -73,7 +74,7 @@ struct QueuePopoverView: View {
                                 } label: {
                                     Image(systemName: "play.fill")
                                         .font(.system(size: 10))
-                                        .foregroundStyle(AppTheme.Colors.accent)
+                                        .foregroundStyle(theme.accentColor)
                                 }
                                 .buttonStyle(.plain)
                                 .help(String(localized: "Play Now"))

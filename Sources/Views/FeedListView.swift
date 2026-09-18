@@ -206,7 +206,7 @@ struct FeedListView: View {
                                                 systemImage: item.isRead ? "circle" : "checkmark.circle"
                                             )
                                         }
-                                        .tint(AppTheme.Colors.accent)
+                                        .tint(theme.accentColor)
                                     }
                                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                         Button {
@@ -220,7 +220,7 @@ struct FeedListView: View {
                                                 systemImage: item.isBookmarked ? "star.slash" : "star.fill"
                                             )
                                         }
-                                        .tint(AppTheme.Colors.bookmark)
+                                        .tint(theme.bookmarkColor)
                                     }
                                 }
 
@@ -339,7 +339,7 @@ struct FeedListView: View {
         .background(Color.primary.opacity(0.04), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.5)
+                .stroke(theme.hairlineBorder, lineWidth: 0.5)
         )
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
@@ -731,11 +731,11 @@ struct FeedItemRow: View {
                                 if isDownloaded {
                                     Image(systemName: "arrow.down.circle.fill")
                                         .font(.system(size: 8))
-                                        .foregroundStyle(AppTheme.Colors.success)
+                                        .foregroundStyle(theme.successColor)
                                 }
                             }
                             .font(.caption2.weight(.medium))
-                            .foregroundStyle(isPlayingThis ? AppTheme.Colors.accent : Color.secondary)
+                            .foregroundStyle(isPlayingThis ? theme.accentColor : Color.secondary)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 1.5)
                             .background(Color.primary.opacity(0.05))
@@ -745,7 +745,7 @@ struct FeedItemRow: View {
                         if item.isYouTube {
                             HStack(spacing: 4) {
                                 Image(systemName: "play.rectangle.fill")
-                                    .foregroundStyle(AppTheme.Colors.youtube)
+                                    .foregroundStyle(theme.youtubeColor)
                                 Text(String(localized: "YouTube"))
                             }
                             .font(.caption2.weight(.medium))
@@ -771,7 +771,7 @@ struct FeedItemRow: View {
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: AppTheme.Metrics.thumbnailCornerRadius, style: .continuous)
-                        .stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.5)
+                        .stroke(theme.hairlineBorder, lineWidth: 0.5)
                 )
                 .overlay(alignment: .center) {
                     if item.isPodcast || item.isYouTube {
@@ -785,7 +785,7 @@ struct FeedItemRow: View {
                             .overlay(
                                 Image(systemName: "play.fill")
                                     .font(.system(size: 8, weight: .bold))
-                                    .foregroundStyle(item.isYouTube ? AppTheme.Colors.youtube : .white)
+                                    .foregroundStyle(item.isYouTube ? theme.youtubeColor : .white)
                                     .offset(x: 1)
                             )
                     }
@@ -804,10 +804,10 @@ struct FeedItemRow: View {
                     )
             } else if isHovered {
                 RoundedRectangle(cornerRadius: AppTheme.Metrics.cardCornerRadius, style: .continuous)
-                    .fill(theme.cardBackground)
+                    .fill(theme.cardHover)
                     .overlay(
                         RoundedRectangle(cornerRadius: AppTheme.Metrics.cardCornerRadius, style: .continuous)
-                            .stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.6)
+                            .stroke(theme.hairlineBorder, lineWidth: 0.6)
                     )
             }
         }

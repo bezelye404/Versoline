@@ -324,7 +324,7 @@ struct ArticleDetailView: View {
                     } label: {
                         Image(systemName: "arrow.clockwise")
                             .font(.system(size: 11))
-                            .foregroundStyle(isLoadingReaderMode ? AppTheme.Colors.accent : Color.secondary)
+                            .foregroundStyle(isLoadingReaderMode ? theme.accentColor : Color.secondary)
                     }
                     .buttonStyle(.borderless)
                     .disabled(isLoadingReaderMode)
@@ -336,7 +336,7 @@ struct ArticleDetailView: View {
                     } label: {
                         Image(systemName: isContentBlockerEnabled ? "shield.fill" : "shield.slash")
                             .font(.system(size: 11))
-                            .foregroundStyle(isContentBlockerEnabled ? AppTheme.Colors.accent : Color.secondary)
+                            .foregroundStyle(isContentBlockerEnabled ? theme.accentColor : Color.secondary)
                     }
                     .buttonStyle(.borderless)
                     .help(isContentBlockerEnabled ? String(localized: "Content Blocker Active") : String(localized: "Content Blocker Disabled"))
@@ -463,20 +463,20 @@ struct ArticleDetailView: View {
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.8)
+                                .stroke(theme.hairlineBorder, lineWidth: 0.8)
                         )
                     } else {
                         ZStack {
                             Color.primary.opacity(0.04)
                             Image(systemName: "headphones")
                                 .font(.system(size: 56, weight: .ultraLight))
-                                .foregroundStyle(AppTheme.Colors.podcast)
+                                .foregroundStyle(theme.podcastColor)
                         }
                         .frame(width: 240, height: 240)
                         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         .overlay(
                             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.8)
+                                .stroke(theme.hairlineBorder, lineWidth: 0.8)
                         )
                     }
 
@@ -493,7 +493,7 @@ struct ArticleDetailView: View {
                                 .frame(width: 60, height: 60)
                                 .overlay(
                                     Circle()
-                                        .stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.5)
+                                        .stroke(theme.hairlineBorder, lineWidth: 0.5)
                                 )
 
                             if isCurrentEpisode && player.isBuffering {
@@ -529,7 +529,7 @@ struct ArticleDetailView: View {
                         in: 0...max(totalDur, 1.0)
                     )
                     .controlSize(.mini)
-                    .tint(AppTheme.Colors.accent)
+                    .tint(theme.accentColor)
 
                     HStack {
                         Text(formatDuration(currTime))
@@ -632,7 +632,7 @@ struct ArticleDetailView: View {
                     } label: {
                         Image(systemName: player.sleepTimerRemainingSeconds != nil ? "moon.zzz.fill" : "moon.zzz")
                             .font(.system(size: 14))
-                            .foregroundStyle(player.sleepTimerRemainingSeconds != nil ? AppTheme.Colors.accent : Color.secondary)
+                            .foregroundStyle(player.sleepTimerRemainingSeconds != nil ? theme.accentColor : Color.secondary)
                     }
                     .menuStyle(.borderlessButton)
                     .fixedSize()
@@ -665,7 +665,7 @@ struct ArticleDetailView: View {
                         } else {
                             Image(systemName: isDownloaded ? "arrow.down.circle.fill" : "arrow.down.circle")
                                 .font(.system(size: 16))
-                                .foregroundStyle(isDownloaded ? AppTheme.Colors.success : Color.secondary)
+                                .foregroundStyle(isDownloaded ? theme.successColor : Color.secondary)
                         }
                     }
                     .buttonStyle(.plain)
@@ -689,7 +689,7 @@ struct ArticleDetailView: View {
                                     HStack(spacing: 4) {
                                         Text(ch.timestamp)
                                             .font(.caption2.monospacedDigit().weight(.semibold))
-                                            .foregroundStyle(AppTheme.Colors.accent)
+                                            .foregroundStyle(theme.accentColor)
                                         Text(ch.title)
                                             .font(.caption2)
                                             .foregroundStyle(.primary)
@@ -930,7 +930,7 @@ struct ArticleDetailView: View {
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.5)
+                .stroke(theme.hairlineBorder, lineWidth: 0.5)
         )
         .padding(10)
     }
@@ -1128,7 +1128,7 @@ struct QuoteCardSheet: View {
                     .frame(height: 60)
                     .padding(4)
                     .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 6))
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(AppTheme.Colors.hairlineBorder, lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(selectedPalette.hairlineBorder, lineWidth: 1))
             }
             .padding(.horizontal, 20)
 

@@ -394,6 +394,59 @@ enum AppColorPalette: String, CaseIterable, Identifiable {
         listBackground
     }
 
+    // MARK: - Surfaces & Chrome
+    var toolbarBackground: Color {
+        windowBackground
+    }
+
+    var hairlineBorder: Color {
+        Color(nsColor: NSColor(name: nil) { appearance in
+            let isDark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            return isDark ? NSColor(white: 1.0, alpha: 0.08) : NSColor(white: 0.0, alpha: 0.09)
+        })
+    }
+
+    var cardHover: Color {
+        Color.primary.opacity(0.04)
+    }
+
+    // MARK: - Badges & Counts
+    var badgeBackground: Color {
+        Color(nsColor: NSColor(name: nil) { appearance in
+            let isDark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            return isDark ? NSColor(white: 1.0, alpha: 0.08) : NSColor(white: 0.0, alpha: 0.06)
+        })
+    }
+
+    var badgeText: Color {
+        Color.secondary
+    }
+
+    var activeBadgeBackground: Color {
+        accentColor.opacity(0.14)
+    }
+
+    var activeBadgeText: Color {
+        accentColor
+    }
+
+    // MARK: - Status & Media Pigments
+    var podcastColor: Color {
+        Color(red: 0.52, green: 0.44, blue: 0.70)
+    }
+
+    var youtubeColor: Color {
+        Color(red: 0.80, green: 0.30, blue: 0.28)
+    }
+
+    var successColor: Color {
+        Color(red: 0.32, green: 0.58, blue: 0.36)
+    }
+
+    var warningColor: Color {
+        Color(red: 0.82, green: 0.62, blue: 0.22)
+    }
+
     var readerThemeDefault: ReaderTheme {
         switch self {
         case .sepia: return .sepia

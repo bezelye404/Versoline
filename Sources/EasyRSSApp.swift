@@ -198,20 +198,20 @@ enum AppTheme {
         static var bookmark: Color { currentPalette.bookmarkColor }
 
         /// Çevrimdışı / İkaz durumu: Sakin sarı/kehribar
-        static let warning = Color(nsColor: .systemYellow)
+        static var warning: Color { currentPalette.warningColor }
 
         /// İndirme / Başarılı durum: Doymamış, doğal yeşil
-        static let success = Color(nsColor: .systemGreen).opacity(0.9)
+        static var success: Color { currentPalette.successColor }
 
         /// YouTube göstergesi: Doğal tuğla/koyu kırmızı
-        static let youtube = Color(nsColor: .systemRed).opacity(0.85)
+        static var youtube: Color { currentPalette.youtubeColor }
 
         /// Podcast mikro-etiket rengi: Nötr mor/indigo
-        static let podcast = Color(nsColor: .systemIndigo).opacity(0.85)
+        static var podcast: Color { currentPalette.podcastColor }
 
         // MARK: Arka Plan ve Yüzeyler
         /// Kart hover arka planı: Çok hafif saydam kontrol dolgusu
-        static let cardHover = Color.primary.opacity(0.04)
+        static var cardHover: Color { currentPalette.cardHover }
 
         /// Seçili kart arka planı
         static var cardSelected: Color { currentPalette.cardSelected }
@@ -220,16 +220,16 @@ enum AppTheme {
         static var cardSelectedBorder: Color { currentPalette.cardSelectedBorder }
 
         /// Ultra ince sınır çizgileri (Hairline borders)
-        static let hairlineBorder = Color.primary.opacity(0.08)
-        static let subtleBorder = Color.primary.opacity(0.09)
+        static var hairlineBorder: Color { currentPalette.hairlineBorder }
+        static var subtleBorder: Color { currentPalette.hairlineBorder }
 
         /// Hap ve sayaç dolguları
-        static let badgeBackground = Color.primary.opacity(0.06)
-        static let badgeText = Color.secondary
+        static var badgeBackground: Color { currentPalette.badgeBackground }
+        static var badgeText: Color { currentPalette.badgeText }
 
         /// Aktif sayaç rozeti dolgusu
-        static var activeBadgeBackground: Color { accent.opacity(0.14) }
-        static var activeBadgeText: Color { accent }
+        static var activeBadgeBackground: Color { currentPalette.activeBadgeBackground }
+        static var activeBadgeText: Color { currentPalette.activeBadgeText }
     }
 
     // MARK: - Radius & Spacing Tokens

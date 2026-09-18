@@ -116,7 +116,7 @@ struct MiniPlayerView: View {
                     } else {
                         Image(systemName: "headphones")
                             .font(.system(size: 16))
-                            .foregroundStyle(AppTheme.Colors.podcast)
+                            .foregroundStyle(theme.podcastColor)
                     }
                 case .video(let video):
                     if let thumbURL = video.youtubeThumbnailURL {
@@ -128,19 +128,19 @@ struct MiniPlayerView: View {
                         ) {
                             Image(systemName: "play.rectangle.fill")
                                 .font(.system(size: 18))
-                                .foregroundStyle(.red)
+                                .foregroundStyle(theme.youtubeColor)
                         }
                     } else {
                         Image(systemName: "play.rectangle.fill")
                             .font(.system(size: 18))
-                            .foregroundStyle(.red)
+                            .foregroundStyle(theme.youtubeColor)
                     }
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .stroke(AppTheme.Colors.hairlineBorder, lineWidth: 0.5)
+                    .stroke(theme.hairlineBorder, lineWidth: 0.5)
             )
 
             // Titles & Equalizer

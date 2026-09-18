@@ -37,6 +37,8 @@ struct ContentView: View {
                 ArticleDetailView(selectedItem: selectedArticle)
                     .background(currentTheme.detailBackground)
             }
+            .toolbarBackground(currentTheme.windowBackground, for: .windowToolbar)
+            .toolbarBackground(.visible, for: .windowToolbar)
 
             MiniPlayerView(onNavigateToArticle: { item in
                 if let feed = store.feed(for: item.feedId) {
@@ -54,6 +56,7 @@ struct ContentView: View {
         .environment(\.appTheme, currentTheme)
         .tint(currentTheme.accentColor)
         .background(currentTheme.windowBackground)
+        .background(WindowThemeBridge(backgroundColor: currentTheme.windowBackground))
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 if store.isLoading {
@@ -266,3 +269,26 @@ struct ContentView: View {
         }
     }
 }
+
+private struct WindowThemeBridge: NSViewRepresentable {
+    let backgroundColor: Color
+
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        DispatchQueue.main.async {
+            applyWindowTheme(view: view)
+        }
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        applyWindowTheme(view: nsView)
+    }
+
+    private func applyWindowTheme(view: NSView) {
+        guard let window = view.window else { return }
+        window.backgroundColor = NSColor(backgroundColor)
+        window.titlebarAppearsTransparent = true
+    }
+}
+

@@ -37,11 +37,6 @@ struct SidebarView: View {
         .listStyle(.sidebar)
         .scrollContentBackground(.hidden)
         .background(theme.windowBackground)
-        .safeAreaInset(edge: .top, spacing: 0) {
-            Color.clear
-                .frame(height: 36)
-                .background(.bar)
-        }
         .sheet(isPresented: $showAddFeed, onDismiss: {
             CuratedFeedManager.shared.clearMemory()
         }) {
@@ -165,7 +160,7 @@ struct SidebarView: View {
                     title: String(localized: "Podcasts"),
                     systemImage: "headphones",
                     count: store.podcastCount(),
-                    accentColor: AppTheme.Colors.podcast
+                    accentColor: theme.podcastColor
                 )
             }
 
@@ -174,7 +169,7 @@ struct SidebarView: View {
                     title: String(localized: "Videos"),
                     systemImage: "play.rectangle",
                     count: store.videoCount(),
-                    accentColor: Color.red.opacity(0.9)
+                    accentColor: theme.youtubeColor
                 )
             }
 
@@ -185,7 +180,7 @@ struct SidebarView: View {
                         title: String(localized: "Downloaded"),
                         systemImage: "arrow.down.circle",
                         count: downloadedCount,
-                        accentColor: AppTheme.Colors.success
+                        accentColor: theme.successColor
                     )
                 }
             }
@@ -209,10 +204,10 @@ struct SidebarView: View {
                     if !store.folders.isEmpty {
                         Text("\(store.folders.count)")
                             .font(.system(size: 11, weight: .medium, design: .monospaced))
-                            .foregroundStyle(AppTheme.Colors.badgeText)
+                            .foregroundStyle(theme.badgeText)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 1)
-                            .background(AppTheme.Colors.badgeBackground, in: Capsule())
+                            .background(theme.badgeBackground, in: Capsule())
                     }
                 }
             }
@@ -283,7 +278,7 @@ struct SidebarView: View {
 
                         Image(systemName: "pin.fill")
                             .font(.system(size: 11))
-                            .foregroundStyle(AppTheme.Colors.accent)
+                            .foregroundStyle(theme.accentColor)
 
                         Text(String(localized: "Pinned"))
                             .font(.system(size: 11, weight: .semibold))
@@ -293,10 +288,10 @@ struct SidebarView: View {
 
                         Text("\(pinned.count)")
                             .font(.system(size: 10, weight: .medium, design: .monospaced))
-                            .foregroundStyle(AppTheme.Colors.badgeText)
+                            .foregroundStyle(theme.badgeText)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1)
-                            .background(AppTheme.Colors.badgeBackground, in: Capsule())
+                            .background(theme.badgeBackground, in: Capsule())
                             .contentTransition(.numericText())
                     }
                     .contentShape(Rectangle())
@@ -380,7 +375,7 @@ struct SidebarView: View {
 
                         Image(systemName: "sparkles")
                             .font(.system(size: 11))
-                            .foregroundStyle(AppTheme.Colors.accent)
+                            .foregroundStyle(theme.accentColor)
 
                         Text(String(localized: "Smart Streams"))
                             .font(.system(size: 11, weight: .semibold))
@@ -390,10 +385,10 @@ struct SidebarView: View {
 
                         Text("\(totalCount)")
                             .font(.system(size: 10, weight: .medium, design: .monospaced))
-                            .foregroundStyle(AppTheme.Colors.badgeText)
+                            .foregroundStyle(theme.badgeText)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1)
-                            .background(AppTheme.Colors.badgeBackground, in: Capsule())
+                            .background(theme.badgeBackground, in: Capsule())
                             .contentTransition(.numericText())
                     }
                     .contentShape(Rectangle())
@@ -429,11 +424,11 @@ struct SidebarView: View {
             if count > 0 {
                 Text("\(count)")
                     .font(.system(size: 11, weight: isProminent ? .semibold : .medium, design: .monospaced))
-                    .foregroundStyle(isProminent ? AppTheme.Colors.activeBadgeText : AppTheme.Colors.badgeText)
+                    .foregroundStyle(isProminent ? theme.activeBadgeText : theme.badgeText)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 1)
                     .background(
-                        isProminent ? AppTheme.Colors.activeBadgeBackground : AppTheme.Colors.badgeBackground,
+                        isProminent ? theme.activeBadgeBackground : theme.badgeBackground,
                         in: Capsule()
                     )
                     .contentTransition(.numericText())
@@ -538,10 +533,10 @@ struct SidebarView: View {
 
                         Text("\(uncategorized.count)")
                             .font(.system(size: 10, weight: .medium, design: .monospaced))
-                            .foregroundStyle(AppTheme.Colors.badgeText)
+                            .foregroundStyle(theme.badgeText)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1)
-                            .background(AppTheme.Colors.badgeBackground, in: Capsule())
+                            .background(theme.badgeBackground, in: Capsule())
                             .contentTransition(.numericText())
                     }
                     .contentShape(Rectangle())
@@ -633,7 +628,7 @@ struct SidebarView: View {
 
                 Image(systemName: folder.isSmartFolder ? "folder.badge.gearshape" : "folder")
                     .font(.system(size: 12))
-                    .foregroundStyle(folder.isSmartFolder ? AppTheme.Colors.accent : Color.secondary)
+                    .foregroundStyle(folder.isSmartFolder ? theme.accentColor : Color.secondary)
 
                 Text(folder.name)
                     .font(.system(size: 11, weight: .semibold))
@@ -642,10 +637,10 @@ struct SidebarView: View {
                 if folder.isSmartFolder {
                     Text(String(localized: "Smart"))
                         .font(.system(size: 8, weight: .bold))
-                        .foregroundStyle(AppTheme.Colors.accent)
+                        .foregroundStyle(theme.accentColor)
                         .padding(.horizontal, 4)
                         .padding(.vertical, 1)
-                        .background(AppTheme.Colors.accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 3))
+                        .background(theme.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 3))
                 }
 
                 Spacer()
@@ -653,10 +648,10 @@ struct SidebarView: View {
                 if feedsCount > 0 {
                     Text("\(feedsCount)")
                         .font(.system(size: 10, weight: .medium, design: .monospaced))
-                        .foregroundStyle(AppTheme.Colors.badgeText)
+                        .foregroundStyle(theme.badgeText)
                         .padding(.horizontal, 5)
                         .padding(.vertical, 1)
-                        .background(AppTheme.Colors.badgeBackground, in: Capsule())
+                        .background(theme.badgeBackground, in: Capsule())
                         .contentTransition(.numericText())
                 }
             }
@@ -784,6 +779,7 @@ struct SidebarView: View {
 struct FolderStreamRow: View {
 
     @Environment(FeedStore.self) private var store
+    @Environment(\.appTheme) private var theme
     let folder: Folder
 
     var body: some View {
@@ -791,7 +787,7 @@ struct FolderStreamRow: View {
             HStack(spacing: 8) {
                 Image(systemName: folder.isSmartFolder ? "sparkles" : "tray.2")
                     .font(.system(size: 13))
-                    .foregroundStyle(folder.isSmartFolder ? AppTheme.Colors.accent : Color.secondary)
+                    .foregroundStyle(folder.isSmartFolder ? theme.accentColor : Color.secondary)
                     .frame(width: 18)
 
                 Text(folder.isSmartFolder ? String(localized: "Smart Stream") : String(localized: "All in Folder"))
@@ -803,10 +799,10 @@ struct FolderStreamRow: View {
                 if count > 0 {
                     Text("\(count)")
                         .font(.system(size: 11, weight: .medium, design: .monospaced))
-                        .foregroundStyle(AppTheme.Colors.badgeText)
+                        .foregroundStyle(theme.badgeText)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 1)
-                        .background(AppTheme.Colors.badgeBackground, in: Capsule())
+                        .background(theme.badgeBackground, in: Capsule())
                 }
             }
         }
@@ -818,6 +814,7 @@ struct FolderStreamRow: View {
 struct FeedRow: View {
 
     @Environment(FeedStore.self) private var store
+    @Environment(\.appTheme) private var theme
     let feed: Feed
     var isInsidePinnedSection: Bool = false
     @State private var isHovered: Bool = false
@@ -838,7 +835,7 @@ struct FeedRow: View {
                     if feed.isPinned && !isInsidePinnedSection {
                         Image(systemName: "pin.fill")
                             .font(.system(size: 9))
-                            .foregroundStyle(AppTheme.Colors.accent.opacity(0.85))
+                            .foregroundStyle(theme.accentColor.opacity(0.85))
                     }
                 }
 
@@ -856,10 +853,10 @@ struct FeedRow: View {
             if unread > 0 {
                 Text("\(unread)")
                     .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                    .foregroundStyle(AppTheme.Colors.activeBadgeText)
+                    .foregroundStyle(theme.activeBadgeText)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 1)
-                    .background(AppTheme.Colors.activeBadgeBackground, in: Capsule())
+                    .background(theme.activeBadgeBackground, in: Capsule())
                     .contentTransition(.numericText())
                     .animation(AppAnimation.bouncy, value: unread)
             }
@@ -955,7 +952,7 @@ struct ReadingStatsSheet: View {
             }
             .padding(16)
             .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.Colors.hairlineBorder, lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(palette.hairlineBorder, lineWidth: 1))
             .padding(.horizontal, 24)
 
             Spacer(minLength: 4)
@@ -982,6 +979,6 @@ struct ReadingStatsSheet: View {
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(AppTheme.Colors.hairlineBorder, lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(palette.hairlineBorder, lineWidth: 1))
     }
 }
