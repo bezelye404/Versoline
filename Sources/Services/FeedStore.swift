@@ -393,6 +393,7 @@ final class FeedStore {
         folders.append(folder)
         AppLogger.shared.log("Added folder: \"\(name)\"", level: .info, category: .storage)
         save()
+        SyncCoordinator.shared.notifyFeedsOrFoldersChanged()
         return folder
     }
 
@@ -406,6 +407,7 @@ final class FeedStore {
         }
         folders.removeAll { $0.id == folderId }
         save()
+        SyncCoordinator.shared.notifyFeedsOrFoldersChanged()
     }
 
     func renameFolder(_ folderId: UUID, name: String) {
@@ -414,6 +416,7 @@ final class FeedStore {
             folders[index].name = name
             AppLogger.shared.log("Renamed folder \"\(old)\" -> \"\(name)\"", level: .info, category: .storage)
             save()
+            SyncCoordinator.shared.notifyFeedsOrFoldersChanged()
         }
     }
 
@@ -421,6 +424,7 @@ final class FeedStore {
         if let index = feeds.firstIndex(where: { $0.id == feedId }) {
             feeds[index].folderId = folderId
             save()
+            SyncCoordinator.shared.notifyFeedsOrFoldersChanged()
         }
     }
 
@@ -439,6 +443,7 @@ final class FeedStore {
         }
         if changed {
             save()
+            SyncCoordinator.shared.notifyFeedsOrFoldersChanged()
         }
     }
 
@@ -1082,6 +1087,7 @@ final class FeedStore {
         isLoading = false
         updateSmartCategoryCaches()
         save()
+        SyncCoordinator.shared.notifyFeedsOrFoldersChanged()
         AppLogger.shared.log("OPML import finished. Total feeds now: \(feeds.count)", level: .info, category: .storage)
     }
 

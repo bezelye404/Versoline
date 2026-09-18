@@ -69,11 +69,106 @@ struct SyncSettings: Codable, Equatable, Sendable {
     var version: Int = 1
     var deviceId: String
     var updatedAt: Date
+
+    // Appearance & Typography
     var appColorPalette: String?
+    var readerTheme: String?
+    var readerFontFamily: String?
+    var readerFontSize: Double?
+    var readerLineHeight: String?
+
+    // Reader & Browser
     var isCompactListMode: Bool?
     var showFavicons: Bool?
+    var showMenuBarIcon: Bool?
+    var autoReaderMode: Bool?
+    var isBionicReadingEnabled: Bool?
+    var defaultReadingMode: String?
     var showReadingTimeStreams: Bool?
+    var offlinePrecacheEnabled: Bool?
+    var isContentBlockerEnabled: Bool?
     var preferredExternalBrowser: String?
+
+    // Shortcuts & Rules
+    var enableSingleKeyShortcuts: Bool?
+    var autoCleanupDays: Int?
+    var mutedKeywords: String?
+
+    /// Reads current settings from UserDefaults.
+    static func current() -> SyncSettings {
+        let defaults = UserDefaults.standard
+        let fontSizeNum = defaults.object(forKey: AppSettingsKeys.readerFontSize) as? NSNumber
+        let cleanupNum = defaults.object(forKey: AppSettingsKeys.autoCleanupDays) as? NSNumber
+
+        return SyncSettings(
+            version: 1,
+            deviceId: Host.current().localizedName ?? "Mac",
+            updatedAt: Date(),
+            appColorPalette: defaults.string(forKey: AppSettingsKeys.appColorPalette),
+            readerTheme: defaults.string(forKey: AppSettingsKeys.readerTheme),
+            readerFontFamily: defaults.string(forKey: AppSettingsKeys.readerFontFamily),
+            readerFontSize: fontSizeNum?.doubleValue,
+            readerLineHeight: defaults.string(forKey: AppSettingsKeys.readerLineHeight),
+            isCompactListMode: defaults.object(forKey: AppSettingsKeys.isCompactListMode) as? Bool,
+            showFavicons: defaults.object(forKey: AppSettingsKeys.showFavicons) as? Bool,
+            showMenuBarIcon: defaults.object(forKey: AppSettingsKeys.showMenuBarIcon) as? Bool,
+            autoReaderMode: defaults.object(forKey: AppSettingsKeys.autoReaderMode) as? Bool,
+            isBionicReadingEnabled: defaults.object(forKey: AppSettingsKeys.isBionicReadingEnabled) as? Bool,
+            defaultReadingMode: defaults.string(forKey: AppSettingsKeys.defaultReadingMode),
+            showReadingTimeStreams: defaults.object(forKey: AppSettingsKeys.showReadingTimeStreams) as? Bool,
+            offlinePrecacheEnabled: defaults.object(forKey: AppSettingsKeys.offlinePrecacheEnabled) as? Bool,
+            isContentBlockerEnabled: defaults.object(forKey: AppSettingsKeys.isContentBlockerEnabled) as? Bool,
+            preferredExternalBrowser: defaults.string(forKey: AppSettingsKeys.preferredExternalBrowser),
+            enableSingleKeyShortcuts: defaults.object(forKey: AppSettingsKeys.enableSingleKeyShortcuts) as? Bool,
+            autoCleanupDays: cleanupNum?.intValue,
+            mutedKeywords: defaults.string(forKey: AppSettingsKeys.mutedKeywords)
+        )
+    }
+
+    /// Applies non-nil values to UserDefaults.
+    func applyToUserDefaults() {
+        let defaults = UserDefaults.standard
+        if let appColorPalette { defaults.set(appColorPalette, forKey: AppSettingsKeys.appColorPalette) }
+        if let readerTheme { defaults.set(readerTheme, forKey: AppSettingsKeys.readerTheme) }
+        if let readerFontFamily { defaults.set(readerFontFamily, forKey: AppSettingsKeys.readerFontFamily) }
+        if let readerFontSize { defaults.set(readerFontSize, forKey: AppSettingsKeys.readerFontSize) }
+        if let readerLineHeight { defaults.set(readerLineHeight, forKey: AppSettingsKeys.readerLineHeight) }
+        if let isCompactListMode { defaults.set(isCompactListMode, forKey: AppSettingsKeys.isCompactListMode) }
+        if let showFavicons { defaults.set(showFavicons, forKey: AppSettingsKeys.showFavicons) }
+        if let showMenuBarIcon { defaults.set(showMenuBarIcon, forKey: AppSettingsKeys.showMenuBarIcon) }
+        if let autoReaderMode { defaults.set(autoReaderMode, forKey: AppSettingsKeys.autoReaderMode) }
+        if let isBionicReadingEnabled { defaults.set(isBionicReadingEnabled, forKey: AppSettingsKeys.isBionicReadingEnabled) }
+        if let defaultReadingMode { defaults.set(defaultReadingMode, forKey: AppSettingsKeys.defaultReadingMode) }
+        if let showReadingTimeStreams { defaults.set(showReadingTimeStreams, forKey: AppSettingsKeys.showReadingTimeStreams) }
+        if let offlinePrecacheEnabled { defaults.set(offlinePrecacheEnabled, forKey: AppSettingsKeys.offlinePrecacheEnabled) }
+        if let isContentBlockerEnabled { defaults.set(isContentBlockerEnabled, forKey: AppSettingsKeys.isContentBlockerEnabled) }
+        if let preferredExternalBrowser { defaults.set(preferredExternalBrowser, forKey: AppSettingsKeys.preferredExternalBrowser) }
+        if let enableSingleKeyShortcuts { defaults.set(enableSingleKeyShortcuts, forKey: AppSettingsKeys.enableSingleKeyShortcuts) }
+        if let autoCleanupDays { defaults.set(autoCleanupDays, forKey: AppSettingsKeys.autoCleanupDays) }
+        if let mutedKeywords { defaults.set(mutedKeywords, forKey: AppSettingsKeys.mutedKeywords) }
+    }
+
+    /// Determines if preferences differ, ignoring metadata (deviceId, updatedAt, version).
+    func hasSamePreferences(as other: SyncSettings) -> Bool {
+        return appColorPalette == other.appColorPalette &&
+            readerTheme == other.readerTheme &&
+            readerFontFamily == other.readerFontFamily &&
+            readerFontSize == other.readerFontSize &&
+            readerLineHeight == other.readerLineHeight &&
+            isCompactListMode == other.isCompactListMode &&
+            showFavicons == other.showFavicons &&
+            showMenuBarIcon == other.showMenuBarIcon &&
+            autoReaderMode == other.autoReaderMode &&
+            isBionicReadingEnabled == other.isBionicReadingEnabled &&
+            defaultReadingMode == other.defaultReadingMode &&
+            showReadingTimeStreams == other.showReadingTimeStreams &&
+            offlinePrecacheEnabled == other.offlinePrecacheEnabled &&
+            isContentBlockerEnabled == other.isContentBlockerEnabled &&
+            preferredExternalBrowser == other.preferredExternalBrowser &&
+            enableSingleKeyShortcuts == other.enableSingleKeyShortcuts &&
+            autoCleanupDays == other.autoCleanupDays &&
+            mutedKeywords == other.mutedKeywords
+    }
 }
 
 // MARK: - Peer-to-Peer Micro Payload (Multipeer Packet)
