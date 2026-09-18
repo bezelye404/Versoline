@@ -3,12 +3,17 @@ import SwiftUI
 struct EqualizerWaveformView: View {
 
     let isPlaying: Bool
-    var tint: Color = AppTheme.Colors.accent
+    var tint: Color? = nil
     var barWidth: CGFloat = 2.0
     var maxHeight: CGFloat = 12
 
+    @Environment(\.appTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var phase: CGFloat = 0.0
+
+    private var effectiveTint: Color {
+        tint ?? theme.accentColor
+    }
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 1.5) {
@@ -47,7 +52,7 @@ struct EqualizerWaveformView: View {
         let currentScale: CGFloat = (isPlaying && !reduceMotion) ? (minScale + (1.0 - minScale) * multiplier * (0.3 + 0.7 * abs(sin((phase + offset) * .pi)))) : (isPlaying ? 0.6 : minScale)
 
         RoundedRectangle(cornerRadius: barWidth / 2)
-            .fill(tint)
+            .fill(effectiveTint)
             .frame(width: barWidth, height: maxHeight)
             .scaleEffect(y: currentScale, anchor: .bottom)
     }
