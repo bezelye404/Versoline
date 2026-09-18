@@ -1,12 +1,27 @@
-# Xcode
-# Reference: https://github.com/github/gitignore/blob/main/Xcode.gitignore
-
-# Build generated
+# Xcode & Build Artifacts
 build/
 DerivedData/
 .build/
+*.dSYM/
+*.dSYM.zip
+*.ipa
+*.app
+*.pkg
+*.dmg
+*.dmg.tmp
+*.zip
+*.tar.gz
+*.tar
+*.7z
+*.rar
 
-# User data & workspace states
+# Xcode User Data & State
+xcuserdata/
+*.xcuserdatad
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -15,14 +30,8 @@ DerivedData/
 !default.mode2v3
 *.perspectivev3
 !default.perspectivev3
-xcuserdata/
-*.xcuserdatad
-*.xcuserstate
-*.xcworkspace/xcuserdata/
-*.xcodeproj/xcuserdata/
-*.xcodeproj/project.xcworkspace/xcuserdata/
 
-# Diagnostics & Logs
+# Xcode Diagnostics, Logs & Tests
 *.moved-aside
 *.xccoverage
 *.xccovreport
@@ -33,23 +42,10 @@ xcuserdata/
 *.ips
 *.log
 
-# Products & Packaging
-*.dSYM/
-*.dSYM.zip
-*.ipa
-*.app
-*.pkg
-*.dmg
-*.dmg.tmp
-*.zip
-*.tar.gz
-
-# Swift Package Manager
+# Swift Package Manager & XcodeGen
 Packages/
 Package.pins
 .swiftpm/
-
-# XcodeGen
 .xcodegen/
 .xcodegen-cache/
 
@@ -70,37 +66,67 @@ fastlane/test_output/
 Icon\r*
 *.localized/
 
+# Personal Data, Backups & Subscriptions
+*.opml
+*.backup
+*.bak
+*.sql
+*.dump
+*.archive
+*.local
+*.local.*
+local.properties
+
+# Audio & Media Downloads
+*.mp3
+*.m4a
+*.wav
+*.mp4
+*.mov
+Downloads/
+Favicons/
+
 # App Runtime & Cache Files
 data.json
 *.data
-*.opml
 *.sqlite
 *.sqlite3
 *.sqlite3-shm
 *.sqlite3-wal
 *.db
+*.db-*
 *.store
 *.store-shm
 *.store-wal
 curated_feeds_cache.json
-Favicons/
-Downloads/
 Cache/
 caches/
 logs/
 scratch/
+tmp/
+temp/
 
-# Credentials & Keys
+# Credentials, Keys & Secrets
 .env
 .env.*
+*.env
 *.key
 *.pem
 *.cer
 *.crt
+*.der
 *.p8
 *.p12
 *.mobileprovision
 *.provisionprofile
+*.keychain*
+*.credentials*
+credentials.json
+token.json
+tokens.json
+auth.json
+*.auth*
+*.secret*
 
 # Editor & AI Tool Artifacts
 .vscode/
@@ -110,6 +136,7 @@ scratch/
 .gemini/
 .claude/
 .antigravity/
+.copilot/
 *.swp
 *.swo
 *~
@@ -120,3 +147,6 @@ animguide.md
 guide.md
 rss.md
 AGENTS.md
+notes.md
+TODO.md
+*.scratch.*
