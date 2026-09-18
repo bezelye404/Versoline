@@ -71,6 +71,7 @@ struct EasyRSSApp: App {
         if !VideoPlayerService.shared.isPlaying && VideoPlayerService.shared.webView != nil {
             VideoPlayerService.shared.close()
         }
+        NotificationCenter.default.post(name: Notification.Name("EasyRSSCompactMemory"), object: nil)
     }
 
     var body: some Scene {

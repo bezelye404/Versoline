@@ -137,7 +137,6 @@ struct FaviconView: View {
     var size: CGFloat = 16
 
     @State private var image: NSImage?
-    @State private var hasLoaded = false
 
     var body: some View {
         Group {
@@ -163,9 +162,8 @@ struct FaviconView: View {
             }
         }
         .task(id: hostOrURL) {
-            guard showFavicons, !hasLoaded else { return }
+            guard showFavicons else { return }
             image = await FaviconService.shared.favicon(for: hostOrURL)
-            hasLoaded = true
         }
     }
 }

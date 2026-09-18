@@ -648,7 +648,6 @@ struct FeedItemRow: View {
     }
 
     @State private var isHovered: Bool = false
-    @State private var isPressed: Bool = false
 
     var body: some View {
         HStack(alignment: .center, spacing: 10) {
@@ -777,12 +776,16 @@ struct FeedItemRow: View {
                 .overlay(alignment: .center) {
                     if item.isPodcast || item.isYouTube {
                         Circle()
-                            .fill(.ultraThinMaterial)
+                            .fill(Color.black.opacity(0.65))
                             .frame(width: 20, height: 20)
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+                            )
                             .overlay(
                                 Image(systemName: "play.fill")
                                     .font(.system(size: 8, weight: .bold))
-                                    .foregroundStyle(item.isYouTube ? AppTheme.Colors.youtube : .primary)
+                                    .foregroundStyle(item.isYouTube ? AppTheme.Colors.youtube : .white)
                                     .offset(x: 1)
                             )
                     }
@@ -808,9 +811,8 @@ struct FeedItemRow: View {
                     )
             }
         }
-        .scaleEffect(isPressed ? 0.985 : (isHovered && !isSelected ? 1.004 : 1.0))
+        .scaleEffect(isHovered && !isSelected ? 1.004 : 1.0)
         .animation(AppAnimation.hover, value: isHovered)
-        .animation(AppAnimation.cardPress, value: isPressed)
         .animation(AppAnimation.slidingPill, value: isSelected)
         .contentShape(Rectangle())
         .onHover { hovering in

@@ -9,6 +9,14 @@ final class ReaderModeExtractor {
     private let memoryCache = NSCache<NSString, NSString>()
     private let cacheDirectory: URL
 
+    private static let headerDateFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.locale = Locale.autoupdatingCurrent
+        df.dateStyle = .medium
+        df.timeStyle = .none
+        return df
+    }()
+
     private init() {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         let cacheDir = appSupport.appendingPathComponent("EasyRSS/ReaderCache_v3", isDirectory: true)
@@ -144,11 +152,7 @@ final class ReaderModeExtractor {
 
             var pillParts: [String] = []
             if let pubDate {
-                let df = DateFormatter()
-                df.locale = Locale.autoupdatingCurrent
-                df.dateStyle = .medium
-                df.timeStyle = .none
-                pillParts.append(df.string(from: pubDate).uppercased())
+                pillParts.append(Self.headerDateFormatter.string(from: pubDate).uppercased())
             }
             pillParts.append(readingTimeStr.uppercased())
             let pillText = pillParts.joined(separator: " · ")
@@ -219,11 +223,16 @@ final class ReaderModeExtractor {
             forHTTPHeaderField: "User-Agent"
         )
 
+        guard !Task.isCancelled else { return nil }
+
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
+            guard !Task.isCancelled else { return nil }
             if let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) {
                 let html = String(decoding: data, as: UTF8.self)
+                guard !Task.isCancelled else { return nil }
                 if let cleanedBody = extractArticleHTML(from: html, baseURL: url), !cleanedBody.isEmpty {
+                    guard !Task.isCancelled else { return nil }
                     let fullFormatted = formatFeedContentAsReaderHTML(
                         title: title ?? "",
                         author: author,

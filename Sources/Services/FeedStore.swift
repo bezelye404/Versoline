@@ -31,6 +31,10 @@ final class FeedStore {
     private(set) var cachedBookmarkCount: Int = 0
     private(set) var cachedPodcastCount: Int = 0
     private(set) var cachedTodayCount: Int = 0
+    private(set) var cachedVideoCount: Int = 0
+    private(set) var cachedQuickReadsCount: Int = 0
+    private(set) var cachedLongReadsCount: Int = 0
+    private(set) var cachedTotalReadCount: Int = 0
     private var cachedFeedUnreadCounts: [UUID: Int] = [:]
     private var cachedFeedMap: [UUID: Feed] = [:]
     private var cachedFeedsInFolder: [UUID: [Feed]] = [:]
@@ -50,15 +54,21 @@ final class FeedStore {
     private(set) var activeSmartCategories: [SmartCategory] = []
     @ObservationIgnored private var lastRefreshDate: Date?
 
+    private static let dayOfWeekFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.dateFormat = "EEE"
+        return df
+    }()
+
     private func invalidateItemCaches() {
         cachedAllItems = nil
         cachedUnreadItems = nil
         cachedTodayItems = nil
         cachedBookmarkedItems = nil
         cachedPodcastItems = nil
-        cachedFolderItems.removeAll(keepingCapacity: true)
-        cachedFeedItems.removeAll(keepingCapacity: true)
-        cachedSmartCategoryItems.removeAll(keepingCapacity: true)
+        cachedFolderItems.removeAll(keepingCapacity: false)
+        cachedFeedItems.removeAll(keepingCapacity: false)
+        cachedSmartCategoryItems.removeAll(keepingCapacity: false)
     }
 
     func compactMemory() {
@@ -101,6 +111,16 @@ final class FeedStore {
 
         NotificationCenter.default.addObserver(
             forName: NSApplication.didHideNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.compactMemory()
+            }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name("EasyRSSCompactMemory"),
             object: nil,
             queue: .main
         ) { [weak self] _ in
@@ -773,7 +793,7 @@ final class FeedStore {
     }
 
     func quickReadsCount() -> Int {
-        quickReadItems().count
+        cachedQuickReadsCount
     }
 
     func longReadItems() -> [FeedItem] {
@@ -781,7 +801,7 @@ final class FeedStore {
     }
 
     func longReadsCount() -> Int {
-        longReadItems().count
+        cachedLongReadsCount
     }
 
     func videoItems() -> [FeedItem] {
@@ -789,7 +809,7 @@ final class FeedStore {
     }
 
     func videoCount() -> Int {
-        videoItems().count
+        cachedVideoCount
     }
 
     func smartCategoryItems(_ category: SmartCategory) -> [FeedItem] {
@@ -815,7 +835,7 @@ final class FeedStore {
     // MARK: - Reading Statistics
 
     func totalReadCount() -> Int {
-        allItems().filter { $0.isRead }.count
+        cachedTotalReadCount
     }
 
     func readingStreakDays() -> Int {
@@ -830,13 +850,10 @@ final class FeedStore {
         let today = calendar.startOfDay(for: Date())
         var stats: [DailyReadingStat] = []
 
-        let dayFormatter = DateFormatter()
-        dayFormatter.dateFormat = "EEE"
-
         // Last 7 days
         for dayOffset in (0..<7).reversed() {
             guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today) else { continue }
-            let dayName = dayFormatter.string(from: date)
+            let dayName = Self.dayOfWeekFormatter.string(from: date)
 
             // Count items read on or around this date
             let count = allItems().filter { item in
@@ -1099,6 +1116,10 @@ final class FeedStore {
         var totalBookmarks = 0
         var totalPodcasts = 0
         var todayCount = 0
+        var totalVideos = 0
+        var totalQuickReads = 0
+        var totalLongReads = 0
+        var totalRead = 0
         var unreadPerFeed: [UUID: Int] = [:]
         let oneDayAgo = Date().addingTimeInterval(-86400)
 
@@ -1109,12 +1130,23 @@ final class FeedStore {
                 if !item.isRead {
                     feedUnread += 1
                     totalUnread += 1
+                } else {
+                    totalRead += 1
                 }
                 if item.isBookmarked {
                     totalBookmarks += 1
                 }
                 if item.isPodcast {
                     totalPodcasts += 1
+                }
+                if item.isYouTube {
+                    totalVideos += 1
+                }
+                if item.isQuickRead {
+                    totalQuickReads += 1
+                }
+                if item.isLongRead {
+                    totalLongReads += 1
                 }
                 if (item.pubDate ?? .distantPast) >= oneDayAgo {
                     todayCount += 1
@@ -1145,6 +1177,10 @@ final class FeedStore {
         self.cachedBookmarkCount = totalBookmarks
         self.cachedPodcastCount = totalPodcasts
         self.cachedTodayCount = todayCount
+        self.cachedVideoCount = totalVideos
+        self.cachedQuickReadsCount = totalQuickReads
+        self.cachedLongReadsCount = totalLongReads
+        self.cachedTotalReadCount = totalRead
         self.cachedFeedUnreadCounts = unreadPerFeed
         self.cachedFeedMap = map
         self.cachedFeedsInFolder = inFolder
@@ -1155,20 +1191,15 @@ final class FeedStore {
     func updateSmartCategoryCaches() {
         let map = self.cachedFeedMap.isEmpty ? Dictionary(uniqueKeysWithValues: feeds.map { ($0.id, $0) }) : self.cachedFeedMap
 
-        // Pre-classify items into Smart Categories (O(1) lookups during UI navigation)
-        var categoryMap: [SmartCategory: [FeedItem]] = [:]
+        // Compute counts per category without retaining full duplicate FeedItem arrays in RAM
+        var categoryCounts: [SmartCategory: Int] = [:]
         for (feedId, list) in items {
             let feed = map[feedId]
             for item in list {
                 if let cat = SmartCategoryClassifier.classify(item: item, feed: feed) {
-                    categoryMap[cat, default: []].append(item)
+                    categoryCounts[cat, default: 0] += 1
                 }
             }
-        }
-
-        // Sort items in each category with newest first
-        for (cat, catItems) in categoryMap {
-            categoryMap[cat] = catItems.sorted { ($0.pubDate ?? .distantPast) > ($1.pubDate ?? .distantPast) }
         }
 
         // Pre-classify feeds into Smart Categories
@@ -1179,18 +1210,17 @@ final class FeedStore {
             }
         }
 
-        var categoryCounts: [SmartCategory: Int] = [:]
         var activeCats: [SmartCategory] = []
         for cat in SmartCategory.allCases {
-            let itemsCount = categoryMap[cat]?.count ?? 0
+            let itemsCount = categoryCounts[cat] ?? 0
             let feedsCount = feedsPerCategory[cat]?.count ?? 0
-            categoryCounts[cat] = itemsCount
             if itemsCount > 0 || feedsCount > 0 {
                 activeCats.append(cat)
             }
         }
 
-        self.cachedSmartCategoryItems = categoryMap
+        // Clear in-memory sorted cache for categories so items are computed on-demand only for the active view
+        self.cachedSmartCategoryItems.removeAll(keepingCapacity: false)
         self.cachedSmartCategoryCounts = categoryCounts
         self.activeSmartCategories = activeCats
     }
