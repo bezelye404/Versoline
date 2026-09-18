@@ -71,6 +71,15 @@ final class FeedStore {
         activeViewCache = nil
     }
 
+    private func updateItemInActiveViewCache(_ updatedItem: FeedItem) {
+        guard let current = activeViewCache else { return }
+        if let idx = current.items.firstIndex(where: { $0.id == updatedItem.id }) {
+            var newItems = current.items
+            newItems[idx] = updatedItem
+            activeViewCache = ActiveViewCache(key: current.key, items: newItems)
+        }
+    }
+
     func compactMemory(deep: Bool = false) {
         if deep {
             invalidateItemCaches()
@@ -506,9 +515,19 @@ final class FeedStore {
         guard var feedItems = items[item.feedId],
               let index = feedItems.firstIndex(where: { $0.id == item.id }) else { return }
 
+        guard !feedItems[index].isRead else { return }
+
         feedItems[index].isRead = true
         items[item.feedId] = feedItems
-        save()
+
+        updateItemInActiveViewCache(feedItems[index])
+        cachedTotalUnreadCount = max(0, cachedTotalUnreadCount - 1)
+        cachedTotalReadCount += 1
+        if let currentUnread = cachedFeedUnreadCounts[item.feedId] {
+            cachedFeedUnreadCounts[item.feedId] = max(0, currentUnread - 1)
+        }
+
+        save(immediate: false, updateCounts: false)
         SyncCoordinator.shared.notifyReadArticles(links: [item.link])
     }
 
@@ -516,11 +535,16 @@ final class FeedStore {
         guard var feedItems = items[feedId] else { return }
         var links: [String] = []
         for i in feedItems.indices {
-            feedItems[i].isRead = true
-            links.append(feedItems[i].link)
+            if !feedItems[i].isRead {
+                feedItems[i].isRead = true
+                links.append(feedItems[i].link)
+            }
         }
+        guard !links.isEmpty else { return }
         items[feedId] = feedItems
-        save()
+        invalidateItemCaches()
+        updateCachedCounts()
+        save(immediate: false, updateCounts: false)
         SyncCoordinator.shared.notifyReadArticles(links: links)
     }
 
@@ -534,12 +558,16 @@ final class FeedStore {
         for (feedId, targetIds) in feedGroups {
             guard var feedItems = items[feedId] else { continue }
             for i in feedItems.indices where targetIds.contains(feedItems[i].id) {
-                feedItems[i].isRead = true
-                links.append(feedItems[i].link)
+                if !feedItems[i].isRead {
+                    feedItems[i].isRead = true
+                    links.append(feedItems[i].link)
+                }
             }
             items[feedId] = feedItems
         }
-        save()
+        invalidateItemCaches()
+        updateCachedCounts()
+        save(immediate: false, updateCounts: false)
         SyncCoordinator.shared.notifyReadArticles(links: links)
     }
 
@@ -549,7 +577,9 @@ final class FeedStore {
             feedItems[i].isRead = false
         }
         items[feedId] = feedItems
-        save()
+        invalidateItemCaches()
+        updateCachedCounts()
+        save(immediate: false, updateCounts: false)
     }
 
     func allRead(feedId: UUID) -> Bool {
@@ -562,8 +592,26 @@ final class FeedStore {
               let index = feedItems.firstIndex(where: { $0.id == item.id }) else { return }
 
         feedItems[index].isRead.toggle()
+        let isNowRead = feedItems[index].isRead
         items[item.feedId] = feedItems
-        save()
+
+        updateItemInActiveViewCache(feedItems[index])
+        if isNowRead {
+            cachedTotalUnreadCount = max(0, cachedTotalUnreadCount - 1)
+            cachedTotalReadCount += 1
+            if let currentUnread = cachedFeedUnreadCounts[item.feedId] {
+                cachedFeedUnreadCounts[item.feedId] = max(0, currentUnread - 1)
+            }
+            SyncCoordinator.shared.notifyReadArticles(links: [item.link])
+        } else {
+            cachedTotalUnreadCount += 1
+            cachedTotalReadCount = max(0, cachedTotalReadCount - 1)
+            if let currentUnread = cachedFeedUnreadCounts[item.feedId] {
+                cachedFeedUnreadCounts[item.feedId] = currentUnread + 1
+            }
+        }
+
+        save(immediate: false, updateCounts: false)
     }
 
     // MARK: - Auto-Cleanup & Storage Management
@@ -664,7 +712,11 @@ final class FeedStore {
         feedItems[index].isBookmarked.toggle()
         let isNowBookmarked = feedItems[index].isBookmarked
         items[item.feedId] = feedItems
-        save()
+
+        updateItemInActiveViewCache(feedItems[index])
+        cachedBookmarkCount = max(0, cachedBookmarkCount + (isNowBookmarked ? 1 : -1))
+
+        save(immediate: false, updateCounts: false)
         SyncCoordinator.shared.notifyBookmarkToggled(link: item.link, isBookmarked: isNowBookmarked)
     }
 
@@ -1124,8 +1176,6 @@ final class FeedStore {
     }
 
     func updateCachedCounts() {
-        invalidateItemCaches()
-
         var totalUnread = 0
         var totalItems = 0
         var totalBookmarks = 0
@@ -1245,8 +1295,10 @@ final class FeedStore {
         Self.performSave(data: data, to: saveURL)
     }
 
-    func save(immediate: Bool = false) {
-        updateCachedCounts()
+    func save(immediate: Bool = false, updateCounts: Bool = true) {
+        if updateCounts {
+            updateCachedCounts()
+        }
 
         let dir = saveURL
 

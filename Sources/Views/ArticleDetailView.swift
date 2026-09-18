@@ -6,6 +6,7 @@ struct ArticleDetailView: View {
 
     @Environment(FeedStore.self) private var store
     @Environment(\.appTheme) private var theme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @AppStorage(AppSettingsKeys.readerFontSize) private var readerFontSize = 16
     @AppStorage(AppSettingsKeys.readerTheme) private var readerThemeRaw = ReaderTheme.system.rawValue
@@ -68,38 +69,46 @@ struct ArticleDetailView: View {
         Group {
             if let item = currentItem {
                 VStack(spacing: 0) {
-                    // Dedicated, non-overlapping Top Bar
+                    // Dedicated, non-overlapping Top Bar (stays stably pinned at the top)
                     readerTopBar(item: item)
 
                     Divider()
 
-                    // Main Reader / Media Content Layer
-                    if item.isPodcast {
-                        if activeViewMode == .inAppBrowser {
-                            inAppBrowserView(item: item)
-                        } else {
-                            podcastFullPageView(item: item)
-                        }
-                    } else if item.isYouTube {
-                        VStack(spacing: 0) {
-                            if let videoID = item.youtubeVideoID {
-                                YouTubePlayerView(videoID: videoID, title: item.title, link: item.link, item: item)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.horizontal, 24)
-                                    .padding(.vertical, 12)
+                    // Main Reader / Media Content Layer (smooth cross-fade transition on item change)
+                    Group {
+                        if item.isPodcast {
+                            if activeViewMode == .inAppBrowser {
+                                inAppBrowserView(item: item)
+                            } else {
+                                podcastFullPageView(item: item)
                             }
+                        } else if item.isYouTube {
+                            VStack(spacing: 0) {
+                                if let videoID = item.youtubeVideoID {
+                                    YouTubePlayerView(videoID: videoID, title: item.title, link: item.link, item: item)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.horizontal, 24)
+                                        .padding(.vertical, 12)
+                                }
+                                articleContent(item: item)
+                            }
+                        } else {
                             articleContent(item: item)
                         }
-                    } else {
-                        articleContent(item: item)
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .id(item.id)
+                    .transition(
+                        reduceMotion
+                            ? .opacity
+                            : .asymmetric(
+                                insertion: .opacity.combined(with: .offset(y: 6)),
+                                removal: .opacity
+                            )
+                    )
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .transition(.asymmetric(
-                    insertion: .opacity.combined(with: .offset(y: 12)),
-                    removal: .opacity.combined(with: .offset(y: -6))
-                ))
-                .animation(AppAnimation.pageReveal, value: item.id)
+                .animation(AppAnimation.motion(AppAnimation.articleTransition, reduceMotion: reduceMotion), value: item.id)
                 .onChange(of: item.id) { _, _ in
                     let videoPlayer = VideoPlayerService.shared
                     // If a video was loaded but is NOT playing (paused, ended, or stopped),
@@ -107,9 +116,6 @@ struct ArticleDetailView: View {
                     if !videoPlayer.isPlaying && videoPlayer.currentVideo != nil && !item.isYouTube {
                         videoPlayer.close()
                     }
-
-                    // Flush WebKit memory cache on every article navigation to release decoded images of previous article
-                    WebView.flushMemoryCache()
 
                     resetStateForNewArticle(item: item)
                 }
