@@ -177,4 +177,102 @@ enum SmartMergeEngine {
         combined.formUnion(remoteBookmarkLinks)
         return combined
     }
+
+    /// Merges local settings with remote settings based on timestamps and field availability.
+    static func mergeSettings(
+        local: SyncSettings,
+        remote: SyncSettings
+    ) -> (merged: SyncSettings, shouldUpdateLocal: Bool, shouldUpdateRemote: Bool) {
+        if local.hasSamePreferences(as: remote) {
+            return (local, false, false)
+        }
+
+        if remote.updatedAt > local.updatedAt {
+            var merged = remote
+            merged.appColorPalette = remote.appColorPalette ?? local.appColorPalette
+            merged.readerTheme = remote.readerTheme ?? local.readerTheme
+            merged.readerFontFamily = remote.readerFontFamily ?? local.readerFontFamily
+            merged.readerFontSize = remote.readerFontSize ?? local.readerFontSize
+            merged.readerLineHeight = remote.readerLineHeight ?? local.readerLineHeight
+            merged.isCompactListMode = remote.isCompactListMode ?? local.isCompactListMode
+            merged.showFavicons = remote.showFavicons ?? local.showFavicons
+            merged.showMenuBarIcon = remote.showMenuBarIcon ?? local.showMenuBarIcon
+            merged.autoReaderMode = remote.autoReaderMode ?? local.autoReaderMode
+            merged.isBionicReadingEnabled = remote.isBionicReadingEnabled ?? local.isBionicReadingEnabled
+            merged.defaultReadingMode = remote.defaultReadingMode ?? local.defaultReadingMode
+            merged.showReadingTimeStreams = remote.showReadingTimeStreams ?? local.showReadingTimeStreams
+            merged.offlinePrecacheEnabled = remote.offlinePrecacheEnabled ?? local.offlinePrecacheEnabled
+            merged.isContentBlockerEnabled = remote.isContentBlockerEnabled ?? local.isContentBlockerEnabled
+            merged.preferredExternalBrowser = remote.preferredExternalBrowser ?? local.preferredExternalBrowser
+            merged.enableSingleKeyShortcuts = remote.enableSingleKeyShortcuts ?? local.enableSingleKeyShortcuts
+            merged.autoCleanupDays = remote.autoCleanupDays ?? local.autoCleanupDays
+            merged.mutedKeywords = remote.mutedKeywords ?? local.mutedKeywords
+
+            let shouldUpdateRemote = !merged.hasSamePreferences(as: remote)
+            return (merged, true, shouldUpdateRemote)
+        } else {
+            var merged = local
+            merged.appColorPalette = local.appColorPalette ?? remote.appColorPalette
+            merged.readerTheme = local.readerTheme ?? remote.readerTheme
+            merged.readerFontFamily = local.readerFontFamily ?? remote.readerFontFamily
+            merged.readerFontSize = local.readerFontSize ?? remote.readerFontSize
+            merged.readerLineHeight = local.readerLineHeight ?? remote.readerLineHeight
+            merged.isCompactListMode = local.isCompactListMode ?? remote.isCompactListMode
+            merged.showFavicons = local.showFavicons ?? remote.showFavicons
+            merged.showMenuBarIcon = local.showMenuBarIcon ?? remote.showMenuBarIcon
+            merged.autoReaderMode = local.autoReaderMode ?? remote.autoReaderMode
+            merged.isBionicReadingEnabled = local.isBionicReadingEnabled ?? remote.isBionicReadingEnabled
+            merged.defaultReadingMode = local.defaultReadingMode ?? remote.defaultReadingMode
+            merged.showReadingTimeStreams = local.showReadingTimeStreams ?? remote.showReadingTimeStreams
+            merged.offlinePrecacheEnabled = local.offlinePrecacheEnabled ?? remote.offlinePrecacheEnabled
+            merged.isContentBlockerEnabled = local.isContentBlockerEnabled ?? remote.isContentBlockerEnabled
+            merged.preferredExternalBrowser = local.preferredExternalBrowser ?? remote.preferredExternalBrowser
+            merged.enableSingleKeyShortcuts = local.enableSingleKeyShortcuts ?? remote.enableSingleKeyShortcuts
+            merged.autoCleanupDays = local.autoCleanupDays ?? remote.autoCleanupDays
+            merged.mutedKeywords = local.mutedKeywords ?? remote.mutedKeywords
+
+            let shouldUpdateLocal = !merged.hasSamePreferences(as: local)
+            return (merged, shouldUpdateLocal, true)
+        }
+    }
+
+    /// Merges feeds from an OPML document into existing feeds and folders.
+    static func mergeOPMLFeeds(
+        localFeeds: [Feed],
+        localFolders: [Folder],
+        opmlFeeds: [OPMLManager.OPMLFeed]
+    ) -> (mergedFeeds: [Feed], mergedFolders: [Folder], hasChanges: Bool) {
+        var mergedFeeds = localFeeds
+        var mergedFolders = localFolders
+        var existingUrls = Set(localFeeds.map { $0.url.lowercased() })
+        var hasChanges = false
+
+        for opml in opmlFeeds {
+            let normalizedUrl = opml.xmlUrl.lowercased()
+            guard !existingUrls.contains(normalizedUrl) else { continue }
+
+            var targetFolderId: UUID?
+            if let folderName = opml.folderName, !folderName.isEmpty {
+                if let found = mergedFolders.first(where: { $0.name.caseInsensitiveCompare(folderName) == .orderedSame }) {
+                    targetFolderId = found.id
+                } else {
+                    let newFolder = Folder(name: folderName)
+                    mergedFolders.append(newFolder)
+                    targetFolderId = newFolder.id
+                    hasChanges = true
+                }
+            }
+
+            let newFeed = Feed(
+                title: opml.title.isEmpty ? opml.xmlUrl : opml.title,
+                url: opml.xmlUrl,
+                folderId: targetFolderId
+            )
+            mergedFeeds.append(newFeed)
+            existingUrls.insert(normalizedUrl)
+            hasChanges = true
+        }
+
+        return (mergedFeeds, mergedFolders, hasChanges)
+    }
 }
