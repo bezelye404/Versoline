@@ -7,6 +7,10 @@ enum ReaderTheme: String, CaseIterable, Identifiable {
     case sepia
     case dark
     case oled
+    case solarized
+    case nordic
+    case matcha
+    case espresso
 
     var id: String { rawValue }
 
@@ -17,6 +21,10 @@ enum ReaderTheme: String, CaseIterable, Identifiable {
         case .sepia: return String(localized: "Sepia")
         case .dark: return String(localized: "Dark")
         case .oled: return String(localized: "OLED Black")
+        case .solarized: return String(localized: "Solarized Paper")
+        case .nordic: return String(localized: "Nordic Frost")
+        case .matcha: return String(localized: "Matcha Tea")
+        case .espresso: return String(localized: "Espresso Cream")
         }
     }
 
@@ -27,6 +35,10 @@ enum ReaderTheme: String, CaseIterable, Identifiable {
         case .sepia: return "#f8f1e3"
         case .dark: return "#1c1c1e"
         case .oled: return "#000000"
+        case .solarized: return "#fdf6e3"
+        case .nordic: return "#f4f6f8"
+        case .matcha: return "#f4f7f4"
+        case .espresso: return "#faf6f0"
         }
     }
 
@@ -37,6 +49,10 @@ enum ReaderTheme: String, CaseIterable, Identifiable {
         case .sepia: return "#433422"
         case .dark: return "#e5e5e7"
         case .oled: return "#d1d1d6"
+        case .solarized: return "#586e75"
+        case .nordic: return "#2e3440"
+        case .matcha: return "#2d3830"
+        case .espresso: return "#382d24"
         }
     }
 
@@ -47,6 +63,10 @@ enum ReaderTheme: String, CaseIterable, Identifiable {
         case .sepia: return "#9b4d0e"
         case .dark: return "#6cb4ee"
         case .oled: return "#5ea4ea"
+        case .solarized: return "#268bd2"
+        case .nordic: return "#5e81ac"
+        case .matcha: return "#577a5c"
+        case .espresso: return "#ad753d"
         }
     }
 }
@@ -170,6 +190,11 @@ enum AppColorPalette: String, CaseIterable, Identifiable {
     case sage
     case dusk
     case monochrome
+    case nordic
+    case espresso
+    case matcha
+    case bordeaux
+    case solarized
 
     var id: String { rawValue }
 
@@ -180,6 +205,11 @@ enum AppColorPalette: String, CaseIterable, Identifiable {
         case .sage: return String(localized: "Sage")
         case .dusk: return String(localized: "Dusk")
         case .monochrome: return String(localized: "Monochrome")
+        case .nordic: return String(localized: "Nordic Frost")
+        case .espresso: return String(localized: "Espresso Amber")
+        case .matcha: return String(localized: "Matcha & Moss")
+        case .bordeaux: return String(localized: "Bordeaux Plum")
+        case .solarized: return String(localized: "Solarized Paper")
         }
     }
 
@@ -190,28 +220,43 @@ enum AppColorPalette: String, CaseIterable, Identifiable {
         case .sage: return String(localized: "Natural Herb & Stone")
         case .dusk: return String(localized: "Muted Evening Violet")
         case .monochrome: return String(localized: "Minimal High-Contrast")
+        case .nordic: return String(localized: "Muted Polar Slate")
+        case .espresso: return String(localized: "Roasted Bean & Warm Leather")
+        case .matcha: return String(localized: "Dry Green Tea & Stone Garden")
+        case .bordeaux: return String(localized: "Antique Velvet & Library Leather")
+        case .solarized: return String(localized: "Mathematical Contrast Matrix")
         }
     }
 
-    // Accent Color
+    // Accent Color (Flat, matte, desaturated)
     var accentColor: Color {
         switch self {
-        case .slate: return Color(red: 0.28, green: 0.48, blue: 0.68)
-        case .sepia: return Color(red: 0.65, green: 0.38, blue: 0.22)
+        case .slate: return Color(red: 0.30, green: 0.46, blue: 0.62)
+        case .sepia: return Color(red: 0.66, green: 0.40, blue: 0.24)
         case .sage: return Color(red: 0.32, green: 0.50, blue: 0.40)
         case .dusk: return Color(red: 0.48, green: 0.40, blue: 0.62)
         case .monochrome: return Color.primary.opacity(0.85)
+        case .nordic: return Color(red: 0.36, green: 0.48, blue: 0.60)
+        case .espresso: return Color(red: 0.68, green: 0.46, blue: 0.24)
+        case .matcha: return Color(red: 0.34, green: 0.48, blue: 0.36)
+        case .bordeaux: return Color(red: 0.62, green: 0.32, blue: 0.38)
+        case .solarized: return Color(red: 0.18, green: 0.50, blue: 0.56)
         }
     }
 
     // Bookmark / Star
     var bookmarkColor: Color {
         switch self {
-        case .slate: return Color(red: 0.82, green: 0.58, blue: 0.24)
+        case .slate: return Color(red: 0.80, green: 0.58, blue: 0.26)
         case .sepia: return Color(red: 0.72, green: 0.45, blue: 0.20)
         case .sage: return Color(red: 0.68, green: 0.55, blue: 0.28)
         case .dusk: return Color(red: 0.74, green: 0.52, blue: 0.38)
         case .monochrome: return Color.primary.opacity(0.85)
+        case .nordic: return Color(red: 0.78, green: 0.62, blue: 0.38)
+        case .espresso: return Color(red: 0.72, green: 0.40, blue: 0.22)
+        case .matcha: return Color(red: 0.74, green: 0.60, blue: 0.32)
+        case .bordeaux: return Color(red: 0.76, green: 0.58, blue: 0.34)
+        case .solarized: return Color(red: 0.68, green: 0.52, blue: 0.16)
         }
     }
 
@@ -239,6 +284,21 @@ enum AppColorPalette: String, CaseIterable, Identifiable {
             case .monochrome:
                 return isDark ? NSColor(red: 0.10, green: 0.10, blue: 0.10, alpha: 1.0)
                               : NSColor(red: 0.96, green: 0.96, blue: 0.96, alpha: 1.0)
+            case .nordic:
+                return isDark ? NSColor(red: 0.11, green: 0.13, blue: 0.16, alpha: 1.0)
+                              : NSColor(red: 0.95, green: 0.96, blue: 0.97, alpha: 1.0)
+            case .espresso:
+                return isDark ? NSColor(red: 0.13, green: 0.11, blue: 0.10, alpha: 1.0)
+                              : NSColor(red: 0.97, green: 0.95, blue: 0.91, alpha: 1.0)
+            case .matcha:
+                return isDark ? NSColor(red: 0.10, green: 0.13, blue: 0.11, alpha: 1.0)
+                              : NSColor(red: 0.94, green: 0.96, blue: 0.94, alpha: 1.0)
+            case .bordeaux:
+                return isDark ? NSColor(red: 0.14, green: 0.11, blue: 0.13, alpha: 1.0)
+                              : NSColor(red: 0.97, green: 0.95, blue: 0.96, alpha: 1.0)
+            case .solarized:
+                return isDark ? NSColor(red: 0.02, green: 0.15, blue: 0.18, alpha: 1.0)
+                              : NSColor(red: 0.98, green: 0.96, blue: 0.89, alpha: 1.0)
             }
         })
     }
@@ -263,6 +323,21 @@ enum AppColorPalette: String, CaseIterable, Identifiable {
             case .monochrome:
                 return isDark ? NSColor(red: 0.12, green: 0.12, blue: 0.12, alpha: 1.0)
                               : NSColor(red: 0.98, green: 0.98, blue: 0.98, alpha: 1.0)
+            case .nordic:
+                return isDark ? NSColor(red: 0.13, green: 0.15, blue: 0.18, alpha: 1.0)
+                              : NSColor(red: 0.97, green: 0.98, blue: 0.99, alpha: 1.0)
+            case .espresso:
+                return isDark ? NSColor(red: 0.15, green: 0.13, blue: 0.11, alpha: 1.0)
+                              : NSColor(red: 0.98, green: 0.96, blue: 0.93, alpha: 1.0)
+            case .matcha:
+                return isDark ? NSColor(red: 0.12, green: 0.15, blue: 0.13, alpha: 1.0)
+                              : NSColor(red: 0.96, green: 0.97, blue: 0.95, alpha: 1.0)
+            case .bordeaux:
+                return isDark ? NSColor(red: 0.16, green: 0.13, blue: 0.15, alpha: 1.0)
+                              : NSColor(red: 0.98, green: 0.96, blue: 0.97, alpha: 1.0)
+            case .solarized:
+                return isDark ? NSColor(red: 0.04, green: 0.19, blue: 0.23, alpha: 1.0)
+                              : NSColor(red: 0.95, green: 0.93, blue: 0.85, alpha: 1.0)
             }
         })
     }
@@ -287,6 +362,21 @@ enum AppColorPalette: String, CaseIterable, Identifiable {
             case .monochrome:
                 return isDark ? NSColor(red: 0.16, green: 0.16, blue: 0.16, alpha: 1.0)
                               : NSColor(white: 1.0, alpha: 0.95)
+            case .nordic:
+                return isDark ? NSColor(red: 0.17, green: 0.19, blue: 0.23, alpha: 1.0)
+                              : NSColor(white: 1.0, alpha: 0.92)
+            case .espresso:
+                return isDark ? NSColor(red: 0.19, green: 0.16, blue: 0.14, alpha: 1.0)
+                              : NSColor(red: 0.99, green: 0.98, blue: 0.96, alpha: 0.95)
+            case .matcha:
+                return isDark ? NSColor(red: 0.16, green: 0.19, blue: 0.17, alpha: 1.0)
+                              : NSColor(red: 0.98, green: 0.99, blue: 0.98, alpha: 0.92)
+            case .bordeaux:
+                return isDark ? NSColor(red: 0.20, green: 0.16, blue: 0.19, alpha: 1.0)
+                              : NSColor(white: 1.0, alpha: 0.92)
+            case .solarized:
+                return isDark ? NSColor(red: 0.06, green: 0.23, blue: 0.27, alpha: 1.0)
+                              : NSColor(red: 0.99, green: 0.98, blue: 0.93, alpha: 0.95)
             }
         })
     }
@@ -307,7 +397,11 @@ enum AppColorPalette: String, CaseIterable, Identifiable {
     var readerThemeDefault: ReaderTheme {
         switch self {
         case .sepia: return .sepia
-        case .slate, .sage, .dusk, .monochrome: return .system
+        case .solarized: return .solarized
+        case .nordic: return .nordic
+        case .matcha: return .matcha
+        case .espresso: return .espresso
+        case .slate, .sage, .dusk, .monochrome, .bordeaux: return .system
         }
     }
 }
