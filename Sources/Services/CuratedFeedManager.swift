@@ -132,4 +132,11 @@ final class CuratedFeedManager {
             cat.feeds.map { (category: cat.category, feed: $0) }
         }
     }
+
+    func clearMemory() {
+        guard hasLoaded else { return }
+        internalCategories = []
+        hasLoaded = false
+        AppLogger.shared.log("Curated feed catalog purged from RAM", level: .debug, category: .storage)
+    }
 }

@@ -64,6 +64,7 @@ struct EasyRSSApp: App {
         ImageDownsampleCache.shared.clearMemory()
         FaviconService.shared.clearMemoryCache()
         ReaderModeExtractor.shared.clearMemoryCache()
+        CuratedFeedManager.shared.clearMemory()
         PodcastSearchService.shared.clearCache()
         URLCache.shared.removeAllCachedResponses()
         URLSession.shared.flush(completionHandler: {})
