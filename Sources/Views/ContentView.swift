@@ -22,8 +22,6 @@ struct ContentView: View {
         AppColorPalette(rawValue: appColorPaletteRaw) ?? .slate
     }
 
-    // 30 minutes (1800 seconds) auto-refresh timer
-    let autoRefreshTimer = Timer.publish(every: 1800, on: .main, in: .common).autoconnect()
 
     var body: some View {
         VStack(spacing: 0) {
@@ -217,8 +215,10 @@ struct ContentView: View {
                 await store.refreshAllFeeds()
             }
         }
-        .onReceive(autoRefreshTimer) { _ in
-            Task {
+        .task {
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 1800 * 1_000_000_000)
+                guard !Task.isCancelled else { break }
                 await store.refreshAllFeeds()
             }
         }

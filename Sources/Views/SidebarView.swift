@@ -42,7 +42,9 @@ struct SidebarView: View {
                 .frame(height: 36)
                 .background(.bar)
         }
-        .sheet(isPresented: $showAddFeed) {
+        .sheet(isPresented: $showAddFeed, onDismiss: {
+            CuratedFeedManager.shared.clearMemory()
+        }) {
             AddFeedSheet()
         }
         .sheet(isPresented: $showFolderManagement) {

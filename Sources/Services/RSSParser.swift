@@ -393,23 +393,47 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
             let itemLink = currentLink.trimmingCharacters(in: .whitespacesAndNewlines)
 
             // Offload rich HTML to disk cache immediately for Reader Mode only if substantive full content exists.
-            // Do NOT save short teaser descriptions (cleanDesc) as they poison the cache with 150-char snippets.
+            let parsedPubDate = parseDate(currentPubDate.trimmingCharacters(in: .whitespacesAndNewlines))
             if !cleanContent.isEmpty && cleanContent.count > 600 && !itemLink.isEmpty {
                 Task { @MainActor in
-                    ReaderModeExtractor.shared.saveToCache(urlString: itemLink, content: cleanContent, storeInMemory: false)
+                    let formatted = ReaderModeExtractor.shared.formatFeedContentAsReaderHTML(
+                        title: cleanTitle.isEmpty ? itemLink : cleanTitle,
+                        author: cleanAuthor.isEmpty ? nil : cleanAuthor,
+                        pubDate: parsedPubDate,
+                        htmlContent: cleanContent,
+                        link: itemLink,
+                        feedTitle: nil,
+                        includeHeader: true
+                    )
+                    ReaderModeExtractor.shared.saveToCache(urlString: itemLink, content: formatted, storeInMemory: false)
+                }
+            } else if cleanContent.isEmpty && cleanDesc.count > 400 && !itemLink.isEmpty {
+                Task { @MainActor in
+                    let formatted = ReaderModeExtractor.shared.formatFeedContentAsReaderHTML(
+                        title: cleanTitle.isEmpty ? itemLink : cleanTitle,
+                        author: cleanAuthor.isEmpty ? nil : cleanAuthor,
+                        pubDate: parsedPubDate,
+                        htmlContent: cleanDesc,
+                        link: itemLink,
+                        feedTitle: nil,
+                        includeHeader: true
+                    )
+                    ReaderModeExtractor.shared.saveToCache(urlString: itemLink, content: formatted, storeInMemory: false, overwrite: false)
                 }
             }
+
+            let snippet = precomputedSnippet.count > 180 ? String(precomputedSnippet.prefix(180)) : precomputedSnippet
 
             let item = FeedItem(
                 feedId: feedId,
                 title: cleanTitle.isEmpty ? itemLink : cleanTitle,
                 link: itemLink,
-                itemDescription: precomputedSnippet,
-                pubDate: parseDate(currentPubDate.trimmingCharacters(in: .whitespacesAndNewlines)),
+                itemDescription: snippet,
+                pubDate: parsedPubDate,
                 author: cleanAuthor.isEmpty ? nil : cleanAuthor,
                 isRead: false,
                 content: nil,
-                snippet: precomputedSnippet,
+                snippet: snippet,
                 category: cleanCategory.isEmpty ? nil : cleanCategory,
                 audioURL: currentAudioURL,
                 audioDuration: currentAudioDuration.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : currentAudioDuration.trimmingCharacters(in: .whitespacesAndNewlines),
