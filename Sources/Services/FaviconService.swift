@@ -333,7 +333,7 @@ final class ImageDownsampleCache {
         return result
     }
 
-    static func writeCGImageToDisk(_ cgImage: CGImage, destinationURL: URL) {
+    nonisolated static func writeCGImageToDisk(_ cgImage: CGImage, destinationURL: URL) {
         guard let destination = CGImageDestinationCreateWithURL(destinationURL as CFURL, "public.png" as CFString, 1, nil) else { return }
         CGImageDestinationAddImage(destination, cgImage, nil)
         CGImageDestinationFinalize(destination)
