@@ -115,6 +115,9 @@ struct AddFeedSheet: View {
             }
         }
         .frame(width: 640, height: 560)
+        .onDisappear {
+            CuratedFeedManager.shared.clearMemory()
+        }
     }
 
     // MARK: - Custom URL View

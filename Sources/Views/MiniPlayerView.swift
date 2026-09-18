@@ -412,6 +412,7 @@ struct MiniPlayerView: View {
                     if let vID = video.youtubeVideoID {
                         withAnimation(AppAnimation.pageReveal) {
                             store.fullscreenVideo = FullscreenVideoContext(videoID: vID, title: video.title, link: video.link)
+                            videoPlayer.isFullscreen = true
                         }
                     }
                 } label: {

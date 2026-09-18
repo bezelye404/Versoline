@@ -5,16 +5,18 @@ import WebKit
 
 struct SharedVideoCanvasView: NSViewRepresentable {
 
+    var isModalFullscreen: Bool = false
+
     func makeNSView(context: Context) -> NSView {
         let container = NSView()
         container.wantsLayer = true
         container.layer?.backgroundColor = NSColor.black.cgColor
-        VideoPlayerService.shared.attach(to: container)
+        VideoPlayerService.shared.attach(to: container, isFullscreen: isModalFullscreen)
         return container
     }
 
     func updateNSView(_ nsView: NSView, context: Context) {
-        VideoPlayerService.shared.attach(to: nsView)
+        VideoPlayerService.shared.attach(to: nsView, isFullscreen: isModalFullscreen)
     }
 
     static func dismantleNSView(_ nsView: NSView, coordinator: ()) {
@@ -62,6 +64,7 @@ struct YouTubePlayerView: View {
                         onToggleFullscreen: {
                             withAnimation(AppAnimation.pageReveal) {
                                 store.fullscreenVideo = FullscreenVideoContext(videoID: videoID, title: title, link: link)
+                                videoPlayer.isFullscreen = true
                             }
                         }
                     )
@@ -237,6 +240,7 @@ struct NativeVideoPlayerCanvas: View {
     var isModalFullscreen: Bool = false
     let onToggleFullscreen: () -> Void
 
+    @Environment(FeedStore.self) private var store
     @Bindable private var videoPlayer = VideoPlayerService.shared
 
     @State private var isControlsVisible: Bool = true
@@ -249,7 +253,8 @@ struct NativeVideoPlayerCanvas: View {
     var body: some View {
         ZStack {
             // 1. Shared Headless Hardware Video Canvas
-            SharedVideoCanvasView()
+            SharedVideoCanvasView(isModalFullscreen: isModalFullscreen)
+                .id("shared-video-canvas-\(isModalFullscreen ? "modal" : "inline")-\(store.fullscreenVideo == nil)")
                 .background(Color.black)
 
             // 2. Instant Tap Canvas (Single tap: play/pause instantly with 0 delay)
