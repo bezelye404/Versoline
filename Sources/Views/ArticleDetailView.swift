@@ -1133,33 +1133,36 @@ struct QuoteCardSheet: View {
             .padding(.horizontal, 20)
 
             // Palette selector
-            HStack(spacing: 12) {
-                Text(String(localized: "Palette:"))
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    Text(String(localized: "Palette:"))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
 
-                ForEach(AppColorPalette.allCases) { palette in
-                    Button {
-                        selectedPalette = palette
-                    } label: {
-                        Circle()
-                            .fill(palette.accentColor)
-                            .frame(width: 18, height: 18)
-                            .overlay(
-                                Circle()
-                                    .strokeBorder(Color.white, lineWidth: selectedPalette == palette ? 2 : 0)
-                            )
-                            .overlay(
-                                Circle()
-                                    .strokeBorder(selectedPalette == palette ? palette.accentColor : Color.clear, lineWidth: 1)
-                                    .scaleEffect(1.3)
-                            )
+                    ForEach(AppColorPalette.allCases) { palette in
+                        Button {
+                            selectedPalette = palette
+                        } label: {
+                            Circle()
+                                .fill(palette.accentColor)
+                                .frame(width: 18, height: 18)
+                                .overlay(
+                                    Circle()
+                                        .strokeBorder(Color.white, lineWidth: selectedPalette == palette ? 2 : 0)
+                                )
+                                .overlay(
+                                    Circle()
+                                        .strokeBorder(selectedPalette == palette ? palette.accentColor : Color.clear, lineWidth: 1)
+                                        .scaleEffect(1.3)
+                                )
+                        }
+                        .buttonStyle(.plain)
+                        .help(palette.title)
                     }
-                    .buttonStyle(.plain)
                 }
-                Spacer()
+                .padding(.horizontal, 20)
+                .padding(.vertical, 2)
             }
-            .padding(.horizontal, 20)
 
             Divider()
 

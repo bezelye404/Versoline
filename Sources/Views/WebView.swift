@@ -213,6 +213,14 @@ struct WebView: NSViewRepresentable {
             webView.underPageBackgroundColor = NSColor(white: 0.11, alpha: 1.0)
         case .oled:
             webView.underPageBackgroundColor = .black
+        case .solarized:
+            webView.underPageBackgroundColor = NSColor(red: 0.99, green: 0.96, blue: 0.89, alpha: 1.0)
+        case .nordic:
+            webView.underPageBackgroundColor = NSColor(red: 0.96, green: 0.96, blue: 0.97, alpha: 1.0)
+        case .matcha:
+            webView.underPageBackgroundColor = NSColor(red: 0.96, green: 0.97, blue: 0.96, alpha: 1.0)
+        case .espresso:
+            webView.underPageBackgroundColor = NSColor(red: 0.98, green: 0.96, blue: 0.94, alpha: 1.0)
         }
     }
 

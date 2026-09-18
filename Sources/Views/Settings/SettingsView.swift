@@ -78,30 +78,32 @@ private struct GeneralSettingsTab: View {
     var body: some View {
         Form {
             Section("Theme") {
-                VStack(spacing: 8) {
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
                     ForEach(AppColorPalette.allCases) { palette in
                         let isSelected = (appColorPaletteRaw == palette.rawValue)
-                        HStack(spacing: 12) {
-                            HStack(spacing: 4) {
+                        HStack(spacing: 8) {
+                            HStack(spacing: 3) {
                                 Circle()
                                     .fill(palette.accentColor)
-                                    .frame(width: 14, height: 14)
+                                    .frame(width: 12, height: 12)
                                 Circle()
                                     .fill(palette.bookmarkColor)
-                                    .frame(width: 14, height: 14)
+                                    .frame(width: 12, height: 12)
                             }
-                            .padding(.horizontal, 4)
+                            .padding(.leading, 2)
 
                             VStack(alignment: .leading, spacing: 1) {
                                 Text(palette.title)
                                     .font(.subheadline)
-                                    .fontWeight(isSelected ? .semibold : .regular)
+                                    .fontWeight(isSelected ? .semibold : .medium)
+                                    .lineLimit(1)
                                 Text(palette.subtitle)
                                     .font(.caption2)
                                     .foregroundStyle(.secondary)
+                                    .lineLimit(1)
                             }
 
-                            Spacer()
+                            Spacer(minLength: 4)
 
                             if isSelected {
                                 Image(systemName: "checkmark.circle.fill")
@@ -110,14 +112,14 @@ private struct GeneralSettingsTab: View {
                             }
                         }
                         .padding(.horizontal, 10)
-                        .padding(.vertical, 7)
+                        .padding(.vertical, 8)
                         .background(
                             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .fill(isSelected ? palette.accentColor.opacity(0.10) : Color.primary.opacity(0.03))
+                                .fill(isSelected ? palette.accentColor.opacity(0.12) : Color.primary.opacity(0.03))
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .strokeBorder(isSelected ? palette.accentColor.opacity(0.35) : Color.clear, lineWidth: 1)
+                                .strokeBorder(isSelected ? palette.accentColor.opacity(0.40) : Color.primary.opacity(0.06), lineWidth: 1)
                         )
                         .contentShape(Rectangle())
                         .onTapGesture {
