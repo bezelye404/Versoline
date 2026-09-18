@@ -296,8 +296,11 @@ enum AppAnimation {
     /// Kart tıklama/dokunma tepkisi: Basılma hissi (0.15s)
     static let cardPress = Animation.interactiveSpring(response: 0.15, dampingFraction: 0.75)
 
-    /// Pürüzsüz sayfa ve makale geçiş yayı (0.26s)
+    /// Pürüzsüz sayfa ve modal açılış yayı (0.26s)
     static let pageReveal = Animation.spring(response: 0.26, dampingFraction: 0.85)
+
+    /// Hızlı, ipeksi ve keskin makale içerik geçiş yayı (0.20s, Apple HIG uyumlu, sıçramasız)
+    static let articleTransition = Animation.spring(response: 0.20, dampingFraction: 0.90)
 
     /// Klasör akordeon açılma yayı (0.24s)
     static let accordion = Animation.spring(response: 0.24, dampingFraction: 0.82)
