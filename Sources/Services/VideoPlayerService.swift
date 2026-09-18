@@ -70,7 +70,6 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
         }
 
         let configuration = WKWebViewConfiguration()
-        configuration.processPool = WebView.sharedProcessPool
         configuration.websiteDataStore = WebView.sharedEphemeralDataStore
         configuration.mediaTypesRequiringUserActionForPlayback = []
         configuration.allowsAirPlayForMediaPlayback = true
