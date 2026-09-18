@@ -98,46 +98,58 @@ enum HTMLCleaner {
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private static let noisePatterns: [String] = [
-        #"(?i)[^\n<]{0,60}google['\u2019]?\s*(?:da|de)?\s*favori[^\n<]{0,100}"#,
-        #"(?i)linke tıkla[^\n\.<]{0,120}"#,
-        #"(?i)tıkla ve [^\n\.<]{0,80}"#,
-        #"(?i)^\s*anasayfa[\s\S]{0,150}?(?:gündem|ekonomi|spor|dünya|yaşam|yerel gündem|teknoloji)[\s\S]{0,80}?\n"#,
-        #"(?i)\b\d{1,2}:\d{2},\s*\d{1,2}[\/\.]\d{1,2}[\/\.]\d{4}[^\n<]*"#,
-        #"(?i)paylaş[\s\S]{0,40}(?:facebook|x|whatsapp|linkedin|nsosyal|bağlantıyı kopyala)[\s\S]{0,120}"#,
-        #"(?i)(?:facebook|twitter|whatsapp|linkedin|telegram|reddit)\s+ile\s+paylaş[^\n<]{0,100}"#,
-        #"(?i)bizi\s+(?:sosyal medyada|x'te|twitter'da|facebook'ta)\s+takip edin[^\n<]{0,100}"#,
-        #"(?i)giriş:\s*\d{1,2}\s+[a-zA-ZğüşıöçĞÜŞİÖÇ]+\s+\d{4}[^\n<]*güncelleme:\s*\d{1,2}\s+[a-zA-ZğüşıöçĞÜŞİÖÇ]+\s+\d{4}[^\n<]*"#,
-        #"(?i)<script[\s\S]*?</script>"#,
-        #"(?i)<noscript[\s\S]*?</noscript>"#
-    ]
+    private static let noiseRegexes: [NSRegularExpression] = {
+        let patterns = [
+            #"[^\n<]{0,60}google['\u2019]?\s*(?:da|de)?\s*favori[^\n<]{0,100}"#,
+            #"linke tıkla[^\n\.<]{0,120}"#,
+            #"tıkla ve [^\n\.<]{0,80}"#,
+            #"^\s*anasayfa[\s\S]{0,150}?(?:gündem|ekonomi|spor|dünya|yaşam|yerel gündem|teknoloji)[\s\S]{0,80}?\n"#,
+            #"\b\d{1,2}:\d{2},\s*\d{1,2}[\/\.]\d{1,2}[\/\.]\d{4}[^\n<]*"#,
+            #"paylaş[\s\S]{0,40}(?:facebook|x|whatsapp|linkedin|nsosyal|bağlantıyı kopyala)[\s\S]{0,120}"#,
+            #"(?:facebook|twitter|whatsapp|linkedin|telegram|reddit)\s+ile\s+paylaş[^\n<]{0,100}"#,
+            #"bizi\s+(?:sosyal medyada|x'te|twitter'da|facebook'ta)\s+takip edin[^\n<]{0,100}"#,
+            #"giriş:\s*\d{1,2}\s+[a-zA-ZğüşıöçĞÜŞİÖÇ]+\s+\d{4}[^\n<]*güncelleme:\s*\d{1,2}\s+[a-zA-ZğüşıöçĞÜŞİÖÇ]+\s+\d{4}[^\n<]*"#,
+            #"<script[\s\S]*?</script>"#,
+            #"<noscript[\s\S]*?</noscript>"#
+        ]
+        return patterns.compactMap { try? NSRegularExpression(pattern: $0, options: [.caseInsensitive]) }
+    }()
 
     /// Removes repetitive RSS social sharing footers, clickbait headers, and timestamp boilerplate.
     static func removeBoilerplateNoise(_ string: String) -> String {
         var text = string
-        for pat in noisePatterns {
-            text = text.replacingOccurrences(of: pat, with: "", options: .regularExpression)
+        for regex in noiseRegexes {
+            let nsText = text as NSString
+            text = regex.stringByReplacingMatches(in: text, options: [], range: NSRange(location: 0, length: nsText.length), withTemplate: "")
         }
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private static let adTagPatterns: [String] = [
-        #"(?i)<(?:div|section|aside|figure|p|span)[^>]*(?:class|id)=["'][^"']*(?:reklam|adv-|advertisement|ad-banner|banner-ad|sponsor|dfp|google-ad|taboola|outbrain|ins-element|criteo)[^"']*["'][\s\S]*?</(?:div|section|aside|figure|p|span)>"#,
-        #"(?i)<a[^>]*(?:href|data-href)=["'][^"']*(?:doubleclick|googlesyndication|adclick|adservice|reklam|banner)[^"']*["'][^>]*>[\s\S]*?</a>"#,
-        #"(?i)<img[^>]*(?:class|alt|src)=["'][^"']*(?:reklam|ad-banner|sponsor|banner)[^"']*["'][^>]*>"#,
-        #"(?i)<img[^>]*(?:width=["'](?:0|1)["'][^>]*height=["'](?:0|1)["']|height=["'](?:0|1)["'][^>]*width=["'](?:0|1)["'])[^>]*>"#,
-        #"(?i)<ins[\s\S]*?</ins>"#,
-        #"(?i)<iframe[^>]*(?:google|doubleclick|taboola|outbrain|criteo|facebook\.com\/plugins|platform\.twitter)[\s\S]*?</iframe>"#
-    ]
+    private static let adTagRegexes: [NSRegularExpression] = {
+        let patterns = [
+            #"<(?:div|section|aside|figure|p|span)[^>]*(?:class|id)=["'][^"']*(?:reklam|adv-|advertisement|ad-banner|banner-ad|sponsor|dfp|google-ad|taboola|outbrain|ins-element|criteo)[^"']*["'][\s\S]*?</(?:div|section|aside|figure|p|span)>"#,
+            #"<a[^>]*(?:href|data-href)=["'][^"']*(?:doubleclick|googlesyndication|adclick|adservice|reklam|banner)[^"']*["'][^>]*>[\s\S]*?</a>"#,
+            #"<img[^>]*(?:class|alt|src)=["'][^"']*(?:reklam|ad-banner|sponsor|banner)[^"']*["'][^>]*>"#,
+            #"<img[^>]*(?:width=["'](?:0|1)["'][^>]*height=["'](?:0|1)["']|height=["'](?:0|1)["'][^>]*width=["'](?:0|1)["'])[^>]*>"#,
+            #"<ins[\s\S]*?</ins>"#,
+            #"<iframe[^>]*(?:google|doubleclick|taboola|outbrain|criteo|facebook\.com\/plugins|platform\.twitter)[\s\S]*?</iframe>"#
+        ]
+        return patterns.compactMap { try? NSRegularExpression(pattern: $0, options: [.caseInsensitive]) }
+    }()
+
+    private static let emptyParagraphRegex = try? NSRegularExpression(pattern: #"<p>\s*(?:&nbsp;|\s)*</p>"#, options: [.caseInsensitive])
 
     /// Removes embedded ad banners, sponsor graphics, tracking pixels and auxiliary iframes.
     static func stripAdvertisementsAndBanners(_ html: String) -> String {
         var text = html
-        for pat in adTagPatterns {
-            text = text.replacingOccurrences(of: pat, with: "", options: .regularExpression)
+        for regex in adTagRegexes {
+            let nsText = text as NSString
+            text = regex.stringByReplacingMatches(in: text, options: [], range: NSRange(location: 0, length: nsText.length), withTemplate: "")
         }
-        // Remove empty paragraph tags
-        text = text.replacingOccurrences(of: #"(?i)<p>\s*(?:&nbsp;|\s)*</p>"#, with: "", options: .regularExpression)
+        if let emptyPara = emptyParagraphRegex {
+            let nsText = text as NSString
+            text = emptyPara.stringByReplacingMatches(in: text, options: [], range: NSRange(location: 0, length: nsText.length), withTemplate: "")
+        }
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

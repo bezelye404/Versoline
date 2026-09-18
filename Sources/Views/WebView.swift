@@ -145,6 +145,9 @@ struct WebView: NSViewRepresentable {
                                coordinator.lastBionicReading != isBionicReadingEnabled
 
             if coordinator.lastLoadedHTML != html || styleChanged {
+                if coordinator.lastLoadedHTML != nil && coordinator.lastLoadedHTML != html {
+                    Self.flushMemoryCache()
+                }
                 coordinator.lastLoadedHTML = html
                 coordinator.lastFontSize = fontSize
                 coordinator.lastTheme = theme
@@ -184,6 +187,10 @@ struct WebView: NSViewRepresentable {
 
     static func dismantleNSView(_ webView: WKWebView, coordinator: Coordinator) {
         webView.stopLoading()
+        // Load about:blank so the WebContent process immediately purges DOM, render layers, and decoded image memory
+        if let blankURL = URL(string: "about:blank") {
+            webView.load(URLRequest(url: blankURL))
+        }
         webView.navigationDelegate = nil
         webView.uiDelegate = nil
         webView.removeFromSuperview()
@@ -252,7 +259,13 @@ struct WebView: NSViewRepresentable {
             }
             a { color: \(theme.linkColorCSS); text-decoration: none; }
             a:hover { text-decoration: underline; }
-            img { max-width: 100%; height: auto; border-radius: 8px; margin: 12px 0; }
+            img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 8px;
+                margin: 12px 0;
+                content-visibility: auto;
+            }
             
             /* Native Code & Syntax Highlighting */
             pre, code {

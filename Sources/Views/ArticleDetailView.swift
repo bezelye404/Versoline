@@ -26,7 +26,7 @@ struct ArticleDetailView: View {
     @State private var speechSynthesizer: AVSpeechSynthesizer? = nil
     @State private var speechDelegate = ArticleSpeechDelegate()
     @State private var showQuoteCardSheet = false
-    @State private var navigatedArticleCount = 0
+    @State private var currentExtractionTask: Task<Void, Never>? = nil
     @Namespace private var animationNamespace
 
     private let networkMonitor = NetworkMonitor.shared
@@ -108,10 +108,8 @@ struct ArticleDetailView: View {
                         videoPlayer.close()
                     }
 
-                    navigatedArticleCount += 1
-                    if navigatedArticleCount % 15 == 0 {
-                        WebView.flushMemoryCache()
-                    }
+                    // Flush WebKit memory cache on every article navigation to release decoded images of previous article
+                    WebView.flushMemoryCache()
 
                     resetStateForNewArticle(item: item)
                 }
@@ -119,6 +117,8 @@ struct ArticleDetailView: View {
                     resetStateForNewArticle(item: item)
                 }
                 .onDisappear {
+                    currentExtractionTask?.cancel()
+                    currentExtractionTask = nil
                     stopSpeech()
                     let videoPlayer = VideoPlayerService.shared
                     if !videoPlayer.isPlaying {
@@ -152,6 +152,8 @@ struct ArticleDetailView: View {
     }
 
     private func resetStateForNewArticle(item: FeedItem) {
+        currentExtractionTask?.cancel()
+        currentExtractionTask = nil
         stopSpeech()
         let defaultMode = ReadingViewMode(rawValue: defaultReadingModeRaw) ?? .reader
         activeViewMode = defaultMode
@@ -950,7 +952,9 @@ struct ArticleDetailView: View {
         }
 
         isLoadingReaderMode = true
-        Task {
+        let targetId = item.id
+        currentExtractionTask?.cancel()
+        currentExtractionTask = Task {
             let extracted = await ReaderModeExtractor.shared.extract(
                 from: item.link,
                 fallbackContent: item.content ?? item.itemDescription,
@@ -959,6 +963,8 @@ struct ArticleDetailView: View {
                 pubDate: item.pubDate,
                 forceWebFetch: forceWeb
             )
+            guard !Task.isCancelled else { return }
+            guard currentItem?.id == targetId else { return }
             isLoadingReaderMode = false
             if let extracted, !extracted.isEmpty {
                 extractedReaderHTML = extracted

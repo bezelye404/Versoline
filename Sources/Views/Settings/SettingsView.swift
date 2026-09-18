@@ -501,11 +501,20 @@ private struct StorageSettingsTab: View {
     @AppStorage(AppSettingsKeys.autoCleanupDays) private var autoCleanupDays = 30
     @State private var showCleanupSuccess = false
     @State private var clearedFavicons = false
+    @State private var clearedImageCache = false
     @State private var clearedOfflineCache = false
     @State private var clearedPodcastDownloads = false
     @State private var clearedWebCache = false
     @State private var showResetConfirmation = false
     @State private var resetCompleted = false
+
+    private var formattedImageCacheSize: String {
+        let bytes = ImageDownsampleCache.shared.diskCacheSizeBytes
+        let formatter = ByteCountFormatter()
+        formatter.allowedUnits = [.useKB, .useMB]
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: bytes)
+    }
 
     private var formattedDatabaseSize: String {
         let bytes = store.databaseSizeBytes
@@ -590,6 +599,21 @@ private struct StorageSettingsTab: View {
 
                 if showCleanupSuccess {
                     Text("Cleanup complete!")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                }
+            }
+
+            Section("Image & Thumbnail Cache") {
+                LabeledContent("Cache Size on Disk:", value: formattedImageCacheSize)
+
+                Button("Clear Image & Thumbnail Cache") {
+                    ImageDownsampleCache.shared.clearDiskCache()
+                    clearedImageCache = true
+                }
+
+                if clearedImageCache {
+                    Text("Image cache cleared successfully.")
                         .font(.caption)
                         .foregroundStyle(.green)
                 }
