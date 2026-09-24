@@ -313,7 +313,7 @@ struct ConsoleView: View {
         let panel = NSSavePanel()
         panel.title = "Export Console Logs"
         panel.allowedContentTypes = [.plainText]
-        panel.nameFieldStringValue = "easyRSS_debug_logs.txt"
+        panel.nameFieldStringValue = "versoline_debug_logs.txt"
 
         guard panel.runModal() == .OK, let url = panel.url else { return }
 

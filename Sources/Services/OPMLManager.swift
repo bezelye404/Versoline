@@ -33,7 +33,7 @@ final class OPMLManager: NSObject, XMLParserDelegate, @unchecked Sendable {
         var lines: [String] = []
         lines.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
         lines.append("<opml version=\"2.0\">")
-        lines.append("<head><title>easyRSS Subscriptions</title></head>")
+        lines.append("<head><title>Versoline Subscriptions</title></head>")
         lines.append("<body>")
 
         // Feeds grouped by folder

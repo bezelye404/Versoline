@@ -152,7 +152,7 @@ private struct GeneralSettingsTab: View {
 
             Section {
                 Toggle("Show Menu Bar Icon", isOn: $showMenuBarIcon)
-                Text("Keeps an easyRSS status icon in your macOS top menu bar with an unread badge.")
+                Text("Keeps a Versoline status icon in your macOS top menu bar with an unread badge.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

@@ -21,7 +21,7 @@ final class PodcastDownloadService {
 
     private init() {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let dir = appSupport.appendingPathComponent("EasyRSS/Downloads", isDirectory: true)
+        let dir = appSupport.appendingPathComponent("Versoline/Downloads", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         self.downloadsDirectory = dir
         scanExistingDownloads()
