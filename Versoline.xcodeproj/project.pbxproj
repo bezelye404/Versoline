@@ -1,0 +1,705 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		00905F32F41F55957BA7E7BF /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 454BE2DA7AB62AD7EE53D550 /* Feed.swift */; };
+		03CB3A46D8AEAC46076505EA /* SyncCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B93733FFD8B0C7DF890D5AE /* SyncCoordinator.swift */; };
+		06153453F82387E16F0E44BD /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 095EC2CC2671D488A81C2202 /* Folder.swift */; };
+		0BE1E43EFE4C5F4804C2678A /* ICloudDriveSyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FB0AA4CA40FA57E2491600 /* ICloudDriveSyncEngine.swift */; };
+		11FAC03043D65C2FC65B974C /* ContentBlockerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D95F851B7D3243C64939BC /* ContentBlockerService.swift */; };
+		1210A9E476E6F0A1439C615F /* FaviconService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02D94482B96A3A67D2BE9C0 /* FaviconService.swift */; };
+		1E63416EC9A6B18617EA60B8 /* VersolineApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498D9B9622E0529349F8A755 /* VersolineApp.swift */; };
+		2B4F159045B1BD9105F6C96E /* curated_feeds.json in Resources */ = {isa = PBXBuildFile; fileRef = AB24CA8959980EC771C82E02 /* curated_feeds.json */; };
+		2C532173A7887BFC5B4CB7C5 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FAFB15B100CE44093DCDFED /* AppLogger.swift */; };
+		2C8B93C8DEB9668B7E18FD48 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8C88EA3FDA633C357495C3 /* AppSettings.swift */; };
+		39B20F231F0DFBEF9C5CA7BA /* AddFeedSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74371D7BFE5B4B3C0F8CDC90 /* AddFeedSheet.swift */; };
+		40E02A356C8DC28301B10045 /* SmartMergeEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8715B2B9006F7C3B90C75139 /* SmartMergeEngine.swift */; };
+		46706FCE697536256918DD47 /* CuratedFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6367804844FC37736A6FB50C /* CuratedFeed.swift */; };
+		4AC95FD055B6E1F6B4F63D5B /* ArticleDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF7B998966B2DE056690E1A1 /* ArticleDetailView.swift */; };
+		51A1EDC7A8EBE67398DDEE12 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6F2757FC5628447B474EC234 /* Assets.xcassets */; };
+		580AC0F6ECF510287E83D44A /* LegacyMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 037F080F56F584EEC68F2683 /* LegacyMigrationTests.swift */; };
+		5FA5CD3B0D1713949F7FEDBE /* CuratedFeedManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7EEAE8836C50ED6DCDC4A4 /* CuratedFeedManager.swift */; };
+		61C0996E6A9D537A00BDEFC8 /* FeedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D118468A541EDD3D01F36EC /* FeedStore.swift */; };
+		657CC07A7DE9337BE28A2910 /* YouTubePlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D789E557A688147D270B120 /* YouTubePlayerView.swift */; };
+		65C4D53293825BB077E4055B /* OPMLManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4CE756922485ED1735619D8 /* OPMLManager.swift */; };
+		7323B966BA75FF522189CABC /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B2AF1314D3ED28D8EBBF87B /* SidebarView.swift */; };
+		7410B2758BF79BFF6E07BB85 /* FeedListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 820EBF240155D2F38C1F5E81 /* FeedListView.swift */; };
+		75E4C7C89881F64EAC55BD6F /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 374A0237B0BE4542CEB8CB7F /* WebView.swift */; };
+		76B5B96C5C29A35EABE9D9E7 /* KeyboardShortcutsHelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5752FDC6DD90D696F80B2D70 /* KeyboardShortcutsHelpView.swift */; };
+		7ED42CFB7BE6A36CA5A23312 /* AudioPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15E5F62D8D57E0C3E52776E4 /* AudioPlayerService.swift */; };
+		7FAB7ADBE5DB2FA7BF499193 /* FeedHealthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42163A4A7D72978A2D14A66B /* FeedHealthService.swift */; };
+		86580B538A40B0279A319F46 /* ReaderModeExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAF5200E25F88125B820F66A /* ReaderModeExtractor.swift */; };
+		8FF87E7DFF38FDF16A635384 /* LocalPeerSyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBF94143358EC1AAEFECF6C /* LocalPeerSyncEngine.swift */; };
+		90ED9FCEF6C5A328C9328659 /* VideoPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C3DF897D39C75B410A66A44 /* VideoPlayerService.swift */; };
+		99CA9980F3CC66C0D1D6067A /* FolderManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 529A66CF0706218F9FCD443C /* FolderManagementView.swift */; };
+		9C2750AAC3D983B167A178CB /* SocialFeedsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21176B4CEDA3BDE8C939B6B4 /* SocialFeedsView.swift */; };
+		AAE5972461D57F525A4D1BFD /* MiniPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B72BAC0E0E0360E7F984EB69 /* MiniPlayerView.swift */; };
+		AC3AD63CEB657A90781C36C5 /* SyncModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5AEA6E09C8BD859CEF4B54 /* SyncModels.swift */; };
+		ADE7B3C1AB173A87D608E3C3 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6B76B2B4BB2CFC172F28F14 /* SettingsView.swift */; };
+		B1CDB81AB2172BB129F40241 /* QueuePopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D36615761B517CDDBA5A093E /* QueuePopoverView.swift */; };
+		B26000EE6DE1BEC3A2831AF7 /* EqualizerWaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8896AE7B5EC8A03A37B40CD7 /* EqualizerWaveformView.swift */; };
+		B6CE431F74C607D39CBB6810 /* FeedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D871B02ED37A52B01F2B790 /* FeedItem.swift */; };
+		B9016BBDB3ED5F0A14F93C5B /* SidebarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67FC9843DAC65657EE7C6A51 /* SidebarItem.swift */; };
+		BB7FD743466ADC312C93ED35 /* PodcastSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30275417DC2A49D523352757 /* PodcastSearchService.swift */; };
+		C08320E6952832B15C1F5987 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7240E37BB4C740D5CF11C268 /* NetworkMonitor.swift */; };
+		C4CADC7A579C8B41D6E4819C /* PodcastSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5E3296C821F7A38AAEE4026 /* PodcastSearchView.swift */; };
+		C878A180A51A0B7EAB9D6400 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 05B2FC164B971DDFF41B7248 /* Localizable.strings */; };
+		C9E26B2BEF301EC00C9C56BE /* LegacyMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3EC7FFFEEE155BA3CB2A62C /* LegacyMigration.swift */; };
+		CBB9D6AB21D28D21061E8F52 /* HTMLCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DD0AA41FA3F5ADB38B4CF65 /* HTMLCleaner.swift */; };
+		CBD8BEC18670A3A9CF2E8CAF /* SocialFeedResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4614F2642838D0623F236615 /* SocialFeedResolver.swift */; };
+		D2BED8F0213A53A2A48E206F /* PodcastDownloadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 116DA537996365CE0A61DE90 /* PodcastDownloadService.swift */; };
+		D6432F6837CABE42953544C8 /* SmartCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6137F417E9871CED956FB64A /* SmartCategory.swift */; };
+		D852578125D7D0F1E1EFD3E4 /* PodcastSearchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7052D00681A970A1BC032D3A /* PodcastSearchResult.swift */; };
+		E87950B0C39E04C423F48074 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D10F210C759AC114CD7C70 /* ContentView.swift */; };
+		F3FD7879B17520CDB962686F /* RSSParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8CEE69DA71165A92D07B06F /* RSSParser.swift */; };
+		FA232EE0D0BA737B967E395E /* ConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10A3A0BE32D4B56D9D4F40 /* ConsoleView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		0F1E1AF51AFE2210383128E2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8E4413EA03B561245FB1BDC8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E65DB0E00119BE3A74F211AB;
+			remoteInfo = Versoline;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		037F080F56F584EEC68F2683 /* LegacyMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyMigrationTests.swift; sourceTree = "<group>"; };
+		095EC2CC2671D488A81C2202 /* Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Folder.swift; sourceTree = "<group>"; };
+		116DA537996365CE0A61DE90 /* PodcastDownloadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastDownloadService.swift; sourceTree = "<group>"; };
+		15E5F62D8D57E0C3E52776E4 /* AudioPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerService.swift; sourceTree = "<group>"; };
+		21176B4CEDA3BDE8C939B6B4 /* SocialFeedsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialFeedsView.swift; sourceTree = "<group>"; };
+		2D789E557A688147D270B120 /* YouTubePlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubePlayerView.swift; sourceTree = "<group>"; };
+		2D871B02ED37A52B01F2B790 /* FeedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItem.swift; sourceTree = "<group>"; };
+		30275417DC2A49D523352757 /* PodcastSearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastSearchService.swift; sourceTree = "<group>"; };
+		374A0237B0BE4542CEB8CB7F /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
+		3B93733FFD8B0C7DF890D5AE /* SyncCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncCoordinator.swift; sourceTree = "<group>"; };
+		42163A4A7D72978A2D14A66B /* FeedHealthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedHealthService.swift; sourceTree = "<group>"; };
+		454BE2DA7AB62AD7EE53D550 /* Feed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feed.swift; sourceTree = "<group>"; };
+		4614F2642838D0623F236615 /* SocialFeedResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialFeedResolver.swift; sourceTree = "<group>"; };
+		498D9B9622E0529349F8A755 /* VersolineApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersolineApp.swift; sourceTree = "<group>"; };
+		4D118468A541EDD3D01F36EC /* FeedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedStore.swift; sourceTree = "<group>"; };
+		529A66CF0706218F9FCD443C /* FolderManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderManagementView.swift; sourceTree = "<group>"; };
+		5752FDC6DD90D696F80B2D70 /* KeyboardShortcutsHelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardShortcutsHelpView.swift; sourceTree = "<group>"; };
+		5B2AF1314D3ED28D8EBBF87B /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		6137F417E9871CED956FB64A /* SmartCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartCategory.swift; sourceTree = "<group>"; };
+		6367804844FC37736A6FB50C /* CuratedFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CuratedFeed.swift; sourceTree = "<group>"; };
+		67FC9843DAC65657EE7C6A51 /* SidebarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarItem.swift; sourceTree = "<group>"; };
+		68E2280EE1AB501EF9EB22FC /* Versoline.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Versoline.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6F2757FC5628447B474EC234 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		7052D00681A970A1BC032D3A /* PodcastSearchResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastSearchResult.swift; sourceTree = "<group>"; };
+		7240E37BB4C740D5CF11C268 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
+		74371D7BFE5B4B3C0F8CDC90 /* AddFeedSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFeedSheet.swift; sourceTree = "<group>"; };
+		7C3DF897D39C75B410A66A44 /* VideoPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerService.swift; sourceTree = "<group>"; };
+		7FAFB15B100CE44093DCDFED /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
+		820EBF240155D2F38C1F5E81 /* FeedListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedListView.swift; sourceTree = "<group>"; };
+		8715B2B9006F7C3B90C75139 /* SmartMergeEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartMergeEngine.swift; sourceTree = "<group>"; };
+		8896AE7B5EC8A03A37B40CD7 /* EqualizerWaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EqualizerWaveformView.swift; sourceTree = "<group>"; };
+		9DD0AA41FA3F5ADB38B4CF65 /* HTMLCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLCleaner.swift; sourceTree = "<group>"; };
+		A5E3296C821F7A38AAEE4026 /* PodcastSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastSearchView.swift; sourceTree = "<group>"; };
+		A8CEE69DA71165A92D07B06F /* RSSParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSParser.swift; sourceTree = "<group>"; };
+		AB24CA8959980EC771C82E02 /* curated_feeds.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = curated_feeds.json; sourceTree = "<group>"; };
+		B72BAC0E0E0360E7F984EB69 /* MiniPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPlayerView.swift; sourceTree = "<group>"; };
+		C3D95F851B7D3243C64939BC /* ContentBlockerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentBlockerService.swift; sourceTree = "<group>"; };
+		CAF5200E25F88125B820F66A /* ReaderModeExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderModeExtractor.swift; sourceTree = "<group>"; };
+		CD8C88EA3FDA633C357495C3 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		D36615761B517CDDBA5A093E /* QueuePopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuePopoverView.swift; sourceTree = "<group>"; };
+		D3EC7FFFEEE155BA3CB2A62C /* LegacyMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyMigration.swift; sourceTree = "<group>"; };
+		D573066473B83B254EC736BA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		D5E82E459E4C005FA9859208 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		D8FB0AA4CA40FA57E2491600 /* ICloudDriveSyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICloudDriveSyncEngine.swift; sourceTree = "<group>"; };
+		DC10A3A0BE32D4B56D9D4F40 /* ConsoleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleView.swift; sourceTree = "<group>"; };
+		DC5AEA6E09C8BD859CEF4B54 /* SyncModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncModels.swift; sourceTree = "<group>"; };
+		E4CE756922485ED1735619D8 /* OPMLManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OPMLManager.swift; sourceTree = "<group>"; };
+		E4D10F210C759AC114CD7C70 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		EEBF94143358EC1AAEFECF6C /* LocalPeerSyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalPeerSyncEngine.swift; sourceTree = "<group>"; };
+		F02D94482B96A3A67D2BE9C0 /* FaviconService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaviconService.swift; sourceTree = "<group>"; };
+		F6B76B2B4BB2CFC172F28F14 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		FA7EEAE8836C50ED6DCDC4A4 /* CuratedFeedManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CuratedFeedManager.swift; sourceTree = "<group>"; };
+		FAF76AE894157EB376790B4D /* VersolineTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VersolineTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FF7B998966B2DE056690E1A1 /* ArticleDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleDetailView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		064FFF2DE8F49CC225EA597E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				6F2757FC5628447B474EC234 /* Assets.xcassets */,
+				AB24CA8959980EC771C82E02 /* curated_feeds.json */,
+				05B2FC164B971DDFF41B7248 /* Localizable.strings */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		28144DD6E203EADA6FCA350E /* Player */ = {
+			isa = PBXGroup;
+			children = (
+				8896AE7B5EC8A03A37B40CD7 /* EqualizerWaveformView.swift */,
+				D36615761B517CDDBA5A093E /* QueuePopoverView.swift */,
+				2D789E557A688147D270B120 /* YouTubePlayerView.swift */,
+			);
+			path = Player;
+			sourceTree = "<group>";
+		};
+		28504DC8F52BC53434965C02 /* VersolineTests */ = {
+			isa = PBXGroup;
+			children = (
+				037F080F56F584EEC68F2683 /* LegacyMigrationTests.swift */,
+			);
+			path = VersolineTests;
+			sourceTree = "<group>";
+		};
+		3CD3D0220BBFE29BBBA40BC3 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				F6B76B2B4BB2CFC172F28F14 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		5C598840612F1FB96BD3966C = {
+			isa = PBXGroup;
+			children = (
+				6FEF957CDB8EFD406B32D3E7 /* Sources */,
+				929C908DFB4BEE0B59D7A524 /* Tests */,
+				C092C9EFCAF55D30CC95CC1D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6776B1801CD554186AE55708 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				CD8C88EA3FDA633C357495C3 /* AppSettings.swift */,
+				6367804844FC37736A6FB50C /* CuratedFeed.swift */,
+				454BE2DA7AB62AD7EE53D550 /* Feed.swift */,
+				2D871B02ED37A52B01F2B790 /* FeedItem.swift */,
+				095EC2CC2671D488A81C2202 /* Folder.swift */,
+				7052D00681A970A1BC032D3A /* PodcastSearchResult.swift */,
+				67FC9843DAC65657EE7C6A51 /* SidebarItem.swift */,
+				6137F417E9871CED956FB64A /* SmartCategory.swift */,
+				DC5AEA6E09C8BD859CEF4B54 /* SyncModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		6FEF957CDB8EFD406B32D3E7 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				498D9B9622E0529349F8A755 /* VersolineApp.swift */,
+				6776B1801CD554186AE55708 /* Models */,
+				064FFF2DE8F49CC225EA597E /* Resources */,
+				E9E2A923B91E5D304DA2D7BA /* Services */,
+				E0FB9EAFA873C88019E3CA73 /* Views */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		929C908DFB4BEE0B59D7A524 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				28504DC8F52BC53434965C02 /* VersolineTests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		C092C9EFCAF55D30CC95CC1D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				68E2280EE1AB501EF9EB22FC /* Versoline.app */,
+				FAF76AE894157EB376790B4D /* VersolineTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E0FB9EAFA873C88019E3CA73 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				74371D7BFE5B4B3C0F8CDC90 /* AddFeedSheet.swift */,
+				FF7B998966B2DE056690E1A1 /* ArticleDetailView.swift */,
+				DC10A3A0BE32D4B56D9D4F40 /* ConsoleView.swift */,
+				E4D10F210C759AC114CD7C70 /* ContentView.swift */,
+				820EBF240155D2F38C1F5E81 /* FeedListView.swift */,
+				529A66CF0706218F9FCD443C /* FolderManagementView.swift */,
+				5752FDC6DD90D696F80B2D70 /* KeyboardShortcutsHelpView.swift */,
+				B72BAC0E0E0360E7F984EB69 /* MiniPlayerView.swift */,
+				A5E3296C821F7A38AAEE4026 /* PodcastSearchView.swift */,
+				5B2AF1314D3ED28D8EBBF87B /* SidebarView.swift */,
+				21176B4CEDA3BDE8C939B6B4 /* SocialFeedsView.swift */,
+				374A0237B0BE4542CEB8CB7F /* WebView.swift */,
+				28144DD6E203EADA6FCA350E /* Player */,
+				3CD3D0220BBFE29BBBA40BC3 /* Settings */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		E9E2A923B91E5D304DA2D7BA /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				7FAFB15B100CE44093DCDFED /* AppLogger.swift */,
+				15E5F62D8D57E0C3E52776E4 /* AudioPlayerService.swift */,
+				C3D95F851B7D3243C64939BC /* ContentBlockerService.swift */,
+				FA7EEAE8836C50ED6DCDC4A4 /* CuratedFeedManager.swift */,
+				F02D94482B96A3A67D2BE9C0 /* FaviconService.swift */,
+				42163A4A7D72978A2D14A66B /* FeedHealthService.swift */,
+				4D118468A541EDD3D01F36EC /* FeedStore.swift */,
+				9DD0AA41FA3F5ADB38B4CF65 /* HTMLCleaner.swift */,
+				D3EC7FFFEEE155BA3CB2A62C /* LegacyMigration.swift */,
+				7240E37BB4C740D5CF11C268 /* NetworkMonitor.swift */,
+				E4CE756922485ED1735619D8 /* OPMLManager.swift */,
+				116DA537996365CE0A61DE90 /* PodcastDownloadService.swift */,
+				30275417DC2A49D523352757 /* PodcastSearchService.swift */,
+				CAF5200E25F88125B820F66A /* ReaderModeExtractor.swift */,
+				A8CEE69DA71165A92D07B06F /* RSSParser.swift */,
+				4614F2642838D0623F236615 /* SocialFeedResolver.swift */,
+				7C3DF897D39C75B410A66A44 /* VideoPlayerService.swift */,
+				F103B6729D2F57EA23E14A95 /* Sync */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		F103B6729D2F57EA23E14A95 /* Sync */ = {
+			isa = PBXGroup;
+			children = (
+				D8FB0AA4CA40FA57E2491600 /* ICloudDriveSyncEngine.swift */,
+				EEBF94143358EC1AAEFECF6C /* LocalPeerSyncEngine.swift */,
+				8715B2B9006F7C3B90C75139 /* SmartMergeEngine.swift */,
+				3B93733FFD8B0C7DF890D5AE /* SyncCoordinator.swift */,
+			);
+			path = Sync;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		49C7E1B1B879AA9BAF07F4E1 /* VersolineTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 239534553B9D434A75AB204C /* Build configuration list for PBXNativeTarget "VersolineTests" */;
+			buildPhases = (
+				062997257F908633C9F87BC9 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2C7C095E1C0EC1553FB4FD0F /* PBXTargetDependency */,
+			);
+			name = VersolineTests;
+			packageProductDependencies = (
+			);
+			productName = VersolineTests;
+			productReference = FAF76AE894157EB376790B4D /* VersolineTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		E65DB0E00119BE3A74F211AB /* Versoline */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5CE11C95153F55EA0C73DAED /* Build configuration list for PBXNativeTarget "Versoline" */;
+			buildPhases = (
+				638D5D1FB39D84D21C01B725 /* Sources */,
+				3FCB3B6BC255F67C87364C32 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Versoline;
+			packageProductDependencies = (
+			);
+			productName = Versoline;
+			productReference = 68E2280EE1AB501EF9EB22FC /* Versoline.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8E4413EA03B561245FB1BDC8 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					49C7E1B1B879AA9BAF07F4E1 = {
+						ProvisioningStyle = Manual;
+					};
+					E65DB0E00119BE3A74F211AB = {
+						ProvisioningStyle = Manual;
+					};
+				};
+			};
+			buildConfigurationList = FD88699000BAEBC4925011AC /* Build configuration list for PBXProject "Versoline" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+				tr,
+			);
+			mainGroup = 5C598840612F1FB96BD3966C;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = C092C9EFCAF55D30CC95CC1D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E65DB0E00119BE3A74F211AB /* Versoline */,
+				49C7E1B1B879AA9BAF07F4E1 /* VersolineTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3FCB3B6BC255F67C87364C32 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				51A1EDC7A8EBE67398DDEE12 /* Assets.xcassets in Resources */,
+				C878A180A51A0B7EAB9D6400 /* Localizable.strings in Resources */,
+				2B4F159045B1BD9105F6C96E /* curated_feeds.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		062997257F908633C9F87BC9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				580AC0F6ECF510287E83D44A /* LegacyMigrationTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		638D5D1FB39D84D21C01B725 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				39B20F231F0DFBEF9C5CA7BA /* AddFeedSheet.swift in Sources */,
+				2C532173A7887BFC5B4CB7C5 /* AppLogger.swift in Sources */,
+				2C8B93C8DEB9668B7E18FD48 /* AppSettings.swift in Sources */,
+				4AC95FD055B6E1F6B4F63D5B /* ArticleDetailView.swift in Sources */,
+				7ED42CFB7BE6A36CA5A23312 /* AudioPlayerService.swift in Sources */,
+				FA232EE0D0BA737B967E395E /* ConsoleView.swift in Sources */,
+				11FAC03043D65C2FC65B974C /* ContentBlockerService.swift in Sources */,
+				E87950B0C39E04C423F48074 /* ContentView.swift in Sources */,
+				46706FCE697536256918DD47 /* CuratedFeed.swift in Sources */,
+				5FA5CD3B0D1713949F7FEDBE /* CuratedFeedManager.swift in Sources */,
+				B26000EE6DE1BEC3A2831AF7 /* EqualizerWaveformView.swift in Sources */,
+				1210A9E476E6F0A1439C615F /* FaviconService.swift in Sources */,
+				00905F32F41F55957BA7E7BF /* Feed.swift in Sources */,
+				7FAB7ADBE5DB2FA7BF499193 /* FeedHealthService.swift in Sources */,
+				B6CE431F74C607D39CBB6810 /* FeedItem.swift in Sources */,
+				7410B2758BF79BFF6E07BB85 /* FeedListView.swift in Sources */,
+				61C0996E6A9D537A00BDEFC8 /* FeedStore.swift in Sources */,
+				06153453F82387E16F0E44BD /* Folder.swift in Sources */,
+				99CA9980F3CC66C0D1D6067A /* FolderManagementView.swift in Sources */,
+				CBB9D6AB21D28D21061E8F52 /* HTMLCleaner.swift in Sources */,
+				0BE1E43EFE4C5F4804C2678A /* ICloudDriveSyncEngine.swift in Sources */,
+				76B5B96C5C29A35EABE9D9E7 /* KeyboardShortcutsHelpView.swift in Sources */,
+				C9E26B2BEF301EC00C9C56BE /* LegacyMigration.swift in Sources */,
+				8FF87E7DFF38FDF16A635384 /* LocalPeerSyncEngine.swift in Sources */,
+				AAE5972461D57F525A4D1BFD /* MiniPlayerView.swift in Sources */,
+				C08320E6952832B15C1F5987 /* NetworkMonitor.swift in Sources */,
+				65C4D53293825BB077E4055B /* OPMLManager.swift in Sources */,
+				D2BED8F0213A53A2A48E206F /* PodcastDownloadService.swift in Sources */,
+				D852578125D7D0F1E1EFD3E4 /* PodcastSearchResult.swift in Sources */,
+				BB7FD743466ADC312C93ED35 /* PodcastSearchService.swift in Sources */,
+				C4CADC7A579C8B41D6E4819C /* PodcastSearchView.swift in Sources */,
+				B1CDB81AB2172BB129F40241 /* QueuePopoverView.swift in Sources */,
+				F3FD7879B17520CDB962686F /* RSSParser.swift in Sources */,
+				86580B538A40B0279A319F46 /* ReaderModeExtractor.swift in Sources */,
+				ADE7B3C1AB173A87D608E3C3 /* SettingsView.swift in Sources */,
+				B9016BBDB3ED5F0A14F93C5B /* SidebarItem.swift in Sources */,
+				7323B966BA75FF522189CABC /* SidebarView.swift in Sources */,
+				D6432F6837CABE42953544C8 /* SmartCategory.swift in Sources */,
+				40E02A356C8DC28301B10045 /* SmartMergeEngine.swift in Sources */,
+				CBD8BEC18670A3A9CF2E8CAF /* SocialFeedResolver.swift in Sources */,
+				9C2750AAC3D983B167A178CB /* SocialFeedsView.swift in Sources */,
+				03CB3A46D8AEAC46076505EA /* SyncCoordinator.swift in Sources */,
+				AC3AD63CEB657A90781C36C5 /* SyncModels.swift in Sources */,
+				1E63416EC9A6B18617EA60B8 /* VersolineApp.swift in Sources */,
+				90ED9FCEF6C5A328C9328659 /* VideoPlayerService.swift in Sources */,
+				75E4C7C89881F64EAC55BD6F /* WebView.swift in Sources */,
+				657CC07A7DE9337BE28A2910 /* YouTubePlayerView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2C7C095E1C0EC1553FB4FD0F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E65DB0E00119BE3A74F211AB /* Versoline */;
+			targetProxy = 0F1E1AF51AFE2210383128E2 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		05B2FC164B971DDFF41B7248 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D573066473B83B254EC736BA /* en */,
+				D5E82E459E4C005FA9859208 /* tr */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		7C97AB00ECC5E54745E2CAC3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		8CBD52772CC13FA48A3176AD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/Resources/Versoline.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 7;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Sources/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Versoline;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 bezelye404. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 0.3.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bezelye.Versoline;
+				PRODUCT_NAME = Versoline;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		A1B25362496E46D0B4EC7FAC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/Resources/Versoline.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 7;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Sources/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Versoline;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 bezelye404. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 0.3.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bezelye.Versoline;
+				PRODUCT_NAME = Versoline;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		C6ED0C41CC2324E3B7592F54 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bezelye.VersolineTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Versoline.app/Contents/MacOS/Versoline";
+			};
+			name = Debug;
+		};
+		C7C2B6281A8D675BEF49A951 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bezelye.VersolineTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Versoline.app/Contents/MacOS/Versoline";
+			};
+			name = Release;
+		};
+		E1C557598BC8DBB0411DF25F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEPLOYMENT_POSTPROCESSING = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LLVM_LTO = YES_THIN;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = all;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		239534553B9D434A75AB204C /* Build configuration list for PBXNativeTarget "VersolineTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C6ED0C41CC2324E3B7592F54 /* Debug */,
+				C7C2B6281A8D675BEF49A951 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5CE11C95153F55EA0C73DAED /* Build configuration list for PBXNativeTarget "Versoline" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8CBD52772CC13FA48A3176AD /* Debug */,
+				A1B25362496E46D0B4EC7FAC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FD88699000BAEBC4925011AC /* Build configuration list for PBXProject "Versoline" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7C97AB00ECC5E54745E2CAC3 /* Debug */,
+				E1C557598BC8DBB0411DF25F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8E4413EA03B561245FB1BDC8 /* Project object */;
+}

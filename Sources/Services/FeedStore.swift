@@ -103,7 +103,7 @@ final class FeedStore {
 
     init() {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let appDir = appSupport.appendingPathComponent("EasyRSS", isDirectory: true)
+        let appDir = appSupport.appendingPathComponent("Versoline", isDirectory: true)
         try? FileManager.default.createDirectory(at: appDir, withIntermediateDirectories: true)
         self.saveURL = appDir
         load()
@@ -117,7 +117,7 @@ final class FeedStore {
         }
 
         NotificationCenter.default.addObserver(
-            forName: Notification.Name("EasyRSSCompactMemory"),
+            forName: Notification.Name("VersolineCompactMemory"),
             object: nil,
             queue: .main
         ) { [weak self] _ in
@@ -127,7 +127,7 @@ final class FeedStore {
         }
 
         NotificationCenter.default.addObserver(
-            forName: Notification.Name("EasyRSSDeepCompactMemory"),
+            forName: Notification.Name("VersolineDeepCompactMemory"),
             object: nil,
             queue: .main
         ) { [weak self] _ in
@@ -674,7 +674,7 @@ final class FeedStore {
         updateCachedCounts()
         updateSmartCategoryCaches()
 
-        // 4. Remove all files from Application Support/EasyRSS directory
+        // 4. Remove all files from Application Support/Versoline directory
         if let fileList = try? FileManager.default.contentsOfDirectory(at: saveURL, includingPropertiesForKeys: nil) {
             for file in fileList {
                 try? FileManager.default.removeItem(at: file)

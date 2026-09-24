@@ -3,12 +3,15 @@ import AppKit
 import WebKit
 
 @main
-struct EasyRSSApp: App {
+struct VersolineApp: App {
 
     @State private var store = FeedStore()
     @AppStorage(AppSettingsKeys.showMenuBarIcon) private var showMenuBarIcon = false
 
     init() {
+        // Run one-time non-destructive legacy data migration if needed
+        LegacyMigration.runMigration()
+
         // Memory optimization: Strict URLCache capacity limits (2MB RAM / 25MB Disk)
         URLCache.shared = URLCache(
             memoryCapacity: 2 * 1024 * 1024,
@@ -53,7 +56,7 @@ struct EasyRSSApp: App {
         source.setEventHandler {
             MainActor.assumeIsolated {
                 Self.purgeTransientMemory()
-                NotificationCenter.default.post(name: Notification.Name("EasyRSSDeepCompactMemory"), object: nil)
+                NotificationCenter.default.post(name: Notification.Name("VersolineDeepCompactMemory"), object: nil)
             }
         }
         source.resume()
@@ -73,7 +76,7 @@ struct EasyRSSApp: App {
         if !VideoPlayerService.shared.isPlaying && VideoPlayerService.shared.webView != nil {
             VideoPlayerService.shared.close()
         }
-        NotificationCenter.default.post(name: Notification.Name("EasyRSSCompactMemory"), object: nil)
+        NotificationCenter.default.post(name: Notification.Name("VersolineCompactMemory"), object: nil)
     }
 
     var body: some Scene {
@@ -114,7 +117,7 @@ struct EasyRSSApp: App {
             }
 
             let unread = store.totalUnreadCount()
-            Text("easyRSS")
+            Text("Versoline")
                 .font(.headline)
             Text(unread == 1 ? "1 unread article" : "\(unread) unread articles")
                 .font(.caption)
@@ -137,7 +140,7 @@ struct EasyRSSApp: App {
                 Divider()
             }
 
-            Button("Open easyRSS") {
+            Button("Open Versoline") {
                 NSApp.activate(ignoringOtherApps: true)
                 if let window = NSApp.windows.first(where: { !($0 is NSPanel) }) {
                     window.makeKeyAndOrderFront(nil)
@@ -152,7 +155,7 @@ struct EasyRSSApp: App {
 
             Divider()
 
-            Button("Quit easyRSS") {
+            Button("Quit Versoline") {
                 NSApplication.shared.terminate(nil)
             }
         } label: {

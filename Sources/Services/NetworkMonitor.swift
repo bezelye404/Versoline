@@ -9,7 +9,7 @@ final class NetworkMonitor {
 
     private(set) var isConnected: Bool = true
     private let monitor = NWPathMonitor()
-    private let monitorQueue = DispatchQueue(label: "com.bezelye.EasyRSS.networkMonitor", qos: .utility)
+    private let monitorQueue = DispatchQueue(label: "com.bezelye.Versoline.networkMonitor", qos: .utility)
 
     private init() {
         monitor.pathUpdateHandler = { [weak self] path in

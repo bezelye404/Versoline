@@ -19,7 +19,7 @@ final class ReaderModeExtractor {
 
     private init() {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let cacheDir = appSupport.appendingPathComponent("EasyRSS/ReaderCache_v3", isDirectory: true)
+        let cacheDir = appSupport.appendingPathComponent("Versoline/ReaderCache_v3", isDirectory: true)
         try? FileManager.default.createDirectory(at: cacheDir, withIntermediateDirectories: true)
         self.cacheDirectory = cacheDir
         memoryCache.countLimit = 5
@@ -34,17 +34,22 @@ final class ReaderModeExtractor {
     func cleanupLegacyDirectories() {
         let fm = FileManager.default
         guard let appSupport = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return }
-        let easyRSSDir = appSupport.appendingPathComponent("EasyRSS", isDirectory: true)
+        let targetDirs = [
+            appSupport.appendingPathComponent("Versoline", isDirectory: true),
+            appSupport.appendingPathComponent("EasyRSS", isDirectory: true)
+        ]
 
         let legacyDirNames = ["ReaderCache", "ReaderCache_v1", "ReaderCache_v2", "ImageCache"]
-        for legacyName in legacyDirNames {
-            let legacyURL = easyRSSDir.appendingPathComponent(legacyName, isDirectory: true)
-            if fm.fileExists(atPath: legacyURL.path) {
-                do {
-                    try fm.removeItem(at: legacyURL)
-                    AppLogger.shared.log("Cleaned up legacy cache directory: \(legacyName)", level: .info, category: .storage)
-                } catch {
-                    AppLogger.shared.log("Failed to remove legacy directory \(legacyName): \(error.localizedDescription)", level: .error, category: .storage)
+        for baseDir in targetDirs {
+            for legacyName in legacyDirNames {
+                let legacyURL = baseDir.appendingPathComponent(legacyName, isDirectory: true)
+                if fm.fileExists(atPath: legacyURL.path) {
+                    do {
+                        try fm.removeItem(at: legacyURL)
+                        AppLogger.shared.log("Cleaned up legacy cache directory: \(legacyName)", level: .info, category: .storage)
+                    } catch {
+                        AppLogger.shared.log("Failed to remove legacy directory \(legacyName): \(error.localizedDescription)", level: .error, category: .storage)
+                    }
                 }
             }
         }
