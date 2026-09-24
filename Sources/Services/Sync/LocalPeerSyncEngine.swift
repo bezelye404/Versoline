@@ -6,7 +6,7 @@ import AppKit
 
 final class LocalPeerSyncEngine: NSObject, @unchecked Sendable {
 
-    private let serviceType = "easyrss-sync"
+    private let serviceType = "versoline-sync"
     private let myPeerId: MCPeerID
 
     private var session: MCSession?
@@ -155,7 +155,7 @@ extension LocalPeerSyncEngine: MCSessionDelegate {
 extension LocalPeerSyncEngine: MCNearbyServiceAdvertiserDelegate {
 
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
-        // Automatically accept trusted local connection from easyRSS devices
+        // Automatically accept trusted local connection from Versoline devices
         invitationHandler(true, self.session)
     }
 

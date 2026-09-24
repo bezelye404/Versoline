@@ -38,7 +38,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         config.urlCache = nil
         config.requestCachePolicy = .reloadIgnoringLocalCacheData
         config.httpAdditionalHeaders = [
-            "User-Agent": "EasyRSS/1.0 (Macintosh; Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko)"
+            "User-Agent": "Versoline/1.0 (Macintosh; Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko)"
         ]
         return URLSession(configuration: config)
     }()
@@ -100,9 +100,9 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         }
 
         if feedURL.host?.lowercased().contains("reddit.com") == true {
-            request.setValue("EasyRSS/1.0 (macOS; com.bezelye.EasyRSS; build 1) (by /u/EasyRSSApp)", forHTTPHeaderField: "User-Agent")
+            request.setValue("Versoline/1.0 (macOS; com.bezelye.Versoline; build 7) (by /u/VersolineApp)", forHTTPHeaderField: "User-Agent")
         } else {
-            request.setValue("EasyRSS/1.0 (Macintosh; Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko)", forHTTPHeaderField: "User-Agent")
+            request.setValue("Versoline/1.0 (Macintosh; Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko)", forHTTPHeaderField: "User-Agent")
         }
 
         let (data, response) = try await session.data(for: request)
@@ -139,7 +139,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
                     level: .warning,
                     category: .network
                 )
-                throw NSError(domain: "EasyRSSNetwork", code: 429, userInfo: [NSLocalizedDescriptionKey: limitMsg])
+                throw NSError(domain: "VersolineNetwork", code: 429, userInfo: [NSLocalizedDescriptionKey: limitMsg])
             }
 
             responseETag = httpResponse.value(forHTTPHeaderField: "ETag") ?? httpResponse.value(forHTTPHeaderField: "Etag")

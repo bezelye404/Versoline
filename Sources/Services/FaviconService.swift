@@ -23,7 +23,7 @@ final class FaviconService {
 
     private init() {
         let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let dir = appSupport.appendingPathComponent("EasyRSS/Favicons", isDirectory: true)
+        let dir = appSupport.appendingPathComponent("Versoline/Favicons", isDirectory: true)
         try? fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
         self.cacheDirectory = dir
         memoryCache.countLimit = 50
@@ -103,7 +103,7 @@ final class FaviconService {
 
         var request = URLRequest(url: url)
         request.timeoutInterval = 6
-        request.setValue("EasyRSS/1.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("Versoline/1.0", forHTTPHeaderField: "User-Agent")
 
         do {
             let (data, response) = try await Self.session.data(for: request)
@@ -181,7 +181,7 @@ final class ImageDownsampleCache {
 
     private init() {
         let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let dir = appSupport.appendingPathComponent("EasyRSS/ImageCache_v1", isDirectory: true)
+        let dir = appSupport.appendingPathComponent("Versoline/ImageCache_v1", isDirectory: true)
         try? fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
         self.diskCacheURL = dir
 
@@ -298,7 +298,7 @@ final class ImageDownsampleCache {
         let task = Task<NSImage?, Never> {
             var request = URLRequest(url: url)
             request.timeoutInterval = 10
-            request.setValue("EasyRSS/1.0", forHTTPHeaderField: "User-Agent")
+            request.setValue("Versoline/1.0", forHTTPHeaderField: "User-Agent")
 
             do {
                 let (data, response) = try await URLSession.shared.data(for: request)
