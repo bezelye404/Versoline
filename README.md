@@ -1,91 +1,152 @@
-# easyRSS
+# Versoline
 
-An RSS reader for macOS built with Swift and SwiftUI, with zero third-party dependencies.
+**A private RSS reader for Mac**  
+*Formerly easyRSS*
 
----
-
-## Features
-
-### Feeds & Content
-
-- **RSS & Atom**: Supports standard RSS 2.0 and Atom feeds.
-- **YouTube Channels & Videos**:
-  - Resolves channel handles (`@...`), channel URLs, and video links directly into feed subscriptions.
-  - Videos section in the sidebar with embedded playback and zero-reload reparenting between inline and fullscreen views.
-- **Subreddits & Users**: Add feeds for subreddits or Reddit user profiles with sorting (`hot`, `new`, `top`, `rising`) and time filters.
-- **Podcasts**:
-  - iTunes podcast directory search.
-  - Streaming playback with progress scrubber, playback speed (0.5x–2.0x), sleep timer, and queue management.
-  - Offline episode download management (`.mp3`).
-  - Chapter and timestamp detection with direct seeking.
-- **Universal Mini Player**: Docked media player for podcasts and videos with playback controls, volume slider, fullscreen toggle, and origin article navigation.
-- **Smart Streams**: Filter articles into Quick Reads (< 3 min) and Deep Reads (> 7 min) based on reading time estimation.
-- **Curated Catalog**: Feed catalog organized by categories, loaded on-demand with local disk caching and memory eviction upon dismissal.
-- **OPML Support**: Import and export OPML 2.0 subscription files.
-
-### Reading Experience
-
-- **Reader Mode**: Distraction-free article extraction removing ads, boilerplate layouts, and scripts.
-- **Themes & Palettes**: 10 coordinated matte color palettes (Slate, Sepia, Sage, Dusk, Monochrome, Nordic, Espresso, Matcha, Bordeaux, Solarized) harmonizing window toolbar, sidebar, card hover states, unread count badges, and reader backgrounds in light and dark modes.
-- **Typography & Bionic Reading**: 4 font families, adjustable font size, line spacing, native Bionic Reading mode, and syntax highlighting for code blocks.
-- **Reading Insights**: Reading statistics overview rendered via Apple Charts.
-- **Quote Cards**: Generate formatted excerpt cards from article text and copy them to the clipboard.
-- **In-App Web Browser**: Optional WebKit browser mode with built-in content blocking rules for ad and tracker prevention.
-- **Text-to-Speech**: System speech synthesis for reading article content aloud.
-- **Smart Folders**: Rule-based categorization grouping matching articles from subscriptions into folders.
-
-### Shortcuts & Navigation
-
-- **Single-Key Navigation**: Vim-style keyboard navigation (configurable in Settings):
-  - `J` / `K`: Next / Previous article
-  - `M`: Toggle Read / Unread
-  - `S`: Toggle Bookmark
-  - `O`: Open in external browser
-- **External Browser Integration**: Open article links in Safari, Chrome, Arc, Brave, Firefox, or the system default browser.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Platform: macOS 15+](https://img.shields.io/badge/Platform-macOS%2015%2B%20(Sequoia)-black.svg)](https://www.apple.com/macos)
+[![Swift: 6.0](https://img.shields.io/badge/Swift-6.0-orange.svg)](https://swift.org)
+[![Dependencies: 0](https://img.shields.io/badge/Dependencies-0%20(System%20Only)-success.svg)](https://developer.apple.com)
+[![Latest Release](https://img.shields.io/github/v/release/bezelye404/Versoline?include_prereleases&color=6366f1)](https://github.com/bezelye404/Versoline/releases/latest)
 
 ---
 
-## Architecture & Privacy
+<!-- TODO: Add application screenshot here: docs/images/versoline-hero.png -->
+<!-- ![Versoline Interface Preview](docs/images/versoline-hero.png) -->
 
-- **Zero External Dependencies**: Built entirely on Apple system frameworks (`SwiftUI`, `WebKit`, `AVFoundation`, `MediaPlayer`, `Network`, `Charts`). No third-party packages, dynamic libraries, or binary dependencies.
-- **Resource Management**: Downsampled image caching, single-instance WebProcess reparenting for video playback, ephemeral network requests, and on-demand data structures to keep memory consumption low.
-- **Local Storage**: Subscriptions, saved articles, offline podcast episodes, and cached favicons reside locally in `~/Library/Application Support/EasyRSS`.
-- **Privacy First**: No user accounts, telemetry, crash reporting services, or proxy servers. Network requests connect directly to origin feed hosts.
+Versoline is a lightweight, distraction-free RSS reader for macOS built with Swift 6 and SwiftUI with **zero third-party dependencies**. It brings standard RSS/Atom feeds, YouTube channels, Reddit communities, and podcasts together into a unified, privacy-first desktop workspace.
 
 ---
 
-## Requirements
+## 📥 Download
 
-- **Operating System**: macOS 15.0 (Sequoia) or newer
-- **Architecture**: Apple Silicon (arm64) and Intel (x86_64)
-- **Build Tools**: Xcode 16.0+ / Swift 6.0, `xcodegen`
+Download the latest version directly from the GitHub Releases page:
+
+👉 **[Download Versoline v0.3.0 DMG](https://github.com/bezelye404/Versoline/releases/latest)**
+
+### Requirements & Gatekeeper Note
+- **Requirements:** macOS 15.0 (Sequoia) or newer. Compatible with both **Apple Silicon** (M1/M2/M3/M4) and **Intel** Macs.
+- **Gatekeeper Setup:** Because Versoline is an independent open-source project and uses ad-hoc codesigning (no paid Apple Developer ID certificate), macOS may show an *"unidentified developer"* prompt upon first launch.
+  - To open: **Right-click** (or Control-click) `Versoline.app` in `/Applications` and select **Open**, or run the following command in Terminal:
+    ```bash
+    xattr -cr /Applications/Versoline.app
+    ```
 
 ---
 
-## Building from Source
+## 🔄 Upgrading from easyRSS
+
+If you previously used **easyRSS**, your data is completely safe:
+
+- **Automatic Non-Destructive Migration:** Upon opening Versoline for the first time, all your existing subscriptions, articles, downloaded podcast episodes, and cached favicons are automatically cloned and imported from `~/Library/Application Support/EasyRSS` into `~/Library/Application Support/Versoline`.
+- **Zero Data Loss:** Your original `EasyRSS` directory is left completely untouched as an archival safeguard.
+- **Clean Transition:** Once you have confirmed your feeds are present in Versoline, you may safely delete the legacy `EasyRSS.app` from your Applications folder.
+
+---
+
+## ⚖️ Versoline vs. NetNewsWire
+
+Both Versoline and NetNewsWire are dedicated, open-source macOS news readers. Here is an honest, verified comparison of their distinctive feature sets:
+
+| Feature / Capability | Versoline | NetNewsWire |
+| :--- | :---: | :---: |
+| **UI Framework** | Pure **SwiftUI** (macOS 15 native) | AppKit + SwiftUI hybrid |
+| **External Dependencies** | **0** (Apple System Frameworks only) | Multiple third-party packages |
+| **Built-in Podcast Player** | ✅ Native player, sleep timer, speed control | ❌ |
+| **Offline Podcast Downloads** | ✅ Integrated `.mp3` manager & chapter seek | ❌ |
+| **YouTube Channels & Videos** | ✅ Handle/URL resolution, embedded player | ❌ |
+| **Reddit Feeds** | ✅ Subreddits & users with sorting filters | ❌ |
+| **Reading Time Streams** | ✅ Smart Streams (Quick Reads / Deep Reads) | ❌ |
+| **Color Themes** | ✅ **10 Matte Palettes** (Light & Dark) | Standard macOS system accents |
+| **Bionic Reading** | ✅ Native typographic fixation mode | ❌ |
+| **Single-Key Shortcuts** | ✅ Vim-style (`J`, `K`, `M`, `S`, `O`) | Standard macOS shortcuts |
+| **Third-Party Sync Services** | Local peer P2P & iCloud Drive | Feedbin, Feedly, Inoreader, NewsBlur |
+
+---
+
+## ✨ Features
+
+### Feeds & Rich Media
+- **RSS & Atom:** High-speed streaming parser for standard RSS 2.0 and Atom feeds.
+- **YouTube Integration:** Paste channel handles (`@channel`), channel URLs, or video links directly into the feed prompt. Embedded videos feature seamless reparenting between inline preview and fullscreen view without reloading the player.
+- **Reddit Communities:** Follow subreddits or user accounts with sort filters (`hot`, `new`, `top`, `rising`) and time ranges.
+- **Podcast Studio:**
+  - Search the iTunes podcast directory directly.
+  - Streaming audio playback with scrubber, variable speed (0.5x–2.0x), sleep timer, and queue management.
+  - Download episodes locally as `.mp3` files for offline listening.
+  - Automatic chapter and timestamp detection with instant seeking.
+- **Universal Mini Player:** Persistent docked media bar for continuous listening while reading articles.
+- **Smart Streams:** Automatically categorizes unread articles into **Quick Reads** (< 3 min) and **Deep Reads** (> 7 min) based on word-count estimations.
+- **Curated Feed Catalog:** Browse hundreds of quality feeds organized by topic, cached locally on-demand.
+- **OPML 2.0:** One-click import and export preserving your folder structure.
+
+### Focused Reading Experience
+- **Distraction-Free Reader Mode:** Extracts core content, strips ads, trackers, banners, and layout bloat.
+- **10 Matte Color Palettes:** Carefully tailored palettes (*Slate, Sepia, Sage, Dusk, Monochrome, Nordic, Espresso, Matcha, Bordeaux, Solarized*) harmonizing toolbars, sidebars, cards, badges, and reading surfaces in light and dark modes.
+- **Typography & Bionic Reading:** 4 system font families, configurable font sizes and line heights, syntax highlighting for code snippets, and optional Bionic Reading mode for fast scanning.
+- **Reading Insights:** Interactive reading statistics rendered with Apple Charts.
+- **Quote Cards:** Generate Retina excerpt quote cards from selected text and copy them directly to your clipboard.
+- **Built-In Web Browser:** Optional WebKit browser mode equipped with native content blocking rules to block ads and analytics trackers.
+- **Text-to-Speech:** System voice synthesis to read long-form articles aloud.
+- **Smart Folders:** Rule-based keyword engine to automatically group matching articles from across your subscriptions.
+
+### Keyboard Shortcuts (Vim Navigation)
+Configurable single-key keyboard navigation for rapid feed triaging:
+- <kbd>J</kbd> / <kbd>K</kbd> — Next / Previous article
+- <kbd>M</kbd> — Toggle Read / Unread status
+- <kbd>S</kbd> — Toggle Bookmark
+- <kbd>O</kbd> — Open in external browser (Safari, Chrome, Arc, Brave, Firefox, or System Default)
+- <kbd>⌘</kbd> + <kbd>R</kbd> — Refresh all feeds
+
+---
+
+## 🔒 Architecture & Privacy
+
+- **Zero External Dependencies:** Built entirely with first-party Apple system frameworks (`SwiftUI`, `WebKit`, `AVFoundation`, `MediaPlayer`, `Network`, `Charts`). No third-party packages, dynamic libraries, or analytics SDKs.
+- **100% Offline-First & Local:** All subscriptions, cached favicons, offline podcasts, and articles reside locally under `~/Library/Application Support/Versoline`.
+- **No Telemetry, No Accounts:** No user accounts, login portals, analytics tracking, or crash-reporting servers. Network requests travel directly from your Mac to the origin feed servers.
+- **Resource Efficient:** Ephemeral network sessions, downsampled favicon caching, and automated memory compaction when the app is hidden or backgrounded.
+
+---
+
+## 🛠️ Building from Source
+
+### Prerequisites
+- macOS 15.0 (Sequoia) or newer
+- Xcode 16.0 or newer (Swift 6.0 toolchain)
+- [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`)
+- [create-dmg](https://github.com/create-dmg/create-dmg) (`brew install create-dmg`, optional for DMG packaging)
+
+### Build Commands
 
 ```bash
-git clone https://github.com/bezelye404/easyRSS.git
-cd easyRSS
+# 1. Clone repository
+git clone https://github.com/bezelye404/Versoline.git
+cd Versoline
 
-# Generate Xcode project
+# 2. Generate Xcode project from project.yml specification
 xcodegen generate
 
-# Build release binary
-xcodebuild -project EasyRSS.xcodeproj -scheme EasyRSS -configuration Release build
+# 3. Build release binary
+xcodebuild -project Versoline.xcodeproj -scheme Versoline -configuration Release build
+
+# 4. (Optional) Run automated unit test suite
+xcodebuild test -project Versoline.xcodeproj -scheme Versoline -destination 'platform=macOS'
+
+# 5. (Optional) Package a distributable DMG
+./scripts/build-dmg.sh
 ```
 
 ---
 
-## Credits
+## 👥 Credits
 
-Feed collections in the curated catalog are sourced from:
-
+Curated feed lists in the discovery catalog are maintained with contributions from:
 - [@joshuawalcher](https://github.com/joshuawalcher) — [joshuawalcher/rssfeeds](https://github.com/joshuawalcher/rssfeeds)
 - [@bakinazik](https://github.com/bakinazik) — [bakinazik/rss](https://github.com/bakinazik/rss)
 
 ---
 
-## License
+## 📄 License
 
-MIT License. See [LICENSE](LICENSE) for details.
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
