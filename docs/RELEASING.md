@@ -53,13 +53,3 @@ Run the verification script to check SHA-256 and signatures:
     --title "Versoline v<VERSION>" \
     --notes-file docs/release-<VERSION>.md
   ```
-
-### 5. Update Homebrew Tap (If Applicable)
-
-- Calculate the SHA-256 checksum of the uploaded DMG:
-
-  ```bash
-  shasum -a 256 dist/Versoline-<VERSION>.dmg
-  ```
-
-- Update `versoline.rb` in your tap (`bezelye404/homebrew-tap`) with the new version and checksum.
