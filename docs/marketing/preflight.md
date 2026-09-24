@@ -8,9 +8,9 @@ Bu rapor, [VERSOLINE.md](../../VERSOLINE.md) Faz 0 yönergeleri uyarınca hiçbi
 
 | Kontrol | Durum | Detay |
 | :--- | :--- | :--- |
-| **`gh` CLI Durumu** | ❌ Bulunamadı (`command not found`) | Sistemde GitHub CLI (`gh`) kurulu değildir veya PATH üzerinde yer almamaktadır (`brew` `/opt/homebrew/bin/brew` altında mevcuttur). |
-| **Admin Yetki Durumu** | ℹ️ Doğrulanamadı | `gh` CLI bulunmadığı için doğrudan CLI üzerinden admin token doğrulaması yapılamadı. |
-| **Öneri / Eylem** | ⚠️ Komutlar kullanıcıya devredilecek | Faz 2'deki GitHub repo yeniden adlandırma (`gh repo rename`) ve metadata güncelleme komutları doğrudan kullanıcıya verilecektir. |
+| **`gh` CLI Durumu** | ✅ Kurulu ve Giriş Yapılmış | GitHub CLI (`/opt/homebrew/bin/gh`) kuruldu ve `bezelye404` kullanıcısıyla SSH/OAuth üzerinden doğrulandı. |
+| **Admin Yetki Durumu** | ✅ Doğrulandı (`viewerPermission: ADMIN`) | `gh repo view bezelye404/easyRSS --json viewerPermission` sorgusu ile depoda doğrudan yönetici (ADMIN) yetkisine sahip olunduğu teyit edildi. |
+| **Eylem** | 🚀 CLI ile otomatik gerçekleştirilebilir | Faz 2'deki GitHub repo yeniden adlandırma (`gh repo rename`) ve metadata güncelleme işlemleri doğrudan CLI üzerinden çalıştırılabilir. |
 
 ---
 
