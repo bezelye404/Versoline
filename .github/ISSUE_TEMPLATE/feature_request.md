@@ -1,0 +1,24 @@
+---
+name: Feature Request
+about: Suggest an idea or feature for Versoline
+title: "[Feature]: "
+labels: ["enhancement"]
+assignees: ""
+---
+
+### Is your feature request related to a problem? Please describe.
+A clear and concise description of what the problem is. Ex: I'm always frustrated when [...]
+
+### Describe the solution you'd like
+A clear and concise description of what you want to happen.
+
+### Architectural Alignment Check
+- [ ] Does this feature respect our **zero third-party dependencies** rule?
+- [ ] Does this feature operate **offline-first** without requiring mandatory cloud accounts?
+- [ ] Does this feature keep user data **strictly local** on the Mac?
+
+### Describe alternatives you've considered
+A clear and concise description of any alternative solutions or features you've considered.
+
+### Additional context
+Add any other context, mockups, or screenshots about the feature request here.
