@@ -31,37 +31,6 @@ Download the latest version directly from the GitHub Releases page:
     ```bash
     xattr -cr /Applications/Versoline.app
     ```
-
----
-
-## 🔄 Upgrading from easyRSS
-
-If you previously used **easyRSS**, your data is completely safe:
-
-- **Automatic Non-Destructive Migration:** Upon opening Versoline for the first time, all your existing subscriptions, articles, downloaded podcast episodes, and cached favicons are automatically cloned and imported from `~/Library/Application Support/EasyRSS` into `~/Library/Application Support/Versoline`.
-- **Zero Data Loss:** Your original `EasyRSS` directory is left completely untouched as an archival safeguard.
-- **Clean Transition:** Once you have confirmed your feeds are present in Versoline, you may safely delete the legacy `EasyRSS.app` from your Applications folder.
-
----
-
-## ⚖️ Versoline vs. NetNewsWire
-
-Both Versoline and NetNewsWire are dedicated, open-source macOS news readers. Here is an honest, verified comparison of their distinctive feature sets:
-
-| Feature / Capability | Versoline | NetNewsWire |
-| :--- | :---: | :---: |
-| **UI Framework** | Pure **SwiftUI** (macOS 15 native) | AppKit + SwiftUI hybrid |
-| **External Dependencies** | **0** (Apple System Frameworks only) | Multiple third-party packages |
-| **Built-in Podcast Player** | ✅ Native player, sleep timer, speed control | ❌ |
-| **Offline Podcast Downloads** | ✅ Integrated `.mp3` manager & chapter seek | ❌ |
-| **YouTube Channels & Videos** | ✅ Handle/URL resolution, embedded player | ❌ |
-| **Reddit Feeds** | ✅ Subreddits & users with sorting filters | ❌ |
-| **Reading Time Streams** | ✅ Smart Streams (Quick Reads / Deep Reads) | ❌ |
-| **Color Themes** | ✅ **10 Matte Palettes** (Light & Dark) | Standard macOS system accents |
-| **Bionic Reading** | ✅ Native typographic fixation mode | ❌ |
-| **Single-Key Shortcuts** | ✅ Vim-style (`J`, `K`, `M`, `S`, `O`) | Standard macOS shortcuts |
-| **Third-Party Sync Services** | Local peer P2P & iCloud Drive | Feedbin, Feedly, Inoreader, NewsBlur |
-
 ---
 
 ## ✨ Features
