@@ -1112,7 +1112,7 @@ struct QuoteCardSheet: View {
                 quote: quoteText,
                 articleTitle: item.title,
                 author: item.author,
-                feedTitle: feedTitle ?? "easyRSS",
+                feedTitle: feedTitle ?? "Versoline",
                 palette: selectedPalette
             )
             .padding(.horizontal, 20)
@@ -1197,7 +1197,7 @@ struct QuoteCardSheet: View {
             quote: quoteText,
             articleTitle: item.title,
             author: item.author,
-            feedTitle: feedTitle ?? "easyRSS",
+            feedTitle: feedTitle ?? "Versoline",
             palette: selectedPalette
         )
         let renderer = ImageRenderer(content: card)
@@ -1258,7 +1258,7 @@ struct QuoteCardPreview: View {
                     }
                 }
                 Spacer()
-                Text("easyRSS")
+                Text("Versoline")
                     .font(.system(size: 9, weight: .heavy, design: .monospaced))
                     .foregroundStyle(palette.accentColor)
                     .padding(.horizontal, 6)

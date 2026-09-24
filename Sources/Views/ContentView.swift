@@ -25,6 +25,33 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            if LegacyMigration.shared.showImportNotification {
+                HStack(spacing: 10) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(Color.green)
+                    Text("Versoline (formerly easyRSS): your subscriptions and data were imported.")
+                        .font(.subheadline)
+                    Spacer()
+                    Button {
+                        LegacyMigration.shared.dismissNotification()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Color.green.opacity(0.12))
+                .overlay(
+                    Rectangle()
+                        .frame(height: 1)
+                        .foregroundStyle(Color.green.opacity(0.2)),
+                    alignment: .bottom
+                )
+            }
+
             NavigationSplitView(columnVisibility: $columnVisibility) {
                 SidebarView(selectedItem: $selectedSidebarItem, selectedArticle: $selectedArticle)
                     .navigationSplitViewColumnWidth(min: 200, ideal: 240, max: 320)
@@ -260,7 +287,7 @@ struct ContentView: View {
         let panel = NSSavePanel()
         panel.title = String(localized: "Export OPML")
         panel.allowedContentTypes = [UTType(filenameExtension: "opml") ?? .xml]
-        panel.nameFieldStringValue = "easyRSS_subscriptions.opml"
+        panel.nameFieldStringValue = "versoline_subscriptions.opml"
 
         guard panel.runModal() == .OK, let url = panel.url else { return }
 

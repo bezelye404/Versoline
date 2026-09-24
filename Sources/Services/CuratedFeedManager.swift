@@ -22,11 +22,11 @@ final class CuratedFeedManager {
     private(set) var hasLoaded = false
     private(set) var isUpdatingFromRemote = false
 
-    private static let remoteManifestURL = URL(string: "https://raw.githubusercontent.com/bezelye404/easyRSS/main/Sources/Resources/curated_feeds.json")!
+    private static let remoteManifestURL = URL(string: "https://raw.githubusercontent.com/bezelye404/versoline/main/Sources/Resources/curated_feeds.json")!
 
     private var cacheFileURL: URL {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let appDir = appSupport.appendingPathComponent("EasyRSS", isDirectory: true)
+        let appDir = appSupport.appendingPathComponent("Versoline", isDirectory: true)
         try? FileManager.default.createDirectory(at: appDir, withIntermediateDirectories: true)
         return appDir.appendingPathComponent("curated_feeds_cache.json")
     }
@@ -78,7 +78,7 @@ final class CuratedFeedManager {
 
         Task.detached(priority: .utility) {
             var request = URLRequest(url: targetURL, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15)
-            request.setValue("easyRSS/1.0", forHTTPHeaderField: "User-Agent")
+            request.setValue("Versoline/1.0", forHTTPHeaderField: "User-Agent")
             if let storedETag, !storedETag.isEmpty {
                 request.setValue(storedETag, forHTTPHeaderField: "If-None-Match")
             }

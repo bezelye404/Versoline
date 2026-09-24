@@ -7,7 +7,7 @@ final class ContentBlockerService {
 
     static let shared = ContentBlockerService()
 
-    private let ruleListIdentifier = "EasyRSSContentBlockerRules-v6"
+    private let ruleListIdentifier = "VersolineContentBlockerRules-v1"
     private(set) var ruleList: WKContentRuleList?
     private(set) var isReady: Bool = false
 

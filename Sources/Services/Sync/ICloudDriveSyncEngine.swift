@@ -10,7 +10,7 @@ final class ICloudDriveSyncEngine: NSObject, NSFilePresenter, @unchecked Sendabl
 
     private let syncOperationQueue: OperationQueue = {
         let q = OperationQueue()
-        q.name = "com.bezelye.easyRSS.iCloudSyncQueue"
+        q.name = "com.bezelye.versoline.iCloudSyncQueue"
         q.maxConcurrentOperationCount = 1
         q.qualityOfService = .utility
         return q
@@ -26,21 +26,21 @@ final class ICloudDriveSyncEngine: NSObject, NSFilePresenter, @unchecked Sendabl
         return FileManager.default.homeDirectoryForCurrentUser
     }
 
-    /// Resolves the iCloud Drive easyRSS directory path without requiring Apple Dev credentials.
+    /// Resolves the iCloud Drive Versoline directory path without requiring Apple Dev credentials.
     var syncDirectoryURL: URL {
         let realHome = Self.realHomeDirectoryURL
         let cloudDocsParent = realHome.appendingPathComponent("Library/Mobile Documents/com~apple~CloudDocs", isDirectory: true)
-        let easyRSSCloudDocs = cloudDocsParent.appendingPathComponent("easyRSS", isDirectory: true)
+        let versolineCloudDocs = cloudDocsParent.appendingPathComponent("Versoline", isDirectory: true)
 
         // If iCloud Drive is available on macOS, use it; otherwise fallback to local sync sandbox
         if FileManager.default.fileExists(atPath: cloudDocsParent.path) {
-            if !FileManager.default.fileExists(atPath: easyRSSCloudDocs.path) {
-                try? FileManager.default.createDirectory(at: easyRSSCloudDocs, withIntermediateDirectories: true)
+            if !FileManager.default.fileExists(atPath: versolineCloudDocs.path) {
+                try? FileManager.default.createDirectory(at: versolineCloudDocs, withIntermediateDirectories: true)
             }
-            return easyRSSCloudDocs
+            return versolineCloudDocs
         } else {
             let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            let fallback = appSupport.appendingPathComponent("EasyRSS/Sync", isDirectory: true)
+            let fallback = appSupport.appendingPathComponent("Versoline/Sync", isDirectory: true)
             if !FileManager.default.fileExists(atPath: fallback.path) {
                 try? FileManager.default.createDirectory(at: fallback, withIntermediateDirectories: true)
             }
