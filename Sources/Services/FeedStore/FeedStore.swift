@@ -13,7 +13,7 @@ struct FullscreenVideoContext: Identifiable, Equatable {
 @Observable
 final class FeedStore {
 
-    static let maxItemsPerFeed = 70
+    nonisolated static let maxItemsPerFeed = 70
 
     var feeds: [Feed] = []
     var items: [UUID: [FeedItem]] = [:]

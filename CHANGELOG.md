@@ -32,10 +32,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Feeds
 - **Articles only:** items without a real article (social posts, promos, home-page links) and duplicates are dropped; entries without a link get an identity from their guid or enclosure, so read and bookmark state no longer collides between them.
 
+
 ### Memory and speed
 - Freed heap pages are handed back to the system after launch, after a refresh and after an OPML import (idle footprint with a 3,500-article library: 83 MB to 70 MB in a Release build).
 - WebKit is no longer started at launch just to clear its caches (it started a network process, about 6 MB, before any page was opened).
 - The article cache scan runs a few seconds after launch instead of during it.
+- **Big feeds are no longer parsed to the end.** The parser keeps only the newest items it needs and stops once a newest-first feed has gone past them, and it reads the XML as a stream. A podcast feed with 2,759 episodes (5.4 MB) went from 0.67 s and about 19 MB of extra memory to 0.15 s and 6 MB per refresh; the 43 feeds of a real library gave identical results. Adding a feed or importing OPML now keeps the newest items of oldest-first feeds, not the oldest.
 - The in-app YouTube player has pastel controls, a capped inline size, and frees its web page 90 seconds after pausing.
 - New setting: play YouTube videos in the browser instead of the built-in player, which avoids the roughly 100 MB WebKit page.
 - Debug builds are a separate app, "Versoline Dev" (`com.bezelye.Versoline.dev`), with its own data.
