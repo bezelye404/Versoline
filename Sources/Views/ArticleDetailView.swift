@@ -76,11 +76,8 @@ struct ArticleDetailView: View {
                     // Main Reader / Media Content Layer (smooth cross-fade transition on item change)
                     Group {
                         if item.isPodcast {
-                            if activeViewMode == .inAppBrowser {
-                                inAppBrowserView(item: item)
-                            } else {
-                                podcastFullPageView(item: item)
-                            }
+                            // The episode page is the player; a Reader/Web switch would only hide it.
+                            podcastFullPageView(item: item)
                         } else if item.isYouTube {
                             VStack(spacing: 0) {
                                 if let videoID = item.youtubeVideoID {
@@ -249,13 +246,15 @@ struct ArticleDetailView: View {
                         .help(String(localized: "Offline"))
                 }
 
-                Picker(String(localized: "Reading Mode"), selection: $activeViewMode) {
-                    Text(String(localized: "Reader")).tag(ReadingViewMode.reader)
-                    Text(String(localized: "Web")).tag(ReadingViewMode.inAppBrowser)
+                if !item.isPodcast {
+                    Picker(String(localized: "Reading Mode"), selection: $activeViewMode) {
+                        Text(String(localized: "Reader")).tag(ReadingViewMode.reader)
+                        Text(String(localized: "Web")).tag(ReadingViewMode.inAppBrowser)
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 128)
+                    .help(String(localized: "Switch between Reader and Web"))
                 }
-                .pickerStyle(.segmented)
-                .frame(width: 128)
-                .help(String(localized: "Switch between Reader and Web"))
 
                 // Typography only applies to text articles, not to a podcast's player page.
                 if !item.isPodcast {

@@ -13,6 +13,7 @@ struct GeneralSettingsTab: View {
     @AppStorage(AppSettingsKeys.isContentBlockerEnabled) private var isContentBlockerEnabled = true
     @AppStorage(AppSettingsKeys.showReadingTimeStreams) private var showReadingTimeStreams = false
     @AppStorage(AppSettingsKeys.playYouTubeInApp) private var playYouTubeInApp = true
+    @AppStorage(AppSettingsKeys.enableSingleKeyShortcuts) private var enableSingleKeyShortcuts = true
 
     private var selectedPalette: AppColorPalette {
         AppColorPalette(rawValue: appColorPaletteRaw) ?? .slate
@@ -74,6 +75,16 @@ struct GeneralSettingsTab: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Pre-cache Articles for Offline Access")
                         Text("Pre-loads readable articles in the background so they are ready even without an internet connection.")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+            }
+
+            Section("Keyboard") {
+                Toggle(isOn: $enableSingleKeyShortcuts) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Enable Single-Key Navigation")
+                        Text("Enables vim-style keyboard navigation (J, K, M, S, O) without holding Command.")
                             .font(.caption).foregroundStyle(.secondary)
                     }
                 }
