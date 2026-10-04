@@ -400,9 +400,8 @@ enum ArticleParser {
         if element.attribute(forName: "aria-hidden")?.stringValue == "true" { return true }
         if let style = element.attribute(forName: "style")?.stringValue?.lowercased(),
            style.contains("display:none") || style.contains("display: none") { return true }
-        let labels = (element.attribute(forName: "class")?.stringValue ?? "") + " " + (element.attribute(forName: "id")?.stringValue ?? "")
-        guard !labels.trimmingCharacters(in: .whitespaces).isEmpty else { return false }
-        let words = labels.lowercased().split(whereSeparator: { !$0.isLetter && !$0.isNumber })
+        let words = labelWords(of: element)
+        guard !words.isEmpty else { return false }
         return words.contains { furnitureWords.contains(String($0)) }
     }
 
@@ -509,10 +508,14 @@ enum ArticleParser {
         if let width = number("width"), width <= 10 { return nil }
         if let height = number("height"), height <= 10 { return nil }
 
-        let labels = ((element.attribute(forName: "class")?.stringValue ?? "") + " " + (element.attribute(forName: "id")?.stringValue ?? "")
-            + " " + (element.attribute(forName: "alt")?.stringValue ?? "")).lowercased()
-        let words = labels.split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map(String.init)
-        if words.contains(where: { furnitureWords.contains($0) || $0 == "emoji" || $0 == "pixel" || $0 == "avatar" }) { return nil }
+        // Several short statements: one long expression here is too slow for the type checker on older Xcode.
+        let className: String = element.attribute(forName: "class")?.stringValue ?? ""
+        let idName: String = element.attribute(forName: "id")?.stringValue ?? ""
+        let altText: String = element.attribute(forName: "alt")?.stringValue ?? ""
+        let labels: String = [className, idName, altText].joined(separator: " ").lowercased()
+        let words: [String] = labels.split(whereSeparator: { !$0.isLetter && !$0.isNumber }).map(String.init)
+        let skippedWords: Set<String> = ["emoji", "pixel", "avatar"]
+        for word in words where furnitureWords.contains(word) || skippedWords.contains(word) { return nil }
 
         var raw: String?
         for key in ["srcset", "data-srcset"] {
@@ -595,9 +598,13 @@ extension ArticleParser {
         return jsonLDArticleHTML(from: html)
     }
 
-    private static func labelWords(of element: XMLElement) -> [Substring] {
-        let labels = (element.attribute(forName: "class")?.stringValue ?? "") + " " + (element.attribute(forName: "id")?.stringValue ?? "")
-        return labels.lowercased().split(whereSeparator: { !$0.isLetter && !$0.isNumber })
+    /// Lower-case words of an element's class and id names. Kept as plain statements: one long `??` and `+`
+    /// expression is too slow for the type checker on older Xcode versions.
+    fileprivate static func labelWords(of element: XMLElement) -> [Substring] {
+        let className: String = element.attribute(forName: "class")?.stringValue ?? ""
+        let idName: String = element.attribute(forName: "id")?.stringValue ?? ""
+        let labels: String = [className, idName].joined(separator: " ").lowercased()
+        return labels.split(whereSeparator: { !$0.isLetter && !$0.isNumber })
     }
 
     private static func classWeight(of element: XMLElement) -> Double {
