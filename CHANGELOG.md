@@ -19,8 +19,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Lighter list rows:** one quiet meta line (source, time, media) instead of author icon and capsules, and a one-line summary.
 - **Native search** (⌘F) in the toolbar replaces the in-list search bar.
 - **Faster navigation:** ⌘K command palette to jump to any list, folder or feed or run any command, and Focus Mode (⇧⌘F) to read without the sidebar and list.
+- **Settings:** the theme grid became one row of colour swatches, switches carry their description in the same row, and the window follows the app theme. The Add Feed sheet no longer repeats its own tabs as cards.
 - **Welcome screen** with three clear first steps while the library is empty.
 - **Motion:** SF Symbol bounce on bookmark and read toggles and numeric transitions, both disabled under Reduce Motion.
+
+### Memory and speed
+- Freed heap pages are handed back to the system after launch, after a refresh and after an OPML import (idle footprint with a 3,500-article library: 83 MB to 70 MB in a Release build).
+- WebKit is no longer started at launch just to clear its caches (it started a network process, about 6 MB, before any page was opened).
+- The article cache scan runs a few seconds after launch instead of during it.
+- New setting: play YouTube videos in the browser instead of the built-in player, which avoids the roughly 100 MB WebKit page.
+- Debug builds are a separate app, "Versoline Dev" (`com.bezelye.Versoline.dev`), with its own data.
 
 ### Removed
 - **iCloud Drive sync.** It needed a sandbox exception for the iCloud Drive folder and could clear local bookmarks when feeds changed. It may return later as a new design. Nothing is deleted from an existing iCloud Drive folder.

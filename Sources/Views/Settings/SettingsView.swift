@@ -4,6 +4,12 @@ import WebKit
 
 struct SettingsView: View {
 
+    @AppStorage(AppSettingsKeys.appColorPalette) private var appColorPaletteRaw = AppColorPalette.slate.rawValue
+
+    private var palette: AppColorPalette {
+        AppColorPalette(rawValue: appColorPaletteRaw) ?? .slate
+    }
+
     private enum SettingsTab: Hashable {
         case general
         case reader
@@ -58,6 +64,9 @@ struct SettingsView: View {
                 }
                 .tag(SettingsTab.health)
         }
+        // The settings window follows the app theme: same accent colour and appearance.
+        .environment(\.appTheme, palette)
+        .tint(palette.accentColor)
         .frame(width: 580, height: 510)
     }
 }

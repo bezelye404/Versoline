@@ -654,3 +654,6 @@
 "Go to..." = "Git...";
 "Go to a feed or run a command..." = "Bir akışa git veya komut çalıştır...";
 "No matches" = "Eşleşme yok";
+"Reading" = "Okuma";
+"Play YouTube Videos in Versoline" = "YouTube Videolarını Versoline'da Oynat";
+"Off opens videos in your browser instead. The built-in player loads a web page and needs about 100 MB of extra memory while a video is open." = "Kapalıyken videolar tarayıcınızda açılır. Yerleşik oynatıcı bir web sayfası yükler ve video açıkken yaklaşık 100 MB ek bellek gerektirir.";

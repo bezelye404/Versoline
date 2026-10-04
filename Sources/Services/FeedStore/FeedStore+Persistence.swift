@@ -41,7 +41,7 @@ extension FeedStore {
 
         pendingSaveTask?.cancel()
         pendingSaveTask = Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 800_000_000) // 800ms debounce
+            try? await Task.sleep(for: .milliseconds(800)) // 800ms debounce
             guard !Task.isCancelled else { return }
             let data = StorageData(feeds: self.feeds, items: self.items, folders: self.folders, tombstones: self.tombstones)
             Task.detached(priority: .utility) {

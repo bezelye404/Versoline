@@ -655,3 +655,6 @@
 "Go to..." = "Go to...";
 "Go to a feed or run a command..." = "Go to a feed or run a command...";
 "No matches" = "No matches";
+"Reading" = "Reading";
+"Play YouTube Videos in Versoline" = "Play YouTube Videos in Versoline";
+"Off opens videos in your browser instead. The built-in player loads a web page and needs about 100 MB of extra memory while a video is open." = "Off opens videos in your browser instead. The built-in player loads a web page and needs about 100 MB of extra memory while a video is open.";

@@ -80,6 +80,7 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
         let weakHandler = WeakVideoScriptMessageHandler(delegate: self)
         configuration.userContentController.add(weakHandler, name: "customPlayerBridge")
 
+        WebView.isWebKitInUse = true
         let wv = WKWebView(frame: .zero, configuration: configuration)
         wv.wantsLayer = true
         wv.layer?.backgroundColor = NSColor.black.cgColor
