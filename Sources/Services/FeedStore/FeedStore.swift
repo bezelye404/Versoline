@@ -59,6 +59,8 @@ final class FeedStore {
     @ObservationIgnored var cachedSmartCategoryCounts: [SmartCategory: Int] = [:]
     var activeSmartCategories: [SmartCategory] = []
     @ObservationIgnored var lastRefreshDate: Date?
+    /// Feeds that keep failing wait longer between automatic refreshes (see `RefreshBackoff`).
+    @ObservationIgnored var refreshBackoff: [UUID: RefreshBackoff] = [:]
 
     static let dayOfWeekFormatter: DateFormatter = {
         let df = DateFormatter()
