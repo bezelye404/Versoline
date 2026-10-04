@@ -23,7 +23,9 @@ struct ArticleDetailView: View {
 
     @State private var activeViewMode: ReadingViewMode = .reader
     @State private var extractedReaderHTML: String? = nil
+    @State private var readerDocument: ArticleDocument? = nil
     @State private var isLoadingReaderMode = false
+    @State private var readerFetchFailed = false
     @State private var isSpeaking = false
     @State private var speechSynthesizer: AVSpeechSynthesizer? = nil
     @State private var speechDelegate = ArticleSpeechDelegate()
@@ -175,6 +177,8 @@ struct ArticleDetailView: View {
         activeViewMode = defaultMode
         let cached = ReaderModeExtractor.shared.cachedContent(for: item.link, requireSubstantive: true)
         extractedReaderHTML = cached
+        readerDocument = nil
+        readerFetchFailed = false
 
         if activeViewMode == .reader && cached == nil {
             loadReaderMode(for: item, forceWeb: false)
@@ -806,20 +810,71 @@ struct ArticleDetailView: View {
                     .padding(.top, 4)
             }
 
-            // Keep the WebView continuously mounted across article changes to reuse the same WebContent process
-            WebView(
-                html: contentHTML,
-                fontSize: readerFontSize,
-                theme: currentTheme,
-                fontFamily: currentFontFamily,
-                lineHeight: currentLineHeight,
-                isBionicReadingEnabled: isBionicReadingEnabled
-            )
+            if let document = readerDocument, !document.isEmpty {
+                NativeReaderView(
+                    document: document,
+                    title: item.title,
+                    metaLine: readerMetaLine(item: item, document: document),
+                    byline: readerByline(item: item),
+                    fontSize: Double(readerFontSize),
+                    fontFamily: currentFontFamily,
+                    lineHeight: currentLineHeight,
+                    theme: currentTheme,
+                    isBionic: isBionicReadingEnabled,
+                    onOpenURL: { currentExternalBrowser.open(url: $0) }
+                )
+            } else if readerDocument != nil {
+                // Nothing readable was found (empty or script-only content): the web reader still shows something.
+                WebView(
+                    html: contentHTML,
+                    fontSize: readerFontSize,
+                    theme: currentTheme,
+                    fontFamily: currentFontFamily,
+                    lineHeight: currentLineHeight,
+                    isBionicReadingEnabled: isBionicReadingEnabled
+                )
+            } else {
+                Color.clear
+            }
 
             if !isSubstantive && !isLoadingReaderMode {
                 summaryNoticeBanner(item: item)
             }
         }
+        .task(id: "\(item.id)-\(contentHTML.utf8.count)") {
+            let title = item.title
+            let base = URL(string: item.link)
+            let document = await Task.detached(priority: .userInitiated) {
+                ArticleParser.parse(html: contentHTML, baseURL: base, title: title)
+            }.value
+            guard !Task.isCancelled else { return }
+            readerDocument = document
+        }
+    }
+
+    private static let readerDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale.autoupdatingCurrent
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter
+    }()
+
+    private func readerMetaLine(item: FeedItem, document: ArticleDocument) -> String {
+        var parts: [String] = []
+        if let date = item.pubDate {
+            parts.append(Self.readerDateFormatter.string(from: date).uppercased())
+        }
+        let minutes = max(1, Int(ceil(Double(document.wordCount) / 200.0)))
+        parts.append(String(format: String(localized: "%d min read"), minutes).uppercased())
+        return parts.joined(separator: " · ")
+    }
+
+    private func readerByline(item: FeedItem) -> String {
+        [currentFeed?.title, item.author]
+            .compactMap { $0 }
+            .filter { !$0.isEmpty }
+            .joined(separator: " • ")
     }
 
     @ViewBuilder
@@ -829,20 +884,33 @@ struct ArticleDetailView: View {
                 .foregroundStyle(.secondary)
                 .font(.system(size: 13))
 
-            Text(String(localized: "Showing feed summary. Tap to fetch full article from web."))
+            Text(readerFetchFailed
+                 ? String(localized: "The full article could not be extracted from this page.")
+                 : String(localized: "Showing feed summary. Tap to fetch full article from web."))
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
             Spacer()
 
-            Button {
-                AppHaptics.tap()
-                loadReaderMode(for: item, forceWeb: true)
-            } label: {
-                Label(String(localized: "Fetch Full Article"), systemImage: "arrow.down.circle")
+            if readerFetchFailed {
+                Button {
+                    AppHaptics.tap()
+                    activeViewMode = .inAppBrowser
+                } label: {
+                    Label(String(localized: "Open Web Page"), systemImage: "safari")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            } else {
+                Button {
+                    AppHaptics.tap()
+                    loadReaderMode(for: item, forceWeb: true)
+                } label: {
+                    Label(String(localized: "Fetch Full Article"), systemImage: "arrow.down.circle")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
             }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
@@ -881,6 +949,7 @@ struct ArticleDetailView: View {
         }
 
         isLoadingReaderMode = true
+        readerFetchFailed = false
         let targetId = item.id
         currentExtractionTask?.cancel()
         currentExtractionTask = Task {
@@ -898,6 +967,8 @@ struct ArticleDetailView: View {
             if let extracted, !extracted.isEmpty {
                 extractedReaderHTML = extracted
             }
+            // Still only the feed summary after an explicit fetch: say so instead of silently doing nothing.
+            readerFetchFailed = forceWeb && !ReaderModeExtractor.shared.isSubstantiveContent(extracted ?? "")
         }
     }
 

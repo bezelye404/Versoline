@@ -23,10 +23,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Welcome screen** with three clear first steps while the library is empty.
 - **Motion:** SF Symbol bounce on bookmark and read toggles and numeric transitions, both disabled under Reduce Motion.
 
+### Reader
+- **Better article extraction:** the page is parsed as a DOM and scored like Readability (paragraph density, link density, class and id hints, JSON-LD `articleBody` as a fallback) instead of regex-matching the biggest `<article>`. Content that Next.js streams inside hidden placeholders is now recognised, and "Fetch Full Article" says so when a page yields nothing instead of doing nothing.
+- **Native reader:** articles are parsed into blocks (headings, paragraphs, lists, quotes, code, images with captions) and drawn with plain SwiftUI, so reading no longer starts WebKit's helper processes (about 50 MB and three processes per reading session). Links, bold, italic and inline code are kept; Bionic Reading, font, line height and the colour themes work as before. Page furniture such as breadcrumbs, "follow us" lines, related-post lists, navigation, sidebars and footers is dropped, and images are downsampled and loaded lazily. Code blocks are plain monospaced (no syntax colours). The web view is still used for the "Web" mode and as a fallback when nothing readable is found.
+
+### Feeds
+- **Articles only:** items without a real article (social posts, promos, home-page links) and duplicates are dropped; entries without a link get an identity from their guid or enclosure, so read and bookmark state no longer collides between them.
+
 ### Memory and speed
 - Freed heap pages are handed back to the system after launch, after a refresh and after an OPML import (idle footprint with a 3,500-article library: 83 MB to 70 MB in a Release build).
 - WebKit is no longer started at launch just to clear its caches (it started a network process, about 6 MB, before any page was opened).
 - The article cache scan runs a few seconds after launch instead of during it.
+- The in-app YouTube player has pastel controls, a capped inline size, and frees its web page 90 seconds after pausing.
 - New setting: play YouTube videos in the browser instead of the built-in player, which avoids the roughly 100 MB WebKit page.
 - Debug builds are a separate app, "Versoline Dev" (`com.bezelye.Versoline.dev`), with its own data.
 
