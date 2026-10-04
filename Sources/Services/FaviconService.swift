@@ -4,6 +4,12 @@ import SwiftUI
 import ImageIO
 import CoreGraphics
 
+/// `NSImage` is not `Sendable` in every SDK this project builds with (Xcode 16 rejects it as a `Task`
+/// result), so in-flight image tasks return it inside this box. The image is only used on the main actor.
+struct SendableImage: @unchecked Sendable {
+    let image: NSImage?
+}
+
 @MainActor
 final class FaviconService {
 
@@ -12,7 +18,7 @@ final class FaviconService {
     private let memoryCache = NSCache<NSString, NSImage>()
     private let fileManager = FileManager.default
     private let cacheDirectory: URL
-    private var inFlightTasks: [String: Task<NSImage?, Never>] = [:]
+    private var inFlightTasks: [String: Task<SendableImage, Never>] = [:]
 
     private static let session: URLSession = {
         let config = URLSessionConfiguration.ephemeral
@@ -76,10 +82,10 @@ final class FaviconService {
 
         // 3. Prevent duplicate in-flight network requests
         if let existing = inFlightTasks[host] {
-            return await existing.value
+            return await existing.value.image
         }
 
-        let task = Task<NSImage?, Never> {
+        let task = Task<SendableImage, Never> {
             let image = await downloadFavicon(forHost: host)
             if let image {
                 self.memoryCache.setObject(image, forKey: cacheKey, cost: 16 * 1024)
@@ -90,11 +96,11 @@ final class FaviconService {
                 }
             }
             self.inFlightTasks.removeValue(forKey: host)
-            return image
+            return SendableImage(image: image)
         }
 
         inFlightTasks[host] = task
-        return await task.value
+        return await task.value.image
     }
 
     private func downloadFavicon(forHost host: String) async -> NSImage? {
@@ -177,7 +183,7 @@ final class ImageDownsampleCache {
     private let memoryCache = NSCache<NSString, NSImage>()
     private let fileManager = FileManager.default
     private let diskCacheURL: URL
-    private var inFlightTasks: [String: Task<NSImage?, Never>] = [:]
+    private var inFlightTasks: [String: Task<SendableImage, Never>] = [:]
 
     private init() {
         let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
@@ -292,10 +298,10 @@ final class ImageDownsampleCache {
 
         // 3. Deduplicate in-flight network requests
         if let existing = inFlightTasks[key] {
-            return await existing.value
+            return await existing.value.image
         }
 
-        let task = Task<NSImage?, Never> {
+        let task = Task<SendableImage, Never> {
             var request = URLRequest(url: url)
             request.timeoutInterval = 10
             request.setValue("Versoline/1.0", forHTTPHeaderField: "User-Agent")
@@ -303,11 +309,11 @@ final class ImageDownsampleCache {
             do {
                 let (data, response) = try await URLSession.shared.data(for: request)
                 guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode), !data.isEmpty else {
-                    return nil
+                    return SendableImage(image: nil)
                 }
 
                 guard let downsampled = Self.downsample(data: data, maxPixelSize: maxPixelSize) else {
-                    return nil
+                    return SendableImage(image: nil)
                 }
 
                 let cost = Int(maxPixelSize * maxPixelSize * 4)
@@ -319,14 +325,14 @@ final class ImageDownsampleCache {
                     Self.writeCGImageToDisk(cgImage, destinationURL: diskURL)
                 }
 
-                return downsampled.nsImage
+                return SendableImage(image: downsampled.nsImage)
             } catch {
-                return nil
+                return SendableImage(image: nil)
             }
         }
 
         inFlightTasks[key] = task
-        let result = await task.value
+        let result = await task.value.image
         inFlightTasks.removeValue(forKey: key)
         return result
     }
