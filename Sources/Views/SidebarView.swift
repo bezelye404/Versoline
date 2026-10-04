@@ -9,7 +9,6 @@ struct SidebarView: View {
     @Binding var selectedArticle: FeedItem?
     @State private var showAddFeed = false
     @State private var showFolderManagement = false
-    @State private var showReadingStats = false
     @State private var managingFolderId: UUID?
     @State private var showAddFolder = false
     @State private var newFolderName = ""
@@ -21,6 +20,7 @@ struct SidebarView: View {
     // Collapsible sections persistence
     @AppStorage("collapsedFolderIds") private var collapsedFolderIdsRaw: String = ""
     @AppStorage("isPinnedExpanded") private var isPinnedExpanded: Bool = true
+    @AppStorage("isMediaExpanded") private var isMediaExpanded: Bool = true
     @AppStorage("isSmartStreamsExpanded") private var isSmartStreamsExpanded: Bool = true
     @AppStorage("isUncategorizedExpanded") private var isUncategorizedExpanded: Bool = true
     @AppStorage(AppSettingsKeys.showReadingTimeStreams) private var showReadingTimeStreams = false
@@ -32,7 +32,6 @@ struct SidebarView: View {
             smartStreamsSection
             foldersSection
             uncategorizedSection
-            emptyStateSection
         }
         .listStyle(.sidebar)
         .scrollContentBackground(.hidden)
@@ -44,9 +43,6 @@ struct SidebarView: View {
         }
         .sheet(isPresented: $showFolderManagement) {
             FolderManagementView(initialFolderId: managingFolderId)
-        }
-        .sheet(isPresented: $showReadingStats) {
-            ReadingStatsSheet()
         }
         .onChange(of: showFolderManagement) { _, isShowing in
             if !isShowing {
@@ -114,19 +110,14 @@ struct SidebarView: View {
     }
 
     // MARK: - Library Section
+    //
+    // Four everyday lists, then one collapsible "Media" group that only exists when there is media.
+    // Only "Unread" carries a count and a colour; everything else is quiet. Folder management and
+    // Reading Insights are menu bar commands, not sidebar rows.
 
     @ViewBuilder
     private var librarySection: some View {
         Section(String(localized: "Library")) {
-            NavigationLink(value: SidebarItem.all) {
-                sidebarRow(
-                    title: String(localized: "All Articles"),
-                    systemImage: "tray.full",
-                    count: store.totalItemCount,
-                    accentColor: .secondary
-                )
-            }
-
             NavigationLink(value: SidebarItem.unread) {
                 sidebarRow(
                     title: String(localized: "Unread"),
@@ -138,104 +129,37 @@ struct SidebarView: View {
             }
 
             NavigationLink(value: SidebarItem.today) {
-                sidebarRow(
-                    title: String(localized: "Today"),
-                    systemImage: "clock",
-                    count: store.todayItemsCount(),
-                    accentColor: .secondary
-                )
+                sidebarRow(title: String(localized: "Today"), systemImage: "clock", count: nil, accentColor: .secondary)
             }
 
             NavigationLink(value: SidebarItem.bookmarks) {
-                sidebarRow(
-                    title: String(localized: "Bookmarks"),
-                    systemImage: "star",
-                    count: store.bookmarkCount(),
-                    accentColor: theme.bookmarkColor
-                )
+                sidebarRow(title: String(localized: "Bookmarks"), systemImage: "star", count: nil, accentColor: .secondary)
             }
 
-            NavigationLink(value: SidebarItem.podcasts) {
-                sidebarRow(
-                    title: String(localized: "Podcasts"),
-                    systemImage: "headphones",
-                    count: store.count(for: .podcasts),
-                    accentColor: theme.podcastColor
-                )
-            }
-
-            NavigationLink(value: SidebarItem.videos) {
-                sidebarRow(
-                    title: String(localized: "Videos"),
-                    systemImage: "play.rectangle",
-                    count: store.count(for: .videos),
-                    accentColor: theme.youtubeColor
-                )
+            NavigationLink(value: SidebarItem.all) {
+                sidebarRow(title: String(localized: "All Articles"), systemImage: "tray.full", count: nil, accentColor: .secondary)
             }
 
             let downloadedCount = store.downloadedItemsCount()
-            if downloadedCount > 0 {
-                NavigationLink(value: SidebarItem.downloaded) {
-                    sidebarRow(
-                        title: String(localized: "Downloaded"),
-                        systemImage: "arrow.down.circle",
-                        count: downloadedCount,
-                        accentColor: theme.successColor
-                    )
-                }
-            }
-
-            Button {
-                managingFolderId = nil
-                showFolderManagement = true
-            } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "folder")
-                        .font(.system(size: 14, weight: .regular))
-                        .foregroundStyle(.secondary)
-                        .frame(width: 18)
-
-                    Text(String(localized: "Folders"))
-                        .font(.system(size: 13, weight: .regular))
-                        .foregroundStyle(.primary)
-
-                    Spacer()
-
-                    if !store.folders.isEmpty {
-                        Text("\(store.folders.count)")
-                            .font(.system(size: 11, weight: .medium, design: .monospaced))
-                            .foregroundStyle(theme.badgeText)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 1)
-                            .background(theme.badgeBackground, in: Capsule())
+            if store.count(for: .podcasts) > 0 || store.count(for: .videos) > 0 || downloadedCount > 0 {
+                DisclosureGroup(isExpanded: $isMediaExpanded) {
+                    NavigationLink(value: SidebarItem.podcasts) {
+                        sidebarRow(title: String(localized: "Podcasts"), systemImage: "headphones", count: nil, accentColor: .secondary)
                     }
-                }
-            }
-            .buttonStyle(.plain)
-            .padding(.vertical, 2)
-
-            Button {
-                showReadingStats = true
-            } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "chart.bar.xaxis")
-                        .font(.system(size: 14, weight: .regular))
-                        .foregroundStyle(theme.accentColor)
-                        .frame(width: 18)
-
-                    Text(String(localized: "Reading Insights"))
+                    NavigationLink(value: SidebarItem.videos) {
+                        sidebarRow(title: String(localized: "Videos"), systemImage: "play.rectangle", count: nil, accentColor: .secondary)
+                    }
+                    if downloadedCount > 0 {
+                        NavigationLink(value: SidebarItem.downloaded) {
+                            sidebarRow(title: String(localized: "Downloaded"), systemImage: "arrow.down.circle", count: nil, accentColor: .secondary)
+                        }
+                    }
+                } label: {
+                    Label(String(localized: "Media"), systemImage: "play.square.stack")
                         .font(.system(size: 13, weight: .regular))
-                        .foregroundStyle(.primary)
-
-                    Spacer()
-
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 9, weight: .semibold))
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(.secondary)
                 }
             }
-            .buttonStyle(.plain)
-            .padding(.vertical, 2)
         }
     }
 
@@ -405,7 +329,7 @@ struct SidebarView: View {
     private func sidebarRow(
         title: String,
         systemImage: String,
-        count: Int,
+        count: Int?,
         accentColor: Color,
         isProminent: Bool = false
     ) -> some View {
@@ -421,7 +345,7 @@ struct SidebarView: View {
 
             Spacer()
 
-            if count > 0 {
+            if let count, count > 0 {
                 Text("\(count)")
                     .font(.system(size: 11, weight: isProminent ? .semibold : .medium, design: .monospaced))
                     .foregroundStyle(isProminent ? theme.activeBadgeText : theme.badgeText)
@@ -551,33 +475,6 @@ struct SidebarView: View {
                     AppHaptics.notifySuccess()
                     return true
                 }
-            }
-        }
-    }
-
-    // MARK: - Empty State
-
-    @ViewBuilder
-    private var emptyStateSection: some View {
-        if store.feeds.isEmpty && store.folders.isEmpty {
-            Section {
-                VStack(spacing: 12) {
-                    Image(systemName: "newspaper")
-                        .font(.system(size: 32, weight: .ultraLight))
-                        .foregroundStyle(.tertiary)
-
-                    Text(String(localized: "No feeds added yet"))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-
-                    Button(String(localized: "Add Feed")) {
-                        showAddFeed = true
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 20)
             }
         }
     }

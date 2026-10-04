@@ -122,8 +122,6 @@ struct FeedListView: View {
                     emptyState(for: selection!)
                 } else {
                     VStack(spacing: 0) {
-                        inlineSearchBar
-
                         if !NetworkMonitor.shared.isConnected {
                             HStack(spacing: 6) {
                                 Image(systemName: "wifi.slash")
@@ -241,6 +239,8 @@ struct FeedListView: View {
                         }
                     }
                     .navigationTitle(title)
+                    // Native search field in the window toolbar (⌘F focuses it).
+                    .searchable(text: $searchText, prompt: Text(String(localized: "Search articles...")))
                     .toolbar {
                         ToolbarItem(placement: .automatic) {
                             if case .feed(let feedId) = selection, let currentFeed = store.feed(for: feedId) {
@@ -309,40 +309,6 @@ struct FeedListView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-    }
-
-    // MARK: - Inline Search Bar
-
-    private var inlineSearchBar: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(.secondary)
-
-            TextField(String(localized: "Search articles..."), text: $searchText)
-                .textFieldStyle(.plain)
-                .font(.system(size: 12))
-
-            if !searchText.isEmpty {
-                Button {
-                    searchText = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 11))
-                        .foregroundStyle(.tertiary)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(Color.primary.opacity(0.04), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .stroke(theme.hairlineBorder, lineWidth: 0.5)
-        )
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
     }
 
     // MARK: - Keyboard Shortcuts

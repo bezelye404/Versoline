@@ -12,6 +12,8 @@ struct ContentView: View {
     @State private var addFeedTab: AddFeedTab = .customURL
     @State private var showConsole = false
     @State private var showShortcutsHelp = false
+    @State private var showReadingStats = false
+    @State private var showCommandPalette = false
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @State private var showAddFolder = false
     @State private var newFolderName = ""
@@ -58,9 +60,19 @@ struct ContentView: View {
                     .navigationSplitViewColumnWidth(min: 200, ideal: 240, max: 320)
                     .background(currentTheme.windowBackground)
             } content: {
-                FeedListView(selection: selectedSidebarItem, selectedArticle: $selectedArticle)
-                    .navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 480)
-                    .background(currentTheme.listBackground)
+                Group {
+                    if store.feeds.isEmpty {
+                        WelcomeView(
+                            addByURL: { addFeedTab = .customURL; showAddFeed = true },
+                            browseCatalog: { addFeedTab = .curatedCatalog; showAddFeed = true },
+                            importOPML: { importOPML() }
+                        )
+                    } else {
+                        FeedListView(selection: selectedSidebarItem, selectedArticle: $selectedArticle)
+                    }
+                }
+                .navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 480)
+                .background(currentTheme.listBackground)
             } detail: {
                 ArticleDetailView(selectedItem: selectedArticle)
                     .background(currentTheme.detailBackground)
@@ -103,88 +115,62 @@ struct ContentView: View {
                 .help(String(localized: "Refresh all feeds"))
                 .keyboardShortcut("r", modifiers: .command)
                 .disabled(store.isLoading)
-                // Unified Add Menu: URL, Curated Catalog, Podcast Search & OPML
+
+                // One button for the common case; the arrow lists the other ways to add something.
+                // OPML, folders, console and shortcuts live in the menu bar.
                 Menu {
-                    Button {
-                        addFeedTab = .customURL
-                        showAddFeed = true
-                    } label: {
-                        Label(String(localized: "Add Feed by URL..."), systemImage: "link")
+                    ForEach([AddFeedTab.customURL, .curatedCatalog, .podcastSearch, .socialFeeds]) { tab in
+                        Button {
+                            addFeedTab = tab
+                            showAddFeed = true
+                        } label: {
+                            Label(tab.title, systemImage: tab.iconName)
+                        }
                     }
-
-                    Button {
-                        addFeedTab = .curatedCatalog
-                        showAddFeed = true
-                    } label: {
-                        Label(String(localized: "Browse Curated Catalog..."), systemImage: "sparkles.rectangle.stack")
-                    }
-
-                    Button {
-                        addFeedTab = .podcastSearch
-                        showAddFeed = true
-                    } label: {
-                        Label(String(localized: "Search Podcasts..."), systemImage: "waveform.and.magnifyingglass")
-                    }
-
-                    Divider()
-
-                    Button {
-                        showAddFolder = true
-                    } label: {
-                        Label(String(localized: "New Folder..."), systemImage: "folder.badge.plus")
-                    }
-
-                    Button {
-                        showFolderManagement = true
-                    } label: {
-                        Label(String(localized: "Manage Folders..."), systemImage: "folder")
-                    }
-
-                    Divider()
-
-                    Button {
-                        importOPML()
-                    } label: {
-                        Label(String(localized: "Import OPML..."), systemImage: "square.and.arrow.down")
-                    }
-
-                    Button {
-                        exportOPML()
-                    } label: {
-                        Label(String(localized: "Export OPML..."), systemImage: "square.and.arrow.up")
-                    }
-                    .disabled(store.feeds.isEmpty)
                 } label: {
                     Label(String(localized: "Add"), systemImage: "plus")
+                } primaryAction: {
+                    addFeedTab = .customURL
+                    showAddFeed = true
                 }
-                .help(String(localized: "Add feed, folder, catalog, podcasts, or OPML"))
-
-                // View & Tools Menu (Compact mode, Shortcuts HUD, Console)
-                Menu {
-                    Toggle(String(localized: "Compact Mode"), isOn: $isCompactListMode)
-
-                    Divider()
-
-                    Button {
-                        showShortcutsHelp = true
-                    } label: {
-                        Label(String(localized: "Keyboard Shortcuts"), systemImage: "keyboard")
-                    }
-                    .keyboardShortcut("?", modifiers: [])
-
-                    Divider()
-
-                    Button {
-                        showConsole = true
-                    } label: {
-                        Label(String(localized: "Developer Console..."), systemImage: "terminal")
-                    }
-                    .keyboardShortcut("c", modifiers: [.command, .option])
-                } label: {
-                    Label(String(localized: "View Options"), systemImage: "slider.horizontal.3")
-                }
-                .help(String(localized: "View Options & Tools"))
+                .help(String(localized: "Add a feed"))
             }
+        }
+        .focusedSceneValue(\.appActions, AppActions(
+            addFeed: { tab in addFeedTab = tab; showAddFeed = true },
+            newFolder: { showAddFolder = true },
+            manageFolders: { showFolderManagement = true },
+            importOPML: { importOPML() },
+            exportOPML: { exportOPML() },
+            showReadingInsights: { showReadingStats = true },
+            showShortcuts: { showShortcutsHelp = true },
+            showConsole: { showConsole = true },
+            toggleFocusMode: { toggleFocusMode() },
+            showCommandPalette: { setPalette(true) },
+            hasFeeds: !store.feeds.isEmpty
+        ))
+        .overlay(alignment: .top) {
+            if showCommandPalette {
+                ZStack(alignment: .top) {
+                    Color.black.opacity(0.18)
+                        .ignoresSafeArea()
+                        .onTapGesture { setPalette(false) }
+                    CommandPaletteView(
+                        entries: CommandPalette.entries(feeds: store.feeds, folders: store.folders),
+                        onSelect: { entry in
+                            setPalette(false)
+                            run(entry)
+                        },
+                        onDismiss: { setPalette(false) }
+                    )
+                    .padding(.top, 64)
+                    .transition(.opacity.combined(with: .scale(scale: 0.97, anchor: .top)))
+                }
+                .transition(.opacity)
+            }
+        }
+        .sheet(isPresented: $showReadingStats) {
+            ReadingStatsSheet()
         }
         .sheet(isPresented: $showAddFeed, onDismiss: {
             CuratedFeedManager.shared.clearMemory()
@@ -266,6 +252,39 @@ struct ContentView: View {
                 try? await Task.sleep(for: .seconds(1800))
                 guard !Task.isCancelled else { break }
                 await store.refreshAllFeeds()
+            }
+        }
+    }
+
+    // MARK: - Focus mode and command palette
+
+    private func toggleFocusMode() {
+        withAnimation(AppAnimation.pageReveal) {
+            columnVisibility = columnVisibility == .detailOnly ? .all : .detailOnly
+        }
+    }
+
+    private func setPalette(_ visible: Bool) {
+        withAnimation(AppAnimation.pageReveal) {
+            showCommandPalette = visible
+        }
+    }
+
+    private func run(_ entry: PaletteEntry) {
+        switch entry.kind {
+        case .destination(let item):
+            selectedSidebarItem = item
+        case .command(let command):
+            switch command {
+            case .refresh: Task { await store.refreshAllFeeds(force: true) }
+            case .addFeed: addFeedTab = .customURL; showAddFeed = true
+            case .newFolder: showAddFolder = true
+            case .importOPML: importOPML()
+            case .exportOPML: exportOPML()
+            case .readingInsights: showReadingStats = true
+            case .shortcuts: showShortcutsHelp = true
+            case .focusMode: toggleFocusMode()
+            case .toggleCompact: isCompactListMode.toggle()
             }
         }
     }
