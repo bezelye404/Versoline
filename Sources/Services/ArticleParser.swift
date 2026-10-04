@@ -96,10 +96,20 @@ enum ArticleParser {
     /// Short lines that are site chrome, not article text (Turkish and English).
     private static let boilerplatePhrases: [String] = [
         "google'da takip", "google haberler'de takip", "bizi takip edin", "abone ol", "haberi paylaş", "yorum yap",
-        "ilgili haberler", "ilgili içerik", "diğer haberler", "tüm hakları saklıdır", "reklam", "devamını oku", "çerez",
+        "ilgili haberler", "ilgili içerik", "diğer haberler", "reklam", "devamını oku", "çerez",
         "whatsapp kanal", "all rights reserved", "advertisement", "sponsored", "read more", "subscribe to our", "follow us",
         "sign up for", "newsletter", "cookie",
+        "atlayın ve okumaya devam", "haberin sonu", "en çok okunanlar", "yayın tarihi", "okuma süresi", "google'da tercih",
+        "anında haberdar", "oluşturulma tarihi", "haber girişi", "bildirdiği yer",
     ]
+
+    /// Copyright and republication notices: long, so they are matched on their own.
+    private static let legalPhrases: [String] = [
+        "internet sitesinde yayınlanan", "tüm hakları saklıdır", "all rights reserved", "telif hakk",
+    ]
+
+    /// Whole-line labels of buttons and signatures. Matched exactly because they are common words inside real sentences.
+    private static let chromeLines: Set<String> = ["kaydet", "paylaş", "yazdır", "yorumlar", "yorum", "reklam", "tweet", "|", "-", "•"]
 
     // MARK: - Builder
 
@@ -250,6 +260,7 @@ enum ArticleParser {
                 }
             }
             // Menu entries mixed into a list with real text: drop the link-only short ones when there are several.
+            items.removeAll { ArticleParser.isBoilerplateLine($0) }
             let menuEntries = items.filter { ArticleParser.isLinkOnlyLabel($0) }
             if menuEntries.count >= 3 { items.removeAll { ArticleParser.isLinkOnlyLabel($0) } }
             if !items.isEmpty && !ArticleParser.isNavigationList(items) {
@@ -293,7 +304,9 @@ enum ArticleParser {
                 switch block {
                 case .paragraph(let text):
                     if ArticleParser.isChrome(text) { continue }
-                case .heading(_, let text):
+                case .heading(let level, let text):
+                    // The page's own title heading: the reader draws the title itself.
+                    if level == 1, result.allSatisfy({ if case .image = $0 { true } else { false } }) { continue }
                     if let normalizedTitle, ArticleParser.fold(String(text.characters)) == normalizedTitle { continue }
                     if ArticleParser.isChrome(text) { continue }
                 case .quote(let text):
@@ -396,11 +409,28 @@ enum ArticleParser {
     /// Short, link-dominated text or a known chrome phrase: not part of the story.
     fileprivate static func isChrome(_ text: AttributedString) -> Bool {
         let count = text.characters.count
-        guard count > 0, count < 140 else { return false }
-        var linked = 0
-        for run in text.runs where run.link != nil { linked += text[run.range].characters.count }
-        if Double(linked) / Double(count) > 0.6 { return true }
+        guard count > 0 else { return false }
+        if count < 140 {
+            var linked = 0
+            for run in text.runs where run.link != nil { linked += text[run.range].characters.count }
+            if Double(linked) / Double(count) > 0.6 { return true }
+        }
+        return isBoilerplateLine(text)
+    }
+
+    /// Known chrome wording, bare site names and button labels (no link test).
+    fileprivate static func isBoilerplateLine(_ text: AttributedString) -> Bool {
+        let length = text.characters.count
+        guard length < 400 else { return false }
         let lower = String(text.characters).lowercased()
+            .replacingOccurrences(of: "’", with: "'")
+            .split(whereSeparator: { $0.isWhitespace }).joined(separator: " ")   // also folds non-breaking spaces
+        if legalPhrases.contains(where: { lower.contains($0) }) { return true }
+        guard length < 140 else { return false }
+        if chromeLines.contains(lower) { return true }
+        if lower.hasPrefix("yazan,") || lower.hasPrefix("unvan,") { return true }   // BBC-style byline fields
+        // A bare site name or address ("Odatv.com") closing a story.
+        if !lower.contains(" "), lower.count <= 24, lower.contains("."), lower.hasSuffix(".com") || lower.hasSuffix(".com.tr") || lower.hasSuffix(".org") { return true }
         return boilerplatePhrases.contains { lower.contains($0) }
     }
 
@@ -496,6 +526,8 @@ enum ArticleParser {
         guard let raw, let url = resolve(raw, base: base) else { return nil }
         let lower = url.absoluteString.lowercased()
         if lower.hasSuffix(".svg") || lower.contains("pixel") || lower.contains("1x1") || lower.contains("spacer") { return nil }
+        // Promo badges and banners that sit inside article markup ("follow us on Google News" and similar).
+        if ["googlenews", "google-g", "preferred-source", "topbanner", "badge", "haberarasi"].contains(where: { lower.contains($0) }) { return nil }
         return url
     }
 

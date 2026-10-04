@@ -1,0 +1,597 @@
+
+<html>
+
+    
+
+    <body class="antialiased ">
+        <div id="app" class="min-h-screen flex flex-col">
+                            <div class="top-header">
+    <div class="container">
+        <div class="currency ">
+            <div class="currency__item down">
+            <span class="icon icon-trending-down"></span>
+            <span class="name">Dolar</span>
+            <span class="value">49,11</span>
+        </div>
+            <div class="currency__item up">
+            <span class="icon icon-trending-up"></span>
+            <span class="name">Euro</span>
+            <span class="value">55,33</span>
+        </div>
+            <div class="currency__item down">
+            <span class="icon icon-trending-down"></span>
+            <span class="name">G. Altın</span>
+            <span class="value">6.541</span>
+        </div>
+            <div class="currency__item up">
+            <span class="icon icon-trending-up"></span>
+            <span class="name">BIST 100</span>
+            <span class="value">12.270</span>
+        </div>
+    </div>
+        <div class="weather ">
+    <div class="weather__active-city">
+        <span class="name">İstanbul</span>
+        <span class="degree">14°</span>
+        <span class="icon icon-weather-day-sunny-overcast"></span>
+        <span class="icon icon-chevron-down"></span>
+    </div>
+    <div class="weather__city-list">
+        <ul>
+                            <li>Adana</li>
+                            <li>Adıyaman</li>
+                            <li>Afyon</li>
+                            <li>Ağrı</li>
+                            <li>Amasya</li>
+                            <li>Ankara</li>
+                            <li>Antalya</li>
+                            <li>Artvin</li>
+                            <li>Aydın</li>
+                            <li>Balıkesir</li>
+                            <li>Bilecik</li>
+                            <li>Bingöl</li>
+                            <li>Bitlis</li>
+                            <li>Bolu</li>
+                            <li>Burdur</li>
+                            <li>Bursa</li>
+                            <li>Çanakkale</li>
+                            <li>Çankırı</li>
+                            <li>Çorum</li>
+                            <li>Denizli</li>
+                            <li>Diyarbakır</li>
+                            <li>Edirne</li>
+                            <li>Elazığ</li>
+                            <li>Erzincan</li>
+                            <li>Erzurum</li>
+                            <li>Eskişehir</li>
+                            <li>Gaziantep</li>
+                            <li>Giresun</li>
+                            <li>Gümüşhane</li>
+                            <li>Hakkari</li>
+                            <li>Hatay</li>
+                            <li>Isparta</li>
+                            <li>Mersin</li>
+                            <li>İstanbul</li>
+                            <li>İzmir</li>
+                            <li>Kars</li>
+                            <li>Kastamonu</li>
+                            <li>Kayseri</li>
+                            <li>Kırklareli</li>
+                            <li>Kırşehir</li>
+                            <li>Kocaeli</li>
+                            <li>Konya</li>
+                            <li>Kütahya</li>
+                            <li>Malatya</li>
+                            <li>Manisa</li>
+                            <li>Kahramanmaraş</li>
+                            <li>Mardin</li>
+                            <li>Muğla</li>
+                            <li>Muş</li>
+                            <li>Nevşehir</li>
+                            <li>Niğde</li>
+                            <li>Ordu</li>
+                            <li>Rize</li>
+                            <li>Sakarya</li>
+                            <li>Samsun</li>
+                            <li>Siirt</li>
+                            <li>Sinop</li>
+                            <li>Sivas</li>
+                            <li>Tekirdağ</li>
+                            <li>Tokat</li>
+                            <li>Trabzon</li>
+                            <li>Tunceli</li>
+                            <li>Şanlıurfa</li>
+                            <li>Uşak</li>
+                            <li>Van</li>
+                            <li>Yozgat</li>
+                            <li>Zonguldak</li>
+                            <li>Aksaray</li>
+                            <li>Bayburt</li>
+                            <li>Karaman</li>
+                            <li>Kırıkkale</li>
+                            <li>Batman</li>
+                            <li>Şırnak</li>
+                            <li>Bartın</li>
+                            <li>Ardahan</li>
+                            <li>Iğdır</li>
+                            <li>Yalova</li>
+                            <li>Karabük</li>
+                            <li>Kilis</li>
+                            <li>Osmaniye</li>
+                            <li>Düzce</li>
+                    </ul>
+    </div>
+</div>
+    </div>
+</div>
+
+<header class="app-header">
+    <div class="container">
+        <a href="/" class="logo">
+            <img src="https://s.odatv.com/assets/web/images/logo.svg?v=1" width="160" height="35" alt="Odatv">
+        </a>
+        <nav>
+                            <a href="https://www.odatv.com/guncel">Güncel</a>
+                            <a href="https://www.odatv.com/ekonomi">Ekonomi</a>
+                            <a href="https://www.odatv.com/dunya">Dünya</a>
+                            <a href="https://www.odatv.com/spor">Spor</a>
+                        <a href="https://www.odatv.com/yazarlar">Yazarlar</a>
+            <a href="https://www.odatv.com/arsiv">Arşiv</a>
+            <a href="https://www.odatv.com/gastroda">GastrOda</a>
+        </nav>
+        <span class="icon icon-search"></span>
+        <span class="icon icon-menu"></span>
+    </div>
+    <div class="app-search">
+        <form>
+            <span class="icon icon-search"></span>
+            <input class="app-search__input">
+            <button class="app-search__submit">
+                <span class="icon icon-arrow-right"></span>
+            </button>
+            <span class="icon icon-close app-search__close"></span>
+        </form>
+    </div>
+</header>
+                            
+            <main class="app-container flex-1 relative">
+
+                
+                                    
+                    <div class="ad-tower-container container default">
+                        <div class="ad-tower ad-tower-left">
+                            <div>
+                                <div class="adpro desktop-ad justify-content-end"></div>
+                            </div>
+                        </div>
+                        <div class="ad-tower ad-tower-right">
+                            <div>
+                                <div class="adpro desktop-ad justify-content-start"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                
+                <div class="container space-y-5">
+                    <div class="adpro desktop-ad masthead-fixed sticky-masthead"></div>
+
+                        <section id="infinity-container" class="space-y-5 sm:space-y-7.5">
+        <article class="infinity-item post-detail space-y-5 default">
+    <div class="breadcrumb ">
+    <ul class="breadcrumb__list">
+        <li class="breadcrumb__list__item">
+            <a href="/">Odatv</a>
+        </li>
+                                    <li class="breadcrumb__list__item">
+                    <a href="https://www.odatv.com/guncel">Güncel</a>
+                </li>
+                                                                        </ul>
+</div>
+
+    <div class="post-header">
+        <h1 class="post-header__title">Yunanistan'daki yangın Edirne Meriç'ten görüldü</h1>
+        <h2 class="post-header__summary">OTH-01 lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore lorem ipsum dolor sit am.</h2>
+    </div>
+
+    <div class="post-info-bar ">
+        <div class="post-info-bar__dates">
+        <div class="post-info-bar__publish_date">
+            <time>05 Ekim 2026 01:40</time>
+        </div>
+                    <div class="post-info-bar__update_date">
+                <span>Son Güncelleme:</span>
+                <time>05 Ekim 2026 01:40</time>
+            </div>
+            </div>
+
+    <div class="post-info-bar__actions">
+        <div class="post-info-bar__font-size">
+            <span class="font-size__increase">
+                A<sup>+</sup>
+            </span>
+            <span class="font-size__decrease">
+                A<sup>-</sup>
+            </span>
+        </div>
+        <div class="post-info-bar__social-share">
+            <span class="facebook">
+                <span class="icon icon-brand-facebook"></span>
+            </span>
+            <span class="twitter">
+                <span class="icon icon-brand-twitter"></span>
+            </span>
+            <span class="telegram">
+                <span class="icon icon-brand-telegram"></span>
+            </span>
+            <span class="email">
+                <span class="icon icon-email"></span>
+            </span>
+            <span class="whatsapp">
+                <span class="icon icon-brand-whatsapp"></span>
+            </span>
+            <span class="copy-link">
+                <span class="icon icon-link"></span>
+                <span class="copy-link__tooltip">Bağlantı kopyalandı</span>
+            </span>
+        </div>
+    </div>
+</div>
+
+    <div class="grid lg:grid-cols-[1fr_300px] gap-5">
+        <div class="space-y-5">
+            <div class="follow-google ">
+    <a href="https://www.google.com/preferences/source?q=odatv.com">
+        <img src="https://s.odatv.com/assets/web/images/google-news.svg" alt="Google News" width="42" height="34">
+        <span class="follow-google__text">Okurlarımız dikkat... Google'da Odatv'yi takip edin</span>
+        <span class="follow-google__cta">Takip Et</span>
+    </a>
+</div>
+
+            <figure class="post-image">
+                                    <div id="rmp-6ac2d5e9e4400c411402b531" class="rmp-video-player"></div>
+                            </figure>
+
+            <div class="content-text">
+                                    <p><a href="https://www.odatv.com/etiket/yunanistan">Yunanistan</a>'ın Evros bölgesinde çıkan <a href="https://www.odatv.com/etiket/yangin">yangın</a>da yoğun duman ve alevler, Edirne'nin Meriç ilçesine bağlı <a href="https://www.odatv.com/etiket/sinir">sınır</a> köylerinden de görüldü.</p>
+<p>ART-01 lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod.</p>
+<p><strong>Odatv.com</strong></p>
+<div class="mceNonEditable related-news"><a href="https://www.odatv.com/guncel/sosyal-medyada-e-tebligat-yalani-gercek-ne-cikti-120165221"><img src="https://img.odatv.com/rcman/Cw176h99q95gc/storage/files/images/2026/10/05/sosyal-medyada-e-tebligat-yalani-gercek-ne-cikti-e40a.jpg" alt="Sosyal medyada e-tebligat yalanı: Gerçek ne çıktı" srcset="https://img.odatv.com/rcman/Cw352h198q95gc/storage/files/images/2026/10/05/sosyal-medyada-e-tebligat-yalani-gercek-ne-cikti-e40a.jpg 2x" width="176" height="99">Sosyal medyada e-tebligat yalanı: Gerçek ne çıktı<em>Güncel</em></a></div>
+
+                            </div>
+
+            <div class="adpro desktop-ad "></div>
+
+                            <div class="post-source">
+                    <span>Kaynak:</span>
+                    <span>İHA</span>
+                </div>
+            
+                            <div class="post-topics">
+                                            <a href="https://www.odatv.com/etiket/yunanistan">Yunanistan</a>
+                                            <a href="https://www.odatv.com/etiket/yangin">Yangın</a>
+                                            <a href="https://www.odatv.com/etiket/sinir">sınır</a>
+                                    </div>
+                    </div>
+
+        <div class="space-y-5 hidden lg:block">
+                            <div class="adpro desktop-ad ad-square"></div>
+            
+            <div class="populars">
+            <div class="widget-title default">
+            <span>En Çok Okunanlar</span>
+        </div>
+        <div class="space-y-3.5">
+                                    <div class="post-card post-card--horizontal small centered">
+                    <a href="https://www.odatv.com/magazin/arif-sag-tarkanin-annesi-alevidir-120165224" class="post-card__image-wrap r-4x3">
+                        <img src="https://img.odatv.com/rcman/Cw100h75q95gc/storage/files/images/2026/10/05/arif-sag-tarkanin-annesi-alevidir-yz4o.jpg" width="100" height="75" alt="Arif Sağ: Tarkan’ın annesi Alevidir">
+                    </a>
+                    <a href="https://www.odatv.com/magazin/arif-sag-tarkanin-annesi-alevidir-120165224" class="post-card__body">
+                        <span class="post-card__title">Arif Sağ: Tarkan’ın annesi Alevidir</span>
+                    </a>
+                </div>
+                                                <div class="post-card post-card--horizontal small centered">
+                    <a href="https://www.odatv.com/spor/tff-baskani-ibrahim-haciosmanoglundan-istifa-sozleri-120165222" class="post-card__image-wrap r-4x3">
+                        <img src="https://img.odatv.com/rcman/Cw100h75q95gc/storage/files/images/2026/07/20/kaya-cilingiroglu-ibrahim-haciosmanoglunun-mesajini-ifsa-etti-qkv4.jpg" width="100" height="75" alt="TFF Başkanı İbrahim Hacıosmanoğlu'ndan 'istifa' sözleri">
+                    </a>
+                    <a href="https://www.odatv.com/spor/tff-baskani-ibrahim-haciosmanoglundan-istifa-sozleri-120165222" class="post-card__body">
+                        <span class="post-card__title">TFF Başkanından 'istifa' sözleri</span>
+                    </a>
+                </div>
+                                                <div class="post-card post-card--horizontal small centered">
+                    <a href="https://www.odatv.com/guncel/suleyman-soyludan-sert-fon-sorusturmasi-mesaji-120165226" class="post-card__image-wrap r-4x3">
+                        <img src="https://img.odatv.com/rcman/Cw100h75q95gc/storage/files/images/2026/10/05/suleyman-soyludan-sert-fon-sorusturmasi-mesaji-eehf.jpg" width="100" height="75" alt="Süleyman Soylu'dan sert fon soruşturması mesajı">
+                    </a>
+                    <a href="https://www.odatv.com/guncel/suleyman-soyludan-sert-fon-sorusturmasi-mesaji-120165226" class="post-card__body">
+                        <span class="post-card__title">Soylu’dan 'fon' çıkışı</span>
+                    </a>
+                </div>
+                                                <div class="post-card post-card--horizontal small centered">
+                    <a href="https://www.odatv.com/guncel/mihrac-uralin-yardimcisi-yakalandi-120165225" class="post-card__image-wrap r-4x3">
+                        <img src="https://img.odatv.com/rcman/Cw100h75q95gc/storage/files/images/2026/10/05/mihrac-uralin-yardimcisi-yakalandi-o5zd.jpg" width="100" height="75" alt="Mihraç Ural'ın yardımcısı yakalandı">
+                    </a>
+                    <a href="https://www.odatv.com/guncel/mihrac-uralin-yardimcisi-yakalandi-120165225" class="post-card__body">
+                        <span class="post-card__title">Mihraç Ural'ın yardımcısı yakalandı</span>
+                    </a>
+                </div>
+                                                <div class="post-card post-card--horizontal small centered">
+                    <a href="https://www.odatv.com/guncel/ingilteredeki-yesil-parti-siyonizmi-resmen-irkcilik-olarak-degerlendirmek-uzere-oy-kullandi-120165220" class="post-card__image-wrap r-4x3">
+                        <img src="https://img.odatv.com/rcman/Cw100h75q95gc/storage/files/images/2026/10/05/ingilteredeki-yesil-parti-siyonizmi-resmen-irkcilik-olarak-degerlendirmek-uzere-oy-kullandi-owvj.jpg" width="100" height="75" alt="İngiltere'de Yeşil Parti siyonizmi ırkçılık olarak kabul etti">
+                    </a>
+                    <a href="https://www.odatv.com/guncel/ingilteredeki-yesil-parti-siyonizmi-resmen-irkcilik-olarak-degerlendirmek-uzere-oy-kullandi-120165220" class="post-card__body">
+                        <span class="post-card__title">İsrail'i ayaklandıran karar</span>
+                    </a>
+                </div>
+                        </div>
+</div>
+
+                            <div class="adpro desktop-ad ad-square"></div>
+                    </div>
+    </div>
+</article>
+    </section>
+                </div>
+            </main>
+
+                            <footer class="app-footer">
+    <div class="container">
+        <div class="app-footer__top">
+            <a href="/" class="logo">
+                <img src="https://s.odatv.com/assets/web/images/logo.svg?v=1" width="160" height="35" alt="Odatv">
+            </a>
+            <div class="pages">
+                                    <a href="https://www.odatv.com/sayfa/iletisim">İletişim</a>
+                                    <a href="https://www.odatv.com/sayfa/kunye">Künye</a>
+                                    <a href="https://www.odatv.com/sayfa/gizlilik-sozlesmesi">Gizlilik Sözleşmesi</a>
+                                    <a href="https://www.odatv.com/sayfa/cerez-politikasi">Çerez Politikası</a>
+                            </div>
+            <div class="socials">
+                                    <a href="https://www.facebook.com/odatv">
+                        <span class="icon icon-brand-facebook"></span>
+                    </a>
+                                    <a href="https://twitter.com/odatv">
+                        <span class="icon icon-brand-twitter"></span>
+                    </a>
+                                    <a href="https://www.instagram.com/odatvresmi">
+                        <span class="icon icon-brand-instagram"></span>
+                    </a>
+                                    <a href="https://www.youtube.com/channel/UCV8cU-Vdj1Cra6a2Eqco7EQ">
+                        <span class="icon icon-brand-youtube"></span>
+                    </a>
+                            </div>
+        </div>
+        <div class="app-footer__middle">
+            <div>
+                <span class="title">Haber Merkezi</span>
+                <span>0212 741 52 00</span>
+            </div>
+            <div>
+                <span class="title">Reklam</span>
+                <span>0212 741 57 00</span>
+            </div>
+            <div>
+                <span class="title">WhatsApp İhbar Hattı</span>
+                <span>+90 (538) 406 62 26</span>
+            </div>
+            <div>
+                <span class="title">E-Posta</span>
+                <span>info@odatv.com</span>
+            </div>
+        </div>
+        <div class="quick-links ">
+    <ul>
+                    <li>
+                <a href="https://www.odatv.com/yazarlar/soner-yalcin">
+                    Soner Yalçın
+                </a>
+            </li>
+                    <li>
+                <a href="https://www.odatv.com/ekonomi">
+                    Patronlar Katı
+                </a>
+            </li>
+                    <li>
+                <a href="https://www.odatv.com/gastroda">
+                    GastrOda
+                </a>
+            </li>
+                    <li>
+                <a href="https://www.odatv.com/spor">
+                    Soyunma Odası
+                </a>
+            </li>
+                    <li>
+                <a href="https://www.odatv.com/ozel">
+                    Odatv Özel
+                </a>
+            </li>
+                    <li>
+                <a href="https://www.odatv.com/son-dakika-haberleri">
+                    Son dakika haberleri
+                </a>
+            </li>
+                    <li>
+                <a href="https://www.odatv.com/video-galeri">
+                    Videolar
+                </a>
+            </li>
+            </ul>
+</div>
+        <div class="app-footer__bottom">
+            <div class="copyright">
+                <span>Haber Yazılımı: <a href="https://bilgin.pro">BilginPro</a></span>
+                <span>© 2026 <strong>Odatv</strong> Tüm Hakları Saklıdır</span>
+            </div>
+            <div class="links">
+                <a href="/export/rss" class="rss">
+                    <span class="icon icon-rss"></span>
+                </a>
+                                    <a href="https://apps.apple.com/us/app/odatv-mobil/id917422876">
+                        <img src="https://s.odatv.com/assets/web/images/app-store.svg" width="123" height="37" alt="App Store Uygulamamızı İndirin">
+                    </a>
+                                    <a href="https://play.google.com/store/apps/details?id=com.odatv.app&hl=tr">
+                        <img src="https://s.odatv.com/assets/web/images/google-play.svg" width="123" height="37" alt="Google Play Uygulamamızı İndirin">
+                    </a>
+                            </div>
+        </div>
+    </div>
+</footer>
+                    </div>
+
+        <div class="adpro desktop-ad "></div>
+        <div class="adpro desktop-ad "></div>
+        <div class="adpro desktop-ad "></div>
+        <div class="adpro desktop-ad "></div>
+        <div class="adpro desktop-ad "></div>
+        <div class="adpro desktop-ad "></div>
+
+        <div class="adpro desktop-ad "></div>
+
+                    <div class="drawer">
+    <div class="drawer__container">
+        <div class="drawer__header">
+            <a href="/">
+                <img src="https://s.odatv.com/assets/web/images/logo.png" width="160" height="35" alt="Odatv">
+            </a>
+            <span class="icon icon-close text-2xl cursor-pointer text-black"></span>
+        </div>
+        <div class="drawer__content">
+            <ul class="drawer__nav">
+                <li>
+                    <a href="https://www.odatv.com/son-dakika-haberleri">Son Dakika Haberleri</a>
+                </li>
+                <li>
+                    <a href="https://www.odatv.com/video-galeri">Video Galeri</a>
+                </li>
+                <li>
+                    <a href="https://www.odatv.com/yazarlar">Yazarlar</a>
+                </li>
+                <li>
+                    <a href="https://www.odatv.com/bulmaca">Bulmaca</a>
+                </li>
+                <li>
+                    <a href="https://www.odatv.com/gazete-mansetleri">Gazete Manşetleri</a>
+                </li>
+                <li>
+                    <a href="https://www.odatv.com/arsiv">Arşiv</a>
+                </li>
+                                    <li>
+                        <a href="https://www.odatv.com/guncel">Güncel</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/ekonomi">Ekonomi</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/dunya">Dünya</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/spor">Spor</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/ozel">Özel</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/kultur-sanat">Kültür - Sanat</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/yasam">Yaşam</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/magazin">Magazin</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/gundem">Gündem</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/analiz">Analiz</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/diger-haberler">Diğer Haberler</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/siyaset">Siyaset</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/medya">Medya</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/egitim">Eğitim</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/bilim-ve-teknoloji">Bilim ve Teknoloji</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/seri-ilan">Seri İlan</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/saglik">Sağlık</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/gastroda">GastrOda</a>
+                    </li>
+                                <li>
+                    <a href="https://www.odatv.com/foto-galeri">Foto Galeri</a>
+                </li>
+                                    <li>
+                        <a href="https://www.odatv.com/sayfa/iletisim">İletişim</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/sayfa/kunye">Künye</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/sayfa/gizlilik-sozlesmesi">Gizlilik Sözleşmesi</a>
+                    </li>
+                                    <li>
+                        <a href="https://www.odatv.com/sayfa/cerez-politikasi">Çerez Politikası</a>
+                    </li>
+                            </ul>
+            <div class="drawer__socials">
+                                    <a href="https://www.facebook.com/odatv">
+                        <span class="icon icon-brand-facebook"></span>
+                    </a>
+                                    <a href="https://twitter.com/odatv">
+                        <span class="icon icon-brand-twitter"></span>
+                    </a>
+                                    <a href="https://www.instagram.com/odatvresmi">
+                        <span class="icon icon-brand-instagram"></span>
+                    </a>
+                                    <a href="https://www.youtube.com/channel/UCV8cU-Vdj1Cra6a2Eqco7EQ">
+                        <span class="icon icon-brand-youtube"></span>
+                    </a>
+                            </div>
+            <div class="drawer__apps">
+                                    <a href="https://apps.apple.com/us/app/odatv-mobil/id917422876">
+                        <img src="https://s.odatv.com/assets/web/images/app-store.svg" width="123" height="37" alt="App Store Uygulamamızı İndirin">
+                    </a>
+                                    <a href="https://play.google.com/store/apps/details?id=com.odatv.app&hl=tr">
+                        <img src="https://s.odatv.com/assets/web/images/google-play.svg" width="123" height="37" alt="Google Play Uygulamamızı İndirin">
+                    </a>
+                            </div>
+            <div class="drawer__info">
+                <span>Haber Yazılımı: <a href="https://bilgin.pro">BilginPro</a></span>
+                <span>© 2026 <strong>Odatv</strong> Tüm Hakları Saklıdır</span>
+            </div>
+        </div>
+    </div>
+</div>
+        
+        <div class="privacy-banner" style="display: none;">
+            <div class="banner-wrapper">
+                <p>OTH-02 lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut.<a href="https://www.odatv.com/sayfa/cerez-politikasi">çerez kullanımını</a> kabul etmiş sayılıyorsunuz.</p>
+                <span class="btn">Kabul Et</span>
+            </div>
+        </div>
+
+            
+
+        
+            
+
+    
+
+                    
+            
+        
+        
+    </body>
+
+</html>
