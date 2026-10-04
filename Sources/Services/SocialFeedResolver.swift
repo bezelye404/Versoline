@@ -273,9 +273,10 @@ final class SocialFeedResolver {
         var clean = subreddit.trimmingCharacters(in: .whitespacesAndNewlines)
         clean = clean.replacingOccurrences(of: "https://", with: "")
         clean = clean.replacingOccurrences(of: "http://", with: "")
+        // Longer hostnames first, otherwise "reddit.com" would leave "old." behind.
+        clean = clean.replacingOccurrences(of: "old.reddit.com", with: "")
         clean = clean.replacingOccurrences(of: "www.reddit.com", with: "")
         clean = clean.replacingOccurrences(of: "reddit.com", with: "")
-        clean = clean.replacingOccurrences(of: "old.reddit.com", with: "")
 
         if clean.hasPrefix("/r/") {
             clean = String(clean.dropFirst(3))
@@ -315,9 +316,10 @@ final class SocialFeedResolver {
         var clean = username.trimmingCharacters(in: .whitespacesAndNewlines)
         clean = clean.replacingOccurrences(of: "https://", with: "")
         clean = clean.replacingOccurrences(of: "http://", with: "")
+        // Longer hostnames first, otherwise "reddit.com" would leave "old." behind.
+        clean = clean.replacingOccurrences(of: "old.reddit.com", with: "")
         clean = clean.replacingOccurrences(of: "www.reddit.com", with: "")
         clean = clean.replacingOccurrences(of: "reddit.com", with: "")
-        clean = clean.replacingOccurrences(of: "old.reddit.com", with: "")
 
         if clean.hasPrefix("/user/") {
             clean = String(clean.dropFirst(6))

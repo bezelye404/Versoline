@@ -1,5 +1,7 @@
 import Foundation
 
+// `@unchecked Sendable`: parse state is mutated without locks. Safe because callers create a
+// manager per import and use it on one thread at a time.
 final class OPMLManager: NSObject, XMLParserDelegate, @unchecked Sendable {
 
     struct OPMLFeed {
