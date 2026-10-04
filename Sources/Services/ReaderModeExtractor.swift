@@ -17,7 +17,7 @@ final class ReaderModeExtractor {
         return df
     }()
 
-    /// - Parameter cacheDirectory: Overrides the default `Application Support/Versoline/ReaderCache_v3`
+    /// - Parameter cacheDirectory: Overrides the default `Application Support/Versoline/ReaderCache_v4`
     ///   location. Intended for tests; skips legacy directory cleanup when set.
     init(cacheDirectory: URL? = nil) {
         let cacheDir: URL
@@ -25,7 +25,7 @@ final class ReaderModeExtractor {
             cacheDir = cacheDirectory
         } else {
             let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            cacheDir = appSupport.appendingPathComponent("Versoline/ReaderCache_v3", isDirectory: true)
+            cacheDir = appSupport.appendingPathComponent("Versoline/ReaderCache_v4", isDirectory: true)
         }
         try? FileManager.default.createDirectory(at: cacheDir, withIntermediateDirectories: true)
         self.cacheDirectory = cacheDir
@@ -48,7 +48,7 @@ final class ReaderModeExtractor {
             appSupport.appendingPathComponent("Versoline", isDirectory: true)
         ]
 
-        let legacyDirNames = ["ReaderCache", "ReaderCache_v1", "ReaderCache_v2", "ImageCache"]
+        let legacyDirNames = ["ReaderCache", "ReaderCache_v1", "ReaderCache_v2", "ReaderCache_v3", "ImageCache"]
         for baseDir in targetDirs {
             for legacyName in legacyDirNames {
                 let legacyURL = baseDir.appendingPathComponent(legacyName, isDirectory: true)
@@ -245,7 +245,9 @@ final class ReaderModeExtractor {
             if let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) {
                 let html = String(decoding: data, as: UTF8.self)
                 guard !Task.isCancelled else { return nil }
-                if let cleanedBody = extractArticleHTML(from: html, baseURL: url), !cleanedBody.isEmpty {
+                // DOM parsing is CPU work: keep it off the main actor.
+                let cleanedBody = await Task.detached(priority: .userInitiated) { ArticleParser.mainContentHTML(from: html) }.value
+                if let cleanedBody, !cleanedBody.isEmpty {
                     guard !Task.isCancelled else { return nil }
                     let fullFormatted = formatFeedContentAsReaderHTML(
                         title: title ?? "",
@@ -276,85 +278,6 @@ final class ReaderModeExtractor {
         }
 
         return nil
-    }
-
-    private func extractArticleHTML(from rawHTML: String, baseURL: URL) -> String? {
-        var html = rawHTML
-
-        // 1. Remove non-content tags: script, style, noscript, iframe, svg, nav, footer, header, aside, comments
-        let removePatterns = [
-            #"<script[\s\S]*?</script>"#,
-            #"<style[\s\S]*?</style>"#,
-            #"<noscript[\s\S]*?</noscript>"#,
-            #"<nav[\s\S]*?</nav>"#,
-            #"<footer[\s\S]*?</footer>"#,
-            #"<header[\s\S]*?</header>"#,
-            #"<aside[\s\S]*?</aside>"#,
-            #"<!--[\s\S]*?-->"#
-        ]
-
-        for pattern in removePatterns {
-            html = html.replacingOccurrences(of: pattern, with: "", options: [.regularExpression, .caseInsensitive])
-        }
-
-        // 2. Multi-Candidate Container Scoring: search for article, main, or prominent content classes
-        let candidatePatterns = [
-            #"<article[\s\S]*?</article>"#,
-            #"<main[\s\S]*?</main>"#,
-            #"<div[^>]*class=["'][^"']*(?:entry-content|article-body|post-content|story-body|article-content|article__body|main-content|story-text)[^"']*["'][\s\S]*?</div>"#,
-            #"<section[^>]*class=["'][^"']*(?:entry-content|article-body|post-content|story-body|article-content|article__body)[^"']*["'][\s\S]*?</section>"#
-        ]
-
-        var bestCandidate: String?
-        var bestScore: Int = 0
-
-        for pattern in candidatePatterns {
-            let matchedBlocks = matches(for: pattern, in: html)
-            for block in matchedBlocks {
-                let plainText = block.strippingHTML().trimmingCharacters(in: .whitespacesAndNewlines)
-                if plainText.count > bestScore {
-                    bestScore = plainText.count
-                    bestCandidate = block
-                }
-            }
-        }
-
-        if let bestCandidate, bestScore >= 300 {
-            return sanitize(bestCandidate, baseURL: baseURL)
-        }
-
-        // 3. Fallback: extract all paragraphs, headings, blockquotes, and lists
-        let paragraphBlocks = matches(for: #"<(?:p|h[1-6]|blockquote|ul|ol|pre)[\s\S]*?</(?:p|h[1-6]|blockquote|ul|ol|pre)>"#, in: html)
-        if !paragraphBlocks.isEmpty {
-            let joined = paragraphBlocks.joined(separator: "\n")
-            let plainText = joined.strippingHTML().trimmingCharacters(in: .whitespacesAndNewlines)
-            if plainText.count >= 250 {
-                return sanitize(joined, baseURL: baseURL)
-            }
-        }
-
-        return nil
-    }
-
-    private func sanitize(_ content: String, baseURL: URL) -> String {
-        var cleaned = content
-            .strippingAdsAndBanners()
-            .replacingOccurrences(of: #"style=["'][^"']*["']"#, with: "", options: .regularExpression)
-        cleaned = cleaned.replacingOccurrences(of: #"class=["'][^"']*["']"#, with: "", options: .regularExpression)
-        cleaned = cleaned.replacingOccurrences(of: #"onclick=["'][^"']*["']"#, with: "", options: .regularExpression)
-
-        // Resolve relative img src URLs to absolute URLs so images render properly in WKWebView
-        if let host = baseURL.host, let scheme = baseURL.scheme {
-            let basePrefix = "\(scheme)://\(host)"
-            cleaned = cleaned.replacingOccurrences(
-                of: #"src="/([^"]+)""#,
-                with: "src=\"\(basePrefix)/$1\"",
-                options: .regularExpression
-            )
-        }
-
-        cleaned = Self.optimizeImagesForLowMemory(cleaned)
-        return cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     // MARK: - Low-Memory Image Optimization (Lazy Loading + Async Decoding + Tracking Pixel Stripping)
@@ -398,17 +321,6 @@ final class ReaderModeExtractor {
         }
 
         return result
-    }
-
-    private func matches(for regex: String, in text: String) -> [String] {
-        do {
-            let re = try NSRegularExpression(pattern: regex, options: [.caseInsensitive])
-            let nsString = text as NSString
-            let results = re.matches(in: text, range: NSRange(location: 0, length: nsString.length))
-            return results.map { nsString.substring(with: $0.range) }
-        } catch {
-            return []
-        }
     }
 
     // MARK: - Cache Management & Quota Enforcement
