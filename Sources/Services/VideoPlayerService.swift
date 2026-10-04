@@ -280,12 +280,14 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
     }
 
     nonisolated func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        guard let body = message.body as? String,
-              let data = body.data(using: .utf8),
-              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let type = json["type"] as? String else { return }
+        // WebKit delivers script messages on the main thread. `WKScriptMessage.body` is main-actor
+        // isolated in the macOS 15 SDK (Xcode 16), so read it inside an assumed main-actor context.
+        MainActor.assumeIsolated {
+            guard let body = message.body as? String,
+                  let data = body.data(using: .utf8),
+                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let type = json["type"] as? String else { return }
 
-        Task { @MainActor in
             self.handleBridgeMessage(type: type, payload: json)
         }
     }
