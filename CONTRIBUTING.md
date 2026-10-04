@@ -32,6 +32,13 @@ xcodegen generate
 open Versoline.xcodeproj
 ```
 
+### Running the App While Developing
+
+```bash
+scripts/run-dev.sh           # Debug build, quits the running copy, launches the new one
+scripts/run-dev.sh Release   # same with the Release configuration
+```
+
 ### Running Tests
 
 ```bash
