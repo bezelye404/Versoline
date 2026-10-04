@@ -273,7 +273,8 @@ struct MiniPlayerView: View {
                 Text(formatTime(currentTime(for: media)))
                     .font(.system(size: 10, design: .monospaced))
                     .foregroundStyle(.secondary)
-                    .frame(width: 42, alignment: .trailing)
+                    .lineLimit(1)
+                    .fixedSize()
 
                 Slider(
                     value: Binding(
@@ -288,7 +289,8 @@ struct MiniPlayerView: View {
                 Text(duration(for: media) > 0 ? formatRemainingTime(current: currentTime(for: media), total: duration(for: media)) : "--:--")
                     .font(.system(size: 10, design: .monospaced))
                     .foregroundStyle(.secondary)
-                    .frame(width: 44, alignment: .leading)
+                    .lineLimit(1)
+                    .fixedSize()
             }
         }
     }

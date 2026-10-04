@@ -5,6 +5,7 @@ import WebKit
 
 struct YouTubePlayerView: View {
 
+    @Environment(\.appTheme) private var theme
     @Environment(FeedStore.self) private var store
     @Bindable private var videoPlayer = VideoPlayerService.shared
 
@@ -63,6 +64,9 @@ struct YouTubePlayerView: View {
                         .transition(.opacity)
                 }
             }
+            // The page decodes and keeps frames for the player's size: 960 px wide costs about 30 MB more than
+            // 640 px. Inline playback is capped; fullscreen is the user's explicit choice for a bigger picture.
+            .frame(maxWidth: 640)
             .frame(maxWidth: .infinity)
             .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 5)
 
@@ -70,7 +74,7 @@ struct YouTubePlayerView: View {
             HStack(spacing: 12) {
                 Label("YouTube", systemImage: "play.rectangle.fill")
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(.red)
+                    .foregroundStyle(theme.youtubeColor)
 
                 Text(title)
                     .font(.caption)
@@ -182,7 +186,7 @@ struct YouTubePlayerView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "play.circle.fill")
                             .font(.system(size: 14))
-                            .foregroundStyle(.red)
+                            .foregroundStyle(theme.youtubeColor)
 
                         Text(title)
                             .font(.system(size: 13, weight: .medium))

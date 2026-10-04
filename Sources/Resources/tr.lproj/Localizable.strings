@@ -637,3 +637,28 @@
 "%@ is now paired." = "%@ artık eşleşti.";
 "Try Again" = "Tekrar Dene";
 "No device was found. Open Pair New Device on the other Mac too." = "Cihaz bulunamadı. Diğer Mac'te de Yeni Cihaz Eşleştir'i açın.";
+
+/* UI refresh */
+"Add Feed..." = "Akış Ekle...";
+"Reading Mode" = "Okuma Modu";
+"Switch between Reader and Web" = "Okuyucu ile Web arasında geçiş yap";
+"Content Blocker" = "İçerik Engelleyici";
+"Add a feed" = "Akış ekle";
+"Media" = "Medya";
+"Welcome to Versoline" = "Versoline'a Hoş Geldiniz";
+"Add your first feed to start reading." = "Okumaya başlamak için ilk akışınızı ekleyin.";
+"Add a Feed by URL" = "URL ile Akış Ekle";
+"Browse the Catalog" = "Kataloğa Göz At";
+"Import OPML" = "OPML İçe Aktar";
+"Focus Mode" = "Odak Modu";
+"Go to..." = "Git...";
+"Go to a feed or run a command..." = "Bir akışa git veya komut çalıştır...";
+"No matches" = "Eşleşme yok";
+"Reading" = "Okuma";
+"Play YouTube Videos in Versoline" = "YouTube Videolarını Versoline'da Oynat";
+"Off opens videos in your browser instead. The built-in player loads a web page and needs about 100 MB of extra memory while a video is open." = "Kapalıyken videolar tarayıcınızda açılır. Yerleşik oynatıcı bir web sayfası yükler ve video açıkken yaklaşık 100 MB ek bellek gerektirir.";
+
+"The full article could not be extracted from this page." = "Tam makale bu sayfadan çıkarılamadı.";
+"Open Web Page" = "Web Sayfasını Aç";
+
+"Keyboard" = "Klavye";

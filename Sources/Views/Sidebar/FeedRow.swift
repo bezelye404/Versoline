@@ -28,13 +28,6 @@ struct FeedRow: View {
                             .foregroundStyle(theme.accentColor.opacity(0.85))
                     }
                 }
-
-                if !feed.description.isEmpty {
-                    Text(feed.description)
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                        .lineLimit(1)
-                }
             }
 
             Spacer()
@@ -42,11 +35,8 @@ struct FeedRow: View {
             let unread = store.unreadCount(for: feed.id)
             if unread > 0 {
                 Text("\(unread)")
-                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                    .foregroundStyle(theme.activeBadgeText)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 1)
-                    .background(theme.activeBadgeBackground, in: Capsule())
+                    .font(.system(size: 11, weight: .medium, design: .monospaced))
+                    .foregroundStyle(.secondary)
                     .contentTransition(.numericText())
                     .animation(AppAnimation.bouncy, value: unread)
             }

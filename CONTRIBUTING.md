@@ -32,6 +32,15 @@ xcodegen generate
 open Versoline.xcodeproj
 ```
 
+### Running the App While Developing
+
+```bash
+scripts/run-dev.sh           # Debug build ("Versoline Dev"), relaunches it
+scripts/run-dev.sh Release   # Release build (the real app identity and data)
+
+Debug builds use their own bundle identifier (`com.bezelye.Versoline.dev`), sandbox container and settings, so they never touch your real library and can run next to the installed app.
+```
+
 ### Running Tests
 
 ```bash

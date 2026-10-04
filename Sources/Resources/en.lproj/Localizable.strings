@@ -638,3 +638,28 @@
 "%@ is now paired." = "%@ is now paired.";
 "Try Again" = "Try Again";
 "No device was found. Open Pair New Device on the other Mac too." = "No device was found. Open Pair New Device on the other Mac too.";
+
+/* UI refresh */
+"Add Feed..." = "Add Feed...";
+"Reading Mode" = "Reading Mode";
+"Switch between Reader and Web" = "Switch between Reader and Web";
+"Content Blocker" = "Content Blocker";
+"Add a feed" = "Add a feed";
+"Media" = "Media";
+"Welcome to Versoline" = "Welcome to Versoline";
+"Add your first feed to start reading." = "Add your first feed to start reading.";
+"Add a Feed by URL" = "Add a Feed by URL";
+"Browse the Catalog" = "Browse the Catalog";
+"Import OPML" = "Import OPML";
+"Focus Mode" = "Focus Mode";
+"Go to..." = "Go to...";
+"Go to a feed or run a command..." = "Go to a feed or run a command...";
+"No matches" = "No matches";
+"Reading" = "Reading";
+"Play YouTube Videos in Versoline" = "Play YouTube Videos in Versoline";
+"Off opens videos in your browser instead. The built-in player loads a web page and needs about 100 MB of extra memory while a video is open." = "Off opens videos in your browser instead. The built-in player loads a web page and needs about 100 MB of extra memory while a video is open.";
+
+"The full article could not be extracted from this page." = "The full article could not be extracted from this page.";
+"Open Web Page" = "Open Web Page";
+
+"Keyboard" = "Keyboard";

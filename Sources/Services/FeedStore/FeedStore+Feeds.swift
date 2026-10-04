@@ -49,7 +49,7 @@ extension FeedStore {
             // Adding is an edit: it must beat an older deletion of the same feed.
             tombstones.removeAll { $0.kind == .feed && $0.key == targetURL.lowercased() }
             feeds.append(feed)
-            let parsedItems = result.items.map { item -> FeedItem in
+            let cappedItems = result.items.sortedNewestFirst().prefix(Self.maxItemsPerFeed).map { item -> FeedItem in
                 var m = item
                 if let rawContent = m.content, !rawContent.isEmpty {
                     readerCache.saveToCache(urlString: m.link, content: rawContent, storeInMemory: false)
@@ -60,8 +60,6 @@ extension FeedStore {
                 m.content = nil
                 return m
             }
-            let cappedItems = (parsedItems.count > Self.maxItemsPerFeed ? Array(parsedItems.prefix(Self.maxItemsPerFeed)) : parsedItems)
-                .sortedNewestFirst()
             items[newFeedId] = cappedItems
             isLoading = false
             updateSmartCategoryCaches()
@@ -139,7 +137,7 @@ extension FeedStore {
                     group.addTask {
                         do {
                             if feed.url.lowercased().contains("reddit.com") {
-                                try? await Task.sleep(nanoseconds: 500_000_000)
+                                try? await Task.sleep(for: .milliseconds(500))
                             }
                             let result = try await Self.fetchFeed(url: feed.url, feedId: feed.id, etag: feed.etag, lastModified: feed.lastModifiedHeader)
                             return (feed.id, result)
@@ -166,6 +164,7 @@ extension FeedStore {
         invalidateItemCaches()
         updateSmartCategoryCaches()
         save()
+        MemoryRelief.trim()
         AppLogger.shared.log("All feeds refresh finished", level: .info, category: .network)
     }
 
@@ -265,6 +264,9 @@ extension FeedStore {
         etag: String? = nil,
         lastModified: String? = nil
     ) async throws -> RSSParser.ParseResult? {
-        try await RSSParser.fetchAndParse(url: url, feedId: feedId, etag: etag, lastModified: lastModified)
+        // A little more than the per-feed cap, so the cleanup of non-articles and duplicates still leaves enough.
+        try await RSSParser.fetchAndParse(
+            url: url, feedId: feedId, etag: etag, lastModified: lastModified, retainItems: maxItemsPerFeed + 30
+        )
     }
 }

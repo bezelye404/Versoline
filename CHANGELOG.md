@@ -13,6 +13,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed (sync)
 - **Deletions and edits now propagate** between paired Macs, even if one was offline. Feeds and folders carry a last-edit time and deletions are remembered for 90 days ("last writer wins"): deleting, renaming a folder, moving a feed, pinning, and re-adding a deleted feed all converge on every Mac, whichever order they sync in (covered by randomized convergence tests). Existing feeds have no edit time yet, so any deletion or later edit beats them. A Mac offline for more than 90 days can bring back something deleted meanwhile. Bookmark removal is still union-only.
 
+### UI and UX
+- **Calmer sidebar:** four everyday lists (Unread, Today, Bookmarks, All), one collapsible Media group that only appears when there is media, monochrome icons, and a count only on Unread. Folder management and Reading Insights moved to the menu bar.
+- **Native toolbars:** the window toolbar is just Refresh and Add (a split button); OPML, folders, console and shortcuts are menu bar commands (File, View, Help). The article controls are in the real window toolbar: reading mode, an "Aa" appearance popover, bookmark, read, and one More menu.
+- **Lighter list rows:** one quiet meta line (source, time, media) instead of author icon and capsules, and a one-line summary.
+- **Native search** (⌘F) in the toolbar replaces the in-list search bar.
+- **Faster navigation:** ⌘K command palette to jump to any list, folder or feed or run any command, and Focus Mode (⇧⌘F) to read without the sidebar and list.
+- **Settings:** the theme grid became one row of colour swatches, switches carry their description in the same row, and the window follows the app theme. The Add Feed sheet no longer repeats its own tabs as cards.
+- **Settings in five tabs** (General, Reader, Feeds, Sync, Storage): muted keywords and feed health share the Feeds tab, and the single-key navigation switch moved into General (the cheat sheet is in the Help menu).
+- Podcast episodes no longer show the Reader/Web switch; the episode page is the player.
+- **Welcome screen** with three clear first steps while the library is empty.
+- **Motion:** SF Symbol bounce on bookmark and read toggles and numeric transitions, both disabled under Reduce Motion.
+
+### Reader
+- **Better article extraction:** the page is parsed as a DOM and scored like Readability (paragraph density, link density, class and id hints, JSON-LD `articleBody` as a fallback) instead of regex-matching the biggest `<article>`. Content that Next.js streams inside hidden placeholders is now recognised, and "Fetch Full Article" says so when a page yields nothing instead of doing nothing.
+- **Native reader:** articles are parsed into blocks (headings, paragraphs, lists, quotes, code, images with captions) and drawn with plain SwiftUI, so reading no longer starts WebKit's helper processes (about 50 MB and three processes per reading session). Links, bold, italic and inline code are kept; Bionic Reading, font, line height and the colour themes work as before. Page furniture such as breadcrumbs, "follow us" lines, related-post lists, navigation, sidebars and footers is dropped, and images are downsampled and loaded lazily. Code blocks are plain monospaced (no syntax colours). The web view is still used for the "Web" mode and as a fallback when nothing readable is found.
+
+### Feeds
+- **Articles only:** items without a real article (social posts, promos, home-page links) and duplicates are dropped; entries without a link get an identity from their guid or enclosure, so read and bookmark state no longer collides between them.
+
+- Items that older versions left with one shared id (a whole podcast feed could show the same episode over and over in the list) get their own id on the next launch.
+
+### Memory and speed
+- Freed heap pages are handed back to the system after launch, after a refresh and after an OPML import (idle footprint with a 3,500-article library: 83 MB to 70 MB in a Release build).
+- WebKit is no longer started at launch just to clear its caches (it started a network process, about 6 MB, before any page was opened).
+- The article cache scan runs a few seconds after launch instead of during it.
+- **Big feeds are no longer parsed to the end.** The parser keeps only the newest items it needs and stops once a newest-first feed has gone past them, and it reads the XML as a stream. A podcast feed with 2,759 episodes (5.4 MB) went from 0.67 s and about 19 MB of extra memory to 0.15 s and 6 MB per refresh; the 43 feeds of a real library gave identical results. Adding a feed or importing OPML now keeps the newest items of oldest-first feeds, not the oldest.
+- The in-app YouTube player has pastel controls, a capped inline size, and frees its web page 90 seconds after pausing.
+- New setting: play YouTube videos in the browser instead of the built-in player, which avoids the roughly 100 MB WebKit page.
+- Debug builds are a separate app, "Versoline Dev" (`com.bezelye.Versoline.dev`), with its own data.
+
 ### Removed
 - **iCloud Drive sync.** It needed a sandbox exception for the iCloud Drive folder and could clear local bookmarks when feeds changed. It may return later as a new design. Nothing is deleted from an existing iCloud Drive folder.
 
@@ -31,7 +61,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Copy/Export in the console redacts URL query strings, URL credentials, and the macOS account name.
 - 262 previously untranslated Turkish UI strings, plus `scripts/check-localization.py` (also run in CI).
 - GitHub Actions workflow that runs the test suite on every pull request.
-- Unit tests (140): parsing, merging, persistence, OPML, cleaning, localization, memory budget, pairing and sync.
+- Unit tests (146): parsing, merging, persistence, OPML, cleaning, localization, memory budget, pairing and sync.
 
 ### Changed
 - `FeedStore` is split into focused files under `Sources/Services/FeedStore/`; podcast/video/quick-read/deep-read queries now share one `ItemStream` implementation. Large view files were split into one type per file.

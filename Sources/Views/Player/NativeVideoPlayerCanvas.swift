@@ -3,6 +3,7 @@ import WebKit
 
 struct NativeVideoPlayerCanvas: View {
 
+    @Environment(\.appTheme) private var theme
     let videoID: String
     let title: String
     var isModalFullscreen: Bool = false
@@ -43,7 +44,7 @@ struct NativeVideoPlayerCanvas: View {
                             HStack(spacing: 8) {
                                 Image(systemName: "play.rectangle.fill")
                                     .font(.system(size: 13))
-                                    .foregroundStyle(.red)
+                                    .foregroundStyle(theme.youtubeColor)
 
                                 Text(title)
                                     .font(.system(size: 12, weight: .medium))

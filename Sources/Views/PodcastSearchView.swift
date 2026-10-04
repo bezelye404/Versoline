@@ -40,7 +40,7 @@ struct PodcastSearchView: View {
                         .onChange(of: query) { _, newQuery in
                             debounceTask?.cancel()
                             debounceTask = Task {
-                                try? await Task.sleep(nanoseconds: 300_000_000) // 300ms debounce
+                                try? await Task.sleep(for: .milliseconds(300)) // 300ms debounce
                                 guard !Task.isCancelled else { return }
                                 searchService.search(query: newQuery)
                             }
@@ -287,7 +287,7 @@ struct PodcastSearchView: View {
         NSPasteboard.general.setString(url, forType: .string)
         copiedURL = url
         Task {
-            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            try? await Task.sleep(for: .seconds(2))
             if copiedURL == url {
                 copiedURL = nil
             }

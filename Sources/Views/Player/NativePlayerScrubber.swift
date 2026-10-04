@@ -2,6 +2,8 @@ import SwiftUI
 import WebKit
 
 struct NativePlayerScrubber: View {
+
+    @Environment(\.appTheme) private var theme
     @Bindable var videoPlayer: VideoPlayerService
     @State private var isHovered: Bool = false
 
@@ -26,13 +28,7 @@ struct NativePlayerScrubber: View {
 
                 // Progress Track
                 Capsule()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.red, Color.orange.opacity(0.9)],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
+                    .fill(theme.accentColor.opacity(0.9))
                     .frame(width: totalWidth * CGFloat(clampedProgress), height: isHovered || videoPlayer.isScrubbing ? 6 : 3.5)
 
                 // Thumb Handle

@@ -288,7 +288,7 @@ final class AudioPlayerService {
     private func runSleepTimer() {
         sleepTimerTask = Task { @MainActor in
             while let current = sleepTimerRemainingSeconds, current > 0 {
-                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                try? await Task.sleep(for: .seconds(1))
                 guard !Task.isCancelled else { return }
                 let newRemaining = current - 1
                 self.sleepTimerRemainingSeconds = newRemaining

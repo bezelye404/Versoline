@@ -4,14 +4,18 @@ import WebKit
 
 struct SettingsView: View {
 
+    @AppStorage(AppSettingsKeys.appColorPalette) private var appColorPaletteRaw = AppColorPalette.slate.rawValue
+
+    private var palette: AppColorPalette {
+        AppColorPalette(rawValue: appColorPaletteRaw) ?? .slate
+    }
+
     private enum SettingsTab: Hashable {
         case general
         case reader
-        case shortcuts
-        case filters
+        case feeds
         case sync
         case storage
-        case health
     }
 
     var body: some View {
@@ -28,17 +32,11 @@ struct SettingsView: View {
                 }
                 .tag(SettingsTab.reader)
 
-            ShortcutsSettingsTab()
+            FeedsSettingsTab()
                 .tabItem {
-                    Label("Shortcuts", systemImage: "keyboard")
+                    Label("Feeds", systemImage: "dot.radiowaves.up.forward")
                 }
-                .tag(SettingsTab.shortcuts)
-
-            FiltersSettingsTab()
-                .tabItem {
-                    Label("Filters", systemImage: "line.3.horizontal.decrease.circle")
-                }
-                .tag(SettingsTab.filters)
+                .tag(SettingsTab.feeds)
 
             SyncSettingsTab()
                 .tabItem {
@@ -51,13 +49,10 @@ struct SettingsView: View {
                     Label("Storage", systemImage: "internaldrive")
                 }
                 .tag(SettingsTab.storage)
-
-            FeedHealthSettingsTab()
-                .tabItem {
-                    Label("Feed Health", systemImage: "heart.text.square")
-                }
-                .tag(SettingsTab.health)
         }
+        // The settings window follows the app theme: same accent colour and appearance.
+        .environment(\.appTheme, palette)
+        .tint(palette.accentColor)
         .frame(width: 580, height: 510)
     }
 }

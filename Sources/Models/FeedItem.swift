@@ -1,7 +1,7 @@
 import Foundation
 
 struct FeedItem: Codable, Identifiable, Hashable {
-    let id: UUID
+    var id: UUID   // `var` only so a load can repair duplicated identities
     let feedId: UUID
     var title: String
     var link: String
