@@ -138,4 +138,27 @@ struct FeedItemHygieneTests {
         #expect(Set(links).count == 2)
         #expect(!links.contains(""))
     }
+
+    @Test("Items that share one id (left by older refreshes) get their own on load")
+    func loadRepairsDuplicatedIDs() throws {
+        let feed = Feed(title: "Pod", url: "https://feeds.example.com/rss")
+        let first = FeedItem(feedId: feed.id, title: "A", link: "https://cdn.example.com/a.mp3", isRead: true)
+        var second = FeedItem(feedId: feed.id, title: "B", link: "https://cdn.example.com/b.mp3")
+        var third = FeedItem(feedId: feed.id, title: "C", link: "https://cdn.example.com/c.mp3", isBookmarked: true)
+        second.id = first.id
+        third.id = first.id
+        let storage = FeedStore.StorageData(feeds: [feed], items: [feed.id: [first, second, third]], folders: [])
+        let ts = try TestStore { dir in
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            try encoder.encode(storage).write(to: dir.appendingPathComponent("data.json"))
+        }
+        defer { ts.cleanup() }
+
+        let loaded = try #require(ts.store.items[feed.id])
+        #expect(Set(loaded.map(\.id)).count == 3)
+        // Nothing else about the items changes.
+        #expect(loaded.first { $0.title == "A" }?.isRead == true)
+        #expect(loaded.first { $0.title == "C" }?.isBookmarked == true)
+    }
 }

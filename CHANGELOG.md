@@ -32,6 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Feeds
 - **Articles only:** items without a real article (social posts, promos, home-page links) and duplicates are dropped; entries without a link get an identity from their guid or enclosure, so read and bookmark state no longer collides between them.
 
+- Items that older versions left with one shared id (a whole podcast feed could show the same episode over and over in the list) get their own id on the next launch.
 
 ### Memory and speed
 - Freed heap pages are handed back to the system after launch, after a refresh and after an OPML import (idle footprint with a 3,500-article library: 83 MB to 70 MB in a Release build).
