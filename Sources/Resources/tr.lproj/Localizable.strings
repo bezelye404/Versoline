@@ -55,7 +55,7 @@
 "Suggested Feeds" = "Önerilen Akışlar";
 "Invalid URL" = "Geçersiz URL";
 "Please enter a valid URL." = "Lütfen geçerli bir bağlantı girin.";
-"Enter an RSS or Atom feed URL." = "RSS veya Atom feed URL'si girin.";
+"Enter a feed address, or just the address of a site or article." = "Bir feed adresi veya yalnızca bir sitenin ya da makalenin adresini girin.";
 "Feed URL" = "Feed URL";
 "Example Feeds" = "Örnek Feed'ler";
 
@@ -81,7 +81,6 @@
 
 /* Errors & Messages */
 "This feed has already been added." = "Bu feed zaten eklenmiş.";
-"Could not parse feed. Please ensure it is a valid RSS/Atom URL." = "Feed ayrıştırılamadı. Geçerli bir RSS/Atom URL'si olduğundan emin olun.";
 "Failed to load feed: %@" = "Feed yüklenemedi: %@";
 "Refresh failed: %@" = "Yenileme başarısız: %@";
 
@@ -662,3 +661,5 @@
 "Open Web Page" = "Web Sayfasını Aç";
 
 "Keyboard" = "Klavye";
+
+"No RSS or Atom feed was found at this address." = "Bu adreste RSS veya Atom beslemesi bulunamadı.";
