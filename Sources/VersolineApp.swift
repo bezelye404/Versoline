@@ -5,12 +5,22 @@ import WebKit
 @main
 struct VersolineApp: App {
 
-    @State private var store = FeedStore()
+    /// `xcodebuild test` launches the app as the test host. Keep that launch away from the
+    /// user's real library by pointing the store at a throwaway directory.
+    private static let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+
+    @State private var store = FeedStore(
+        storageDirectory: Self.isRunningTests
+            ? FileManager.default.temporaryDirectory.appendingPathComponent("VersolineTestHost-\(UUID().uuidString)", isDirectory: true)
+            : nil
+    )
     @AppStorage(AppSettingsKeys.showMenuBarIcon) private var showMenuBarIcon = false
 
     init() {
         // Run one-time non-destructive legacy data migration if needed
-        LegacyMigration.runMigration()
+        if !Self.isRunningTests {
+            LegacyMigration.runMigration()
+        }
 
         // Memory optimization: Strict URLCache capacity limits (2MB RAM / 25MB Disk)
         URLCache.shared = URLCache(
@@ -20,11 +30,13 @@ struct VersolineApp: App {
 
         Self.setupMemoryPressureMonitor()
 
-        Task { @MainActor in
-            await ContentBlockerService.shared.prepare()
-            ReaderModeExtractor.shared.cleanupDiskCache(olderThanDays: 30)
-            ImageDownsampleCache.shared.cleanupDiskCache(olderThanDays: 14)
-            ImageDownsampleCache.shared.enforceQuota(maxSizeBytes: 30 * 1024 * 1024)
+        if !Self.isRunningTests {
+            Task { @MainActor in
+                await ContentBlockerService.shared.prepare()
+                ReaderModeExtractor.shared.cleanupDiskCache(olderThanDays: 30)
+                ImageDownsampleCache.shared.cleanupDiskCache(olderThanDays: 14)
+                ImageDownsampleCache.shared.enforceQuota(maxSizeBytes: 30 * 1024 * 1024)
+            }
         }
 
         // Memory optimization: Purge transient RAM caches and flush network/WebKit memory when the app is minimized, hidden or backgrounded
@@ -283,36 +295,41 @@ enum AppHaptics {
 
 // MARK: - Animasyon Motoru (Apple HIG Motion & GPU-Composited Guidelines)
 
+@MainActor
 enum AppAnimation {
+    // Every token below resolves to `reduced` when macOS "Reduce Motion" is on (Apple HIG: replace
+    // springs and bounces with a short fade). Call sites need no extra handling; use `safe(_:)`
+    // for one-off animations that are not one of these tokens.
+
     /// Hızlı ve hassas yay: Liste güncellemeleri, segment değişimleri (0.22s)
-    static let snappy = Animation.snappy(duration: 0.22, extraBounce: 0.05)
+    static var snappy: Animation { safe(.snappy(duration: 0.22, extraBounce: 0.05)) }
 
     /// Hafif mikro-etkileşim yayı: Yıldızlama, okundu ikonu, sayaç balonu (0.24s)
-    static let bouncy = Animation.bouncy(duration: 0.24, extraBounce: 0.10)
+    static var bouncy: Animation { safe(.bouncy(duration: 0.24, extraBounce: 0.10)) }
 
     /// Akıcı kayan kapsül yayı: Okuma modu switch'i ve seçim kapsülü (0.26s)
-    static let slidingPill = Animation.spring(response: 0.26, dampingFraction: 0.78)
+    static var slidingPill: Animation { safe(.spring(response: 0.26, dampingFraction: 0.78)) }
 
     /// Etkileşimli buton/seçim yayı (0.22s)
-    static let interactiveSpring = Animation.interactiveSpring(response: 0.22, dampingFraction: 0.80)
+    static var interactiveSpring: Animation { safe(.interactiveSpring(response: 0.22, dampingFraction: 0.80)) }
 
     /// Kart tıklama/dokunma tepkisi: Basılma hissi (0.15s)
-    static let cardPress = Animation.interactiveSpring(response: 0.15, dampingFraction: 0.75)
+    static var cardPress: Animation { safe(.interactiveSpring(response: 0.15, dampingFraction: 0.75)) }
 
     /// Pürüzsüz sayfa ve modal açılış yayı (0.26s)
-    static let pageReveal = Animation.spring(response: 0.26, dampingFraction: 0.85)
+    static var pageReveal: Animation { safe(.spring(response: 0.26, dampingFraction: 0.85)) }
 
     /// Hızlı, ipeksi ve keskin makale içerik geçiş yayı (0.20s, Apple HIG uyumlu, sıçramasız)
-    static let articleTransition = Animation.spring(response: 0.20, dampingFraction: 0.90)
+    static var articleTransition: Animation { safe(.spring(response: 0.20, dampingFraction: 0.90)) }
 
     /// Klasör akordeon açılma yayı (0.24s)
-    static let accordion = Animation.spring(response: 0.24, dampingFraction: 0.82)
+    static var accordion: Animation { safe(.spring(response: 0.24, dampingFraction: 0.82)) }
 
     /// Pürüzsüz hover geçişi (0.12s)
-    static let hover = Animation.easeInOut(duration: 0.12)
+    static var hover: Animation { safe(.easeInOut(duration: 0.12)) }
 
     /// Hızlı durum değişimi için easeOut (0.14s)
-    static let quickFeedback = Animation.easeOut(duration: 0.14)
+    static var quickFeedback: Animation { safe(.easeOut(duration: 0.14)) }
 
     /// Erişilebilirlik (Reduce Motion) aktifken kullanılacak sade fade geçişi
     static let reduced = Animation.easeInOut(duration: 0.14)
@@ -320,6 +337,12 @@ enum AppAnimation {
     /// Reduce Motion durumuna göre uygun animasyonu döndürür
     static func motion(_ animation: Animation, reduceMotion: Bool) -> Animation {
         reduceMotion ? reduced : animation
+    }
+
+    /// Sistem "Reduce Motion" ayarına göre animasyonu sadeleştirir. Token olmayan tek seferlik
+    /// animasyonlar için kullanın: `withAnimation(AppAnimation.safe(.spring(...)))`.
+    static func safe(_ animation: Animation) -> Animation {
+        motion(animation, reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion)
     }
 
     /// Liste elemanlarının basamaklı belirmesi için gecikme (maksimum 0.15s)

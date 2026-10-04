@@ -24,7 +24,6 @@
 "No Folder" = "Klasör Yok";
 "Delete Feed" = "Akışı Sil";
 "Remove from Folder" = "Klasörden Çıkar";
-"Rename" = "Yeniden Adlandır";
 "Delete Folder" = "Klasörü Sil";
 "Feeds" = "Feed'ler";
 "Uncategorized" = "Kategorisiz";
@@ -269,7 +268,6 @@
 "Toggle Bookmark" = "Yıldızla / Kaldır";
 "Press ? anytime to toggle this helper." = "Bu rehberi açıp kapatmak için istediğiniz zaman ? tuşuna basın.";
 "Close" = "Kapat";
-"Done" = "Bitti";
 
 /* Ergonomic Toolbar Strings */
 "Refresh All Feeds" = "Tüm Akışları Yenile";
@@ -285,14 +283,12 @@
 "Copy Link" = "Bağlantıyı Kopyala";
 
 /* YouTube Built-In Player */
-"Close Player" = "Oynatıcıyı Kapat";
 "Watch on YouTube" = "YouTube'da İzle";
 "Stop video and free memory" = "Videoyu durdur ve belleği boşalt";
 "Play" = "Oynat";
 "Pause" = "Duraklat";
 "Seek Backward 10s" = "10 Saniye Geri";
 "Seek Forward 10s" = "10 Saniye İleri";
-"Playback Speed" = "Oynatma Hızı";
 "Mute" = "Sesi Kapat";
 "Unmute" = "Sesi Aç";
 "Volume" = "Ses Düzeyi";
@@ -303,10 +299,8 @@
 /* Smart Categories */
 "Smart Streams" = "Akıllı Akışlar";
 "News & Agenda" = "Gündem & Haber";
-"Technology" = "Teknoloji";
 "Science" = "Bilim";
 "Economy & Finance" = "Ekonomi & Finans";
-"Sports" = "Spor";
 "Culture & Arts" = "Kültür & Sanat";
 "Entertainment & Games" = "Eğlence & Oyun";
 "Lifestyle & Health" = "Yaşam & Sağlık";
@@ -328,27 +322,318 @@
 
 /* Settings: Sync */
 "Sync" = "Senkronizasyon";
-"iCloud Drive Synchronization" = "iCloud Drive Senkronizasyonu";
-"Enable iCloud Drive Sync" = "iCloud Drive Eşitlemesini Etkinleştir";
-"Keeps your feeds, folders, bookmarks, and read article states synced across all your Macs and future iOS/iPadOS devices via iCloud Drive." = "Feed'lerinizi, klasörlerinizi, favorilerinizi ve okundu durumlarınızı iCloud Drive üzerinden tüm Mac'leriniz ve gelecekteki iOS/iPadOS cihazlarınız arasında senkronize tutar.";
-"Storage Location:" = "Depolama Konumu:";
-"High-Speed Local Network P2P" = "Yüksek Hızlı Yerel Ağ P2P";
-"Real-Time Wi-Fi & Bluetooth Mesh" = "Gerçek Zamanlı Wi-Fi & Bluetooth Ağı";
-"Transfers read states and new feeds instantly (sub-100ms) between your nearby devices when connected to the same Wi-Fi network without waiting for cloud files." = "Aynı Wi-Fi ağına bağlıyken bulut dosyalarını beklemeden yakındaki cihazlarınız arasında okundu durumlarını ve yeni feed'leri anında (100ms altı) aktarır.";
-"%d nearby device(s) connected" = "%d yakındaki cihaz bağlı";
-"Searching for nearby devices on Wi-Fi..." = "Wi-Fi üzerindeki yakındaki cihazlar aranıyor...";
 "Sync Status & Actions" = "Senkronizasyon Durumu & Eylemler";
 "Last Synchronized:" = "Son Senkronizasyon:";
 "Not yet synced" = "Henüz senkronize edilmedi";
 "Status:" = "Durum:";
-"Syncing..." = "Eşitleniyor...";
 "Sync Now" = "Şimdi Eşitle";
-"Open Sync Folder in Finder" = "Eşitleme Klasörünü Finder'da Aç";
-"Syncing with iCloud Drive..." = "iCloud Drive ile eşitleniyor...";
-"Up to date" = "Güncel";
 
 
 
 
 
 
+
+/* Startup recovery */
+"Your library could not be read. The original file was kept and nothing will be overwritten. To restore it, put a copy of data.json.bak in the Versoline folder as data.json and restart." = "Kitaplığın okunamadı. Orijinal dosya korundu ve üzerine hiçbir şey yazılmayacak. Geri yüklemek için Versoline klasöründeki data.json.bak dosyasının bir kopyasını data.json adıyla koyup uygulamayı yeniden başlat.";
+"Library Problem" = "Kitaplık Sorunu";
+
+/* ===== Added by the localization audit ===== */
+
+/* Models/AppSettings.swift */
+"Antique Velvet & Library Leather" = "Antika Kadife ve Kütüphane Derisi";
+"Dry Green Tea & Stone Garden" = "Kuru Yeşil Çay ve Taş Bahçe";
+"Mathematical Contrast Matrix" = "Matematiksel Kontrast Matrisi";
+"Minimal High-Contrast" = "Minimal Yüksek Kontrast";
+"Muted Evening Violet" = "Sönük Akşam Moru";
+"Muted Polar Slate" = "Sönük Kutup Arduvazı";
+"Natural Herb & Stone" = "Doğal Ot ve Taş";
+"Roasted Bean & Warm Leather" = "Kavrulmuş Çekirdek ve Sıcak Deri";
+"System" = "Sistem";
+"Warm Editorial Paper" = "Sıcak Editoryal Kâğıt";
+
+/* Services/RSSParser.swift */
+"Rate limit reached (HTTP 429). Please wait a moment before trying again." = "İstek sınırına ulaşıldı (HTTP 429). Lütfen biraz bekleyip tekrar deneyin.";
+
+/* Services/SocialFeedResolver.swift */
+"All Activity" = "Tüm Etkinlik";
+"All Time" = "Tüm Zamanlar";
+"Comments Only" = "Yalnızca Yorumlar";
+"Hot" = "Gündem";
+"Network error: %@" = "Ağ hatası: %@";
+"New" = "Yeni";
+"Please enter a valid channel handle, name, or Reddit identifier." = "Lütfen geçerli bir kanal kullanıcı adı, ad veya Reddit tanımlayıcısı girin.";
+"Rising" = "Yükselen";
+"Submitted Posts Only" = "Yalnızca Gönderiler";
+"This Month" = "Bu Ay";
+"This Week" = "Bu Hafta";
+"This Year" = "Bu Yıl";
+"Top" = "En İyi";
+"YouTube channel could not be found. Please check the channel name or handle." = "YouTube kanalı bulunamadı. Lütfen kanal adını veya kullanıcı adını kontrol edin.";
+
+/* VersolineApp.swift */
+"Now Playing" = "Şimdi Oynatılıyor";
+"Open Versoline" = "Versoline'ı Aç";
+"Quit Versoline" = "Versoline'dan Çık";
+"Recent Unread" = "Son Okunmayanlar";
+"Refresh Feeds" = "Akışları Yenile";
+"Skip Forward 15s" = "15 sn İleri Sar";
+
+/* Views/AddFeedSheet.swift */
+"%lld+ Feeds" = "%lld+ Akış";
+"Browse Curated Feeds (rss.md)" = "Derlenmiş Akışlara Göz At (rss.md)";
+"Folder" = "Klasör";
+"Generator" = "Oluşturucu";
+"Mode" = "Mod";
+"Subscribe to channels, playlists, subreddits & users" = "Kanallara, oynatma listelerine, subreddit'lere ve kullanıcılara abone ol";
+"YouTube & Reddit" = "YouTube ve Reddit";
+"YouTube & Reddit Feeds" = "YouTube ve Reddit Akışları";
+
+/* Views/ArticleDetailView.swift */
+"Bionic Reading" = "Bionic Okuma";
+"Choose an article from the list to begin reading." = "Okumaya başlamak için listeden bir makale seçin.";
+"Content Blocker Active" = "İçerik Engelleyici Etkin";
+"Content Blocker Disabled" = "İçerik Engelleyici Devre Dışı";
+"Copy Image to Clipboard" = "Görseli Panoya Kopyala";
+"Create Quote Card" = "Alıntı Kartı Oluştur";
+"Downloaded (Click to delete)" = "İndirildi (Silmek için tıkla)";
+"Larger Font" = "Daha Büyük Yazı";
+"minutes" = "dakika";
+"Palette:" = "Palet:";
+"Quote Card Generator" = "Alıntı Kartı Oluşturucu";
+"Quote Text:" = "Alıntı Metni:";
+"Select an Article" = "Bir Makale Seçin";
+"SHOW NOTES" = "BÖLÜM NOTLARI";
+"Smaller Font" = "Daha Küçük Yazı";
+"Switching to cached Reader Mode." = "Önbellekteki Okuyucu Moduna geçiliyor.";
+"Turn Off Timer" = "Zamanlayıcıyı Kapat";
+
+/* Views/ConsoleView.swift */
+"%lld / %lld events logged" = "%lld / %lld olay kaydedildi";
+"Auto-scroll" = "Otomatik kaydır";
+"Category:" = "Kategori:";
+"Clear" = "Temizle";
+"Clear all in-memory logs" = "Bellekteki tüm günlükleri temizle";
+"Copied to clipboard!" = "Panoya kopyalandı!";
+"Copy" = "Kopyala";
+"Copy logs to clipboard" = "Günlükleri panoya kopyala";
+"Details:" = "Ayrıntılar:";
+"Export" = "Dışa Aktar";
+"Export logs to a text file" = "Günlükleri metin dosyasına aktar";
+"Level:" = "Seviye:";
+"Memory buffer: %lld / %lld" = "Bellek tamponu: %lld / %lld";
+"No log messages match your filter criteria." = "Filtrenize uyan günlük mesajı yok.";
+"Search console..." = "Konsolda ara...";
+
+/* Views/ContentView.swift */
+"Add feed, folder, catalog, podcasts, or OPML" = "Akış, klasör, katalog, podcast veya OPML ekle";
+"Manage Folders..." = "Klasörleri Yönet...";
+"New Folder..." = "Yeni Klasör...";
+"Versoline (formerly easyRSS): your subscriptions and data were imported." = "Versoline (eski adıyla easyRSS): abonelikleriniz ve verileriniz içe aktarıldı.";
+
+/* Views/FeedListView.swift */
+"All Caught Up" = "Hepsini Okudunuz";
+"Articles automatically classified in this category will appear here." = "Bu kategoriye otomatik olarak sınıflandırılan makaleler burada görünür.";
+"Articles containing YouTube videos will appear here." = "YouTube videosu içeren makaleler burada görünür.";
+"Bookmark" = "Favorilere Ekle";
+"Deep Reads" = "Derin Okumalar";
+"Downloaded podcast episodes will appear here for offline playback." = "İndirilen podcast bölümleri çevrimdışı dinlemek için burada görünür.";
+"Feed is Empty" = "Akış Boş";
+"Folder is Empty" = "Klasör Boş";
+"In-depth articles (7+ minutes) will appear here for deep reading." = "Uzun makaleler (7+ dakika) derinlemesine okuma için burada görünür.";
+"Move feeds into this folder from the sidebar." = "Kenar çubuğundan akışları bu klasöre taşıyın.";
+"No Articles" = "Makale Yok";
+"No articles found in this feed." = "Bu akışta makale bulunamadı.";
+"No articles published today." = "Bugün yayımlanmış makale yok.";
+"No Articles Today" = "Bugün Makale Yok";
+"No Bookmarks" = "Favori Yok";
+"No Deep Reads" = "Derin Okuma Yok";
+"No Downloads" = "İndirme Yok";
+"No Podcasts" = "Podcast Yok";
+"No Quick Reads" = "Hızlı Okuma Yok";
+"No unread articles." = "Okunmamış makale yok.";
+"No Videos" = "Video Yok";
+"Offline Mode — Showing cached articles" = "Çevrimdışı Mod — Önbellekteki makaleler gösteriliyor";
+"Open in Browser Single Key" = "Tarayıcıda Aç (Tek Tuş)";
+"Quick Reads" = "Hızlı Okumalar";
+"Search articles..." = "Makalelerde ara...";
+"Select a Feed" = "Bir Akış Seçin";
+"Shift Spacebar Reverse" = "Shift + Boşluk: Geri";
+"Short articles (< 3 minutes) will appear here for quick reading." = "Kısa makaleler (3 dakikadan az) hızlı okuma için burada görünür.";
+"Spacebar Advance" = "Boşluk Tuşu: İleri";
+"Star articles to save them for later." = "Makaleleri daha sonra okumak için favorilere ekleyin.";
+"Subscribe to podcast feeds to see episodes here." = "Bölümleri burada görmek için podcast akışlarına abone olun.";
+"Toggle Bookmark Single Key" = "Favori Durumunu Değiştir (Tek Tuş)";
+"Toggle Read Single Key" = "Okundu Durumunu Değiştir (Tek Tuş)";
+"Videos" = "Videolar";
+
+/* Views/FolderManagementView.swift */
+"Clear Rules" = "Kuralları Temizle";
+"Enter comma-separated keywords (e.g. apple, swift, ai). Any matching article across all feeds will be aggregated into this folder." = "Virgülle ayrılmış anahtar kelimeler girin (örn. apple, swift, yapay zeka). Tüm akışlardaki eşleşen makaleler bu klasörde toplanır.";
+"Keywords (comma separated)" = "Anahtar kelimeler (virgülle ayrılmış)";
+"No matching feeds found." = "Eşleşen akış bulunamadı.";
+"Save Rules" = "Kuralları Kaydet";
+"Select a folder from the list to manage its feeds." = "Akışlarını yönetmek için listeden bir klasör seçin.";
+"Smart" = "Akıllı";
+
+/* Views/MiniPlayerView.swift */
+"Fullscreen Video" = "Tam Ekran Video";
+"Go to Article / Feed" = "Makaleye / Akışa Git";
+"Share Episode with Timestamp" = "Bölümü Zaman Damgasıyla Paylaş";
+"Skip backward 10 seconds" = "10 saniye geri sar";
+"Skip forward 10 seconds" = "10 saniye ileri sar";
+"Up Next Queue" = "Sıradaki Kuyruğu";
+
+/* Views/Player/QueuePopoverView.swift */
+"Clear All" = "Tümünü Temizle";
+"Play Now" = "Şimdi Oynat";
+"Remove from Queue" = "Kuyruktan Kaldır";
+"Right-click any episode in the list to Add to Queue or Play Next." = "Kuyruğa eklemek veya sıradaki yapmak için listedeki bir bölüme sağ tıklayın.";
+
+/* Views/Player/YouTubePlayerView.swift */
+"Exit Fullscreen (Esc)" = "Tam Ekrandan Çık (Esc)";
+"Play Video" = "Videoyu Oynat";
+"Stop" = "Durdur";
+"Stop Player" = "Oynatıcıyı Durdur";
+
+/* Views/PodcastSearchView.swift */
+"Podcast Search Engine & RSS Finder" = "Podcast Arama Motoru ve RSS Bulucu";
+"Search millions of podcasts from Apple Podcasts directory.\nFind direct RSS feeds, preview episodes, and subscribe with one click." = "Apple Podcasts dizinindeki milyonlarca podcast içinde arayın.\nDoğrudan RSS akışlarını bulun, bölümleri önizleyin ve tek tıkla abone olun.";
+"Subscribe" = "Abone Ol";
+"Subscribed" = "Abone Olundu";
+
+/* Views/Settings/SettingsView.swift */
+"%lld Broken" = "%lld Bozuk";
+"%lld Healthy" = "%lld Sağlıklı";
+"%lld px" = "%lld px";
+"%lld Stale (>6 mos)" = "%lld Eski (>6 ay)";
+"14 Days" = "14 Gün";
+"30 Days" = "30 Gün";
+"7 Days" = "7 Gün";
+"90 Days" = "90 Gün";
+"Add keyword to mute (e.g. spoiler, crypto)..." = "Gizlenecek anahtar kelime ekle (örn. spoiler, kripto)...";
+"Articles containing these keywords in their title or summary will be automatically hidden from your article lists." = "Başlığında veya özetinde bu anahtar kelimeleri içeren makaleler listelerinizden otomatik olarak gizlenir.";
+"Automatic Cleanup" = "Otomatik Temizlik";
+"Automatically extracts full article body for feeds that only provide short summaries." = "Yalnızca kısa özet sunan akışlar için makalenin tam metnini otomatik olarak çıkarır.";
+"Automatically Open in Reader Mode" = "Okuyucu Modunda Otomatik Aç";
+"Automation" = "Otomasyon";
+"Cache Size on Disk:" = "Diskteki Önbellek Boyutu:";
+"Choose which web browser opens when clicking 'Open in Browser'." = "'Tarayıcıda Aç' seçildiğinde hangi web tarayıcısının açılacağını seçin.";
+"Clean Read Articles Older Than Selection Now" = "Seçilen Süreden Eski Okunmuş Makaleleri Şimdi Temizle";
+"Cleanup complete!" = "Temizlik tamamlandı!";
+"Clear All Downloaded Episodes" = "İndirilen Tüm Bölümleri Temizle";
+"Clear Favicon Disk Cache" = "Site Simgesi Disk Önbelleğini Temizle";
+"Clear Image & Thumbnail Cache" = "Görsel ve Küçük Resim Önbelleğini Temizle";
+"Clear Offline Article Cache" = "Çevrimdışı Makale Önbelleğini Temizle";
+"Clear Web & Browser Disk Cache" = "Web ve Tarayıcı Disk Önbelleğini Temizle";
+"Click 'Scan Feeds' above to test feed accessibility, response times, and identify broken feeds." = "Akış erişilebilirliğini ve yanıt sürelerini test etmek, bozuk akışları bulmak için yukarıdaki 'Akışları Tara'ya tıklayın.";
+"Compact Article List" = "Kompakt Makale Listesi";
+"Customizes the appearance, background tones, and accent colors across the entire app." = "Uygulamanın görünümünü, arka plan tonlarını ve vurgu renklerini özelleştirir.";
+"Database Size on Disk:" = "Diskteki Veritabanı Boyutu:";
+"Database Stats" = "Veritabanı İstatistikleri";
+"Default Article View:" = "Varsayılan Makale Görünümü:";
+"Default Mode" = "Varsayılan Mod";
+"Displays website logos next to feeds and article titles for quick visual recognition." = "Hızlı tanıma için akış ve makale başlıklarının yanında site logolarını gösterir.";
+"Downloaded episodes cleared successfully." = "İndirilen bölümler temizlendi.";
+"Downloaded Podcast Episodes" = "İndirilen Podcast Bölümleri";
+"Downloads on Disk:" = "Diskteki İndirmeler:";
+"Emboldens the initial characters of words to guide visual fixation and enhance reading flow." = "Gözün odaklanmasına yardımcı olmak ve okuma akışını artırmak için kelimelerin ilk harflerini kalın yapar.";
+"Enable Single-Key Navigation" = "Tek Tuşla Gezinmeyi Etkinleştir";
+"Enables vim-style keyboard navigation (J, K, M, S, O) without holding Command." = "Command tuşuna basmadan vim tarzı klavye gezinmesini (J, K, M, S, O) etkinleştirir.";
+"External Browser" = "Harici Tarayıcı";
+"Favicon Cache" = "Site Simgesi Önbelleği";
+"Favicon cache cleared successfully." = "Site simgesi önbelleği temizlendi.";
+"Feeds:" = "Akışlar:";
+"Folders:" = "Klasörler:";
+"Font Family:" = "Yazı Tipi:";
+"Font Size:" = "Yazı Boyutu:";
+"Forever (Never clean)" = "Süresiz (Hiç temizleme)";
+"Hides article snippet summaries in the list to fit more articles on screen." = "Ekrana daha fazla makale sığdırmak için listedeki makale özetlerini gizler.";
+"Image & Thumbnail Cache" = "Görsel ve Küçük Resim Önbelleği";
+"Image cache cleared successfully." = "Görsel önbelleği temizlendi.";
+"Keep Read Articles:" = "Okunan Makaleleri Sakla:";
+"Keeps a Versoline status icon in your macOS top menu bar with an unread badge." = "macOS menü çubuğunda okunmamış sayısını gösteren bir Versoline simgesi tutar.";
+"Keyboard Cheat Sheet" = "Klavye Kısayol Özeti";
+"Line Spacing:" = "Satır Aralığı:";
+"No articles in %lld days" = "%lld gündür makale yok";
+"No Diagnostics Run Yet" = "Henüz Teşhis Çalıştırılmadı";
+"No muted keywords yet" = "Henüz gizlenen anahtar kelime yok";
+"Offline Article Cache" = "Çevrimdışı Makale Önbelleği";
+"Offline article cache cleared successfully." = "Çevrimdışı makale önbelleği temizlendi.";
+"Offline Reading" = "Çevrimdışı Okuma";
+"Pre-cache Articles for Offline Access" = "Makaleleri Çevrimdışı Erişim İçin Önceden Kaydet";
+"Pre-loads readable articles in the background so they are ready even without an internet connection." = "Okunabilir makaleleri arka planda önceden yükler, böylece internet olmadan da hazır olurlar.";
+"Preferred Browser:" = "Tercih Edilen Tarayıcı:";
+"Reading Focus" = "Okuma Odağı";
+"Remove feed" = "Akışı kaldır";
+"Scan feeds for HTTP errors, dead links, or inactive sources." = "Akışları HTTP hataları, ölü bağlantılar veya etkin olmayan kaynaklar için tara.";
+"Select whether articles initially open in Reader Mode or Web Browser." = "Makalelerin başlangıçta Okuyucu Modunda mı yoksa Web Tarayıcısında mı açılacağını seçin.";
+"Show Menu Bar Icon" = "Menü Çubuğu Simgesini Göster";
+"Show Site Favicons" = "Site Simgelerini Göster";
+"Theme:" = "Tema:";
+"Total Articles:" = "Toplam Makale:";
+"Web & Browser Cache" = "Web ve Tarayıcı Önbelleği";
+"Web and browser cache cleared successfully." = "Web ve tarayıcı önbelleği temizlendi.";
+"• Inactive for %lld days" = "• %lld gündür etkin değil";
+
+/* Views/SidebarView.swift */
+"All in Folder" = "Klasördekilerin Tümü";
+"Articles Read (Last 7 Days)" = "Okunan Makaleler (Son 7 Gün)";
+"Consistency" = "Düzenlilik";
+"Deep Reads (>7m)" = "Derin Okumalar (>7 dk)";
+"Quick Reads (<3m)" = "Hızlı Okumalar (<3 dk)";
+"Reading Insights" = "Okuma Analizi";
+"Total Feeds" = "Toplam Akış";
+"Total Read" = "Toplam Okunan";
+"Your weekly reading activity and flow" = "Haftalık okuma etkinliğiniz ve akışınız";
+
+/* Views/SocialFeedsView.swift */
+"Add Subreddit Feed" = "Subreddit Akışı Ekle";
+"Add User Feed" = "Kullanıcı Akışı Ekle";
+"Add YouTube Feed" = "YouTube Akışı Ekle";
+"apple, swift, technology..." = "apple, swift, teknoloji...";
+"Channel Handle or URL" = "Kanal Kullanıcı Adı veya URL";
+"e.g. @mkbhd, veritasium, or youtube.com/@apple" = "örn. @mkbhd, veritasium veya youtube.com/@apple";
+"Feed Content" = "Akış İçeriği";
+"Generated RSS URL:" = "Oluşturulan RSS URL'si:";
+"Platform" = "Platform";
+"Popular Channels:" = "Popüler Kanallar:";
+"Reddit RSS Feed" = "Reddit RSS Akışı";
+"Reddit Username" = "Reddit Kullanıcı Adı";
+"Sort" = "Sırala";
+"Sort By" = "Sıralama";
+"Subreddit (r/)" = "Subreddit (r/)";
+"Subreddit Name" = "Subreddit Adı";
+"Subscribe to any channel, handle (@name), playlist, or custom URL." = "Herhangi bir kanala, kullanıcı adına (@ad), oynatma listesine veya özel bir URL'ye abone olun.";
+"Subscribe to any subreddit community or user activity with custom sorting." = "Herhangi bir subreddit topluluğuna veya kullanıcı etkinliğine özel sıralamayla abone olun.";
+"Target" = "Hedef";
+"Time Filter" = "Zaman Filtresi";
+"Time Frame" = "Zaman Aralığı";
+"Type" = "Tür";
+"User Profile (u/)" = "Kullanıcı Profili (u/)";
+"username" = "kullanıcı adı";
+"YouTube Channel Found" = "YouTube Kanalı Bulundu";
+"YouTube RSS Feed" = "YouTube RSS Akışı";
+
+/* Nearby sync (pairing) */
+"Nearby Sync" = "Yakındaki Cihazlarla Eşitleme";
+"Sync with My Paired Macs" = "Eşleştirdiğim Mac'lerle Eşitle";
+"Keeps feeds, folders, bookmarks, read states, and settings in sync between your own Macs over the local network. Data goes directly from Mac to Mac, is encrypted, and never touches a server or the cloud. Only devices you pair below can connect." = "Kendi Mac'leriniz arasında akışları, klasörleri, favorileri, okundu durumlarını ve ayarları yerel ağ üzerinden eşitler. Veri doğrudan Mac'ten Mac'e, şifreli olarak gider; hiçbir sunucuya veya buluta uğramaz. Yalnızca aşağıda eşleştirdiğiniz cihazlar bağlanabilir.";
+"%d paired device(s) connected" = "%d eşleşmiş cihaz bağlı";
+"Looking for your paired devices on the local network..." = "Eşleşmiş cihazlarınız yerel ağda aranıyor...";
+"Paired Devices" = "Eşleşmiş Cihazlar";
+"No devices paired yet." = "Henüz eşleşmiş cihaz yok.";
+"Paired %@" = "Eşleşme tarihi: %@";
+"Remove" = "Kaldır";
+"Remove this device?" = "Bu cihaz kaldırılsın mı?";
+"%@ will no longer be able to sync with this Mac. You can pair it again later." = "%@ artık bu Mac ile eşitlenemeyecek. Daha sonra yeniden eşleştirebilirsiniz.";
+"Pair New Device" = "Yeni Cihaz Eşleştir";
+"Turn on Nearby Sync first." = "Önce Yakındaki Cihazlarla Eşitleme'yi açın.";
+"Open Pair New Device on your other Mac too. Both Macs must be on the same network." = "Diğer Mac'inizde de Yeni Cihaz Eşleştir'i açın. İki Mac aynı ağda olmalıdır.";
+"Does %@ show this code?" = "%@ bu kodu gösteriyor mu?";
+"Only continue if both Macs show exactly the same six digits. If they differ, someone else may be trying to connect." = "Yalnızca iki Mac de tamamen aynı altı haneyi gösteriyorsa devam edin. Farklıysa başkası bağlanmaya çalışıyor olabilir.";
+"Codes Match" = "Kodlar Aynı";
+"They Differ" = "Farklı";
+"%@ is now paired." = "%@ artık eşleşti.";
+"Try Again" = "Tekrar Dene";
+"No device was found. Open Pair New Device on the other Mac too." = "Cihaz bulunamadı. Diğer Mac'te de Yeni Cihaz Eşleştir'i açın.";

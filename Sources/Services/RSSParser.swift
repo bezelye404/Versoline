@@ -1,5 +1,7 @@
 import Foundation
 
+// `@unchecked Sendable`: parse state is mutated without locks. Safe because every parse creates
+// its own instance (see `fetchAndParse`) and an instance is never shared across threads.
 final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
 
     private var feedId: UUID
@@ -410,7 +412,8 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
                 audioURL: currentAudioURL,
                 audioDuration: currentAudioDuration.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : currentAudioDuration.trimmingCharacters(in: .whitespacesAndNewlines),
                 audioType: currentAudioType,
-                audioLength: currentAudioLength
+                audioLength: currentAudioLength,
+                readingMinutes: FeedItem.estimateReadingMinutes(from: rawRichContent ?? cleanDesc)
             )
             items.append(item)
             isInsideItem = false
@@ -474,6 +477,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         }
     }()
 
+    // `nonisolated(unsafe)`: ISO8601DateFormatter is documented as thread-safe and is never mutated after setup.
     private nonisolated(unsafe) static let isoFormatterWithFractional: ISO8601DateFormatter = {
         let f = ISO8601DateFormatter()
         f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]

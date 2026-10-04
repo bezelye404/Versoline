@@ -1,0 +1,19 @@
+# Literals that are intentionally not translated (one per line, exact text).
+# Brand and platform names
+Versoline
+YouTube
+# Example URL used as a placeholder
+https://example.com/feed.xml
+# Colour palette names are kept as design names; only their descriptions are translated.
+Slate
+Sage
+Dusk
+Monochrome
+Solarized Paper
+Nordic Frost
+Matcha Tea
+Espresso Cream
+Espresso Amber
+Matcha & Moss
+Bordeaux Plum
+Nordic Steel

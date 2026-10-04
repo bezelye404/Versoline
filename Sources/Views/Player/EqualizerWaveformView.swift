@@ -40,7 +40,7 @@ struct EqualizerWaveformView: View {
                 phase = 1.0
             }
         } else {
-            withAnimation(.easeOut(duration: 0.15)) {
+            withAnimation(AppAnimation.safe(.easeOut(duration: 0.15))) {
                 phase = 0.0
             }
         }

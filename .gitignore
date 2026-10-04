@@ -128,27 +128,45 @@ auth.json
 *.auth*
 *.secret*
 
-# Editor & AI Tool Artifacts
+# Editor Artifacts
 .vscode/
 .idea/
-.cursor/
-.agents/
-.gemini/
-.claude/
-.antigravity/
-.copilot/
 *.swp
 *.swo
 *~
 
-# Local Development & Scratch Notes
-animlist.md
-animguide.md
-guide.md
-rss.md
+# AI agent rules, memory and tool configs (local only; not part of the product)
 AGENTS.md
+CLAUDE.md
+GEMINI.md
+.cursorrules
+.cursor/
+.windsurfrules
+.clinerules
+.github/copilot-instructions.md
+.agents/
+.claude/
+.gemini/
+.antigravity/
+.copilot/
+docs/rules/
+
+# Local Development & Scratch Notes
+VERSOLINE.md
+guide.md
+animguide.md
+animlist.md
+rss.md
 notes.md
 TODO.md
 *.scratch.*
 docs/marketing/
-VERSOLINE.md
+
+# Python caches (scripts/check-localization.py)
+__pycache__/
+*.pyc
+
+# Test coverage output
+*.profraw
+*.profdata
+*.coverage

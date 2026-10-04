@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 struct ContentView: View {
 
     @Environment(FeedStore.self) private var store
+    @Environment(\.scenePhase) private var scenePhase
     @State private var selectedSidebarItem: SidebarItem?
     @State private var selectedArticle: FeedItem?
     @State private var showAddFeed = false
@@ -231,6 +232,18 @@ struct ContentView: View {
                 .zIndex(999)
             }
         }
+        .alert(String(localized: "Library Problem"), isPresented: .init(
+            get: { store.startupRecoveryNotice != nil },
+            set: { if !$0 { store.startupRecoveryNotice = nil } }
+        )) {
+            Button("OK", role: .cancel) {
+                store.startupRecoveryNotice = nil
+            }
+        } message: {
+            if let msg = store.startupRecoveryNotice {
+                Text(msg)
+            }
+        }
         .alert("Error", isPresented: .init(
             get: { store.errorMessage != nil },
             set: { if !$0 { store.errorMessage = nil } }
@@ -243,14 +256,14 @@ struct ContentView: View {
                 Text(msg)
             }
         }
-        .onAppear {
-            Task {
-                await store.refreshAllFeeds()
-            }
-        }
-        .task {
+        // Refreshes only while the app is in front: once when it becomes active (the store throttles to
+        // every 15 minutes) and then every 30 minutes. `task(id:)` cancels the loop when the app is
+        // deactivated or hidden, so nothing polls in the background.
+        .task(id: scenePhase) {
+            guard scenePhase == .active else { return }
+            await store.refreshAllFeeds()
             while !Task.isCancelled {
-                try? await Task.sleep(nanoseconds: 1800 * 1_000_000_000)
+                try? await Task.sleep(for: .seconds(1800))
                 guard !Task.isCancelled else { break }
                 await store.refreshAllFeeds()
             }
