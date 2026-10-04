@@ -20,6 +20,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Native search** (⌘F) in the toolbar replaces the in-list search bar.
 - **Faster navigation:** ⌘K command palette to jump to any list, folder or feed or run any command, and Focus Mode (⇧⌘F) to read without the sidebar and list.
 - **Settings:** the theme grid became one row of colour swatches, switches carry their description in the same row, and the window follows the app theme. The Add Feed sheet no longer repeats its own tabs as cards.
+- **Settings in five tabs** (General, Reader, Feeds, Sync, Storage): muted keywords and feed health share the Feeds tab, and the single-key navigation switch moved into General (the cheat sheet is in the Help menu).
+- Podcast episodes no longer show the Reader/Web switch; the episode page is the player.
 - **Welcome screen** with three clear first steps while the library is empty.
 - **Motion:** SF Symbol bounce on bookmark and read toggles and numeric transitions, both disabled under Reduce Motion.
 
