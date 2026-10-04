@@ -111,6 +111,7 @@ enum CommandPalette {
 
     private static func fold(_ text: String) -> String {
         text.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
+            .replacingOccurrences(of: "ı", with: "i")   // typing "i" should find "ı" as well
             .trimmingCharacters(in: .whitespaces)
     }
 }
