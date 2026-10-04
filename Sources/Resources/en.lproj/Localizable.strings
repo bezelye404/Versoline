@@ -24,7 +24,6 @@
 "No Folder" = "No Folder";
 "Delete Feed" = "Delete Feed";
 "Remove from Folder" = "Remove from Folder";
-"Rename" = "Rename";
 "Delete Folder" = "Delete Folder";
 "Feeds" = "Feeds";
 "Uncategorized" = "Uncategorized";
@@ -269,7 +268,6 @@
 "Toggle Bookmark" = "Toggle Bookmark";
 "Press ? anytime to toggle this helper." = "Press ? anytime to toggle this helper.";
 "Close" = "Close";
-"Done" = "Done";
 
 /* Ergonomic Toolbar Strings */
 "Refresh All Feeds" = "Refresh All Feeds";
@@ -285,14 +283,12 @@
 "Copy Link" = "Copy Link";
 
 /* YouTube Built-In Player */
-"Close Player" = "Close Player";
 "Watch on YouTube" = "Watch on YouTube";
 "Stop video and free memory" = "Stop video and free memory";
 "Play" = "Play";
 "Pause" = "Pause";
 "Seek Backward 10s" = "Seek Backward 10s";
 "Seek Forward 10s" = "Seek Forward 10s";
-"Playback Speed" = "Playback Speed";
 "Mute" = "Mute";
 "Unmute" = "Unmute";
 "Volume" = "Volume";
@@ -303,10 +299,8 @@
 /* Smart Categories */
 "Smart Streams" = "Smart Streams";
 "News & Agenda" = "News & Agenda";
-"Technology" = "Technology";
 "Science" = "Science";
 "Economy & Finance" = "Economy & Finance";
-"Sports" = "Sports";
 "Culture & Arts" = "Culture & Arts";
 "Entertainment & Games" = "Entertainment & Games";
 "Lifestyle & Health" = "Lifestyle & Health";
@@ -328,24 +322,11 @@
 
 /* Settings: Sync */
 "Sync" = "Sync";
-"iCloud Drive Synchronization" = "iCloud Drive Synchronization";
-"Enable iCloud Drive Sync" = "Enable iCloud Drive Sync";
-"Keeps your feeds, folders, bookmarks, and read article states synced across all your Macs and future iOS/iPadOS devices via iCloud Drive." = "Keeps your feeds, folders, bookmarks, and read article states synced across all your Macs and future iOS/iPadOS devices via iCloud Drive.";
-"Storage Location:" = "Storage Location:";
-"High-Speed Local Network P2P" = "High-Speed Local Network P2P";
-"Real-Time Wi-Fi & Bluetooth Mesh" = "Real-Time Wi-Fi & Bluetooth Mesh";
-"Transfers read states and new feeds instantly (sub-100ms) between your nearby devices when connected to the same Wi-Fi network without waiting for cloud files." = "Transfers read states and new feeds instantly (sub-100ms) between your nearby devices when connected to the same Wi-Fi network without waiting for cloud files.";
-"%d nearby device(s) connected" = "%d nearby device(s) connected";
-"Searching for nearby devices on Wi-Fi..." = "Searching for nearby devices on Wi-Fi...";
 "Sync Status & Actions" = "Sync Status & Actions";
 "Last Synchronized:" = "Last Synchronized:";
 "Not yet synced" = "Not yet synced";
 "Status:" = "Status:";
-"Syncing..." = "Syncing...";
 "Sync Now" = "Sync Now";
-"Open Sync Folder in Finder" = "Open Sync Folder in Finder";
-"Syncing with iCloud Drive..." = "Syncing with iCloud Drive...";
-"Up to date" = "Up to date";
 
 
 
@@ -353,3 +334,307 @@
 
 
 
+
+/* Startup recovery */
+"Your library could not be read. The original file was kept and nothing will be overwritten. To restore it, put a copy of data.json.bak in the Versoline folder as data.json and restart." = "Your library could not be read. The original file was kept and nothing will be overwritten. To restore it, put a copy of data.json.bak in the Versoline folder as data.json and restart.";
+"Library Problem" = "Library Problem";
+
+/* ===== Added by the localization audit ===== */
+
+/* Models/AppSettings.swift */
+"Antique Velvet & Library Leather" = "Antique Velvet & Library Leather";
+"Dry Green Tea & Stone Garden" = "Dry Green Tea & Stone Garden";
+"Mathematical Contrast Matrix" = "Mathematical Contrast Matrix";
+"Minimal High-Contrast" = "Minimal High-Contrast";
+"Muted Evening Violet" = "Muted Evening Violet";
+"Muted Polar Slate" = "Muted Polar Slate";
+"Natural Herb & Stone" = "Natural Herb & Stone";
+"Roasted Bean & Warm Leather" = "Roasted Bean & Warm Leather";
+"System" = "System";
+"Warm Editorial Paper" = "Warm Editorial Paper";
+
+/* Services/RSSParser.swift */
+"Rate limit reached (HTTP 429). Please wait a moment before trying again." = "Rate limit reached (HTTP 429). Please wait a moment before trying again.";
+
+/* Services/SocialFeedResolver.swift */
+"All Activity" = "All Activity";
+"All Time" = "All Time";
+"Comments Only" = "Comments Only";
+"Hot" = "Hot";
+"Network error: %@" = "Network error: %@";
+"New" = "New";
+"Please enter a valid channel handle, name, or Reddit identifier." = "Please enter a valid channel handle, name, or Reddit identifier.";
+"Rising" = "Rising";
+"Submitted Posts Only" = "Submitted Posts Only";
+"This Month" = "This Month";
+"This Week" = "This Week";
+"This Year" = "This Year";
+"Top" = "Top";
+"YouTube channel could not be found. Please check the channel name or handle." = "YouTube channel could not be found. Please check the channel name or handle.";
+
+/* VersolineApp.swift */
+"Now Playing" = "Now Playing";
+"Open Versoline" = "Open Versoline";
+"Quit Versoline" = "Quit Versoline";
+"Recent Unread" = "Recent Unread";
+"Refresh Feeds" = "Refresh Feeds";
+"Skip Forward 15s" = "Skip Forward 15s";
+
+/* Views/AddFeedSheet.swift */
+"%lld+ Feeds" = "%lld+ Feeds";
+"Browse Curated Feeds (rss.md)" = "Browse Curated Feeds (rss.md)";
+"Folder" = "Folder";
+"Generator" = "Generator";
+"Mode" = "Mode";
+"Subscribe to channels, playlists, subreddits & users" = "Subscribe to channels, playlists, subreddits & users";
+"YouTube & Reddit" = "YouTube & Reddit";
+"YouTube & Reddit Feeds" = "YouTube & Reddit Feeds";
+
+/* Views/ArticleDetailView.swift */
+"Bionic Reading" = "Bionic Reading";
+"Choose an article from the list to begin reading." = "Choose an article from the list to begin reading.";
+"Content Blocker Active" = "Content Blocker Active";
+"Content Blocker Disabled" = "Content Blocker Disabled";
+"Copy Image to Clipboard" = "Copy Image to Clipboard";
+"Create Quote Card" = "Create Quote Card";
+"Downloaded (Click to delete)" = "Downloaded (Click to delete)";
+"Larger Font" = "Larger Font";
+"minutes" = "minutes";
+"Palette:" = "Palette:";
+"Quote Card Generator" = "Quote Card Generator";
+"Quote Text:" = "Quote Text:";
+"Select an Article" = "Select an Article";
+"SHOW NOTES" = "SHOW NOTES";
+"Smaller Font" = "Smaller Font";
+"Switching to cached Reader Mode." = "Switching to cached Reader Mode.";
+"Turn Off Timer" = "Turn Off Timer";
+
+/* Views/ConsoleView.swift */
+"%lld / %lld events logged" = "%lld / %lld events logged";
+"Auto-scroll" = "Auto-scroll";
+"Category:" = "Category:";
+"Clear" = "Clear";
+"Clear all in-memory logs" = "Clear all in-memory logs";
+"Copied to clipboard!" = "Copied to clipboard!";
+"Copy" = "Copy";
+"Copy logs to clipboard" = "Copy logs to clipboard";
+"Details:" = "Details:";
+"Export" = "Export";
+"Export logs to a text file" = "Export logs to a text file";
+"Level:" = "Level:";
+"Memory buffer: %lld / %lld" = "Memory buffer: %lld / %lld";
+"No log messages match your filter criteria." = "No log messages match your filter criteria.";
+"Search console..." = "Search console...";
+
+/* Views/ContentView.swift */
+"Add feed, folder, catalog, podcasts, or OPML" = "Add feed, folder, catalog, podcasts, or OPML";
+"Manage Folders..." = "Manage Folders...";
+"New Folder..." = "New Folder...";
+"Versoline (formerly easyRSS): your subscriptions and data were imported." = "Versoline (formerly easyRSS): your subscriptions and data were imported.";
+
+/* Views/FeedListView.swift */
+"All Caught Up" = "All Caught Up";
+"Articles automatically classified in this category will appear here." = "Articles automatically classified in this category will appear here.";
+"Articles containing YouTube videos will appear here." = "Articles containing YouTube videos will appear here.";
+"Bookmark" = "Bookmark";
+"Deep Reads" = "Deep Reads";
+"Downloaded podcast episodes will appear here for offline playback." = "Downloaded podcast episodes will appear here for offline playback.";
+"Feed is Empty" = "Feed is Empty";
+"Folder is Empty" = "Folder is Empty";
+"In-depth articles (7+ minutes) will appear here for deep reading." = "In-depth articles (7+ minutes) will appear here for deep reading.";
+"Move feeds into this folder from the sidebar." = "Move feeds into this folder from the sidebar.";
+"No Articles" = "No Articles";
+"No articles found in this feed." = "No articles found in this feed.";
+"No articles published today." = "No articles published today.";
+"No Articles Today" = "No Articles Today";
+"No Bookmarks" = "No Bookmarks";
+"No Deep Reads" = "No Deep Reads";
+"No Downloads" = "No Downloads";
+"No Podcasts" = "No Podcasts";
+"No Quick Reads" = "No Quick Reads";
+"No unread articles." = "No unread articles.";
+"No Videos" = "No Videos";
+"Offline Mode — Showing cached articles" = "Offline Mode — Showing cached articles";
+"Open in Browser Single Key" = "Open in Browser Single Key";
+"Quick Reads" = "Quick Reads";
+"Search articles..." = "Search articles...";
+"Select a Feed" = "Select a Feed";
+"Shift Spacebar Reverse" = "Shift Spacebar Reverse";
+"Short articles (< 3 minutes) will appear here for quick reading." = "Short articles (< 3 minutes) will appear here for quick reading.";
+"Spacebar Advance" = "Spacebar Advance";
+"Star articles to save them for later." = "Star articles to save them for later.";
+"Subscribe to podcast feeds to see episodes here." = "Subscribe to podcast feeds to see episodes here.";
+"Toggle Bookmark Single Key" = "Toggle Bookmark Single Key";
+"Toggle Read Single Key" = "Toggle Read Single Key";
+"Videos" = "Videos";
+
+/* Views/FolderManagementView.swift */
+"Clear Rules" = "Clear Rules";
+"Enter comma-separated keywords (e.g. apple, swift, ai). Any matching article across all feeds will be aggregated into this folder." = "Enter comma-separated keywords (e.g. apple, swift, ai). Any matching article across all feeds will be aggregated into this folder.";
+"Keywords (comma separated)" = "Keywords (comma separated)";
+"No matching feeds found." = "No matching feeds found.";
+"Save Rules" = "Save Rules";
+"Select a folder from the list to manage its feeds." = "Select a folder from the list to manage its feeds.";
+"Smart" = "Smart";
+
+/* Views/MiniPlayerView.swift */
+"Fullscreen Video" = "Fullscreen Video";
+"Go to Article / Feed" = "Go to Article / Feed";
+"Share Episode with Timestamp" = "Share Episode with Timestamp";
+"Skip backward 10 seconds" = "Skip backward 10 seconds";
+"Skip forward 10 seconds" = "Skip forward 10 seconds";
+"Up Next Queue" = "Up Next Queue";
+
+/* Views/Player/QueuePopoverView.swift */
+"Clear All" = "Clear All";
+"Play Now" = "Play Now";
+"Remove from Queue" = "Remove from Queue";
+"Right-click any episode in the list to Add to Queue or Play Next." = "Right-click any episode in the list to Add to Queue or Play Next.";
+
+/* Views/Player/YouTubePlayerView.swift */
+"Exit Fullscreen (Esc)" = "Exit Fullscreen (Esc)";
+"Play Video" = "Play Video";
+"Stop" = "Stop";
+"Stop Player" = "Stop Player";
+
+/* Views/PodcastSearchView.swift */
+"Podcast Search Engine & RSS Finder" = "Podcast Search Engine & RSS Finder";
+"Search millions of podcasts from Apple Podcasts directory.\nFind direct RSS feeds, preview episodes, and subscribe with one click." = "Search millions of podcasts from Apple Podcasts directory.\nFind direct RSS feeds, preview episodes, and subscribe with one click.";
+"Subscribe" = "Subscribe";
+"Subscribed" = "Subscribed";
+
+/* Views/Settings/SettingsView.swift */
+"%lld Broken" = "%lld Broken";
+"%lld Healthy" = "%lld Healthy";
+"%lld px" = "%lld px";
+"%lld Stale (>6 mos)" = "%lld Stale (>6 mos)";
+"14 Days" = "14 Days";
+"30 Days" = "30 Days";
+"7 Days" = "7 Days";
+"90 Days" = "90 Days";
+"Add keyword to mute (e.g. spoiler, crypto)..." = "Add keyword to mute (e.g. spoiler, crypto)...";
+"Articles containing these keywords in their title or summary will be automatically hidden from your article lists." = "Articles containing these keywords in their title or summary will be automatically hidden from your article lists.";
+"Automatic Cleanup" = "Automatic Cleanup";
+"Automatically extracts full article body for feeds that only provide short summaries." = "Automatically extracts full article body for feeds that only provide short summaries.";
+"Automatically Open in Reader Mode" = "Automatically Open in Reader Mode";
+"Automation" = "Automation";
+"Cache Size on Disk:" = "Cache Size on Disk:";
+"Choose which web browser opens when clicking 'Open in Browser'." = "Choose which web browser opens when clicking 'Open in Browser'.";
+"Clean Read Articles Older Than Selection Now" = "Clean Read Articles Older Than Selection Now";
+"Cleanup complete!" = "Cleanup complete!";
+"Clear All Downloaded Episodes" = "Clear All Downloaded Episodes";
+"Clear Favicon Disk Cache" = "Clear Favicon Disk Cache";
+"Clear Image & Thumbnail Cache" = "Clear Image & Thumbnail Cache";
+"Clear Offline Article Cache" = "Clear Offline Article Cache";
+"Clear Web & Browser Disk Cache" = "Clear Web & Browser Disk Cache";
+"Click 'Scan Feeds' above to test feed accessibility, response times, and identify broken feeds." = "Click 'Scan Feeds' above to test feed accessibility, response times, and identify broken feeds.";
+"Compact Article List" = "Compact Article List";
+"Customizes the appearance, background tones, and accent colors across the entire app." = "Customizes the appearance, background tones, and accent colors across the entire app.";
+"Database Size on Disk:" = "Database Size on Disk:";
+"Database Stats" = "Database Stats";
+"Default Article View:" = "Default Article View:";
+"Default Mode" = "Default Mode";
+"Displays website logos next to feeds and article titles for quick visual recognition." = "Displays website logos next to feeds and article titles for quick visual recognition.";
+"Downloaded episodes cleared successfully." = "Downloaded episodes cleared successfully.";
+"Downloaded Podcast Episodes" = "Downloaded Podcast Episodes";
+"Downloads on Disk:" = "Downloads on Disk:";
+"Emboldens the initial characters of words to guide visual fixation and enhance reading flow." = "Emboldens the initial characters of words to guide visual fixation and enhance reading flow.";
+"Enable Single-Key Navigation" = "Enable Single-Key Navigation";
+"Enables vim-style keyboard navigation (J, K, M, S, O) without holding Command." = "Enables vim-style keyboard navigation (J, K, M, S, O) without holding Command.";
+"External Browser" = "External Browser";
+"Favicon Cache" = "Favicon Cache";
+"Favicon cache cleared successfully." = "Favicon cache cleared successfully.";
+"Feeds:" = "Feeds:";
+"Folders:" = "Folders:";
+"Font Family:" = "Font Family:";
+"Font Size:" = "Font Size:";
+"Forever (Never clean)" = "Forever (Never clean)";
+"Hides article snippet summaries in the list to fit more articles on screen." = "Hides article snippet summaries in the list to fit more articles on screen.";
+"Image & Thumbnail Cache" = "Image & Thumbnail Cache";
+"Image cache cleared successfully." = "Image cache cleared successfully.";
+"Keep Read Articles:" = "Keep Read Articles:";
+"Keeps a Versoline status icon in your macOS top menu bar with an unread badge." = "Keeps a Versoline status icon in your macOS top menu bar with an unread badge.";
+"Keyboard Cheat Sheet" = "Keyboard Cheat Sheet";
+"Line Spacing:" = "Line Spacing:";
+"No articles in %lld days" = "No articles in %lld days";
+"No Diagnostics Run Yet" = "No Diagnostics Run Yet";
+"No muted keywords yet" = "No muted keywords yet";
+"Offline Article Cache" = "Offline Article Cache";
+"Offline article cache cleared successfully." = "Offline article cache cleared successfully.";
+"Offline Reading" = "Offline Reading";
+"Pre-cache Articles for Offline Access" = "Pre-cache Articles for Offline Access";
+"Pre-loads readable articles in the background so they are ready even without an internet connection." = "Pre-loads readable articles in the background so they are ready even without an internet connection.";
+"Preferred Browser:" = "Preferred Browser:";
+"Reading Focus" = "Reading Focus";
+"Remove feed" = "Remove feed";
+"Scan feeds for HTTP errors, dead links, or inactive sources." = "Scan feeds for HTTP errors, dead links, or inactive sources.";
+"Select whether articles initially open in Reader Mode or Web Browser." = "Select whether articles initially open in Reader Mode or Web Browser.";
+"Show Menu Bar Icon" = "Show Menu Bar Icon";
+"Show Site Favicons" = "Show Site Favicons";
+"Theme:" = "Theme:";
+"Total Articles:" = "Total Articles:";
+"Web & Browser Cache" = "Web & Browser Cache";
+"Web and browser cache cleared successfully." = "Web and browser cache cleared successfully.";
+"• Inactive for %lld days" = "• Inactive for %lld days";
+
+/* Views/SidebarView.swift */
+"All in Folder" = "All in Folder";
+"Articles Read (Last 7 Days)" = "Articles Read (Last 7 Days)";
+"Consistency" = "Consistency";
+"Deep Reads (>7m)" = "Deep Reads (>7m)";
+"Quick Reads (<3m)" = "Quick Reads (<3m)";
+"Reading Insights" = "Reading Insights";
+"Total Feeds" = "Total Feeds";
+"Total Read" = "Total Read";
+"Your weekly reading activity and flow" = "Your weekly reading activity and flow";
+
+/* Views/SocialFeedsView.swift */
+"Add Subreddit Feed" = "Add Subreddit Feed";
+"Add User Feed" = "Add User Feed";
+"Add YouTube Feed" = "Add YouTube Feed";
+"apple, swift, technology..." = "apple, swift, technology...";
+"Channel Handle or URL" = "Channel Handle or URL";
+"e.g. @mkbhd, veritasium, or youtube.com/@apple" = "e.g. @mkbhd, veritasium, or youtube.com/@apple";
+"Feed Content" = "Feed Content";
+"Generated RSS URL:" = "Generated RSS URL:";
+"Platform" = "Platform";
+"Popular Channels:" = "Popular Channels:";
+"Reddit RSS Feed" = "Reddit RSS Feed";
+"Reddit Username" = "Reddit Username";
+"Sort" = "Sort";
+"Sort By" = "Sort By";
+"Subreddit (r/)" = "Subreddit (r/)";
+"Subreddit Name" = "Subreddit Name";
+"Subscribe to any channel, handle (@name), playlist, or custom URL." = "Subscribe to any channel, handle (@name), playlist, or custom URL.";
+"Subscribe to any subreddit community or user activity with custom sorting." = "Subscribe to any subreddit community or user activity with custom sorting.";
+"Target" = "Target";
+"Time Filter" = "Time Filter";
+"Time Frame" = "Time Frame";
+"Type" = "Type";
+"User Profile (u/)" = "User Profile (u/)";
+"username" = "username";
+"YouTube Channel Found" = "YouTube Channel Found";
+"YouTube RSS Feed" = "YouTube RSS Feed";
+
+/* Nearby sync (pairing) */
+"Nearby Sync" = "Nearby Sync";
+"Sync with My Paired Macs" = "Sync with My Paired Macs";
+"Keeps feeds, folders, bookmarks, read states, and settings in sync between your own Macs over the local network. Data goes directly from Mac to Mac, is encrypted, and never touches a server or the cloud. Only devices you pair below can connect." = "Keeps feeds, folders, bookmarks, read states, and settings in sync between your own Macs over the local network. Data goes directly from Mac to Mac, is encrypted, and never touches a server or the cloud. Only devices you pair below can connect.";
+"%d paired device(s) connected" = "%d paired device(s) connected";
+"Looking for your paired devices on the local network..." = "Looking for your paired devices on the local network...";
+"Paired Devices" = "Paired Devices";
+"No devices paired yet." = "No devices paired yet.";
+"Paired %@" = "Paired %@";
+"Remove" = "Remove";
+"Remove this device?" = "Remove this device?";
+"%@ will no longer be able to sync with this Mac. You can pair it again later." = "%@ will no longer be able to sync with this Mac. You can pair it again later.";
+"Pair New Device" = "Pair New Device";
+"Turn on Nearby Sync first." = "Turn on Nearby Sync first.";
+"Open Pair New Device on your other Mac too. Both Macs must be on the same network." = "Open Pair New Device on your other Mac too. Both Macs must be on the same network.";
+"Does %@ show this code?" = "Does %@ show this code?";
+"Only continue if both Macs show exactly the same six digits. If they differ, someone else may be trying to connect." = "Only continue if both Macs show exactly the same six digits. If they differ, someone else may be trying to connect.";
+"Codes Match" = "Codes Match";
+"They Differ" = "They Differ";
+"%@ is now paired." = "%@ is now paired.";
+"Try Again" = "Try Again";
+"No device was found. Open Pair New Device on the other Mac too." = "No device was found. Open Pair New Device on the other Mac too.";
