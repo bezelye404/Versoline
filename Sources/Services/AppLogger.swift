@@ -60,6 +60,29 @@ public struct LogEntry: Identifiable, Sendable {
     }
 }
 
+/// Removes data from log text that must not leave the machine when a user copies or exports the
+/// console to share it (for example in a bug report): credentials and query strings inside URLs
+/// (private feeds often carry an access token there) and the macOS account name in file paths.
+/// Logs shown in the in-app console stay unredacted; only copy/export go through this.
+public enum LogRedactor {
+    private static let rules: [(regex: NSRegularExpression, template: String)] = [
+        (#"(?<=://)[^/@\s"']+@"#, ""),            // credentials in URLs
+        (#"\?[^\s"')<>]+"#, "?…"),                // query strings
+        (#"/Users/[^/\s"']+"#, "/Users/~"),       // macOS account name
+    ].compactMap { pattern, template in
+        (try? NSRegularExpression(pattern: pattern)).map { ($0, template) }
+    }
+
+    public static func redact(_ text: String) -> String {
+        var result = text
+        for rule in rules {
+            let range = NSRange(result.startIndex..., in: result)
+            result = rule.regex.stringByReplacingMatches(in: result, range: range, withTemplate: rule.template)
+        }
+        return result
+    }
+}
+
 @MainActor
 @Observable
 public final class AppLogger {
@@ -118,12 +141,13 @@ public final class AppLogger {
         log("Console logs cleared", level: .info, category: .system)
     }
 
+    /// Text for "Copy" and "Export". Redacted, see `LogRedactor`.
     public func exportFormattedLogs() -> String {
         entries.map { entry in
             let timeStr = Self.timeFormatter.string(from: entry.timestamp)
-            var line = "[\(timeStr)] [\(entry.level.rawValue)] [\(entry.category.rawValue)] \(entry.message)"
+            var line = "[\(timeStr)] [\(entry.level.rawValue)] [\(entry.category.rawValue)] \(LogRedactor.redact(entry.message))"
             if let details = entry.details, !details.isEmpty {
-                line += "\n    Details: \(details)"
+                line += "\n    Details: \(LogRedactor.redact(details))"
             }
             return line
         }.joined(separator: "\n")
