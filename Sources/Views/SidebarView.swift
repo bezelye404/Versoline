@@ -20,7 +20,6 @@ struct SidebarView: View {
     // Collapsible sections persistence
     @AppStorage("collapsedFolderIds") private var collapsedFolderIdsRaw: String = ""
     @AppStorage("isPinnedExpanded") private var isPinnedExpanded: Bool = true
-    @AppStorage("isMediaExpanded") private var isMediaExpanded: Bool = true
     @AppStorage("isSmartStreamsExpanded") private var isSmartStreamsExpanded: Bool = true
     @AppStorage("isUncategorizedExpanded") private var isUncategorizedExpanded: Bool = true
     @AppStorage(AppSettingsKeys.showReadingTimeStreams) private var showReadingTimeStreams = false
@@ -35,6 +34,7 @@ struct SidebarView: View {
         }
         .listStyle(.sidebar)
         .scrollContentBackground(.hidden)
+        .contentMargins(.bottom, 16, for: .scrollContent)
         .background(theme.windowBackground)
         .sheet(isPresented: $showAddFeed, onDismiss: {
             CuratedFeedManager.shared.clearMemory()
@@ -111,7 +111,7 @@ struct SidebarView: View {
 
     // MARK: - Library Section
     //
-    // Four everyday lists, then one collapsible "Media" group that only exists when there is media.
+    // Four everyday lists, then Podcasts / Videos / Downloaded only when there is such media.
     // Only "Unread" carries a count and a colour; everything else is quiet. Folder management and
     // Reading Insights are menu bar commands, not sidebar rows.
 
@@ -140,24 +140,20 @@ struct SidebarView: View {
                 sidebarRow(title: String(localized: "All Articles"), systemImage: "tray.full", count: nil, accentColor: .secondary)
             }
 
-            let downloadedCount = store.downloadedItemsCount()
-            if store.count(for: .podcasts) > 0 || store.count(for: .videos) > 0 || downloadedCount > 0 {
-                DisclosureGroup(isExpanded: $isMediaExpanded) {
-                    NavigationLink(value: SidebarItem.podcasts) {
-                        sidebarRow(title: String(localized: "Podcasts"), systemImage: "headphones", count: nil, accentColor: .secondary)
-                    }
-                    NavigationLink(value: SidebarItem.videos) {
-                        sidebarRow(title: String(localized: "Videos"), systemImage: "play.rectangle", count: nil, accentColor: .secondary)
-                    }
-                    if downloadedCount > 0 {
-                        NavigationLink(value: SidebarItem.downloaded) {
-                            sidebarRow(title: String(localized: "Downloaded"), systemImage: "arrow.down.circle", count: nil, accentColor: .secondary)
-                        }
-                    }
-                } label: {
-                    Label(String(localized: "Media"), systemImage: "play.square.stack")
-                        .font(.system(size: 13, weight: .regular))
-                        .foregroundStyle(.secondary)
+            // Media rows only exist when there is media, flat like the other rows (no extra level).
+            if store.count(for: .podcasts) > 0 {
+                NavigationLink(value: SidebarItem.podcasts) {
+                    sidebarRow(title: String(localized: "Podcasts"), systemImage: "headphones", count: nil, accentColor: .secondary)
+                }
+            }
+            if store.count(for: .videos) > 0 {
+                NavigationLink(value: SidebarItem.videos) {
+                    sidebarRow(title: String(localized: "Videos"), systemImage: "play.rectangle", count: nil, accentColor: .secondary)
+                }
+            }
+            if store.downloadedItemsCount() > 0 {
+                NavigationLink(value: SidebarItem.downloaded) {
+                    sidebarRow(title: String(localized: "Downloaded"), systemImage: "arrow.down.circle", count: nil, accentColor: .secondary)
                 }
             }
         }
@@ -212,10 +208,7 @@ struct SidebarView: View {
 
                         Text("\(pinned.count)")
                             .font(.system(size: 10, weight: .medium, design: .monospaced))
-                            .foregroundStyle(theme.badgeText)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 1)
-                            .background(theme.badgeBackground, in: Capsule())
+                            .foregroundStyle(.secondary)
                             .contentTransition(.numericText())
                     }
                     .contentShape(Rectangle())
@@ -252,7 +245,7 @@ struct SidebarView: View {
                                 title: String(localized: "Quick Reads (<3m)"),
                                 systemImage: "bolt",
                                 count: store.count(for: .quickReads),
-                                accentColor: theme.accentColor
+                                accentColor: .secondary
                             )
                         }
                         .transition(.opacity.combined(with: .move(edge: .top)))
@@ -264,7 +257,7 @@ struct SidebarView: View {
                                 title: String(localized: "Deep Reads (>7m)"),
                                 systemImage: "book.closed",
                                 count: store.count(for: .longReads),
-                                accentColor: theme.bookmarkColor
+                                accentColor: .secondary
                             )
                         }
                         .transition(.opacity.combined(with: .move(edge: .top)))
@@ -276,7 +269,7 @@ struct SidebarView: View {
                                 title: category.displayName,
                                 systemImage: category.systemImage,
                                 count: store.smartCategoryCount(category),
-                                accentColor: category.accentColor
+                                accentColor: .secondary
                             )
                         }
                         .transition(.opacity.combined(with: .move(edge: .top)))
@@ -309,10 +302,7 @@ struct SidebarView: View {
 
                         Text("\(totalCount)")
                             .font(.system(size: 10, weight: .medium, design: .monospaced))
-                            .foregroundStyle(theme.badgeText)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 1)
-                            .background(theme.badgeBackground, in: Capsule())
+                            .foregroundStyle(.secondary)
                             .contentTransition(.numericText())
                     }
                     .contentShape(Rectangle())
@@ -346,17 +336,22 @@ struct SidebarView: View {
             Spacer()
 
             if let count, count > 0 {
-                Text("\(count)")
-                    .font(.system(size: 11, weight: isProminent ? .semibold : .medium, design: .monospaced))
-                    .foregroundStyle(isProminent ? theme.activeBadgeText : theme.badgeText)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 1)
-                    .background(
-                        isProminent ? theme.activeBadgeBackground : theme.badgeBackground,
-                        in: Capsule()
-                    )
-                    .contentTransition(.numericText())
-                    .animation(AppAnimation.bouncy, value: count)
+                if isProminent {
+                    Text("\(count)")
+                        .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                        .foregroundStyle(theme.activeBadgeText)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 1)
+                        .background(theme.activeBadgeBackground, in: Capsule())
+                        .contentTransition(.numericText())
+                        .animation(AppAnimation.bouncy, value: count)
+                } else {
+                    Text("\(count)")
+                        .font(.system(size: 11, weight: .medium, design: .monospaced))
+                        .foregroundStyle(.secondary)
+                        .contentTransition(.numericText())
+                        .animation(AppAnimation.bouncy, value: count)
+                }
             }
         }
     }
@@ -457,10 +452,7 @@ struct SidebarView: View {
 
                         Text("\(uncategorized.count)")
                             .font(.system(size: 10, weight: .medium, design: .monospaced))
-                            .foregroundStyle(theme.badgeText)
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 1)
-                            .background(theme.badgeBackground, in: Capsule())
+                            .foregroundStyle(.secondary)
                             .contentTransition(.numericText())
                     }
                     .contentShape(Rectangle())
@@ -545,10 +537,7 @@ struct SidebarView: View {
                 if feedsCount > 0 {
                     Text("\(feedsCount)")
                         .font(.system(size: 10, weight: .medium, design: .monospaced))
-                        .foregroundStyle(theme.badgeText)
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 1)
-                        .background(theme.badgeBackground, in: Capsule())
+                        .foregroundStyle(.secondary)
                         .contentTransition(.numericText())
                 }
             }
