@@ -26,10 +26,22 @@ extension FeedStore {
         AppLogger.shared.log("Adding feed: \(targetURL)", level: .info, category: .network)
 
         do {
-            let result = try await Self.fetchFeed(url: targetURL, feedId: newFeedId)
+            var fetched = try await Self.fetchFeed(url: targetURL, feedId: newFeedId)
 
-            guard let result else {
-                errorMessage = String(localized: "Could not parse feed. Please ensure it is a valid RSS/Atom URL.")
+            // Not a feed: the address may be a site or an article, so look for the feed it advertises.
+            if fetched == nil, let discovered = await FeedDiscovery.findFeed(onPageAt: targetURL), discovered != targetURL {
+                AppLogger.shared.log("Found feed for \(targetURL)", level: .info, category: .network, details: discovered)
+                if feeds.contains(where: { $0.url == discovered }) {
+                    errorMessage = String(localized: "This feed has already been added.")
+                    isLoading = false
+                    return
+                }
+                targetURL = discovered
+                fetched = try await Self.fetchFeed(url: targetURL, feedId: newFeedId)
+            }
+
+            guard let result = fetched else {
+                errorMessage = String(localized: "No RSS or Atom feed was found at this address.")
                 AppLogger.shared.log("Parse failed for new feed: \(targetURL)", level: .error, category: .parser)
                 isLoading = false
                 return
@@ -95,10 +107,12 @@ extension FeedStore {
             let result = try await Self.fetchFeed(url: feed.url, feedId: feed.id, etag: feed.etag, lastModified: feed.lastModifiedHeader)
 
             guard let result else {
+                refreshBackoff[feed.id, default: RefreshBackoff()].recordFailure()
                 isLoading = false
                 return
             }
 
+            refreshBackoff[feed.id] = nil
             applyFeedUpdate(feedId: feed.id, result: result)
             isLoading = false
             updateSmartCategoryCaches()
@@ -124,9 +138,19 @@ extension FeedStore {
         errorMessage = nil
         AppLogger.shared.log("Starting concurrent refresh for \(feeds.count) feeds (forced: \(force))", level: .info, category: .network)
 
-        let feedsToRefresh = self.feeds
+        // Automatic refreshes leave out feeds that are waiting out a failure; a manual one tries everything.
+        let now = Date()
+        let feedsToRefresh = force ? self.feeds : self.feeds.filter { !(refreshBackoff[$0.id]?.isWaiting(at: now) ?? false) }
+        if feedsToRefresh.count < feeds.count {
+            AppLogger.shared.log("Skipping \(feeds.count - feedsToRefresh.count) failing feed(s) until their retry time", level: .debug, category: .network)
+        }
 
-        await withTaskGroup(of: (UUID, RSSParser.ParseResult?)?.self) { group in
+        enum Outcome: Sendable {
+            case updated(UUID, RSSParser.ParseResult)
+            case failed(UUID, countsAgainstFeed: Bool)
+        }
+
+        await withTaskGroup(of: Outcome.self) { group in
             var running = 0
             var feedIterator = feedsToRefresh.makeIterator()
 
@@ -139,11 +163,13 @@ extension FeedStore {
                             if feed.url.lowercased().contains("reddit.com") {
                                 try? await Task.sleep(for: .milliseconds(500))
                             }
-                            let result = try await Self.fetchFeed(url: feed.url, feedId: feed.id, etag: feed.etag, lastModified: feed.lastModifiedHeader)
-                            return (feed.id, result)
+                            if let result = try await Self.fetchFeed(url: feed.url, feedId: feed.id, etag: feed.etag, lastModified: feed.lastModifiedHeader) {
+                                return .updated(feed.id, result)
+                            }
+                            return .failed(feed.id, countsAgainstFeed: true)   // unreadable XML
                         } catch {
                             await AppLogger.shared.log("Error refreshing \"\(feed.title)\": \(error.localizedDescription)", level: .error, category: .network)
-                            return nil
+                            return .failed(feed.id, countsAgainstFeed: RefreshBackoff.countsAgainstFeed(error))
                         }
                     }
                 }
@@ -152,8 +178,12 @@ extension FeedStore {
 
                 if let finished = await group.next() {
                     running -= 1
-                    if let (feedId, result) = finished, let result {
+                    switch finished {
+                    case .updated(let feedId, let result):
+                        refreshBackoff[feedId] = nil
                         self.applyFeedUpdate(feedId: feedId, result: result)
+                    case .failed(let feedId, let countsAgainstFeed):
+                        if countsAgainstFeed { refreshBackoff[feedId, default: RefreshBackoff()].recordFailure() }
                     }
                 }
             }

@@ -136,7 +136,7 @@ struct AddFeedSheet: View {
                         Text("Add Feed")
                             .font(.title3.weight(.semibold))
 
-                        Text("Enter an RSS or Atom feed URL.")
+                        Text("Enter a feed address, or just the address of a site or article.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
