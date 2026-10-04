@@ -19,6 +19,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
     private var currentAuthor: String = ""
     private var currentContent: String = ""
     private var currentCategory: String = ""
+    private var currentGuid: String = ""
     private var isInsideItem: Bool = false
     private var isInsideChannel: Bool = false
     private var isInsideImage: Bool = false
@@ -45,8 +46,12 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         return URLSession(configuration: config)
     }()
 
-    init(feedId: UUID) {
+    /// Host of the feed itself; lets item hygiene tell the site's own links from promotions.
+    private let feedHost: String?
+
+    init(feedId: UUID, feedURL: URL? = nil) {
         self.feedId = feedId
+        self.feedHost = feedURL?.host
         super.init()
     }
 
@@ -74,7 +79,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
                 title: feedTitle,
                 description: feedDescription,
                 imageURL: feedImageURL,
-                items: items
+                items: FeedItemHygiene.clean(items, feedHost: feedHost)
             )
         }
     }
@@ -164,7 +169,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         }
 
         let parseStart = CFAbsoluteTimeGetCurrent()
-        let parser = RSSParser(feedId: feedId)
+        let parser = RSSParser(feedId: feedId, feedURL: URL(string: url))
         let result = parser.parse(data: data)
         let parseElapsed = String(format: "%.3fs", CFAbsoluteTimeGetCurrent() - parseStart)
 
@@ -224,6 +229,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
             currentAuthor = ""
             currentContent = ""
             currentCategory = ""
+            currentGuid = ""
             currentAudioURL = nil
             currentAudioDuration = ""
             currentAudioType = nil
@@ -366,6 +372,11 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
                 currentCategory += trimmed
             }
 
+        case "guid", "id":
+            if isInsideItem {
+                currentGuid += trimmed
+            }
+
         default:
             break
         }
@@ -392,7 +403,12 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
             let cleanContent = currentContent.decodingHTMLEntities().trimmingCharacters(in: .whitespacesAndNewlines)
             let cleanCategory = currentCategory.strippingHTML().trimmingCharacters(in: .whitespacesAndNewlines)
             let precomputedSnippet = cleanDesc.strippingHTML()
-            let itemLink = currentLink.trimmingCharacters(in: .whitespacesAndNewlines)
+            // Entries without a usable link would all share one identity: fall back to the guid or the audio file.
+            guard let itemLink = FeedItemHygiene.resolvedLink(link: currentLink, guid: currentGuid, enclosureURL: currentAudioURL) else {
+                isInsideItem = false
+                currentElement = ""
+                return
+            }
 
             let parsedPubDate = parseDate(currentPubDate.trimmingCharacters(in: .whitespacesAndNewlines))
             let snippet = precomputedSnippet.count > 180 ? String(precomputedSnippet.prefix(180)) : precomputedSnippet
