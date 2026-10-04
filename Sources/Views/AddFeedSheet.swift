@@ -91,11 +91,12 @@ struct AddFeedSheet: View {
     var body: some View {
         VStack(spacing: 0) {
             // Segmented Mode Selector
-            Picker("Mode", selection: $selectedTab) {
+            Picker(String(localized: "Add Feed"), selection: $selectedTab) {
                 ForEach(AddFeedTab.allCases) { tab in
                     Label(tab.title, systemImage: tab.iconName).tag(tab)
                 }
             }
+            .labelsHidden()
             .pickerStyle(.segmented)
             .padding(.horizontal, 24)
             .padding(.top, 20)
@@ -169,153 +170,6 @@ struct AddFeedSheet: View {
                         .labelsHidden()
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
-
-                    // Discovery Banner to Curated Catalog
-                    Button {
-                        selectedTab = .curatedCatalog
-                    } label: {
-                        HStack(spacing: 12) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(.tint.opacity(0.12))
-                                    .frame(width: 36, height: 36)
-                                Image(systemName: "sparkles.rectangle.stack")
-                                    .font(.system(size: 16))
-                                    .foregroundStyle(.tint)
-                            }
-
-                            VStack(alignment: .leading, spacing: 2) {
-                                HStack {
-                                    Text("Browse Curated Feeds (rss.md)")
-                                        .font(.subheadline.weight(.semibold))
-                                        .foregroundStyle(.primary)
-
-                                    Spacer()
-
-                                    Text("\(curatedManager.totalFeedCount)+ Feeds")
-                                        .font(.caption2.weight(.medium))
-                                        .foregroundStyle(.tint)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(.tint.opacity(0.1), in: Capsule())
-                                }
-
-                                Text("Over 100+ popular feeds in Tech, News, Gaming & more")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-
-                            Image(systemName: "chevron.right")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.tertiary)
-                        }
-                        .padding(10)
-                        .background(Color(nsColor: .controlBackgroundColor))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.secondary.opacity(0.15), lineWidth: 1)
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    // Podcast Search Banner
-                    Button {
-                        selectedTab = .podcastSearch
-                    } label: {
-                        HStack(spacing: 12) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.orange.opacity(0.12))
-                                    .frame(width: 36, height: 36)
-                                Image(systemName: "waveform.and.magnifyingglass")
-                                    .font(.system(size: 16))
-                                    .foregroundStyle(.orange)
-                            }
-
-                            VStack(alignment: .leading, spacing: 2) {
-                                HStack {
-                                    Text(String(localized: "Podcast Search Engine"))
-                                        .font(.subheadline.weight(.semibold))
-                                        .foregroundStyle(.primary)
-
-                                    Spacer()
-
-                                    Text(String(localized: "Finder"))
-                                        .font(.caption2.weight(.medium))
-                                        .foregroundStyle(.orange)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.orange.opacity(0.1), in: Capsule())
-                                }
-
-                                Text(String(localized: "Search millions of podcasts and find RSS feeds"))
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-
-                            Image(systemName: "chevron.right")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.tertiary)
-                        }
-                        .padding(10)
-                        .background(Color(nsColor: .controlBackgroundColor))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.secondary.opacity(0.15), lineWidth: 1)
-                        )
-                    }
-                    .buttonStyle(.plain)
-
-                    // YouTube & Reddit Feeds Banner
-                    Button {
-                        selectedTab = .socialFeeds
-                    } label: {
-                        HStack(spacing: 12) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.red.opacity(0.12))
-                                    .frame(width: 36, height: 36)
-                                Image(systemName: "play.rectangle.on.rectangle")
-                                    .font(.system(size: 16))
-                                    .foregroundStyle(.red)
-                            }
-
-                            VStack(alignment: .leading, spacing: 2) {
-                                HStack {
-                                    Text(String(localized: "YouTube & Reddit Feeds"))
-                                        .font(.subheadline.weight(.semibold))
-                                        .foregroundStyle(.primary)
-
-                                    Spacer()
-
-                                    Text(String(localized: "Generator"))
-                                        .font(.caption2.weight(.medium))
-                                        .foregroundStyle(.red)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.red.opacity(0.1), in: Capsule())
-                                }
-
-                                Text(String(localized: "Subscribe to channels, playlists, subreddits & users"))
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-
-                            Image(systemName: "chevron.right")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.tertiary)
-                        }
-                        .padding(10)
-                        .background(Color(nsColor: .controlBackgroundColor))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.secondary.opacity(0.15), lineWidth: 1)
-                        )
-                    }
-                    .buttonStyle(.plain)
 
                     // Quick Suggestions
                     VStack(alignment: .leading, spacing: 8) {

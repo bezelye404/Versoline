@@ -41,7 +41,7 @@ extension FeedStore {
 
         pendingSaveTask?.cancel()
         pendingSaveTask = Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 800_000_000) // 800ms debounce
+            try? await Task.sleep(for: .milliseconds(800)) // 800ms debounce
             guard !Task.isCancelled else { return }
             let data = StorageData(feeds: self.feeds, items: self.items, folders: self.folders, tombstones: self.tombstones)
             Task.detached(priority: .utility) {
@@ -91,9 +91,22 @@ extension FeedStore {
                 self.tombstones = (storage.tombstones ?? []).filter { $0.deletedAt > cutoff }
 
                 var sanitizedItems: [UUID: [FeedItem]] = [:]
+                var seenItemIDs = Set<UUID>()
+                var repairedItemIDs = false
                 for (feedId, feedItems) in storage.items {
                     let processed = feedItems.map { item -> FeedItem in
                         var cleaned = item
+                        // Older refreshes matched every link-less item to the first one and copied its id, so a whole
+                        // feed could share one id (SwiftUI then drew the same row over and over). Keep the first, renew the rest.
+                        if !seenItemIDs.insert(cleaned.id).inserted {
+                            cleaned.id = UUID()
+                            repairedItemIDs = true
+                        }
+                        // Older versions stored items without a link (podcasts identified only by guid). They all
+                        // shared the identity "", so reading or bookmarking one affected the rest. Give each its own.
+                        if cleaned.link.isEmpty {
+                            cleaned.link = cleaned.audioURL ?? "urn:versoline:item:\(cleaned.id.uuidString)"
+                        }
                         if cleaned.title.contains("&") || cleaned.title.contains("<") {
                             cleaned.title = cleaned.title.strippingHTML()
                         }
@@ -132,6 +145,7 @@ extension FeedStore {
                     }
                 }
                 self.items = sanitizedItems
+                if repairedItemIDs { self.save() }   // persist the repair, or every launch would invent new ids
                 self.updateCachedCounts()
                 self.updateSmartCategoryCaches()
 

@@ -69,74 +69,54 @@ struct FeedItemRow: View {
                         Text(item.snippet)
                             .font(.system(size: 12))
                             .foregroundStyle(.secondary)
-                            .lineLimit(2)
-                            .lineSpacing(1.5)
+                            .lineLimit(1)
                     }
 
-                    // Metadata row
-                    HStack(spacing: 8) {
+                    // Metadata: one quiet line, "source · time · media". No author icon, no capsules.
+                    HStack(spacing: 5) {
                         if let feedTitle, !feedTitle.isEmpty {
-                            HStack(spacing: 4) {
-                                FaviconView(hostOrURL: feedURL ?? URL(string: item.link)?.host ?? item.link, size: 12)
-                                Text(feedTitle)
-                            }
-                            .font(.caption2.weight(.medium))
-                            .foregroundStyle(.secondary)
-                        }
-
-                        if let author = item.author, !author.isEmpty {
-                            Label(author, systemImage: "person")
-                                .font(.caption2)
-                                .foregroundStyle(.tertiary)
+                            FaviconView(hostOrURL: feedURL ?? URL(string: item.link)?.host ?? item.link, size: 12)
+                            Text(feedTitle)
+                                .fontWeight(.medium)
+                        } else if let author = item.author, !author.isEmpty {
+                            Text(author)
                         }
 
                         if !formattedDate.isEmpty {
+                            if (feedTitle?.isEmpty == false) || (item.author?.isEmpty == false) {
+                                Text("·")
+                            }
                             Text(formattedDate)
-                                .font(.caption2)
-                                .foregroundStyle(.tertiary)
                         }
 
                         if item.isPodcast {
                             let player = AudioPlayerService.shared
                             let isPlayingThis = player.currentEpisode?.id == item.id && player.isPlaying
                             let isDownloaded = PodcastDownloadService.shared.isDownloaded(item.id)
-                            HStack(spacing: 4) {
-                                if isPlayingThis {
-                                    EqualizerWaveformView(isPlaying: true, barWidth: 2, maxHeight: 9)
-                                } else {
-                                    Image(systemName: "headphones")
-                                }
-                                if let duration = item.formattedDuration {
-                                    Text(duration)
-                                }
-                                if isDownloaded {
-                                    Image(systemName: "arrow.down.circle.fill")
-                                        .font(.system(size: 8))
-                                        .foregroundStyle(theme.successColor)
-                                }
+                            Text("·")
+                            if isPlayingThis {
+                                EqualizerWaveformView(isPlaying: true, barWidth: 2, maxHeight: 9)
+                            } else {
+                                Image(systemName: "headphones")
                             }
-                            .font(.caption2.weight(.medium))
-                            .foregroundStyle(isPlayingThis ? theme.accentColor : Color.secondary)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 1.5)
-                            .background(Color.primary.opacity(0.05))
-                            .clipShape(Capsule())
+                            if let duration = item.formattedDuration {
+                                Text(duration)
+                            }
+                            if isDownloaded {
+                                Image(systemName: "arrow.down.circle.fill")
+                                    .foregroundStyle(theme.successColor)
+                            }
                         }
 
                         if item.isYouTube {
-                            HStack(spacing: 4) {
-                                Image(systemName: "play.rectangle.fill")
-                                    .foregroundStyle(theme.youtubeColor)
-                                Text(String(localized: "YouTube"))
-                            }
-                            .font(.caption2.weight(.medium))
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 1.5)
-                            .background(Color.primary.opacity(0.05))
-                            .clipShape(Capsule())
+                            Text("·")
+                            Image(systemName: "play.rectangle.fill")
+                                .foregroundStyle(theme.youtubeColor)
                         }
                     }
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+                    .lineLimit(1)
                     .padding(.top, 1)
                 }
             }

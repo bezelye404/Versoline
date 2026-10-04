@@ -47,6 +47,13 @@ targets:
         CODE_SIGN_IDENTITY: "-"
         CODE_SIGN_STYLE: Manual
         ENABLE_HARDENED_RUNTIME: YES
+      configs:
+        # Debug builds are a separate app ("Versoline Dev"): own bundle identifier, own sandbox
+        # container and own settings, so trying a build never touches the real library.
+        Debug:
+          PRODUCT_BUNDLE_IDENTIFIER: com.bezelye.Versoline.dev
+          INFOPLIST_KEY_CFBundleDisplayName: Versoline Dev
+          INFOPLIST_KEY_CFBundleName: Versoline Dev
     frameworks:
       - framework: WebKit.framework
       - framework: AVFoundation.framework

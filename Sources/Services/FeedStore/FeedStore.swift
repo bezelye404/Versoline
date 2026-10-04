@@ -13,7 +13,7 @@ struct FullscreenVideoContext: Identifiable, Equatable {
 @Observable
 final class FeedStore {
 
-    static let maxItemsPerFeed = 70
+    nonisolated static let maxItemsPerFeed = 70
 
     var feeds: [Feed] = []
     var items: [UUID: [FeedItem]] = [:]
@@ -124,13 +124,20 @@ final class FeedStore {
         try? FileManager.default.createDirectory(at: appDir, withIntermediateDirectories: true)
         self.saveURL = appDir
         load()
+        // Decoding the library leaves a lot of freed-but-resident pages behind; hand them back.
+        MemoryRelief.trim()
 
         let cleanupDays = UserDefaults.standard.integer(forKey: AppSettingsKeys.autoCleanupDays)
         if cleanupDays > 0 {
             autoCleanup(olderThanDays: cleanupDays)
         } else {
+            // Scanning every cached article is not needed to show the window: do it a few seconds later.
             let preserved = Set(items.values.flatMap { $0 }.filter { $0.isBookmarked }.map { $0.link })
-            readerCache.enforceQuota(maxSizeBytes: 150 * 1024 * 1024, preservedLinks: preserved)
+            let cache = readerCache
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(6))
+                cache.enforceQuota(maxSizeBytes: 150 * 1024 * 1024, preservedLinks: preserved)
+            }
         }
 
         NotificationCenter.default.addObserver(

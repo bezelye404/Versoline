@@ -17,16 +17,20 @@ struct ArticleDetailView: View {
     @AppStorage(AppSettingsKeys.preferredExternalBrowser) private var preferredExternalBrowserRaw = ExternalBrowserOption.systemDefault.rawValue
     @AppStorage(AppSettingsKeys.isContentBlockerEnabled) private var isContentBlockerEnabled = true
     @AppStorage(AppSettingsKeys.isBionicReadingEnabled) private var isBionicReadingEnabled = false
+    @AppStorage(AppSettingsKeys.playYouTubeInApp) private var playYouTubeInApp = true
 
     let selectedItem: FeedItem?
 
     @State private var activeViewMode: ReadingViewMode = .reader
     @State private var extractedReaderHTML: String? = nil
+    @State private var readerDocument: ArticleDocument? = nil
     @State private var isLoadingReaderMode = false
+    @State private var readerFetchFailed = false
     @State private var isSpeaking = false
     @State private var speechSynthesizer: AVSpeechSynthesizer? = nil
     @State private var speechDelegate = ArticleSpeechDelegate()
     @State private var showQuoteCardSheet = false
+    @State private var showAppearancePopover = false
     @State private var currentExtractionTask: Task<Void, Never>? = nil
     @Namespace private var animationNamespace
 
@@ -69,26 +73,24 @@ struct ArticleDetailView: View {
         Group {
             if let item = currentItem {
                 VStack(spacing: 0) {
-                    // Dedicated, non-overlapping Top Bar (stays stably pinned at the top)
-                    readerTopBar(item: item)
-
-                    Divider()
-
                     // Main Reader / Media Content Layer (smooth cross-fade transition on item change)
                     Group {
                         if item.isPodcast {
-                            if activeViewMode == .inAppBrowser {
-                                inAppBrowserView(item: item)
-                            } else {
-                                podcastFullPageView(item: item)
-                            }
+                            // The episode page is the player; a Reader/Web switch would only hide it.
+                            podcastFullPageView(item: item)
                         } else if item.isYouTube {
                             VStack(spacing: 0) {
                                 if let videoID = item.youtubeVideoID {
-                                    YouTubePlayerView(videoID: videoID, title: item.title, link: item.link, item: item)
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.horizontal, 24)
-                                        .padding(.vertical, 12)
+                                    if playYouTubeInApp {
+                                        YouTubePlayerView(videoID: videoID, title: item.title, link: item.link, item: item)
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.horizontal, 24)
+                                            .padding(.vertical, 12)
+                                    } else {
+                                        youTubeLinkCard(item: item)
+                                            .padding(.horizontal, 24)
+                                            .padding(.vertical, 12)
+                                    }
                                 }
                                 articleContent(item: item)
                             }
@@ -150,6 +152,13 @@ struct ArticleDetailView: View {
                 }
             }
         }
+        .toolbar { articleToolbar }
+        .onChange(of: activeViewMode) { _, newMode in
+            guard let item = currentItem else { return }
+            if newMode == .reader && (extractedReaderHTML == nil || !ReaderModeExtractor.shared.isSubstantiveContent(extractedReaderHTML ?? "")) {
+                loadReaderMode(for: item, forceWeb: false)
+            }
+        }
         .sheet(isPresented: $showQuoteCardSheet) {
             if let item = currentItem {
                 QuoteCardSheet(item: item, feedTitle: currentFeed?.title)
@@ -165,6 +174,8 @@ struct ArticleDetailView: View {
         activeViewMode = defaultMode
         let cached = ReaderModeExtractor.shared.cachedContent(for: item.link, requireSubstantive: true)
         extractedReaderHTML = cached
+        readerDocument = nil
+        readerFetchFailed = false
 
         if activeViewMode == .reader && cached == nil {
             loadReaderMode(for: item, forceWeb: false)
@@ -191,210 +202,129 @@ struct ArticleDetailView: View {
         return parts.joined(separator: " · ")
     }
 
-    // MARK: - Reader Top Bar (Calm, Non-Overlapping & Integrated)
+    // MARK: - YouTube without WebKit
 
-    @ViewBuilder
-    private func readerTopBar(item: FeedItem) -> some View {
-        HStack(alignment: .center, spacing: 10) {
-            // Left: Feed Identity & Offline Capsule
-            HStack(spacing: 6) {
-                if let feed = currentFeed {
-                    FaviconView(hostOrURL: feed.url, size: 13)
-                    Text(feed.title)
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-
-                if !networkMonitor.isConnected {
-                    HStack(spacing: 3) {
-                        Image(systemName: "wifi.slash")
-                        Text(String(localized: "Offline"))
-                    }
-                    .font(.system(size: 9, weight: .semibold))
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 1.5)
-                    .background(Color.primary.opacity(0.06), in: Capsule())
-                    .foregroundStyle(.secondary)
-                }
+    /// Thumbnail with a play button that opens the video in the browser. Costs no web view at all.
+    private func youTubeLinkCard(item: FeedItem) -> some View {
+        Button {
+            AppHaptics.tap()
+            if let url = URL(string: item.link) {
+                currentExternalBrowser.open(url: url)
             }
-            .frame(maxWidth: 240, alignment: .leading)
-
-            Spacer(minLength: 8)
-
-            // Right: Control Group
-            HStack(spacing: 8) {
-                // Reading Mode Sliding Bubble Switcher
-                HStack(spacing: 0) {
-                    Button {
-                        AppHaptics.tap()
-                        withAnimation(AppAnimation.slidingPill) {
-                            activeViewMode = .reader
-                        }
-                    } label: {
-                        Text(String(localized: "Reader"))
-                            .font(.system(size: 11, weight: activeViewMode == .reader ? .semibold : .medium))
-                            .foregroundStyle(activeViewMode == .reader ? Color.primary : Color.secondary)
-                            .padding(.horizontal, 9)
-                            .padding(.vertical, 3)
-                            .background {
-                                if activeViewMode == .reader {
-                                    Capsule()
-                                        .fill(Color(nsColor: .controlBackgroundColor))
-                                        .shadow(color: Color.black.opacity(0.08), radius: 2, y: 1)
-                                        .matchedGeometryEffect(id: "readingModeBubble", in: animationNamespace)
-                                }
-                            }
-                    }
-                    .buttonStyle(.plain)
-
-                    Button {
-                        AppHaptics.tap()
-                        withAnimation(AppAnimation.slidingPill) {
-                            activeViewMode = .inAppBrowser
-                        }
-                    } label: {
-                        Text(String(localized: "Web"))
-                            .font(.system(size: 11, weight: activeViewMode == .inAppBrowser ? .semibold : .medium))
-                            .foregroundStyle(activeViewMode == .inAppBrowser ? Color.primary : Color.secondary)
-                            .padding(.horizontal, 9)
-                            .padding(.vertical, 3)
-                            .background {
-                                if activeViewMode == .inAppBrowser {
-                                    Capsule()
-                                        .fill(Color(nsColor: .controlBackgroundColor))
-                                        .shadow(color: Color.black.opacity(0.08), radius: 2, y: 1)
-                                        .matchedGeometryEffect(id: "readingModeBubble", in: animationNamespace)
-                                }
-                            }
-                    }
-                    .buttonStyle(.plain)
-                }
-                .padding(2)
-                .background(Color.primary.opacity(0.05), in: Capsule())
-                .onChange(of: activeViewMode) { _, newMode in
-                    if newMode == .reader && (extractedReaderHTML == nil || !ReaderModeExtractor.shared.isSubstantiveContent(extractedReaderHTML ?? "")) {
-                        loadReaderMode(for: item, forceWeb: false)
-                    }
-                }
-
-                // Appearance Menu
-                Menu {
-                    Picker(String(localized: "Theme"), selection: $readerThemeRaw) {
-                        ForEach(ReaderTheme.allCases) { theme in
-                            Text(theme.title).tag(theme.rawValue)
-                        }
-                    }
-                    Divider()
-                    Picker(String(localized: "Font Family"), selection: $readerFontFamilyRaw) {
-                        ForEach(ReaderFontFamily.allCases) { font in
-                            Text(font.title).tag(font.rawValue)
-                        }
-                    }
-                    Picker(String(localized: "Line Spacing"), selection: $readerLineHeightRaw) {
-                        ForEach(ReaderLineHeight.allCases) { lh in
-                            Text(lh.title).tag(lh.rawValue)
-                        }
-                    }
-                    Divider()
-                    Toggle(String(localized: "Bionic Reading"), isOn: $isBionicReadingEnabled)
-                    Divider()
-                    HStack {
-                        Button(String(localized: "Smaller Font")) {
-                            if readerFontSize > 12 { readerFontSize -= 2 }
-                        }
-                        Button(String(localized: "Larger Font")) {
-                            if readerFontSize < 32 { readerFontSize += 2 }
-                        }
-                    }
-                } label: {
-                    Image(systemName: "textformat.size")
-                        .font(.system(size: 11))
-                        .foregroundStyle(.secondary)
-                }
-                .menuStyle(.borderlessButton)
-                .fixedSize()
-                .help(String(localized: "Appearance"))
-
-                // Reload or Content Blocker
-                if activeViewMode == .reader {
-                    Button {
-                        AppHaptics.tap()
-                        loadReaderMode(for: item, forceWeb: true)
-                    } label: {
-                        Image(systemName: "arrow.clockwise")
-                            .font(.system(size: 11))
-                            .foregroundStyle(isLoadingReaderMode ? theme.accentColor : Color.secondary)
-                    }
-                    .buttonStyle(.borderless)
-                    .disabled(isLoadingReaderMode)
-                    .help(String(localized: "Fetch / Reload Full Article from Web"))
+        } label: {
+            ZStack {
+                if let thumbnail = item.youtubeThumbnailURL {
+                    DownsampledImageView(url: thumbnail, targetSize: CGSize(width: 640, height: 360), contentMode: .fill, cornerRadius: 12)
                 } else {
-                    Button {
-                        AppHaptics.tap()
-                        isContentBlockerEnabled.toggle()
-                    } label: {
-                        Image(systemName: isContentBlockerEnabled ? "shield.fill" : "shield.slash")
-                            .font(.system(size: 11))
-                            .foregroundStyle(isContentBlockerEnabled ? theme.accentColor : Color.secondary)
-                    }
-                    .buttonStyle(.borderless)
-                    .help(isContentBlockerEnabled ? String(localized: "Content Blocker Active") : String(localized: "Content Blocker Disabled"))
+                    RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.06))
+                }
+                Circle()
+                    .fill(Color.black.opacity(0.65))
+                    .frame(width: 56, height: 56)
+                    .overlay(Image(systemName: "play.fill").font(.system(size: 22, weight: .bold)).foregroundStyle(.white).offset(x: 2))
+            }
+            .aspectRatio(16.0 / 9.0, contentMode: .fit)
+            .frame(maxWidth: 640)
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.plain)
+        .help(String(localized: "Watch on YouTube"))
+    }
+
+    // MARK: - Window Toolbar (native)
+    //
+    // The article controls live in the real window toolbar: reading mode, the "Aa" appearance popover,
+    // the two actions used on nearly every article (bookmark, read), and one "more" menu for the rest.
+
+    @ToolbarContentBuilder
+    private var articleToolbar: some ToolbarContent {
+        ToolbarItemGroup(placement: .primaryAction) {
+            if let item = currentItem {
+                if !networkMonitor.isConnected {
+                    Image(systemName: "wifi.slash")
+                        .foregroundStyle(.secondary)
+                        .help(String(localized: "Offline"))
                 }
 
-                Divider()
-                    .frame(height: 10)
+                if !item.isPodcast {
+                    Picker(String(localized: "Reading Mode"), selection: $activeViewMode) {
+                        Text(String(localized: "Reader")).tag(ReadingViewMode.reader)
+                        Text(String(localized: "Web")).tag(ReadingViewMode.inAppBrowser)
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 128)
+                    .help(String(localized: "Switch between Reader and Web"))
+                }
 
-                // Bookmark
+                // Typography only applies to text articles, not to a podcast's player page.
+                if !item.isPodcast {
+                    Button {
+                        showAppearancePopover.toggle()
+                    } label: {
+                        Label(String(localized: "Appearance"), systemImage: "textformat.size")
+                    }
+                    .popover(isPresented: $showAppearancePopover, arrowEdge: .bottom) {
+                        ReaderAppearancePopover()
+                    }
+                    .help(String(localized: "Appearance"))
+                }
+
                 Button {
                     AppHaptics.tap()
                     withAnimation(AppAnimation.bouncy) {
                         store.toggleBookmark(item)
                     }
                 } label: {
-                    Image(systemName: item.isBookmarked ? "star.fill" : "star")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(item.isBookmarked ? theme.bookmarkColor : Color.secondary)
-                        .contentTransition(.symbolEffect(.replace))
+                    Label(
+                        item.isBookmarked ? String(localized: "Remove Bookmark") : String(localized: "Add Bookmark"),
+                        systemImage: item.isBookmarked ? "star.fill" : "star"
+                    )
+                    .contentTransition(.symbolEffect(.replace))
+                    .motionSafeBounce(on: item.isBookmarked)
                 }
-                .buttonStyle(.borderless)
+                .foregroundStyle(item.isBookmarked ? theme.bookmarkColor : .primary)
                 .help(item.isBookmarked ? String(localized: "Remove Bookmark") : String(localized: "Add Bookmark"))
 
-                // Read Status
                 Button {
                     AppHaptics.tap()
                     withAnimation(AppAnimation.bouncy) {
                         store.toggleReadStatus(item)
                     }
                 } label: {
-                    Image(systemName: item.isRead ? "circle" : "checkmark.circle.fill")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(item.isRead ? Color.secondary : theme.accentColor)
-                        .contentTransition(.symbolEffect(.replace))
+                    Label(
+                        item.isRead ? String(localized: "Mark as Unread") : String(localized: "Mark as Read"),
+                        systemImage: item.isRead ? "circle" : "checkmark.circle.fill"
+                    )
+                    .contentTransition(.symbolEffect(.replace))
+                    .motionSafeBounce(on: item.isRead)
                 }
-                .buttonStyle(.borderless)
                 .help(item.isRead ? String(localized: "Mark as Unread") : String(localized: "Mark as Read"))
 
-                Divider()
-                    .frame(height: 10)
-
-                // Text-to-speech
-                Button {
-                    AppHaptics.tap()
-                    withAnimation(AppAnimation.bouncy) {
-                        toggleSpeech(item: item)
-                    }
-                } label: {
-                    Image(systemName: isSpeaking ? "stop.fill" : "speaker.wave.2")
-                        .font(.system(size: 11))
-                        .foregroundStyle(isSpeaking ? theme.accentColor : Color.secondary)
-                        .contentTransition(.symbolEffect(.replace))
-                }
-                .buttonStyle(.borderless)
-                .help(isSpeaking ? String(localized: "Stop Reading") : String(localized: "Read Aloud"))
-
-                // Share & External Actions
                 Menu {
+                    Button {
+                        toggleSpeech(item: item)
+                    } label: {
+                        Label(
+                            isSpeaking ? String(localized: "Stop Reading") : String(localized: "Read Aloud"),
+                            systemImage: isSpeaking ? "stop.fill" : "speaker.wave.2"
+                        )
+                    }
+
+                    if activeViewMode == .reader {
+                        Button {
+                            loadReaderMode(for: item, forceWeb: true)
+                        } label: {
+                            Label(String(localized: "Fetch / Reload Full Article from Web"), systemImage: "arrow.clockwise")
+                        }
+                        .disabled(isLoadingReaderMode)
+                    } else {
+                        Toggle(isOn: $isContentBlockerEnabled) {
+                            Label(String(localized: "Content Blocker"), systemImage: "shield")
+                        }
+                    }
+
+                    Divider()
+
                     Button {
                         shareArticleOrEpisode(item: item)
                     } label: {
@@ -422,19 +352,11 @@ struct ArticleDetailView: View {
                         }
                     }
                 } label: {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 11))
-                        .foregroundStyle(Color.secondary)
+                    Label(String(localized: "More"), systemImage: "ellipsis.circle")
                 }
-                .menuStyle(.borderlessButton)
-                .fixedSize()
-                .help(String(localized: "Share & External Actions"))
+                .help(String(localized: "More"))
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .frame(height: 40)
-        .background(theme.detailBackground)
     }
 
     // MARK: - Podcast Full Page Scroll View
@@ -887,20 +809,71 @@ struct ArticleDetailView: View {
                     .padding(.top, 4)
             }
 
-            // Keep the WebView continuously mounted across article changes to reuse the same WebContent process
-            WebView(
-                html: contentHTML,
-                fontSize: readerFontSize,
-                theme: currentTheme,
-                fontFamily: currentFontFamily,
-                lineHeight: currentLineHeight,
-                isBionicReadingEnabled: isBionicReadingEnabled
-            )
+            if let document = readerDocument, !document.isEmpty {
+                NativeReaderView(
+                    document: document,
+                    title: item.title,
+                    metaLine: readerMetaLine(item: item, document: document),
+                    byline: readerByline(item: item),
+                    fontSize: Double(readerFontSize),
+                    fontFamily: currentFontFamily,
+                    lineHeight: currentLineHeight,
+                    theme: currentTheme,
+                    isBionic: isBionicReadingEnabled,
+                    onOpenURL: { currentExternalBrowser.open(url: $0) }
+                )
+            } else if readerDocument != nil {
+                // Nothing readable was found (empty or script-only content): the web reader still shows something.
+                WebView(
+                    html: contentHTML,
+                    fontSize: readerFontSize,
+                    theme: currentTheme,
+                    fontFamily: currentFontFamily,
+                    lineHeight: currentLineHeight,
+                    isBionicReadingEnabled: isBionicReadingEnabled
+                )
+            } else {
+                Color.clear
+            }
 
             if !isSubstantive && !isLoadingReaderMode {
                 summaryNoticeBanner(item: item)
             }
         }
+        .task(id: "\(item.id)-\(contentHTML.utf8.count)") {
+            let title = item.title
+            let base = URL(string: item.link)
+            let document = await Task.detached(priority: .userInitiated) {
+                ArticleParser.parse(html: contentHTML, baseURL: base, title: title)
+            }.value
+            guard !Task.isCancelled else { return }
+            readerDocument = document
+        }
+    }
+
+    private static let readerDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale.autoupdatingCurrent
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter
+    }()
+
+    private func readerMetaLine(item: FeedItem, document: ArticleDocument) -> String {
+        var parts: [String] = []
+        if let date = item.pubDate {
+            parts.append(Self.readerDateFormatter.string(from: date).uppercased())
+        }
+        let minutes = max(1, Int(ceil(Double(document.wordCount) / 200.0)))
+        parts.append(String(format: String(localized: "%d min read"), minutes).uppercased())
+        return parts.joined(separator: " · ")
+    }
+
+    private func readerByline(item: FeedItem) -> String {
+        [currentFeed?.title, item.author]
+            .compactMap { $0 }
+            .filter { !$0.isEmpty }
+            .joined(separator: " • ")
     }
 
     @ViewBuilder
@@ -910,20 +883,33 @@ struct ArticleDetailView: View {
                 .foregroundStyle(.secondary)
                 .font(.system(size: 13))
 
-            Text(String(localized: "Showing feed summary. Tap to fetch full article from web."))
+            Text(readerFetchFailed
+                 ? String(localized: "The full article could not be extracted from this page.")
+                 : String(localized: "Showing feed summary. Tap to fetch full article from web."))
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
             Spacer()
 
-            Button {
-                AppHaptics.tap()
-                loadReaderMode(for: item, forceWeb: true)
-            } label: {
-                Label(String(localized: "Fetch Full Article"), systemImage: "arrow.down.circle")
+            if readerFetchFailed {
+                Button {
+                    AppHaptics.tap()
+                    activeViewMode = .inAppBrowser
+                } label: {
+                    Label(String(localized: "Open Web Page"), systemImage: "safari")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            } else {
+                Button {
+                    AppHaptics.tap()
+                    loadReaderMode(for: item, forceWeb: true)
+                } label: {
+                    Label(String(localized: "Fetch Full Article"), systemImage: "arrow.down.circle")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
             }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
@@ -962,6 +948,7 @@ struct ArticleDetailView: View {
         }
 
         isLoadingReaderMode = true
+        readerFetchFailed = false
         let targetId = item.id
         currentExtractionTask?.cancel()
         currentExtractionTask = Task {
@@ -979,6 +966,8 @@ struct ArticleDetailView: View {
             if let extracted, !extracted.isEmpty {
                 extractedReaderHTML = extracted
             }
+            // Still only the feed summary after an explicit fetch: say so instead of silently doing nothing.
+            readerFetchFailed = forceWeb && !ReaderModeExtractor.shared.isSubstantiveContent(extracted ?? "")
         }
     }
 

@@ -6,8 +6,13 @@ struct WebView: NSViewRepresentable {
     // Shared ephemeral data store for Reader Mode to prevent spawning multiple isolated sessions
     static let sharedEphemeralDataStore = WKWebsiteDataStore.nonPersistent()
 
+    /// Set once the first `WKWebView` exists. Until then there is nothing to flush, and touching
+    /// `WKWebsiteDataStore` would start WebKit's network process (several MB) just to clear nothing.
+    @MainActor static var isWebKitInUse = false
+
     @MainActor
     static func flushMemoryCache() {
+        guard isWebKitInUse else { return }
         let types = Set([WKWebsiteDataTypeMemoryCache, WKWebsiteDataTypeDiskCache])
         sharedEphemeralDataStore.removeData(
             ofTypes: types,
@@ -121,6 +126,7 @@ struct WebView: NSViewRepresentable {
             config.userContentController.addUserScript(popupNeutralizerScript)
         }
 
+        WebView.isWebKitInUse = true
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
@@ -249,7 +255,7 @@ struct WebView: NSViewRepresentable {
                 line-height: \(lineHeight.rawValue);
                 color: \(theme.textColorCSS);
                 background-color: \(theme.backgroundColorCSS);
-                padding: 0 24px;
+                padding: 24px 24px 48px;
                 max-width: 800px;
                 margin: 0 auto;
                 word-wrap: break-word;
