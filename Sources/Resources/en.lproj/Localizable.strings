@@ -55,7 +55,7 @@
 "Suggested Feeds" = "Suggested Feeds";
 "Invalid URL" = "Invalid URL";
 "Please enter a valid URL." = "Please enter a valid URL.";
-"Enter an RSS or Atom feed URL." = "Enter an RSS or Atom feed URL.";
+"Enter a feed address, or just the address of a site or article." = "Enter a feed address, or just the address of a site or article.";
 "Feed URL" = "Feed URL";
 "Example Feeds" = "Example Feeds";
 
@@ -81,7 +81,6 @@
 
 /* Errors & Messages */
 "This feed has already been added." = "This feed has already been added.";
-"Could not parse feed. Please ensure it is a valid RSS/Atom URL." = "Could not parse feed. Please ensure it is a valid RSS/Atom URL.";
 "Failed to load feed: %@" = "Failed to load feed: %@";
 "Refresh failed: %@" = "Refresh failed: %@";
 
@@ -663,3 +662,5 @@
 "Open Web Page" = "Open Web Page";
 
 "Keyboard" = "Keyboard";
+
+"No RSS or Atom feed was found at this address." = "No RSS or Atom feed was found at this address.";
