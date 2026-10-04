@@ -35,6 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Items that older versions left with one shared id (a whole podcast feed could show the same episode over and over in the list) get their own id on the next launch.
 
 ### Memory and speed
+- **Failing feeds back off:** a feed whose address is gone, whose server errors or whose XML is unreadable is skipped by automatic refreshes for 30 minutes after the first failure, doubling up to a day. Being offline or timing out never counts against a feed, a refresh you start by hand tries everything, and a restart clears the waiting times.
 - Freed heap pages are handed back to the system after launch, after a refresh and after an OPML import (idle footprint with a 3,500-article library: 83 MB to 70 MB in a Release build).
 - WebKit is no longer started at launch just to clear its caches (it started a network process, about 6 MB, before any page was opened).
 - The article cache scan runs a few seconds after launch instead of during it.
