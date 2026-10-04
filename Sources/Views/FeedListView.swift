@@ -269,7 +269,7 @@ struct FeedListView: View {
                                         store.markAllAsRead(items: unreadItems)
                                     }
                                 } label: {
-                                    Label(String(localized: "Mark All as Read"), systemImage: "checkmark.circle")
+                                    Label(String(localized: "Mark All as Read"), systemImage: "text.badge.checkmark")
                                 }
                                 .help(String(localized: "Mark All as Read in Current View"))
                             } else if case .feed(let feedId) = selection, !items.isEmpty {
@@ -279,7 +279,7 @@ struct FeedListView: View {
                                         store.markAllAsUnread(feedId: feedId)
                                     }
                                 } label: {
-                                    Label(String(localized: "Mark All as Unread"), systemImage: "circle")
+                                    Label(String(localized: "Mark All as Unread"), systemImage: "text.badge.minus")
                                 }
                                 .help(String(localized: "Mark All as Unread"))
                             }

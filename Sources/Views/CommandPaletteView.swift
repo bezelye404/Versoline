@@ -60,7 +60,8 @@ struct CommandPaletteView: View {
             }
         }
         .frame(width: 520)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        // Opaque on purpose: a translucent material let the page behind it show through the results.
+        .background(theme.windowBackground, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(theme.hairlineBorder, lineWidth: 0.5))
         .shadow(color: .black.opacity(0.25), radius: 24, y: 10)
         .onAppear { fieldFocused = true }

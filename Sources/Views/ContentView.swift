@@ -21,6 +21,11 @@ struct ContentView: View {
     @AppStorage(AppSettingsKeys.isCompactListMode) private var isCompactListMode = false
     @AppStorage(AppSettingsKeys.appColorPalette) private var appColorPaletteRaw = AppColorPalette.slate.rawValue
 
+    private var detailShowsPlayingEpisode: Bool {
+        guard let playing = AudioPlayerService.shared.currentEpisode, let selected = selectedArticle else { return false }
+        return playing.id == selected.id
+    }
+
     private var currentTheme: AppColorPalette {
         AppColorPalette(rawValue: appColorPaletteRaw) ?? .slate
     }
@@ -80,19 +85,24 @@ struct ContentView: View {
             .toolbarBackground(currentTheme.windowBackground, for: .windowToolbar)
             .toolbarBackground(.visible, for: .windowToolbar)
 
-            MiniPlayerView(onNavigateToArticle: { item in
-                if let feed = store.feed(for: item.feedId) {
-                    selectedSidebarItem = .feed(feed.id)
-                } else if item.isPodcast {
-                    selectedSidebarItem = .podcasts
-                } else if item.isYouTube {
-                    selectedSidebarItem = .videos
-                } else {
-                    selectedSidebarItem = .all
-                }
-                selectedArticle = item
-            })
+            // The episode page already has the full player, so the bar would only repeat it.
+            if !detailShowsPlayingEpisode {
+                MiniPlayerView(onNavigateToArticle: { item in
+                    if let feed = store.feed(for: item.feedId) {
+                        selectedSidebarItem = .feed(feed.id)
+                    } else if item.isPodcast {
+                        selectedSidebarItem = .podcasts
+                    } else if item.isYouTube {
+                        selectedSidebarItem = .videos
+                    } else {
+                        selectedSidebarItem = .all
+                    }
+                    selectedArticle = item
+                })
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
         }
+        .animation(AppAnimation.pageReveal, value: detailShowsPlayingEpisode)
         .environment(\.appTheme, currentTheme)
         .tint(currentTheme.accentColor)
         .background(currentTheme.windowBackground)

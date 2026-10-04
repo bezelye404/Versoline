@@ -217,15 +217,18 @@ struct ArticleDetailView: View {
                 .frame(width: 128)
                 .help(String(localized: "Switch between Reader and Web"))
 
-                Button {
-                    showAppearancePopover.toggle()
-                } label: {
-                    Label(String(localized: "Appearance"), systemImage: "textformat.size")
+                // Typography only applies to text articles, not to a podcast's player page.
+                if !item.isPodcast {
+                    Button {
+                        showAppearancePopover.toggle()
+                    } label: {
+                        Label(String(localized: "Appearance"), systemImage: "textformat.size")
+                    }
+                    .popover(isPresented: $showAppearancePopover, arrowEdge: .bottom) {
+                        ReaderAppearancePopover()
+                    }
+                    .help(String(localized: "Appearance"))
                 }
-                .popover(isPresented: $showAppearancePopover, arrowEdge: .bottom) {
-                    ReaderAppearancePopover()
-                }
-                .help(String(localized: "Appearance"))
 
                 Button {
                     AppHaptics.tap()
