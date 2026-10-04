@@ -49,10 +49,36 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
     /// Host of the feed itself; lets item hygiene tell the site's own links from promotions.
     private let feedHost: String?
 
-    init(feedId: UUID, feedURL: URL? = nil) {
+    /// Keep only this many newest items while parsing (`nil` keeps all). Some feeds carry thousands of items
+    /// (a podcast with its whole back catalogue is megabytes) of which the app keeps a few dozen; without a bound
+    /// every refresh would build them all first.
+    private let retainItems: Int?
+
+    // Early stop: a feed that lists its items newest first has nothing newer further down, so once enough items
+    // have been seen in that order the rest (a podcast's whole back catalogue) is never parsed.
+    private var parsedItemCount = 0
+    private var oldestDateSoFar: Date?
+    private var isSortedNewestFirst = true
+    private var stoppedEarly = false
+
+    init(feedId: UUID, feedURL: URL? = nil, retainItems: Int? = nil) {
         self.feedId = feedId
         self.feedHost = feedURL?.host
+        self.retainItems = retainItems
         super.init()
+    }
+
+    /// Newest `limit` items by date; items without a date rank by their position in the feed. Order of the
+    /// feed does not matter, so oldest-first feeds keep their newest items too.
+    private func trimItems(to limit: Int) {
+        guard items.count > limit else { return }
+        items = items.enumerated()
+            .sorted { lhs, rhs in
+                let l = lhs.element.pubDate ?? .distantPast, r = rhs.element.pubDate ?? .distantPast
+                return l != r ? l > r : lhs.offset < rhs.offset
+            }
+            .prefix(limit)
+            .map(\.element)
     }
 
     struct ParseResult: Sendable {
@@ -67,14 +93,15 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
 
     func parse(data: Data) -> ParseResult? {
         autoreleasepool {
-            let parser = XMLParser(data: data)
+            let parser = XMLParser(stream: InputStream(data: data))
             parser.delegate = self
             parser.shouldResolveExternalEntities = false
 
-            guard parser.parse() else {
+            guard parser.parse() || stoppedEarly else {
                 return nil
             }
 
+            if let retainItems { trimItems(to: retainItems) }
             return ParseResult(
                 title: feedTitle,
                 description: feedDescription,
@@ -88,7 +115,8 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         url: String,
         feedId: UUID,
         etag: String? = nil,
-        lastModified: String? = nil
+        lastModified: String? = nil,
+        retainItems: Int? = nil
     ) async throws -> ParseResult? {
         guard let feedURL = URL(string: url) else {
             await AppLogger.shared.log("Invalid feed URL: \(url)", level: .error, category: .network)
@@ -169,7 +197,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         }
 
         let parseStart = CFAbsoluteTimeGetCurrent()
-        let parser = RSSParser(feedId: feedId, feedURL: URL(string: url))
+        let parser = RSSParser(feedId: feedId, feedURL: URL(string: url), retainItems: retainItems)
         let result = parser.parse(data: data)
         let parseElapsed = String(format: "%.3fs", CFAbsoluteTimeGetCurrent() - parseStart)
 
@@ -432,7 +460,18 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
                 readingMinutes: FeedItem.estimateReadingMinutes(from: rawRichContent ?? cleanDesc)
             )
             items.append(item)
+            if let retainItems, items.count >= retainItems * 2 { trimItems(to: retainItems) }
             isInsideItem = false
+
+            parsedItemCount += 1
+            if let date = parsedPubDate {
+                if let previous = oldestDateSoFar, date > previous.addingTimeInterval(60) { isSortedNewestFirst = false }
+                oldestDateSoFar = min(oldestDateSoFar ?? date, date)
+            }
+            if let retainItems, isSortedNewestFirst, parsedItemCount >= retainItems * 2 {
+                stoppedEarly = true
+                parser.abortParsing()
+            }
 
         case "channel", "feed":
             feedTitle = feedTitle.strippingHTML()

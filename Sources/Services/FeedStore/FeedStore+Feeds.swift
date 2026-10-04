@@ -49,7 +49,7 @@ extension FeedStore {
             // Adding is an edit: it must beat an older deletion of the same feed.
             tombstones.removeAll { $0.kind == .feed && $0.key == targetURL.lowercased() }
             feeds.append(feed)
-            let parsedItems = result.items.map { item -> FeedItem in
+            let cappedItems = result.items.sortedNewestFirst().prefix(Self.maxItemsPerFeed).map { item -> FeedItem in
                 var m = item
                 if let rawContent = m.content, !rawContent.isEmpty {
                     readerCache.saveToCache(urlString: m.link, content: rawContent, storeInMemory: false)
@@ -60,8 +60,6 @@ extension FeedStore {
                 m.content = nil
                 return m
             }
-            let cappedItems = (parsedItems.count > Self.maxItemsPerFeed ? Array(parsedItems.prefix(Self.maxItemsPerFeed)) : parsedItems)
-                .sortedNewestFirst()
             items[newFeedId] = cappedItems
             isLoading = false
             updateSmartCategoryCaches()
@@ -266,6 +264,9 @@ extension FeedStore {
         etag: String? = nil,
         lastModified: String? = nil
     ) async throws -> RSSParser.ParseResult? {
-        try await RSSParser.fetchAndParse(url: url, feedId: feedId, etag: etag, lastModified: lastModified)
+        // A little more than the per-feed cap, so the cleanup of non-articles and duplicates still leaves enough.
+        try await RSSParser.fetchAndParse(
+            url: url, feedId: feedId, etag: etag, lastModified: lastModified, retainItems: maxItemsPerFeed + 30
+        )
     }
 }

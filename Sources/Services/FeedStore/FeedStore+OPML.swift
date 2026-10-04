@@ -40,7 +40,7 @@ extension FeedStore {
                         folderId: folderId,
                         updatedAt: Date()
                     )
-                    let parsed = result.items.map { item -> FeedItem in
+                    let capped = result.items.sortedNewestFirst().prefix(Self.maxItemsPerFeed).map { item -> FeedItem in
                         var m = item
                         if let rawContent = m.content, !rawContent.isEmpty {
                             readerCache.saveToCache(urlString: m.link, content: rawContent, storeInMemory: false)
@@ -51,8 +51,6 @@ extension FeedStore {
                         m.content = nil
                         return m
                     }
-                    let capped = (parsed.count > Self.maxItemsPerFeed ? Array(parsed.prefix(Self.maxItemsPerFeed)) : parsed)
-                        .sortedNewestFirst()
                     tombstones.removeAll { $0.kind == .feed && $0.key == opmlFeed.xmlUrl.lowercased() }
                     feeds.append(feed)
                     items[feedId] = capped
