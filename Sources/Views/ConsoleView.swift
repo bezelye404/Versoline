@@ -245,7 +245,7 @@ struct ConsoleView: View {
             .defaultScrollAnchor(.bottom)
             .onChange(of: logger.entries.count) { _, _ in
                 if autoScrollToBottom, let last = filteredEntries.last {
-                    withAnimation {
+                    withAnimation(AppAnimation.safe(.default)) {
                         proxy.scrollTo(last.id, anchor: .bottom)
                     }
                 }
@@ -299,11 +299,11 @@ struct ConsoleView: View {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(text, forType: .string)
 
-        withAnimation {
+        withAnimation(AppAnimation.safe(.default)) {
             showCopiedAlert = true
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            withAnimation {
+            withAnimation(AppAnimation.safe(.default)) {
                 showCopiedAlert = false
             }
         }

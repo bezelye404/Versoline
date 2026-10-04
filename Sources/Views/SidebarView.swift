@@ -159,7 +159,7 @@ struct SidebarView: View {
                 sidebarRow(
                     title: String(localized: "Podcasts"),
                     systemImage: "headphones",
-                    count: store.podcastCount(),
+                    count: store.count(for: .podcasts),
                     accentColor: theme.podcastColor
                 )
             }
@@ -168,7 +168,7 @@ struct SidebarView: View {
                 sidebarRow(
                     title: String(localized: "Videos"),
                     systemImage: "play.rectangle",
-                    count: store.videoCount(),
+                    count: store.count(for: .videos),
                     accentColor: theme.youtubeColor
                 )
             }
@@ -315,8 +315,8 @@ struct SidebarView: View {
     @ViewBuilder
     private var smartStreamsSection: some View {
         let activeCategories = store.activeSmartCategories
-        let showQuick = showReadingTimeStreams && store.quickReadsCount() > 0
-        let showLong = showReadingTimeStreams && store.longReadsCount() > 0
+        let showQuick = showReadingTimeStreams && store.count(for: .quickReads) > 0
+        let showLong = showReadingTimeStreams && store.count(for: .longReads) > 0
         let totalCount = activeCategories.count + (showQuick ? 1 : 0) + (showLong ? 1 : 0)
 
         if totalCount > 0 {
@@ -327,7 +327,7 @@ struct SidebarView: View {
                             sidebarRow(
                                 title: String(localized: "Quick Reads (<3m)"),
                                 systemImage: "bolt",
-                                count: store.quickReadsCount(),
+                                count: store.count(for: .quickReads),
                                 accentColor: theme.accentColor
                             )
                         }
@@ -339,7 +339,7 @@ struct SidebarView: View {
                             sidebarRow(
                                 title: String(localized: "Deep Reads (>7m)"),
                                 systemImage: "book.closed",
-                                count: store.longReadsCount(),
+                                count: store.count(for: .longReads),
                                 accentColor: theme.bookmarkColor
                             )
                         }
@@ -775,210 +775,3 @@ struct SidebarView: View {
 }
 
 // MARK: - Folder Stream Row
-
-struct FolderStreamRow: View {
-
-    @Environment(FeedStore.self) private var store
-    @Environment(\.appTheme) private var theme
-    let folder: Folder
-
-    var body: some View {
-        NavigationLink(value: SidebarItem.folder(folder.id)) {
-            HStack(spacing: 8) {
-                Image(systemName: folder.isSmartFolder ? "sparkles" : "tray.2")
-                    .font(.system(size: 13))
-                    .foregroundStyle(folder.isSmartFolder ? theme.accentColor : Color.secondary)
-                    .frame(width: 18)
-
-                Text(folder.isSmartFolder ? String(localized: "Smart Stream") : String(localized: "All in Folder"))
-                    .font(.system(size: 13))
-
-                Spacer()
-
-                let count = store.itemsCountForFolder(folder.id)
-                if count > 0 {
-                    Text("\(count)")
-                        .font(.system(size: 11, weight: .medium, design: .monospaced))
-                        .foregroundStyle(theme.badgeText)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 1)
-                        .background(theme.badgeBackground, in: Capsule())
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Feed Row
-
-struct FeedRow: View {
-
-    @Environment(FeedStore.self) private var store
-    @Environment(\.appTheme) private var theme
-    let feed: Feed
-    var isInsidePinnedSection: Bool = false
-    @State private var isHovered: Bool = false
-
-    var body: some View {
-        HStack(spacing: 8) {
-            FaviconView(hostOrURL: feed.url, size: 16)
-                .frame(width: 18, height: 18)
-                .scaleEffect(isHovered ? 1.05 : 1.0)
-                .animation(AppAnimation.hover, value: isHovered)
-
-            VStack(alignment: .leading, spacing: 1) {
-                HStack(spacing: 4) {
-                    Text(feed.title)
-                        .font(.system(size: 13, weight: .regular))
-                        .lineLimit(1)
-
-                    if feed.isPinned && !isInsidePinnedSection {
-                        Image(systemName: "pin.fill")
-                            .font(.system(size: 9))
-                            .foregroundStyle(theme.accentColor.opacity(0.85))
-                    }
-                }
-
-                if !feed.description.isEmpty {
-                    Text(feed.description)
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                        .lineLimit(1)
-                }
-            }
-
-            Spacer()
-
-            let unread = store.unreadCount(for: feed.id)
-            if unread > 0 {
-                Text("\(unread)")
-                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                    .foregroundStyle(theme.activeBadgeText)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 1)
-                    .background(theme.activeBadgeBackground, in: Capsule())
-                    .contentTransition(.numericText())
-                    .animation(AppAnimation.bouncy, value: unread)
-            }
-        }
-        .padding(.vertical, 2)
-        .onHover { hovering in
-            isHovered = hovering
-        }
-    }
-}
-
-// MARK: - Native Reading Insights Sheet (Apple Charts / Zero 3rd-party libs)
-
-struct ReadingStatsSheet: View {
-    @Environment(FeedStore.self) private var store
-    @Environment(\.dismiss) private var dismiss
-    @AppStorage(AppSettingsKeys.appColorPalette) private var appColorPaletteRaw = AppColorPalette.slate.rawValue
-
-    private var palette: AppColorPalette {
-        AppColorPalette(rawValue: appColorPaletteRaw) ?? .slate
-    }
-
-    var body: some View {
-        VStack(spacing: 20) {
-            // Header
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(String(localized: "Reading Insights"))
-                        .font(.title3.bold())
-                    Text(String(localized: "Your weekly reading activity and flow"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.secondary)
-                        .imageScale(.large)
-                }
-                .buttonStyle(.plain)
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 20)
-
-            // Stat Cards Row
-            HStack(spacing: 12) {
-                statCard(
-                    title: String(localized: "Total Read"),
-                    value: "\(store.totalReadCount())",
-                    icon: "checkmark.circle",
-                    accent: palette.accentColor
-                )
-                statCard(
-                    title: String(localized: "Consistency"),
-                    value: "\(store.readingStreakDays()) days",
-                    icon: "flame",
-                    accent: palette.bookmarkColor
-                )
-                statCard(
-                    title: String(localized: "Total Feeds"),
-                    value: "\(store.feeds.count)",
-                    icon: "newspaper",
-                    accent: palette.accentColor
-                )
-            }
-            .padding(.horizontal, 24)
-
-            // Chart Section
-            VStack(alignment: .leading, spacing: 12) {
-                Text(String(localized: "Articles Read (Last 7 Days)"))
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-
-                let history = store.weeklyReadHistory()
-
-                Chart(history) { stat in
-                    BarMark(
-                        x: .value("Day", stat.day),
-                        y: .value("Articles", stat.count)
-                    )
-                    .foregroundStyle(palette.accentColor)
-                    .cornerRadius(4)
-                }
-                .frame(height: 150)
-                .chartYAxis {
-                    AxisMarks(position: .leading)
-                }
-                .chartXAxis {
-                    AxisMarks(position: .bottom)
-                }
-            }
-            .padding(16)
-            .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(palette.hairlineBorder, lineWidth: 1))
-            .padding(.horizontal, 24)
-
-            Spacer(minLength: 4)
-        }
-        .frame(width: 480, height: 380)
-        .background(Color(nsColor: .windowBackgroundColor))
-    }
-
-    private func statCard(title: String, value: String, icon: String, accent: Color) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Image(systemName: icon)
-                    .foregroundStyle(accent)
-                    .font(.caption)
-                Spacer()
-            }
-            Text(value)
-                .font(.system(size: 20, weight: .bold, design: .rounded))
-                .foregroundStyle(.primary)
-            Text(title)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-        }
-        .padding(12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(nsColor: .controlBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(palette.hairlineBorder, lineWidth: 1))
-    }
-}

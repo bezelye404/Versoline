@@ -25,9 +25,32 @@ struct SyncFeed: Codable, Identifiable, Equatable, Sendable {
     var folderId: UUID?
     var isPinned: Bool?
     var updatedAt: Date
-    var deletedAt: Date?
+}
 
-    var isDeleted: Bool { deletedAt != nil }
+// MARK: - Deletion records
+
+/// A durable "this was deleted" marker so a deletion reaches devices that were offline.
+/// Feeds are identified by their lower-cased URL (the same feed can have different ids on two Macs),
+/// folders by their id. Records older than `SyncMerge.tombstoneLifetime` are dropped.
+struct Tombstone: Codable, Equatable, Hashable, Sendable {
+    enum Kind: String, Codable, Sendable { case feed, folder }
+
+    let kind: Kind
+    let key: String
+    let deletedAt: Date
+
+    struct Key: Hashable, Sendable {
+        let kind: Kind
+        let key: String
+    }
+
+    static func feed(url: String, at date: Date) -> Tombstone {
+        Tombstone(kind: .feed, key: url.lowercased(), deletedAt: date)
+    }
+
+    static func folder(id: UUID, at date: Date) -> Tombstone {
+        Tombstone(kind: .folder, key: id.uuidString, deletedAt: date)
+    }
 }
 
 // MARK: - Sync Folder Model
@@ -36,31 +59,6 @@ struct SyncFolder: Codable, Identifiable, Equatable, Sendable {
     let id: UUID
     var name: String
     var updatedAt: Date
-    var deletedAt: Date?
-
-    var isDeleted: Bool { deletedAt != nil }
-}
-
-// MARK: - Sync Manifest (Feeds & Folders)
-
-struct SyncManifest: Codable, Equatable, Sendable {
-    var version: Int = 1
-    var deviceId: String
-    var updatedAt: Date
-    var feeds: [SyncFeed]
-    var folders: [SyncFolder]
-}
-
-// MARK: - Sync States (Read States & Bookmarks)
-
-struct SyncStates: Codable, Equatable, Sendable {
-    var version: Int = 1
-    var deviceId: String
-    var updatedAt: Date
-    /// Compact list of 64-bit hashes for read articles (kept for last 30 days)
-    var readItemHashes: [UInt64]
-    /// Bookmarked article links (full URLs to guarantee zero collision)
-    var bookmarkedLinks: [String]
 }
 
 // MARK: - Sync Settings (User Preferences)
@@ -171,12 +169,78 @@ struct SyncSettings: Codable, Equatable, Sendable {
     }
 }
 
-// MARK: - Peer-to-Peer Micro Payload (Multipeer Packet)
+// MARK: - Peer-to-Peer Payloads (nearby sync)
 
-enum SyncPeerEvent: Codable, Sendable {
+/// Live changes and snapshots exchanged with an authenticated, paired device.
+/// Snapshots are split into small chunks (`SyncEventValidator` caps every list) so a single message
+/// stays well below MultipeerConnectivity's practical size limits.
+enum SyncPeerEvent: Codable, Sendable, Equatable {
     case readArticles(hashes: [UInt64])
     case bookmarkToggled(link: String, isBookmarked: Bool)
     case feedAddedOrUpdated(feed: SyncFeed)
-    case feedDeleted(id: UUID, deletedAt: Date)
-    case requestFullSync
+    /// Feeds are identified by URL because ids differ between Macs.
+    case feedDeleted(url: String, deletedAt: Date)
+    case folderUpdated(folder: SyncFolder)
+    case folderDeleted(id: UUID, deletedAt: Date)
+    case feedSnapshot(feeds: [SyncFeed], folders: [SyncFolder])
+    case tombstoneSnapshot(tombstones: [Tombstone])
+    case bookmarkSnapshot(links: [String])
+    case settings(SyncSettings)
+}
+
+/// What actually travels over the wire.
+enum SyncWireMessage: Codable, Sendable, Equatable {
+    case handshake(HandshakeMessage)
+    case event(SyncPeerEvent)
+}
+
+// MARK: - Validation of incoming events
+
+/// Defence in depth: even events from a paired device are range-checked before they touch the library.
+enum SyncEventValidator {
+    static let maxHashes = 5_000
+    static let maxFeeds = 200
+    static let maxFolders = 500
+    static let maxLinks = 500
+    static let maxTombstones = 500
+    static let maxURLLength = 2_048
+    static let maxTextLength = 500
+
+    static func isAcceptable(_ event: SyncPeerEvent) -> Bool {
+        switch event {
+        case .readArticles(let hashes):
+            return hashes.count <= maxHashes
+        case .bookmarkToggled(let link, _):
+            return isAcceptableLink(link)
+        case .feedAddedOrUpdated(let feed):
+            return isAcceptable(feed)
+        case .feedDeleted(let url, _):
+            return url.count <= maxURLLength
+        case .folderUpdated(let folder):
+            return folder.name.count <= maxTextLength
+        case .folderDeleted:
+            return true
+        case .tombstoneSnapshot(let tombstones):
+            return tombstones.count <= maxTombstones && tombstones.allSatisfy { $0.key.count <= maxURLLength }
+        case .feedSnapshot(let feeds, let folders):
+            return feeds.count <= maxFeeds && folders.count <= maxFolders
+                && feeds.allSatisfy(isAcceptable) && folders.allSatisfy { $0.name.count <= maxTextLength }
+        case .bookmarkSnapshot(let links):
+            return links.count <= maxLinks && links.allSatisfy(isAcceptableLink)
+        case .settings(let settings):
+            return (settings.mutedKeywords?.count ?? 0) <= 10_000
+        }
+    }
+
+    /// Feeds are fetched by the app, so only plain web URLs are allowed.
+    static func isAcceptable(_ feed: SyncFeed) -> Bool {
+        guard feed.url.count <= maxURLLength, feed.title.count <= maxTextLength,
+              let url = URL(string: feed.url), let scheme = url.scheme?.lowercased(),
+              scheme == "http" || scheme == "https", url.host?.isEmpty == false else { return false }
+        return true
+    }
+
+    private static func isAcceptableLink(_ link: String) -> Bool {
+        link.count <= 4_096
+    }
 }
