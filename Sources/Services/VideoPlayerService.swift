@@ -32,7 +32,9 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
     private(set) var videoID: String?
 
     // Playback State
-    var isPlaying: Bool = false
+    var isPlaying: Bool = false {
+        didSet { isPlaying ? cancelIdleTeardown() : scheduleIdleTeardown() }
+    }
     var isBuffering: Bool = false
     var currentTime: Double = 0.0
     var duration: Double = 0.0
@@ -241,7 +243,33 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
         }
     }
 
+    // MARK: - Idle teardown
+    //
+    // A loaded YouTube page keeps roughly 130 MB alive in WebKit's processes even when paused. If the
+    // video stays paused (or ended) for a while and is not fullscreen, release it; pressing play again
+    // reloads it.
+
+    @ObservationIgnored private var idleTask: Task<Void, Never>?
+    private static let idleTeardownDelay: Duration = .seconds(90)
+
+    private func cancelIdleTeardown() {
+        idleTask?.cancel()
+        idleTask = nil
+    }
+
+    private func scheduleIdleTeardown() {
+        idleTask?.cancel()
+        guard webView != nil, currentVideo != nil else { return }
+        idleTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: Self.idleTeardownDelay)
+            guard !Task.isCancelled, let self, !self.isPlaying, !self.isFullscreen else { return }
+            AppLogger.shared.log("Closing the paused video player to free memory", level: .info, category: .system)
+            self.close()
+        }
+    }
+
     func close() {
+        cancelIdleTeardown()
         pause()
         executeJS("if (window.stopProgressTimer) stopProgressTimer(); if (window.player && player.stopVideo) { player.stopVideo(); }")
         if let wv = webView {
@@ -269,6 +297,8 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
         isPlaying = false
         isBuffering = false
         isFullscreen = false
+
+        cancelIdleTeardown() // pause() above scheduled one; nothing is left to tear down
 
         // Purge hardware decode & WebKit buffers so GPU and WebContent processes release memory
         WebView.flushMemoryCache()
