@@ -762,7 +762,8 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Sources/Resources/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Versoline;
+				INFOPLIST_KEY_CFBundleDisplayName = "Versoline Dev";
+				INFOPLIST_KEY_CFBundleName = "Versoline Dev";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 bezelye404. All rights reserved.";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -771,7 +772,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 0.3.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.bezelye.Versoline;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bezelye.Versoline.dev;
 				PRODUCT_NAME = Versoline;
 				SDKROOT = macosx;
 			};
