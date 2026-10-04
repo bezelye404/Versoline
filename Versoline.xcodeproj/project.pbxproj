@@ -44,6 +44,7 @@
 		5A3A47BD32564B1B614E49B9 /* diken.html in Resources */ = {isa = PBXBuildFile; fileRef = DC0B3045E65C57778A101424 /* diken.html */; };
 		5FA5CD3B0D1713949F7FEDBE /* CuratedFeedManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7EEAE8836C50ED6DCDC4A4 /* CuratedFeedManager.swift */; };
 		61EC4CD8A4FFCDC77014A2D9 /* RSSParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCB6E669288B72ECD079C1E /* RSSParserTests.swift */; };
+		651FA254185E24F4EC9422B6 /* FeedDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11000F72C3EED34D212CDBEF /* FeedDiscoveryTests.swift */; };
 		657CC07A7DE9337BE28A2910 /* YouTubePlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D789E557A688147D270B120 /* YouTubePlayerView.swift */; };
 		65C4D53293825BB077E4055B /* OPMLManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4CE756922485ED1735619D8 /* OPMLManager.swift */; };
 		679E4192F02EF6D27DD12894 /* FullscreenVideoModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0922EF21F3CC741198F15EC /* FullscreenVideoModal.swift */; };
@@ -133,6 +134,7 @@
 		F84B001328AD7874F3FD2F48 /* NearbySyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DECE13F29FA04C69BA998742 /* NearbySyncTests.swift */; };
 		F941AAC80BB7096A13C66F4A /* FeedItemHygieneTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BA42B73273E38D7056A6525 /* FeedItemHygieneTests.swift */; };
 		F97AA741C7BE7279EF69A3C5 /* ReadingStatsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B84880E13F7F25DBCEFFEE3 /* ReadingStatsSheet.swift */; };
+		F9E7FBB8E211DDED7C178858 /* FeedDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23D491E899DF32887BE9F458 /* FeedDiscovery.swift */; };
 		FA232EE0D0BA737B967E395E /* ConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10A3A0BE32D4B56D9D4F40 /* ConsoleView.swift */; };
 		FFB570FD87FD142E9F52662D /* ArticleSpeechDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A48DED7C5716885E8C8D220 /* ArticleSpeechDelegate.swift */; };
 /* End PBXBuildFile section */
@@ -156,6 +158,7 @@
 		0C6FDA305945D280F442DDFB /* StorageSettingsTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageSettingsTab.swift; sourceTree = "<group>"; };
 		0CB007D67A2DE85CA029DFA3 /* NativeVideoPlayerCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeVideoPlayerCanvas.swift; sourceTree = "<group>"; };
 		0E9F0FEB5CA6F3CB49B584EC /* LogRedactorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRedactorTests.swift; sourceTree = "<group>"; };
+		11000F72C3EED34D212CDBEF /* FeedDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedDiscoveryTests.swift; sourceTree = "<group>"; };
 		116DA537996365CE0A61DE90 /* PodcastDownloadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastDownloadService.swift; sourceTree = "<group>"; };
 		1429AD471AF8CE73B1886318 /* bianet.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = bianet.html; sourceTree = "<group>"; };
 		15E5F62D8D57E0C3E52776E4 /* AudioPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerService.swift; sourceTree = "<group>"; };
@@ -163,6 +166,7 @@
 		18B9364D3261C29B42A42713 /* bbc.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = bbc.html; sourceTree = "<group>"; };
 		1F302A5DB707B66DC486CB6A /* ArticleDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleDocument.swift; sourceTree = "<group>"; };
 		21176B4CEDA3BDE8C939B6B4 /* SocialFeedsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialFeedsView.swift; sourceTree = "<group>"; };
+		23D491E899DF32887BE9F458 /* FeedDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedDiscovery.swift; sourceTree = "<group>"; };
 		2BCB6E669288B72ECD079C1E /* RSSParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSParserTests.swift; sourceTree = "<group>"; };
 		2D789E557A688147D270B120 /* YouTubePlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubePlayerView.swift; sourceTree = "<group>"; };
 		2D871B02ED37A52B01F2B790 /* FeedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItem.swift; sourceTree = "<group>"; };
@@ -323,6 +327,7 @@
 				3CE61036D7FF9820011B3794 /* ArticleParserTests.swift */,
 				819171CEFA63DFC86DE58D0F /* BionicReadingTests.swift */,
 				9F20D231E4B9E229A105EF72 /* CommandPaletteTests.swift */,
+				11000F72C3EED34D212CDBEF /* FeedDiscoveryTests.swift */,
 				6BA42B73273E38D7056A6525 /* FeedItemHygieneTests.swift */,
 				A6AADA107F645C1AA673835B /* FeedStorePersistenceTests.swift */,
 				8BC08937EEE02E9A0D4C014B /* FeedStoreTests.swift */,
@@ -495,6 +500,7 @@
 				C3D95F851B7D3243C64939BC /* ContentBlockerService.swift */,
 				FA7EEAE8836C50ED6DCDC4A4 /* CuratedFeedManager.swift */,
 				F02D94482B96A3A67D2BE9C0 /* FaviconService.swift */,
+				23D491E899DF32887BE9F458 /* FeedDiscovery.swift */,
 				42163A4A7D72978A2D14A66B /* FeedHealthService.swift */,
 				AFD8DAD7B298618EDD170D2E /* FeedItemHygiene.swift */,
 				9DD0AA41FA3F5ADB38B4CF65 /* HTMLCleaner.swift */,
@@ -665,6 +671,7 @@
 				7A04D66093BD11139791639A /* ArticleParserTests.swift in Sources */,
 				AD9099F8B02EE78E6CD48B4E /* BionicReadingTests.swift in Sources */,
 				7B50D56F55FDAB85FB417355 /* CommandPaletteTests.swift in Sources */,
+				651FA254185E24F4EC9422B6 /* FeedDiscoveryTests.swift in Sources */,
 				F941AAC80BB7096A13C66F4A /* FeedItemHygieneTests.swift in Sources */,
 				2822235390CB55B71F1C311A /* FeedStorePersistenceTests.swift in Sources */,
 				6B807734F51DA47A0751C51B /* FeedStoreTests.swift in Sources */,
@@ -711,6 +718,7 @@
 				B26000EE6DE1BEC3A2831AF7 /* EqualizerWaveformView.swift in Sources */,
 				1210A9E476E6F0A1439C615F /* FaviconService.swift in Sources */,
 				00905F32F41F55957BA7E7BF /* Feed.swift in Sources */,
+				F9E7FBB8E211DDED7C178858 /* FeedDiscovery.swift in Sources */,
 				7FAB7ADBE5DB2FA7BF499193 /* FeedHealthService.swift in Sources */,
 				006861E4AAF294630B8CA05E /* FeedHealthSettingsTab.swift in Sources */,
 				B6CE431F74C607D39CBB6810 /* FeedItem.swift in Sources */,

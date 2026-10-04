@@ -30,6 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Native reader:** articles are parsed into blocks (headings, paragraphs, lists, quotes, code, images with captions) and drawn with plain SwiftUI, so reading no longer starts WebKit's helper processes (about 50 MB and three processes per reading session). Links, bold, italic and inline code are kept; Bionic Reading, font, line height and the colour themes work as before. Page furniture such as breadcrumbs, "follow us" lines, related-post lists, navigation, sidebars and footers is dropped, and images are downsampled and loaded lazily. Code blocks are plain monospaced (no syntax colours). The web view is still used for the "Web" mode and as a fallback when nothing readable is found.
 
 ### Feeds
+- **Add a feed from a site address:** paste `example.com` or an article link and Versoline looks for the feed the page advertises (`<link rel="alternate">`, skipping comment feeds), then for the usual paths (`/feed`, `/rss`, the section's `index.xml`, ...). Only the address you typed and that site's own paths are contacted.
 - **Articles only:** items without a real article (social posts, promos, home-page links) and duplicates are dropped; entries without a link get an identity from their guid or enclosure, so read and bookmark state no longer collides between them.
 
 - Items that older versions left with one shared id (a whole podcast feed could show the same episode over and over in the list) get their own id on the next launch.

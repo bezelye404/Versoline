@@ -26,10 +26,22 @@ extension FeedStore {
         AppLogger.shared.log("Adding feed: \(targetURL)", level: .info, category: .network)
 
         do {
-            let result = try await Self.fetchFeed(url: targetURL, feedId: newFeedId)
+            var fetched = try await Self.fetchFeed(url: targetURL, feedId: newFeedId)
 
-            guard let result else {
-                errorMessage = String(localized: "Could not parse feed. Please ensure it is a valid RSS/Atom URL.")
+            // Not a feed: the address may be a site or an article, so look for the feed it advertises.
+            if fetched == nil, let discovered = await FeedDiscovery.findFeed(onPageAt: targetURL), discovered != targetURL {
+                AppLogger.shared.log("Found feed for \(targetURL)", level: .info, category: .network, details: discovered)
+                if feeds.contains(where: { $0.url == discovered }) {
+                    errorMessage = String(localized: "This feed has already been added.")
+                    isLoading = false
+                    return
+                }
+                targetURL = discovered
+                fetched = try await Self.fetchFeed(url: targetURL, feedId: newFeedId)
+            }
+
+            guard let result = fetched else {
+                errorMessage = String(localized: "No RSS or Atom feed was found at this address.")
                 AppLogger.shared.log("Parse failed for new feed: \(targetURL)", level: .error, category: .parser)
                 isLoading = false
                 return
