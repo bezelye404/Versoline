@@ -100,6 +100,7 @@ struct VersolineApp: App {
         .defaultSize(width: 1100, height: 700)
         .commands {
             SidebarCommands()
+            AppCommands()
         }
 
         Settings {

@@ -13,6 +13,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed (sync)
 - **Deletions and edits now propagate** between paired Macs, even if one was offline. Feeds and folders carry a last-edit time and deletions are remembered for 90 days ("last writer wins"): deleting, renaming a folder, moving a feed, pinning, and re-adding a deleted feed all converge on every Mac, whichever order they sync in (covered by randomized convergence tests). Existing feeds have no edit time yet, so any deletion or later edit beats them. A Mac offline for more than 90 days can bring back something deleted meanwhile. Bookmark removal is still union-only.
 
+### UI and UX
+- **Calmer sidebar:** four everyday lists (Unread, Today, Bookmarks, All), one collapsible Media group that only appears when there is media, monochrome icons, and a count only on Unread. Folder management and Reading Insights moved to the menu bar.
+- **Native toolbars:** the window toolbar is just Refresh and Add (a split button); OPML, folders, console and shortcuts are menu bar commands (File, View, Help). The article controls are in the real window toolbar: reading mode, an "Aa" appearance popover, bookmark, read, and one More menu.
+- **Lighter list rows:** one quiet meta line (source, time, media) instead of author icon and capsules, and a one-line summary.
+- **Native search** (⌘F) in the toolbar replaces the in-list search bar.
+- **Faster navigation:** ⌘K command palette to jump to any list, folder or feed or run any command, and Focus Mode (⇧⌘F) to read without the sidebar and list.
+- **Welcome screen** with three clear first steps while the library is empty.
+- **Motion:** SF Symbol bounce on bookmark and read toggles and numeric transitions, both disabled under Reduce Motion.
+
 ### Removed
 - **iCloud Drive sync.** It needed a sandbox exception for the iCloud Drive folder and could clear local bookmarks when feeds changed. It may return later as a new design. Nothing is deleted from an existing iCloud Drive folder.
 
@@ -31,7 +40,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Copy/Export in the console redacts URL query strings, URL credentials, and the macOS account name.
 - 262 previously untranslated Turkish UI strings, plus `scripts/check-localization.py` (also run in CI).
 - GitHub Actions workflow that runs the test suite on every pull request.
-- Unit tests (140): parsing, merging, persistence, OPML, cleaning, localization, memory budget, pairing and sync.
+- Unit tests (146): parsing, merging, persistence, OPML, cleaning, localization, memory budget, pairing and sync.
 
 ### Changed
 - `FeedStore` is split into focused files under `Sources/Services/FeedStore/`; podcast/video/quick-read/deep-read queries now share one `ItemStream` implementation. Large view files were split into one type per file.

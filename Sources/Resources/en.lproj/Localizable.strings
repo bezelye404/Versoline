@@ -638,3 +638,20 @@
 "%@ is now paired." = "%@ is now paired.";
 "Try Again" = "Try Again";
 "No device was found. Open Pair New Device on the other Mac too." = "No device was found. Open Pair New Device on the other Mac too.";
+
+/* UI refresh */
+"Add Feed..." = "Add Feed...";
+"Reading Mode" = "Reading Mode";
+"Switch between Reader and Web" = "Switch between Reader and Web";
+"Content Blocker" = "Content Blocker";
+"Add a feed" = "Add a feed";
+"Media" = "Media";
+"Welcome to Versoline" = "Welcome to Versoline";
+"Add your first feed to start reading." = "Add your first feed to start reading.";
+"Add a Feed by URL" = "Add a Feed by URL";
+"Browse the Catalog" = "Browse the Catalog";
+"Import OPML" = "Import OPML";
+"Focus Mode" = "Focus Mode";
+"Go to..." = "Go to...";
+"Go to a feed or run a command..." = "Go to a feed or run a command...";
+"No matches" = "No matches";
