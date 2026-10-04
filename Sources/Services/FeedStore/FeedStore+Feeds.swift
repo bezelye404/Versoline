@@ -139,7 +139,7 @@ extension FeedStore {
                     group.addTask {
                         do {
                             if feed.url.lowercased().contains("reddit.com") {
-                                try? await Task.sleep(nanoseconds: 500_000_000)
+                                try? await Task.sleep(for: .milliseconds(500))
                             }
                             let result = try await Self.fetchFeed(url: feed.url, feedId: feed.id, etag: feed.etag, lastModified: feed.lastModifiedHeader)
                             return (feed.id, result)
@@ -166,6 +166,7 @@ extension FeedStore {
         invalidateItemCaches()
         updateSmartCategoryCaches()
         save()
+        MemoryRelief.trim()
         AppLogger.shared.log("All feeds refresh finished", level: .info, category: .network)
     }
 

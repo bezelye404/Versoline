@@ -17,6 +17,7 @@ struct ArticleDetailView: View {
     @AppStorage(AppSettingsKeys.preferredExternalBrowser) private var preferredExternalBrowserRaw = ExternalBrowserOption.systemDefault.rawValue
     @AppStorage(AppSettingsKeys.isContentBlockerEnabled) private var isContentBlockerEnabled = true
     @AppStorage(AppSettingsKeys.isBionicReadingEnabled) private var isBionicReadingEnabled = false
+    @AppStorage(AppSettingsKeys.playYouTubeInApp) private var playYouTubeInApp = true
 
     let selectedItem: FeedItem?
 
@@ -81,10 +82,16 @@ struct ArticleDetailView: View {
                         } else if item.isYouTube {
                             VStack(spacing: 0) {
                                 if let videoID = item.youtubeVideoID {
-                                    YouTubePlayerView(videoID: videoID, title: item.title, link: item.link, item: item)
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.horizontal, 24)
-                                        .padding(.vertical, 12)
+                                    if playYouTubeInApp {
+                                        YouTubePlayerView(videoID: videoID, title: item.title, link: item.link, item: item)
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.horizontal, 24)
+                                            .padding(.vertical, 12)
+                                    } else {
+                                        youTubeLinkCard(item: item)
+                                            .padding(.horizontal, 24)
+                                            .padding(.vertical, 12)
+                                    }
                                 }
                                 articleContent(item: item)
                             }
@@ -192,6 +199,35 @@ struct ArticleDetailView: View {
             parts.append(duration.uppercased())
         }
         return parts.joined(separator: " · ")
+    }
+
+    // MARK: - YouTube without WebKit
+
+    /// Thumbnail with a play button that opens the video in the browser. Costs no web view at all.
+    private func youTubeLinkCard(item: FeedItem) -> some View {
+        Button {
+            AppHaptics.tap()
+            if let url = URL(string: item.link) {
+                currentExternalBrowser.open(url: url)
+            }
+        } label: {
+            ZStack {
+                if let thumbnail = item.youtubeThumbnailURL {
+                    DownsampledImageView(url: thumbnail, targetSize: CGSize(width: 640, height: 360), contentMode: .fill, cornerRadius: 12)
+                } else {
+                    RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.06))
+                }
+                Circle()
+                    .fill(Color.black.opacity(0.65))
+                    .frame(width: 56, height: 56)
+                    .overlay(Image(systemName: "play.fill").font(.system(size: 22, weight: .bold)).foregroundStyle(.white).offset(x: 2))
+            }
+            .aspectRatio(16.0 / 9.0, contentMode: .fit)
+            .frame(maxWidth: 640)
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.plain)
+        .help(String(localized: "Watch on YouTube"))
     }
 
     // MARK: - Window Toolbar (native)

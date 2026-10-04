@@ -18,6 +18,7 @@
 		2022E77965227BB4BC7F7AA6 /* FeedStore+OPML.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F41177A5909AB96A3254E5F /* FeedStore+OPML.swift */; };
 		247931C2C37C2DB9358197F8 /* FeedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA50AB3CBAEC3AB16053E65 /* FeedStore.swift */; };
 		2822235390CB55B71F1C311A /* FeedStorePersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6AADA107F645C1AA673835B /* FeedStorePersistenceTests.swift */; };
+		2A45BD10C889651D86C08C0F /* MemoryRelief.swift in Sources */ = {isa = PBXBuildFile; fileRef = A287CC2D23E0C21EE3376F09 /* MemoryRelief.swift */; };
 		2AC2FDDAF68FDBE0655EBA8B /* LogRedactorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E9F0FEB5CA6F3CB49B584EC /* LogRedactorTests.swift */; };
 		2B4F159045B1BD9105F6C96E /* curated_feeds.json in Resources */ = {isa = PBXBuildFile; fileRef = AB24CA8959980EC771C82E02 /* curated_feeds.json */; };
 		2C532173A7887BFC5B4CB7C5 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FAFB15B100CE44093DCDFED /* AppLogger.swift */; };
@@ -186,6 +187,7 @@
 		9DD0AA41FA3F5ADB38B4CF65 /* HTMLCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLCleaner.swift; sourceTree = "<group>"; };
 		9F20D231E4B9E229A105EF72 /* CommandPaletteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandPaletteTests.swift; sourceTree = "<group>"; };
 		A0922EF21F3CC741198F15EC /* FullscreenVideoModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullscreenVideoModal.swift; sourceTree = "<group>"; };
+		A287CC2D23E0C21EE3376F09 /* MemoryRelief.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryRelief.swift; sourceTree = "<group>"; };
 		A57F86A88ED909FE6237FCC1 /* FeedStore+Feeds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FeedStore+Feeds.swift"; sourceTree = "<group>"; };
 		A5E3296C821F7A38AAEE4026 /* PodcastSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastSearchView.swift; sourceTree = "<group>"; };
 		A6AADA107F645C1AA673835B /* FeedStorePersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedStorePersistenceTests.swift; sourceTree = "<group>"; };
@@ -434,6 +436,7 @@
 				42163A4A7D72978A2D14A66B /* FeedHealthService.swift */,
 				9DD0AA41FA3F5ADB38B4CF65 /* HTMLCleaner.swift */,
 				D3EC7FFFEEE155BA3CB2A62C /* LegacyMigration.swift */,
+				A287CC2D23E0C21EE3376F09 /* MemoryRelief.swift */,
 				7240E37BB4C740D5CF11C268 /* NetworkMonitor.swift */,
 				E4CE756922485ED1735619D8 /* OPMLManager.swift */,
 				116DA537996365CE0A61DE90 /* PodcastDownloadService.swift */,
@@ -623,6 +626,7 @@
 				76B5B96C5C29A35EABE9D9E7 /* KeyboardShortcutsHelpView.swift in Sources */,
 				C9E26B2BEF301EC00C9C56BE /* LegacyMigration.swift in Sources */,
 				8FF87E7DFF38FDF16A635384 /* LocalPeerSyncEngine.swift in Sources */,
+				2A45BD10C889651D86C08C0F /* MemoryRelief.swift in Sources */,
 				AAE5972461D57F525A4D1BFD /* MiniPlayerView.swift in Sources */,
 				DB059AED74C03EFEB7632D2C /* MotionSafe.swift in Sources */,
 				C125E06593424E195D6C9AEC /* NativePlayerScrubber.swift in Sources */,

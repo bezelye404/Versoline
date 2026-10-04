@@ -88,6 +88,7 @@ struct VersolineApp: App {
         if !VideoPlayerService.shared.isPlaying && VideoPlayerService.shared.webView != nil {
             VideoPlayerService.shared.close()
         }
+        MemoryRelief.trim()
         NotificationCenter.default.post(name: Notification.Name("VersolineCompactMemory"), object: nil)
     }
 

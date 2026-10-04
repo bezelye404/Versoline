@@ -74,6 +74,7 @@ extension FeedStore {
         updateSmartCategoryCaches()
         save()
         SyncCoordinator.shared.notifyFeedsOrFoldersChanged()
+        MemoryRelief.trim()
         AppLogger.shared.log("OPML import finished. Total feeds now: \(feeds.count)", level: .info, category: .storage)
     }
 

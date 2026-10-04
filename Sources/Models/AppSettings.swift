@@ -478,6 +478,8 @@ struct AppSettingsKeys {
     static let appColorPalette = "appColorPalette"
     static let isBionicReadingEnabled = "isBionicReadingEnabled"
     static let showReadingTimeStreams = "showReadingTimeStreams"
+    /// true: YouTube videos play inside Versoline (loads a WebKit page, about 100 MB more). false: open in the browser.
+    static let playYouTubeInApp = "playYouTubeInApp"
     /// Switch of the removed iCloud Drive sync; only used to clear leftovers.
     static let legacyICloudSyncEnabled = "isSyncEnabled"
     static let isLocalPeerSyncEnabled = "isLocalPeerSyncEnabled"
