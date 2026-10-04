@@ -94,6 +94,11 @@ extension FeedStore {
                 for (feedId, feedItems) in storage.items {
                     let processed = feedItems.map { item -> FeedItem in
                         var cleaned = item
+                        // Older versions stored items without a link (podcasts identified only by guid). They all
+                        // shared the identity "", so reading or bookmarking one affected the rest. Give each its own.
+                        if cleaned.link.isEmpty {
+                            cleaned.link = cleaned.audioURL ?? "urn:versoline:item:\(cleaned.id.uuidString)"
+                        }
                         if cleaned.title.contains("&") || cleaned.title.contains("<") {
                             cleaned.title = cleaned.title.strippingHTML()
                         }
