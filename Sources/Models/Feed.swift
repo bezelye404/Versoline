@@ -11,6 +11,9 @@ struct Feed: Codable, Identifiable, Hashable {
     var etag: String?
     var lastModifiedHeader: String?
     var isPinned: Bool
+    /// Last user edit (added, moved, pinned). Drives nearby-sync conflict resolution; `nil` means
+    /// "never edited since this field existed" and loses against any dated change or deletion.
+    var updatedAt: Date?
 
     init(
         id: UUID = UUID(),
@@ -22,7 +25,8 @@ struct Feed: Codable, Identifiable, Hashable {
         folderId: UUID? = nil,
         etag: String? = nil,
         lastModifiedHeader: String? = nil,
-        isPinned: Bool = false
+        isPinned: Bool = false,
+        updatedAt: Date? = nil
     ) {
         self.id = id
         self.title = title
@@ -34,10 +38,11 @@ struct Feed: Codable, Identifiable, Hashable {
         self.etag = etag
         self.lastModifiedHeader = lastModifiedHeader
         self.isPinned = isPinned
+        self.updatedAt = updatedAt
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, title, url, description, imageURL, lastUpdated, folderId, etag, lastModifiedHeader, isPinned
+        case id, title, url, description, imageURL, lastUpdated, folderId, etag, lastModifiedHeader, isPinned, updatedAt
     }
 
     init(from decoder: Decoder) throws {
@@ -52,5 +57,6 @@ struct Feed: Codable, Identifiable, Hashable {
         etag = try container.decodeIfPresent(String.self, forKey: .etag)
         lastModifiedHeader = try container.decodeIfPresent(String.self, forKey: .lastModifiedHeader)
         isPinned = try container.decodeIfPresent(Bool.self, forKey: .isPinned) ?? false
+        updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt)
     }
 }

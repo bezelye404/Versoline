@@ -7,5 +7,12 @@
         <key>NSAllowsArbitraryLoads</key>
         <true/>
     </dict>
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>Versoline uses the local network only to sync with your own paired Macs. Nothing is sent to the internet.</string>
+    <key>NSBonjourServices</key>
+    <array>
+        <string>_versoline-sync._tcp</string>
+        <string>_versoline-sync._udp</string>
+    </array>
 </dict>
 </plist>

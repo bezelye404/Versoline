@@ -73,7 +73,9 @@ Process your daily reading queue at speed without reaching for the mouse:
 
 - **Zero Third-Party Dependencies:** 100% native Swift 6 and SwiftUI. Built strictly on first-party Apple frameworks (`WebKit`, `AVFoundation`, `MediaPlayer`, `Network`, `Charts`). No third-party packages, dynamic libraries, or closed-source tracking SDKs.
 - **100% Local Storage:** All feeds, articles, offline audio episodes, and cached favicons reside locally on your disk under `~/Library/Application Support/Versoline`.
+- **Optional Nearby Sync, Off by Default:** If you turn it on, your own Macs can sync feeds, folders, bookmarks, read states, and settings directly with each other over the local network. Devices must be paired first: both Macs show the same six-digit code and you confirm they match, the connection is encrypted, and unpaired devices are refused. No Versoline server and no cloud storage are involved. The app asks for macOS's local-network permission only for this feature.
 - **Direct Networking:** Your computer communicates directly with the source RSS and podcast servers. There are no cloud relays, proxy servers, or caching middle tiers.
+- **Private Logs:** The in-app console keeps at most 200 entries in memory. When you copy or export them (for example for a bug report), URL query strings, credentials in URLs, and your macOS account name are removed first.
 - **Ephemeral WebSessions:** Reader Mode uses isolated, ephemeral WebKit data stores (`WKWebsiteDataStore.nonPersistent()`), ensuring that cookies and cross-site trackers cannot accumulate.
 - **Memory & Resource Care:** Employs pre-decode CoreGraphics thumbnail downsampling (`CGImageSourceCreateThumbnailAtIndex`) and memory compaction when the app is backgrounded to maintain a strict RAM ceiling.
 
@@ -116,8 +118,9 @@ xcodegen generate
 # 3. Build the Release binary
 xcodebuild -project Versoline.xcodeproj -scheme Versoline -configuration Release build
 
-# 4. (Optional) Run the automated test suite
+# 4. (Optional) Run the automated test suite and the localization check
 xcodebuild test -project Versoline.xcodeproj -scheme Versoline -destination 'platform=macOS'
+python3 scripts/check-localization.py
 
 # 5. (Optional) Package a distributable DMG
 ./scripts/build-dmg.sh

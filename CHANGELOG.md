@@ -5,6 +5,41 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
+## [Unreleased]
+
+### Security
+- **Nearby sync now requires pairing.** The old local-network sync accepted every invitation from any device speaking the protocol, so anyone nearby could add or delete feeds. Devices must now be paired first: both Macs show the same six-digit code (derived from both devices' keys with a commit-reveal step, so a man in the middle cannot make the codes match) and you confirm it on each. Paired devices re-authenticate with a signed challenge on every connection, sessions require encryption, unauthenticated connections time out, and every incoming event is range-checked (only `http`/`https` feed URLs, size limits).
+
+### Changed (sync)
+- **Deletions and edits now propagate** between paired Macs, even if one was offline. Feeds and folders carry a last-edit time and deletions are remembered for 90 days ("last writer wins"): deleting, renaming a folder, moving a feed, pinning, and re-adding a deleted feed all converge on every Mac, whichever order they sync in (covered by randomized convergence tests). Existing feeds have no edit time yet, so any deletion or later edit beats them. A Mac offline for more than 90 days can bring back something deleted meanwhile. Bookmark removal is still union-only.
+
+### Removed
+- **iCloud Drive sync.** It needed a sandbox exception for the iCloud Drive folder and could clear local bookmarks when feeds changed. It may return later as a new design. Nothing is deleted from an existing iCloud Drive folder.
+
+### Fixed
+- **Library overwrite protection**: an unreadable `data.json` is now copied to `data.json.corrupt-<date>`, saving is blocked for that session, and a startup alert explains how to restore. Previously the next save could replace the library with an empty one.
+- **Quick Reads / Deep Reads**: reading time is now computed once from the full article body when a feed is parsed (`readingMinutes`). Article bodies are not kept on items, so every article used to count as one minute and Deep Reads stayed empty.
+- **Synced changes are saved**: read states, bookmarks, and feeds received from another device were applied in memory but not persisted.
+- **Reddit**: `old.reddit.com` links produced a broken feed URL.
+- **Reduce Motion**: all app animations now follow the macOS setting (short fade instead of springs and bounces).
+- **Background activity**: feeds are refreshed only while the app is in front (once on activation, then every 30 minutes), no longer while it is in the background.
+- **Legacy data**: the cache cleanup no longer touches the old `EasyRSS` folder, so it stays exactly as it was.
+- **Factory reset** now also forgets the sync identity and paired devices.
+
+### Added
+- `data.json.bak`: the last successfully loaded library is kept as a backup.
+- Copy/Export in the console redacts URL query strings, URL credentials, and the macOS account name.
+- 262 previously untranslated Turkish UI strings, plus `scripts/check-localization.py` (also run in CI).
+- GitHub Actions workflow that runs the test suite on every pull request.
+- Unit tests (140): parsing, merging, persistence, OPML, cleaning, localization, memory budget, pairing and sync.
+
+### Changed
+- `FeedStore` is split into focused files under `Sources/Services/FeedStore/`; podcast/video/quick-read/deep-read queries now share one `ItemStream` implementation. Large view files were split into one type per file.
+- Running the test suite no longer touches the real app container.
+- The app now declares the local-network permission (`NSLocalNetworkUsageDescription`, Bonjour service `_versoline-sync`) and the `network.server` sandbox entitlement, both needed only for nearby sync.
+
+---
+
 ## [0.3.0] - 2026-09-25
 
 ### Changed
@@ -44,6 +79,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Performance**: Cached date formatters and precomputed unread counters to eliminate main-thread stuttering during large feed updates.
 
 ---
+
+> **Note on 0.2.3:** a `EasyRSS-0.2.3.dmg` build existed but was never tagged or documented, and no separate 0.2.3 entry can be reconstructed from git history. Changes from 2026-09-14 to 2026-09-19 appear under 0.2.2 and 0.2.4.
 
 ## [0.2.1] - 2026-09-08
 

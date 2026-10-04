@@ -53,4 +53,6 @@ xcodebuild test -project Versoline.xcodeproj -scheme Versoline -destination 'pla
    xcodebuild -project Versoline.xcodeproj -scheme Versoline -configuration Debug build
    xcodebuild -project Versoline.xcodeproj -scheme Versoline -configuration Release build
    ```
-4. **Submit PR:** Submit a Pull Request targeting the `main` branch with a clear description of the problem solved.
+4. **Check localization:** Every user-facing string needs a key in both `en.lproj` and `tr.lproj`. Run `python3 scripts/check-localization.py`; it must print `OK`.
+5. **Respect the goals:** keep memory flat (a 3,500-article library costs about 2 MB; `MemoryBudgetTests` guards it), animate through `AppAnimation` tokens or `AppAnimation.safe(_:)` so macOS Reduce Motion is honoured, and add tests for behaviour changes. Nearby sync must stay opt-in, encrypted and pairing-only.
+6. **Submit PR:** Submit a Pull Request targeting the `main` branch with a clear description of the problem solved.

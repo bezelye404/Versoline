@@ -17,14 +17,23 @@ final class ReaderModeExtractor {
         return df
     }()
 
-    private init() {
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let cacheDir = appSupport.appendingPathComponent("Versoline/ReaderCache_v3", isDirectory: true)
+    /// - Parameter cacheDirectory: Overrides the default `Application Support/Versoline/ReaderCache_v3`
+    ///   location. Intended for tests; skips legacy directory cleanup when set.
+    init(cacheDirectory: URL? = nil) {
+        let cacheDir: URL
+        if let cacheDirectory {
+            cacheDir = cacheDirectory
+        } else {
+            let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            cacheDir = appSupport.appendingPathComponent("Versoline/ReaderCache_v3", isDirectory: true)
+        }
         try? FileManager.default.createDirectory(at: cacheDir, withIntermediateDirectories: true)
         self.cacheDirectory = cacheDir
         memoryCache.countLimit = 5
         memoryCache.totalCostLimit = 2 * 1024 * 1024 // Strict 2MB RAM ceiling
-        cleanupLegacyDirectories()
+        if cacheDirectory == nil {
+            cleanupLegacyDirectories()
+        }
     }
 
     func clearMemoryCache() {
@@ -34,9 +43,9 @@ final class ReaderModeExtractor {
     func cleanupLegacyDirectories() {
         let fm = FileManager.default
         guard let appSupport = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return }
+        // Only Versoline's own folder: the legacy `EasyRSS` folder is left exactly as it was (see LegacyMigration).
         let targetDirs = [
-            appSupport.appendingPathComponent("Versoline", isDirectory: true),
-            appSupport.appendingPathComponent("EasyRSS", isDirectory: true)
+            appSupport.appendingPathComponent("Versoline", isDirectory: true)
         ]
 
         let legacyDirNames = ["ReaderCache", "ReaderCache_v1", "ReaderCache_v2", "ImageCache"]

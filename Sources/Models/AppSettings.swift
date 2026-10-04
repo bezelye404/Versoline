@@ -478,7 +478,8 @@ struct AppSettingsKeys {
     static let appColorPalette = "appColorPalette"
     static let isBionicReadingEnabled = "isBionicReadingEnabled"
     static let showReadingTimeStreams = "showReadingTimeStreams"
-    static let isSyncEnabled = "isSyncEnabled"
+    /// Switch of the removed iCloud Drive sync; only used to clear leftovers.
+    static let legacyICloudSyncEnabled = "isSyncEnabled"
     static let isLocalPeerSyncEnabled = "isLocalPeerSyncEnabled"
 }
 
