@@ -213,6 +213,7 @@ extension FeedStore {
             }
 
             let existingItems = items[feedId] ?? []
+            let rules = FeedRules.stored
             let existingByLink = Dictionary(existingItems.map { ($0.link, $0) }, uniquingKeysWith: { first, _ in first })
 
             var updatedItems = result.items.map { item in
@@ -241,6 +242,7 @@ extension FeedStore {
 
                 // Save raw content to disk reader cache ONLY for new items so RAM remains lean
                 let isNewItem = existingByLink[item.link] == nil
+                if isNewItem, !rules.isEmpty { FeedRules.apply(rules, to: &mutableItem) }
                 if let rawContent = mutableItem.content, !rawContent.isEmpty {
                     if isNewItem {
                         readerCache.saveToCache(urlString: mutableItem.link, content: rawContent, storeInMemory: false)
