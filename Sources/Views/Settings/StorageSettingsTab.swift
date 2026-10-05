@@ -190,5 +190,3 @@ struct StorageSettingsTab: View {
         }
     }
 }
-
-// MARK: - 6. Feed Health Tab

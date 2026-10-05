@@ -93,31 +93,24 @@ final class FeedHealthService {
             }
         }
 
-        // Quick HTTP validation
-        if let url = URL(string: feed.url) {
-            var request = URLRequest(url: url)
-            request.httpMethod = "HEAD"
-            request.timeoutInterval = 6
-
-            do {
-                let (_, response) = try await session.data(for: request)
-                if let http = response as? HTTPURLResponse, !(200...399).contains(http.statusCode) {
-                    status = .broken(reason: "HTTP \(http.statusCode)")
-                }
-            } catch {
-                // Fallback to GET with Range 0-512 in case server rejects HEAD
-                var getReq = URLRequest(url: url)
-                getReq.setValue("bytes=0-512", forHTTPHeaderField: "Range")
-                getReq.timeoutInterval = 6
-                if let (_, getResp) = try? await session.data(for: getReq),
-                   let http = getResp as? HTTPURLResponse, (200...399).contains(http.statusCode) {
-                    // Healthy
-                } else {
-                    status = .broken(reason: error.localizedDescription)
+        if let url = URL(string: feed.url), AppInfo.isWebAddress(url) {
+            // Many servers refuse HEAD (405, 403) although the feed itself is fine, so a bad HEAD answer is checked
+            // again with a small GET before the feed is called broken.
+            var head = URLRequest(url: url)
+            head.httpMethod = "HEAD"
+            head.timeoutInterval = 6
+            if await Self.isReachable(head, using: session) != true {
+                var get = URLRequest(url: url)
+                get.setValue("bytes=0-512", forHTTPHeaderField: "Range")
+                get.timeoutInterval = 6
+                switch await Self.probe(get, using: session) {
+                case .success(let code) where (200...399).contains(code): break
+                case .success(let code): status = .broken(reason: "HTTP \(code)")
+                case .failure(let error): status = .broken(reason: error.localizedDescription)
                 }
             }
         } else {
-            status = .broken(reason: "Invalid URL")
+            status = .broken(reason: String(localized: "Invalid URL"))
         }
 
         return FeedHealthReport(
@@ -127,6 +120,21 @@ final class FeedHealthService {
             status: status,
             lastItemDate: latestDate
         )
+    }
+
+    /// true when the request got a 2xx or 3xx answer, nil when it failed or got another status.
+    private static func isReachable(_ request: URLRequest, using session: URLSession) async -> Bool? {
+        if case .success(let code) = await probe(request, using: session), (200...399).contains(code) { return true }
+        return nil
+    }
+
+    private static func probe(_ request: URLRequest, using session: URLSession) async -> Result<Int, Error> {
+        do {
+            let (_, response) = try await session.data(for: request)
+            return .success((response as? HTTPURLResponse)?.statusCode ?? 200)
+        } catch {
+            return .failure(error)
+        }
     }
 
     func removeFeed(_ report: FeedHealthReport, store: FeedStore) {

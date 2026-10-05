@@ -26,7 +26,7 @@ Run the automated packaging script:
 ./scripts/build-dmg.sh <VERSION>
 ```
 
-*Example:* `./scripts/build-dmg.sh 0.3.0`  
+*Example:* `./scripts/build-dmg.sh 0.4.0`  
 This produces `dist/Versoline-<VERSION>.dmg`.
 
 ### 3. Verify the Release Binary

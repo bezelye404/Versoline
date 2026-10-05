@@ -28,8 +28,7 @@ final class FaviconService {
     }()
 
     private init() {
-        let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let dir = appSupport.appendingPathComponent("Versoline/Favicons", isDirectory: true)
+        let dir = AppInfo.supportDirectory.appendingPathComponent("Favicons", isDirectory: true)
         try? fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
         self.cacheDirectory = dir
         memoryCache.countLimit = MemoryLimits.favicons.count
@@ -65,13 +64,13 @@ final class FaviconService {
     func favicon(for hostOrURL: String) async -> NSImage? {
         guard let host = extractHost(from: hostOrURL), !host.isEmpty else { return nil }
 
-        // 1. Memory cache
+        // Memory cache
         let cacheKey = host as NSString
         if let cached = memoryCache.object(forKey: cacheKey) {
             return cached
         }
 
-        // 2. Disk cache (with downsampling on decode)
+        // Disk cache (with downsampling on decode)
         let diskURL = cacheDirectory.appendingPathComponent("\(host).png")
         if fileManager.fileExists(atPath: diskURL.path(percentEncoded: false)),
            let data = try? Data(contentsOf: diskURL),
@@ -80,7 +79,7 @@ final class FaviconService {
             return image
         }
 
-        // 3. Prevent duplicate in-flight network requests
+        // Prevent duplicate in-flight network requests
         if let existing = inFlightTasks[host] {
             return await existing.value.image
         }
@@ -103,20 +102,67 @@ final class FaviconService {
         return await task.value.image
     }
 
+    /// Fetches the icon from the site itself, the way a browser would: `/favicon.ico`, then the icon the home page
+    /// names. Only the site that publishes the feed is contacted; no icon service ever hears which sites are followed.
     private func downloadFavicon(forHost host: String) async -> NSImage? {
-        // Use privacy-friendly DuckDuckGo Icon Service
-        guard let url = URL(string: "https://icons.duckduckgo.com/ip3/\(host).ico") else { return nil }
+        for candidate in Self.hostsToTry(for: host) {
+            if let icon = await fetchIcon(from: "https://\(candidate)/favicon.ico") { return icon }
+            if let page = await fetchData(from: "https://\(candidate)/", limit: 150_000) {
+                for address in Self.iconAddresses(inHTML: String(decoding: page, as: UTF8.self), pageAddress: "https://\(candidate)/") {
+                    if let icon = await fetchIcon(from: address) { return icon }
+                }
+            }
+        }
+        return nil
+    }
 
+    /// The feed's own host, then its parent domain (`feeds.example.com` is a feed server, `example.com` has the icon).
+    static func hostsToTry(for host: String) -> [String] {
+        let labels = host.split(separator: ".")
+        guard labels.count > 2 else { return [host] }
+        return [host, labels.dropFirst().joined(separator: ".")]
+    }
+
+    /// Icons a page names with `<link rel="icon">`, `shortcut icon` or `apple-touch-icon`, best first (touch icons are
+    /// the sharpest), as absolute addresses.
+    static func iconAddresses(inHTML html: String, pageAddress: String) -> [String] {
+        guard let base = URL(string: pageAddress),
+              let tags = try? NSRegularExpression(pattern: "<link\\b[^>]*>", options: [.caseInsensitive]) else { return [] }
+        let source = html as NSString
+        var found: [(rank: Int, address: String)] = []
+        for match in tags.matches(in: html, range: NSRange(location: 0, length: source.length)) {
+            let tag = source.substring(with: match.range)
+            guard let rel = attribute("rel", in: tag)?.lowercased(), let href = attribute("href", in: tag),
+                  rel.contains("icon"), let url = URL(string: href, relativeTo: base)?.absoluteURL,
+                  url.scheme == "https" || url.scheme == "http" else { continue }
+            found.append((rel.contains("apple-touch") ? 0 : 1, url.absoluteString))
+        }
+        return found.sorted { $0.rank < $1.rank }.map(\.address)
+    }
+
+    private static func attribute(_ name: String, in tag: String) -> String? {
+        guard let regex = try? NSRegularExpression(pattern: name + "\\s*=\\s*(?:\"([^\"]*)\"|'([^']*)'|([^\\s>]+))", options: [.caseInsensitive]),
+              let match = regex.firstMatch(in: tag, range: NSRange(location: 0, length: (tag as NSString).length)) else { return nil }
+        for group in 1...3 where match.range(at: group).location != NSNotFound {
+            return (tag as NSString).substring(with: match.range(at: group))
+        }
+        return nil
+    }
+
+    private func fetchIcon(from address: String) async -> NSImage? {
+        guard let data = await fetchData(from: address, limit: 400_000), !data.isEmpty else { return nil }
+        return Self.downsample(data: data)
+    }
+
+    private func fetchData(from address: String, limit: Int) async -> Data? {
+        guard let url = URL(string: address) else { return nil }
         var request = URLRequest(url: url)
         request.timeoutInterval = 6
-        request.setValue("Versoline/1.0", forHTTPHeaderField: "User-Agent")
-
+        request.setValue(AppInfo.userAgent, forHTTPHeaderField: "User-Agent")
         do {
             let (data, response) = try await Self.session.data(for: request)
-            guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode), !data.isEmpty else {
-                return nil
-            }
-            return Self.downsample(data: data)
+            guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode), data.count <= limit else { return nil }
+            return data
         } catch {
             return nil
         }
@@ -174,7 +220,7 @@ struct FaviconView: View {
     }
 }
 
-// MARK: - High-Performance Downsampling Image Cache & View
+// MARK: Downsampled images
 
 @MainActor
 final class ImageDownsampleCache {
@@ -186,12 +232,10 @@ final class ImageDownsampleCache {
     private var inFlightTasks: [String: Task<SendableImage, Never>] = [:]
 
     private init() {
-        let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let dir = appSupport.appendingPathComponent("Versoline/ImageCache_v1", isDirectory: true)
+        let dir = AppInfo.supportDirectory.appendingPathComponent("ImageCache_v1", isDirectory: true)
         try? fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
         self.diskCacheURL = dir
 
-        // Strict 2MB RAM ceiling and lower count limit for downsampled thumbnails
         memoryCache.countLimit = MemoryLimits.images.count
         memoryCache.totalCostLimit = MemoryLimits.images.bytes
     }
@@ -278,15 +322,16 @@ final class ImageDownsampleCache {
     }
 
     func image(for url: URL, maxPixelSize: CGFloat) async -> NSImage? {
+        guard AppInfo.isWebAddress(url) else { return nil }
         let key = cacheKey(url: url, maxPixelSize: maxPixelSize)
         let nsKey = key as NSString
 
-        // 1. In-memory check
+        // In-memory check
         if let cached = memoryCache.object(forKey: nsKey) {
             return cached
         }
 
-        // 2. Disk cache check
+        // Disk cache check
         let diskURL = diskFileURL(for: key)
         if fileManager.fileExists(atPath: diskURL.path(percentEncoded: false)),
            let diskData = try? Data(contentsOf: diskURL),
@@ -296,7 +341,7 @@ final class ImageDownsampleCache {
             return downsampled.nsImage
         }
 
-        // 3. Deduplicate in-flight network requests
+        // Deduplicate in-flight network requests
         if let existing = inFlightTasks[key] {
             return await existing.value.image
         }
@@ -304,7 +349,7 @@ final class ImageDownsampleCache {
         let task = Task<SendableImage, Never> {
             var request = URLRequest(url: url)
             request.timeoutInterval = 10
-            request.setValue("Versoline/1.0", forHTTPHeaderField: "User-Agent")
+            request.setValue(AppInfo.userAgent, forHTTPHeaderField: "User-Agent")
 
             do {
                 let (data, response) = try await URLSession.shared.data(for: request)
@@ -343,7 +388,7 @@ final class ImageDownsampleCache {
         CGImageDestinationFinalize(destination)
     }
 
-    /// High-performance CoreGraphics downsampling: Decodes directly into thumbnail pixels without instantiating full-resolution bitmap in RAM.
+    /// Decodes straight to thumbnail size, so the full-size bitmap is never held in memory.
     private static func downsample(data: Data, maxPixelSize: CGFloat) -> (nsImage: NSImage, cgImage: CGImage)? {
         let sourceOptions: [CFString: Any] = [
             kCGImageSourceShouldCache: false

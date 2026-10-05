@@ -206,7 +206,7 @@ struct ArticleDetailView: View {
         }
     }
 
-    // MARK: - Date & Duration Typography Helper
+    // MARK: Date & Duration Typography Helper
 
     private static let heroDateFormatter: DateFormatter = {
         let fmt = DateFormatter()
@@ -225,8 +225,6 @@ struct ArticleDetailView: View {
         }
         return parts.joined(separator: " · ")
     }
-
-    // MARK: - YouTube without WebKit
 
     /// Thumbnail with a play button that opens the video in the browser. Costs no web view at all.
     private func youTubeLinkCard(item: FeedItem) -> some View {
@@ -255,7 +253,6 @@ struct ArticleDetailView: View {
         .help(String(localized: "Watch on YouTube"))
     }
 
-    // MARK: - Window Toolbar (native)
     //
     // The article controls live in the real window toolbar: reading mode, the "Aa" appearance popover,
     // the two actions used on nearly every article (bookmark, read), and one "more" menu for the rest.
@@ -396,7 +393,7 @@ struct ArticleDetailView: View {
         }
     }
 
-    // MARK: - Podcast Full Page Scroll View
+    // MARK: Podcast Full Page Scroll View
 
     @ViewBuilder
     private func podcastFullPageView(item: FeedItem) -> some View {
@@ -411,7 +408,7 @@ struct ArticleDetailView: View {
             VStack(spacing: 18) {
                 Spacer().frame(height: 14)
 
-                // 1. Artwork presentation
+                // Artwork presentation
                 ZStack {
                     if let artworkURL = currentFeed?.imageURL.flatMap({ URL(string: $0) }) {
                         DownsampledImageView(
@@ -471,7 +468,7 @@ struct ArticleDetailView: View {
                     .help(isPlaying ? String(localized: "Pause") : String(localized: "Play Episode"))
                 }
 
-                // 2. Minimalist Scrubber Bar
+                // Scrubber
                 VStack(spacing: 4) {
                     let totalDur = isCurrentEpisode && player.duration > 0 ? player.duration : (Double(item.audioDuration ?? "0") ?? 1.0)
                     let currTime = isCurrentEpisode ? player.currentTime : item.playbackPosition
@@ -506,7 +503,7 @@ struct ArticleDetailView: View {
                 .frame(maxWidth: 380)
                 .padding(.horizontal, 24)
 
-                // 3. Date & Duration Pill
+                // Date & Duration Pill
                 let pillText = heroDateDurationPill(date: item.pubDate, duration: item.formattedDuration)
                 if !pillText.isEmpty {
                     Text(pillText)
@@ -515,7 +512,7 @@ struct ArticleDetailView: View {
                         .tracking(0.6)
                 }
 
-                // 4. Episode Title
+                // Episode Title
                 Text(item.title)
                     .font(.title3.weight(.bold))
                     .multilineTextAlignment(.center)
@@ -524,7 +521,7 @@ struct ArticleDetailView: View {
                     .frame(maxWidth: 560)
                     .padding(.horizontal, 24)
 
-                // 5. Podcast Feed Title & Subtitle with Equalizer
+                // Podcast Feed Title & Subtitle with Equalizer
                 HStack(spacing: 6) {
                     if let feedTitle = currentFeed?.title {
                         Text(feedTitle)
@@ -536,7 +533,7 @@ struct ArticleDetailView: View {
                     }
                 }
 
-                // 6. Transport Controls Row
+                // Transport Controls Row
                 HStack(spacing: 20) {
                     Button {
                         if isCurrentEpisode {
@@ -632,7 +629,7 @@ struct ArticleDetailView: View {
                 }
                 .padding(.vertical, 4)
 
-                // 7. Clickable Chapters
+                // Clickable Chapters
                 let chapters = parseChapters(from: item.itemDescription + " " + (extractedReaderHTML ?? item.content ?? ""))
                 if !chapters.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -666,7 +663,7 @@ struct ArticleDetailView: View {
                     }
                 }
 
-                // 8. Episode Show Notes
+                // Episode Show Notes
                 Divider()
                     .padding(.horizontal, 24)
                     .padding(.top, 6)
@@ -775,7 +772,7 @@ struct ArticleDetailView: View {
         }
     }
 
-    // MARK: - Article Content
+    // MARK: Article Content
 
     @ViewBuilder
     private func articleContent(item: FeedItem) -> some View {
@@ -796,8 +793,6 @@ struct ArticleDetailView: View {
         }
         .animation(AppAnimation.slidingPill, value: activeViewMode)
     }
-
-    // MARK: - In-App Browser Mode
 
     @ViewBuilder
     private func inAppBrowserView(item: FeedItem) -> some View {
@@ -833,8 +828,6 @@ struct ArticleDetailView: View {
             readerModeView(item: item)
         }
     }
-
-    // MARK: - Reader Mode View
 
     private func readerHTML(for item: FeedItem) -> String {
         if let extracted = extractedReaderHTML, !extracted.isEmpty {
@@ -948,7 +941,7 @@ struct ArticleDetailView: View {
         }
     }
 
-    // MARK: - Find in article
+    // MARK: Find in article
 
     private func findBar(for document: ArticleDocument) -> some View {
         let matches = ReaderFind.matches(in: document, query: findQuery)
@@ -1004,8 +997,6 @@ struct ArticleDetailView: View {
         focusBlock = nil
         DispatchQueue.main.async { focusBlock = block }
     }
-
-    // MARK: - Translation
 
     private func resetTranslation() {
         translatedDocument = nil
@@ -1173,7 +1164,7 @@ struct ArticleDetailView: View {
         .padding(10)
     }
 
-    // MARK: - Reader Mode Logic
+    // MARK: Reader Mode Logic
 
     private func loadReaderMode(for item: FeedItem, forceWeb: Bool = false) {
         if !forceWeb, let cached = ReaderModeExtractor.shared.cachedContent(for: item.link, requireSubstantive: true) {
@@ -1223,8 +1214,6 @@ struct ArticleDetailView: View {
         }
     }
 
-    // MARK: - Text to Speech Logic
-
     private func toggleSpeech(item: FeedItem) {
         if isSpeaking {
             stopSpeech()
@@ -1258,7 +1247,7 @@ struct ArticleDetailView: View {
         return "\(item.title). \(content)".trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    // MARK: - Reading Time Calculation
+    // MARK: Reading Time Calculation
 
     private func calculateReadingTime(item: FeedItem) -> String {
         let raw = extractedReaderHTML ?? item.content ?? item.itemDescription
@@ -1284,4 +1273,3 @@ struct ArticleDetailView: View {
     }
 }
 
-// MARK: - AVSpeechSynthesizer Delegate

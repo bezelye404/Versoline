@@ -2,8 +2,6 @@ import Foundation
 
 extension FeedStore {
 
-    // MARK: - OPML Import/Export
-
     func importOPML(data: Data) async {
         let manager = OPMLManager()
         let opmlFeeds = manager.parse(data: data)

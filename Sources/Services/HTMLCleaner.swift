@@ -40,14 +40,14 @@ enum HTMLCleaner {
 
         var result = string
 
-        // 1. Replace known named entities
+        // Replace known named entities
         for (entity, replacement) in namedEntities {
             if result.contains(entity) {
                 result = result.replacingOccurrences(of: entity, with: replacement)
             }
         }
 
-        // 2. Replace decimal entities &#1234;
+        // Replace decimal entities &#1234;
         if let regex = decimalEntityRegex, result.contains("&#") {
             let nsString = result as NSString
             let matches = regex.matches(in: result, range: NSRange(location: 0, length: nsString.length))
@@ -63,7 +63,7 @@ enum HTMLCleaner {
             }
         }
 
-        // 3. Replace hex entities &#x1F600;
+        // Replace hex entities &#x1F600;
         if let regex = hexEntityRegex, result.contains("&#x") || result.contains("&#X") {
             let nsString = result as NSString
             let matches = regex.matches(in: result, range: NSRange(location: 0, length: nsString.length))

@@ -380,7 +380,7 @@
 
 /* Views/AddFeedSheet.swift */
 "%lld+ Feeds" = "%lld+ Akış";
-"Browse Curated Feeds (rss.md)" = "Derlenmiş Akışlara Göz At (rss.md)";
+"Browse Curated Feeds" = "Derlenmiş Akışlara Göz At";
 "Folder" = "Klasör";
 "Generator" = "Oluşturucu";
 "Mode" = "Mod";
@@ -733,3 +733,5 @@
 "Find in Article" = "Makalede Bul";
 "Find in article" = "Makalede bul";
 "%d of %d" = "%d / %d";
+"Invalid audio stream URL." = "Geçersiz ses akışı adresi.";
+"Playback failed." = "Oynatma başarısız oldu.";

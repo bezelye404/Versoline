@@ -41,7 +41,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         config.urlCache = nil
         config.requestCachePolicy = .reloadIgnoringLocalCacheData
         config.httpAdditionalHeaders = [
-            "User-Agent": "Versoline/1.0 (Macintosh; Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko)"
+            "User-Agent": AppInfo.userAgent
         ]
         return URLSession(configuration: config)
     }()
@@ -118,7 +118,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         lastModified: String? = nil,
         retainItems: Int? = nil
     ) async throws -> ParseResult? {
-        guard let feedURL = URL(string: url) else {
+        guard let feedURL = URL(string: url), AppInfo.isWebAddress(feedURL) else {
             await AppLogger.shared.log("Invalid feed URL: \(url)", level: .error, category: .network)
             throw URLError(.badURL)
         }
@@ -135,9 +135,9 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         }
 
         if feedURL.host?.lowercased().contains("reddit.com") == true {
-            request.setValue("Versoline/1.0 (macOS; com.bezelye.Versoline; build 7) (by /u/VersolineApp)", forHTTPHeaderField: "User-Agent")
+            request.setValue(AppInfo.redditUserAgent, forHTTPHeaderField: "User-Agent")
         } else {
-            request.setValue("Versoline/1.0 (Macintosh; Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko)", forHTTPHeaderField: "User-Agent")
+            request.setValue(AppInfo.userAgent, forHTTPHeaderField: "User-Agent")
         }
 
         let (data, response) = try await session.data(for: request)
@@ -228,7 +228,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         }
     }
 
-    // MARK: - XMLParserDelegate
+    // MARK: XMLParserDelegate
 
     func parser(
         _ parser: XMLParser,
@@ -501,7 +501,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         }
     }
 
-    // MARK: - Date Parsing (Cached & High Performance)
+    // MARK: Date Parsing
 
     private static let rfc822Formatters: [DateFormatter] = {
         let formats = [
@@ -548,7 +548,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
     private func parseDate(_ string: String) -> Date? {
         if string.isEmpty { return nil }
 
-        // Fast-path heuristic: inspect leading character
+        // Look at the first character before trying the date formats
         let startsWithNumber = string.first?.isNumber == true
 
         if startsWithNumber {

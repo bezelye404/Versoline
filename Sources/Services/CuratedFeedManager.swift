@@ -22,17 +22,16 @@ final class CuratedFeedManager {
     private(set) var hasLoaded = false
     private(set) var isUpdatingFromRemote = false
 
-    private static let remoteManifestURL = URL(string: "https://raw.githubusercontent.com/bezelye404/versoline/main/Sources/Resources/curated_feeds.json")!
+    private static let remoteManifestURL = AppInfo.repositoryURL.appendingPathComponent("raw/main/Sources/Resources/curated_feeds.json")
 
     private var cacheFileURL: URL {
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let appDir = appSupport.appendingPathComponent("Versoline", isDirectory: true)
+        let appDir = AppInfo.supportDirectory
         try? FileManager.default.createDirectory(at: appDir, withIntermediateDirectories: true)
         return appDir.appendingPathComponent("curated_feeds_cache.json")
     }
 
     private init() {
-        // Tembel yükleme: AddFeedSheet açılmadan katalog belleğe yüklenmez
+        // Loaded lazily: the catalog stays out of memory until Add Feed is opened.
     }
 
     func loadIfNeeded() {
@@ -42,10 +41,8 @@ final class CuratedFeedManager {
         checkForRemoteUpdates()
     }
 
-    // MARK: - 0ms Fast Local Load
-
     func loadLocal() {
-        // 1. Prefer persisted dynamic cache if available
+        // Prefer persisted dynamic cache if available
         let diskURL = cacheFileURL
         if FileManager.default.fileExists(atPath: diskURL.path),
            let cachedData = try? Data(contentsOf: diskURL),
@@ -56,7 +53,7 @@ final class CuratedFeedManager {
             return
         }
 
-        // 2. Fallback to bundled curated_feeds.json
+        // Fallback to bundled curated_feeds.json
         if let bundleURL = Bundle.main.url(forResource: "curated_feeds", withExtension: "json"),
            let bundleData = try? Data(contentsOf: bundleURL),
            let list = try? JSONDecoder().decode([CuratedFeedCategory].self, from: bundleData) {
@@ -65,8 +62,6 @@ final class CuratedFeedManager {
             return
         }
     }
-
-    // MARK: - Silent Remote Sync with Local Cache & ETag
 
     func checkForRemoteUpdates() {
         guard !isUpdatingFromRemote else { return }
@@ -78,7 +73,7 @@ final class CuratedFeedManager {
 
         Task.detached(priority: .utility) {
             var request = URLRequest(url: targetURL, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15)
-            request.setValue("Versoline/1.0", forHTTPHeaderField: "User-Agent")
+            request.setValue(AppInfo.userAgent, forHTTPHeaderField: "User-Agent")
             if let storedETag, !storedETag.isEmpty {
                 request.setValue(storedETag, forHTTPHeaderField: "If-None-Match")
             }

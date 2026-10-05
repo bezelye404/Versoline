@@ -2,8 +2,6 @@ import Foundation
 
 extension FeedStore {
 
-    // MARK: - Backup
-
     /// The current library and reading preferences as one backup file.
     func backupData() throws -> Data {
         let library = StorageData(feeds: feeds, items: items, folders: folders, tombstones: tombstones)
@@ -39,8 +37,6 @@ extension FeedStore {
         refreshStories()
         AppLogger.shared.log("Restored a backup from \(envelope.createdAt.formatted(date: .abbreviated, time: .shortened))", level: .info, category: .storage)
     }
-
-    // MARK: - Old unread articles
 
     /// Unread articles published more than `days` days ago. Articles without a date are never counted.
     func unreadItems(olderThanDays days: Int, now: Date = Date()) -> [FeedItem] {

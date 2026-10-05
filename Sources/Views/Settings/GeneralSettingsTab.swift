@@ -174,5 +174,3 @@ struct GeneralSettingsTab: View {
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
-
-// MARK: - 2. Reader Tab

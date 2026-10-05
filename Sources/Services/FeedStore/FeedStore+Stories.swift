@@ -2,8 +2,6 @@ import Foundation
 
 extension FeedStore {
 
-    // MARK: - Grouping
-
     /// Whether lists fold the same story from several feeds into one row (Settings, on by default).
     static var groupsSimilarStories: Bool {
         UserDefaults.standard.object(forKey: AppSettingsKeys.groupSimilarStories) as? Bool ?? true
@@ -39,8 +37,6 @@ extension FeedStore {
         if refs != storyRefs { storyRefs = refs }
         MemoryRelief.trim()
     }
-
-    // MARK: - Using the stories
 
     /// Number of feeds that told the story this item belongs to, or nil when it stands alone.
     func storySourceCount(for item: FeedItem) -> Int? {

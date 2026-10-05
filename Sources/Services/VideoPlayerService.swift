@@ -3,8 +3,6 @@ import SwiftUI
 import WebKit
 import Combine
 
-// MARK: - Weak Script Message Handler (Retain Cycle Prevention)
-
 private final class WeakVideoScriptMessageHandler: NSObject, WKScriptMessageHandler {
     private weak var delegate: WKScriptMessageHandler?
 
@@ -18,7 +16,6 @@ private final class WeakVideoScriptMessageHandler: NSObject, WKScriptMessageHand
     }
 }
 
-// MARK: - VideoPlayerService
 
 @MainActor
 @Observable
@@ -66,8 +63,6 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
         super.init()
     }
 
-    // MARK: - Setup WebKit View (Created Once & Recycled)
-
     private func ensureWebViewCreated() -> WKWebView {
         if let existing = webView {
             return existing
@@ -90,7 +85,7 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
         return wv
     }
 
-    // MARK: - View Reparenting (Continuous Playback Without Reloading)
+    // MARK: View Reparenting
 
     func attach(to container: NSView, isFullscreen: Bool = false) {
         let wv = ensureWebViewCreated()
@@ -159,8 +154,6 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
             }
         }
     }
-
-    // MARK: - Playback Control
 
     func play(item: FeedItem, feedTitle: String? = nil) {
         guard let vID = item.youtubeVideoID else { return }
@@ -243,7 +236,7 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
         }
     }
 
-    // MARK: - Idle teardown
+    // MARK: Idle teardown
     //
     // A loaded YouTube page keeps roughly 130 MB alive in WebKit's processes even when paused. If the
     // video stays paused (or ended) for a while and is not fullscreen, release it; pressing play again
@@ -304,8 +297,6 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
         WebView.flushMemoryCache()
     }
 
-    // MARK: - Script Bridge Dispatch
-
     private func executeJS(_ js: String) {
         webView?.evaluateJavaScript(js, completionHandler: nil)
     }
@@ -363,7 +354,7 @@ final class VideoPlayerService: NSObject, WKScriptMessageHandler {
         }
     }
 
-    // MARK: - Embed HTML Generator
+    // MARK: Embed page
 
     private func generateEmbedHTML(videoID: String) -> String {
         """

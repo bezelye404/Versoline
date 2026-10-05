@@ -1,7 +1,5 @@
 import Foundation
 
-// MARK: - Enums
-
 enum RedditSort: String, CaseIterable, Identifiable, Sendable {
     case hot = "hot"
     case new = "new"
@@ -73,8 +71,6 @@ enum SocialFeedError: LocalizedError {
     }
 }
 
-// MARK: - SocialFeedResolver
-
 @MainActor
 final class SocialFeedResolver {
 
@@ -91,8 +87,6 @@ final class SocialFeedResolver {
 
     private init() {}
 
-    // MARK: - YouTube Resolution
-
     struct YouTubeChannelResult: Sendable {
         let rssURL: String
         let channelId: String
@@ -104,24 +98,24 @@ final class SocialFeedResolver {
         let raw = input.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !raw.isEmpty else { throw SocialFeedError.invalidInput }
 
-        // 1. Direct channel ID (starts with UC and around 24 chars)
+        // Direct channel ID (starts with UC and around 24 chars)
         if raw.hasPrefix("UC") && raw.count >= 20 && !raw.contains("/") && !raw.contains(" ") {
             let rss = "https://www.youtube.com/feeds/videos.xml?channel_id=\(raw)"
             return YouTubeChannelResult(rssURL: rss, channelId: raw, title: nil)
         }
 
-        // 2. Direct playlist ID (starts with PL)
+        // Direct playlist ID (starts with PL)
         if raw.hasPrefix("PL") && !raw.contains("/") && !raw.contains(" ") {
             let rss = "https://www.youtube.com/feeds/videos.xml?playlist_id=\(raw)"
             return YouTubeChannelResult(rssURL: rss, channelId: raw, title: nil)
         }
 
-        // 3. Already a YouTube RSS link
+        // Already a YouTube RSS link
         if raw.contains("youtube.com/feeds/videos.xml") {
             return YouTubeChannelResult(rssURL: raw, channelId: "", title: nil)
         }
 
-        // 4. Extract playlist parameter from URL
+        // Extract playlist parameter from URL
         if let url = URL(string: raw), let components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
             if let playlistId = components.queryItems?.first(where: { $0.name == "list" })?.value, !playlistId.isEmpty {
                 let rss = "https://www.youtube.com/feeds/videos.xml?playlist_id=\(playlistId)"
@@ -133,14 +127,14 @@ final class SocialFeedResolver {
             }
         }
 
-        // 5. Channel URL with /channel/UC...
+        // Channel URL with /channel/UC...
         if let range = raw.range(of: "/channel/(UC[a-zA-Z0-9_-]+)", options: .regularExpression) {
             let match = String(raw[range]).replacingOccurrences(of: "/channel/", with: "")
             let rss = "https://www.youtube.com/feeds/videos.xml?channel_id=\(match)"
             return YouTubeChannelResult(rssURL: rss, channelId: match, title: nil)
         }
 
-        // 6. Handle or Channel Page Lookup (@handle or youtube.com/@handle or channel name)
+        // Handle or Channel Page Lookup (@handle or youtube.com/@handle or channel name)
         let handleURLString: String
         if raw.hasPrefix("http://") || raw.hasPrefix("https://") {
             handleURLString = raw
@@ -157,7 +151,7 @@ final class SocialFeedResolver {
 
         var request = URLRequest(url: targetURL)
         request.httpMethod = "GET"
-        request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36", forHTTPHeaderField: "User-Agent")
+        request.setValue(AppInfo.browserUserAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("text/html,application/xhtml+xml", forHTTPHeaderField: "Accept")
 
         do {
@@ -227,7 +221,7 @@ final class SocialFeedResolver {
         }
 
         var req = URLRequest(url: url)
-        req.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36", forHTTPHeaderField: "User-Agent")
+        req.setValue(AppInfo.browserUserAgent, forHTTPHeaderField: "User-Agent")
 
         guard let (data, response) = try? await session.data(for: req),
               let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
@@ -262,8 +256,6 @@ final class SocialFeedResolver {
         }
         return nil
     }
-
-    // MARK: - Reddit URL Generation
 
     nonisolated func buildRedditSubredditURL(
         subreddit: String,
@@ -348,8 +340,6 @@ final class SocialFeedResolver {
             return "https://www.reddit.com/user/\(clean)/comments/.rss"
         }
     }
-
-    // MARK: - Smart Detect and Resolve
 
     /// Detects if an arbitrary URL is a YouTube or Reddit link, and transparently converts it to an RSS URL.
     nonisolated func smartDetectAndResolve(url: String) async -> String? {

@@ -130,7 +130,7 @@ struct FolderManagementView: View {
         }
     }
 
-    // MARK: - Left Panel: Folders Sidebar
+    // MARK: Left Panel: Folders Sidebar
 
     @ViewBuilder
     private var foldersSidebar: some View {
@@ -257,7 +257,7 @@ struct FolderManagementView: View {
         }
     }
 
-    // MARK: - Right Panel: Feed Assignment
+    // MARK: Right Panel: Feed Assignment
 
     @ViewBuilder
     private var feedAssignmentPane: some View {
@@ -444,7 +444,7 @@ struct FolderManagementView: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - Helper Methods
+    // MARK: Helper Methods
 
     private func selectFolder(_ folderId: UUID) {
         selectedFolderId = folderId

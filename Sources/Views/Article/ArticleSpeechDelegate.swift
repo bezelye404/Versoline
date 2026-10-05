@@ -18,5 +18,3 @@ final class ArticleSpeechDelegate: NSObject, AVSpeechSynthesizerDelegate {
         }
     }
 }
-
-// MARK: - Podcast Chapter Model

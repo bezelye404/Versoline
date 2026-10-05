@@ -2,8 +2,6 @@ import Foundation
 
 extension FeedStore {
 
-    // MARK: - Nearby sync: outgoing
-
     var syncLibrary: SyncLibrary {
         SyncLibrary(feeds: feeds, folders: folders, tombstones: tombstones)
     }
@@ -46,8 +44,6 @@ extension FeedStore {
 
         return events
     }
-
-    // MARK: - Nearby sync: incoming
 
     /// Applies an event from an authenticated peer. Settings are handled by `SyncCoordinator`.
     func applySyncEvent(_ event: SyncPeerEvent) {

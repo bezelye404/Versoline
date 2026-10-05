@@ -1,8 +1,6 @@
 import Foundation
 import SwiftUI
 
-// MARK: - Smart Category Model
-
 enum SmartCategory: String, CaseIterable, Identifiable, Codable, Sendable {
     case news          = "news"
     case technology    = "technology"
@@ -63,8 +61,6 @@ enum SmartCategory: String, CaseIterable, Identifiable, Codable, Sendable {
     }
 }
 
-// MARK: - Smart Category Classifier (Zero Memory Overhead / O(1) Rule Pipeline)
-
 @MainActor
 enum SmartCategoryClassifier {
 
@@ -113,7 +109,7 @@ enum SmartCategoryClassifier {
     }
 
     static func classify(item: FeedItem, feed: Feed?) -> SmartCategory? {
-        // Tier 1: Check feed URL against curated catalog lookup (Instant exact hit)
+        // Tier 1: the feed is in the curated catalog
         if let feedURL = feed?.url.lowercased(), let match = curatedCategoryMap[feedURL] {
             return match
         }
@@ -208,49 +204,49 @@ enum SmartCategoryClassifier {
     private static func matchContentKeywords(_ text: String) -> SmartCategory? {
         // High-precision keywords (Turkish & English)
         
-        // 1. Sports keywords
+        // Sports keywords
         let sportsKeywords = ["süper lig", "şampiyonlar ligi", "premier league", "fenerbahçe", "galatasaray", "beşiktaş", "trabzonspor", "nba", "euroleague", "transfer", "teknik direktör", "gol krallığı", "penaltı", "stadyum", "voleybol", "wimbledon", "formula 1", "grand prix", "olimpiyat", "champions league", "football match", "basketball", "tennis tournament"]
         for kw in sportsKeywords where text.contains(kw) {
             return .sports
         }
 
-        // 2. Finance keywords
+        // Finance keywords
         let financeKeywords = ["bist 100", "borsa istanbul", "merkez bankası", "tcmb", "faiz kararı", "enflasyon oranı", "dolar kuru", "euro kuru", "hisse senedi", "kripto para", "bitcoin", "ethereum", "temettü", "bilanço", "halka arz", "fed faiz", "wall street", "stock market", "revenue growth", "interest rate", "cryptocurrency", "bull market", "bear market"]
         for kw in financeKeywords where text.contains(kw) {
             return .finance
         }
 
-        // 3. Technology keywords
+        // Technology keywords
         let techKeywords = ["yapay zeka", "büyük dil modeli", "chatgpt", "openai", "deep learning", "akıllı telefon", "işlemci mimarisi", "yazılım geliştirme", "kodlama", "siber güvenlik", "gpu", "nvidia", "apple m4", "apple vision", "ios 18", "macos sequoia", "android 15", "open source", "source code", "developer tool", "firmware", "vulnerability", "cyberattack"]
         for kw in techKeywords where text.contains(kw) {
             return .technology
         }
 
-        // 4. Science keywords
+        // Science keywords
         let scienceKeywords = ["james webb", "hubble teleskobu", "mars keşif", "karadelik", "galaksi", "ötegezegen", "dna dizilimi", "genetik mutasyon", "arkeolojik kazı", "fosil kalıntı", "kuantum bilgisayar", "parçacık fiziği", "cern", "iklim değişikliği", "biyoçeşitlilik", "astronomy", "exoplanet", "quantum physics", "archaeological", "fossil discovery", "solar system"]
         for kw in scienceKeywords where text.contains(kw) {
             return .science
         }
 
-        // 5. Entertainment & Gaming keywords
+        // Entertainment & Gaming keywords
         let entertainmentKeywords = ["playstation 5", "xbox series", "nintendo switch", "steam deck", "oyun stüdyosu", "gameplay trailer", "vizyona girdi", "gişe hasılatı", "netflix türkiye", "dizi incelemesi", "video game", "box office", "season finale", "oscar ödülleri", "sinema filmi"]
         for kw in entertainmentKeywords where text.contains(kw) {
             return .entertainment
         }
 
-        // 6. Culture & Arts keywords
+        // Culture & Arts keywords
         let cultureKeywords = ["çağdaş sanat", "resim sergisi", "bienal", "edebiyat ödülü", "yeni roman", "tiyatro oyunu", "opera ve bale", "felsefe sempozyumu", "mimarlık ödülü", "art exhibition", "contemporary art", "literature award", "theater play", "poetry collection"]
         for kw in cultureKeywords where text.contains(kw) {
             return .culture
         }
 
-        // 7. Lifestyle keywords
+        // Lifestyle keywords
         let lifestyleKeywords = ["yemek tarifi", "gastronomi", "sağlıklı beslenme", "diyet listesi", "seyahat rehberi", "gezi notları", "yoga ve meditasyon", "ruh sağlığı", "healthy diet", "travel guide", "mindfulness", "wellness"]
         for kw in lifestyleKeywords where text.contains(kw) {
             return .lifestyle
         }
 
-        // 8. News / Agenda keywords
+        // News / Agenda keywords
         let newsKeywords = ["cumhurbaşkanı", "bakanlık", "tbmm", "meclis genel kurulu", "başsavcılık", "soruşturma kapsamında", "gözaltına alındı", "tutuklandı", "dışişleri bakanlığı", "beyaz saray", "pentagon", "birleşmiş milletler", "avrupa birliği", "parlamento", "prime minister", "foreign ministry", "united nations", "investigation launched"]
         for kw in newsKeywords where text.contains(kw) {
             return .news

@@ -36,7 +36,7 @@ final class FeedStore {
     let readerCache: ReaderModeExtractor
     var pendingSaveTask: Task<Void, Never>?
 
-    // Fast O(1) in-memory cached aggregates. Written only by `FeedStore+Counts.swift`.
+    // Cached counts and lookups. Written only by `FeedStore+Counts.swift`.
     var cachedTotalUnreadCount: Int = 0
     var cachedTotalItemCount: Int = 0
     var cachedBookmarkCount: Int = 0
@@ -132,8 +132,7 @@ final class FeedStore {
         if let storageDirectory {
             appDir = storageDirectory
         } else {
-            let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            appDir = appSupport.appendingPathComponent("Versoline", isDirectory: true)
+            appDir = AppInfo.supportDirectory
         }
         try? FileManager.default.createDirectory(at: appDir, withIntermediateDirectories: true)
         self.saveURL = appDir

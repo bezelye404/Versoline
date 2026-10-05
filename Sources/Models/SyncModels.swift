@@ -1,7 +1,5 @@
 import Foundation
 
-// MARK: - 64-bit Stable FNV-1a Hash for URLs & Links (Minimal Memory)
-
 extension String {
     /// Produces a deterministic 64-bit FNV-1a hash for URL strings.
     /// This allows storing tens of thousands of read article states in memory
@@ -16,8 +14,6 @@ extension String {
     }
 }
 
-// MARK: - Sync Feed Model
-
 struct SyncFeed: Codable, Identifiable, Equatable, Sendable {
     let id: UUID
     var title: String
@@ -26,8 +22,6 @@ struct SyncFeed: Codable, Identifiable, Equatable, Sendable {
     var isPinned: Bool?
     var updatedAt: Date
 }
-
-// MARK: - Deletion records
 
 /// A durable "this was deleted" marker so a deletion reaches devices that were offline.
 /// Feeds are identified by their lower-cased URL (the same feed can have different ids on two Macs),
@@ -53,15 +47,11 @@ struct Tombstone: Codable, Equatable, Hashable, Sendable {
     }
 }
 
-// MARK: - Sync Folder Model
-
 struct SyncFolder: Codable, Identifiable, Equatable, Sendable {
     let id: UUID
     var name: String
     var updatedAt: Date
 }
-
-// MARK: - Sync Settings (User Preferences)
 
 struct SyncSettings: Codable, Equatable, Sendable {
     var version: Int = 1
@@ -169,8 +159,6 @@ struct SyncSettings: Codable, Equatable, Sendable {
     }
 }
 
-// MARK: - Peer-to-Peer Payloads (nearby sync)
-
 /// Live changes and snapshots exchanged with an authenticated, paired device.
 /// Snapshots are split into small chunks (`SyncEventValidator` caps every list) so a single message
 /// stays well below MultipeerConnectivity's practical size limits.
@@ -193,8 +181,6 @@ enum SyncWireMessage: Codable, Sendable, Equatable {
     case handshake(HandshakeMessage)
     case event(SyncPeerEvent)
 }
-
-// MARK: - Validation of incoming events
 
 /// Defence in depth: even events from a paired device are range-checked before they touch the library.
 enum SyncEventValidator {

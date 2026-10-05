@@ -47,13 +47,13 @@ final class AudioPlayerService {
         setupTerminationObserver()
     }
 
-    // MARK: - Playback Control
+    // MARK: Playback Control
 
     func play(item: FeedItem, feedTitle: String? = nil, store: FeedStore) {
         VideoPlayerService.shared.pause()
 
-        guard let urlString = item.audioURL, let streamURL = URL(string: urlString) else {
-            errorMessage = "Invalid audio stream URL."
+        guard let urlString = item.audioURL, let streamURL = URL(string: urlString), AppInfo.isWebAddress(streamURL) else {
+            errorMessage = String(localized: "Invalid audio stream URL.")
             return
         }
 
@@ -105,7 +105,7 @@ final class AudioPlayerService {
                     self.updateNowPlayingInfo()
                 } else if item.status == .failed {
                     self.isBuffering = false
-                    self.errorMessage = item.error?.localizedDescription ?? "Playback failed."
+                    self.errorMessage = item.error?.localizedDescription ?? String(localized: "Playback failed.")
                     AppLogger.shared.log("Audio playback error: \(self.errorMessage ?? "")", level: .error, category: .ui)
                 }
             }
@@ -233,7 +233,7 @@ final class AudioPlayerService {
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
     }
 
-    // MARK: - Playback Queue (Up Next)
+    // MARK: Playback Queue
 
     func addToQueue(_ item: FeedItem) {
         guard item.isPodcast, !queue.contains(where: { $0.id == item.id }) else { return }
@@ -254,8 +254,6 @@ final class AudioPlayerService {
     func clearQueue() {
         queue.removeAll()
     }
-
-    // MARK: - Sleep Timer with Fade-Out
 
     func startSleepTimer(minutes: Int) {
         cancelSleepTimer()
@@ -293,7 +291,7 @@ final class AudioPlayerService {
                 let newRemaining = current - 1
                 self.sleepTimerRemainingSeconds = newRemaining
 
-                // Smooth fade out in the last 5 seconds
+                // Fade out over the last 5 seconds
                 if newRemaining <= 5 && newRemaining > 0 {
                     let fadeFraction = Float(newRemaining) / 5.0
                     self.volume = self.preFadeVolume * fadeFraction
@@ -309,7 +307,7 @@ final class AudioPlayerService {
         }
     }
 
-    // MARK: - Timestamp Share Text
+    // MARK: Timestamp Share Text
 
     func shareURLString(for item: FeedItem) -> String {
         let secs = Int(currentTime)
@@ -318,8 +316,6 @@ final class AudioPlayerService {
         }
         return item.link
     }
-
-    // MARK: - Handlers & Observers
 
     @objc private func playerItemDidReachEnd(_ notification: Notification) {
         guard let episode = currentEpisode else { return }
@@ -376,8 +372,6 @@ final class AudioPlayerService {
             }
         }
     }
-
-    // MARK: - macOS Now Playing & MPRemoteCommandCenter Integration
 
     private func setupRemoteCommands() {
         guard !commandsConfigured else { return }

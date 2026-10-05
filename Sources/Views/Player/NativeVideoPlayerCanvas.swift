@@ -21,12 +21,12 @@ struct NativeVideoPlayerCanvas: View {
 
     var body: some View {
         ZStack {
-            // 1. Shared Headless Hardware Video Canvas
+            // The video
             SharedVideoCanvasView(isModalFullscreen: isModalFullscreen)
                 .id("shared-video-canvas-\(isModalFullscreen ? "modal" : "inline")-\(store.fullscreenVideo == nil)")
                 .background(Color.black)
 
-            // 2. Instant Tap Canvas (Single tap: play/pause instantly with 0 delay)
+            // A tap toggles play and pause
             Color.clear
                 .contentShape(Rectangle())
                 .onTapGesture {
@@ -36,7 +36,7 @@ struct NativeVideoPlayerCanvas: View {
                     resetControlsTimer()
                 }
 
-            // 3. Top Cinema Header (When in Modal Fullscreen)
+            // Title bar in fullscreen
             if isModalFullscreen {
                 VStack {
                     if isControlsVisible || !videoPlayer.isPlaying {
@@ -79,7 +79,7 @@ struct NativeVideoPlayerCanvas: View {
                 }
             }
 
-            // 4. Bottom Gradient Vignette (Ensures contrast against bright videos)
+            // Bottom Gradient Vignette (Ensures contrast against bright videos)
             VStack {
                 Spacer()
                 LinearGradient(
@@ -93,7 +93,7 @@ struct NativeVideoPlayerCanvas: View {
                 .animation(AppAnimation.safe(.easeInOut(duration: 0.3)), value: isControlsVisible)
             }
 
-            // 5. Central Feedback Pulse & Buffering Indicator
+            // Central Feedback Pulse & Buffering Indicator
             if videoPlayer.isBuffering {
                 ZStack {
                     Circle()
@@ -118,7 +118,7 @@ struct NativeVideoPlayerCanvas: View {
                 .transition(.scale(scale: 0.8).combined(with: .opacity))
             }
 
-            // 6. Custom Native SwiftUI HUD Overlay (Auto-Hiding)
+            // Controls, hidden after a few seconds
             VStack {
                 Spacer()
                 if isControlsVisible || !videoPlayer.isPlaying || videoPlayer.isScrubbing {
@@ -138,8 +138,6 @@ struct NativeVideoPlayerCanvas: View {
             hideWorkItem?.cancel()
         }
     }
-
-    // MARK: - Bottom HUD Bar (Glassmorphic & Zero Layout Shift)
 
     private var bottomControlsBar: some View {
         HStack(spacing: 8) {
@@ -170,7 +168,7 @@ struct NativeVideoPlayerCanvas: View {
                 .foregroundStyle(.white.opacity(0.9))
                 .frame(minWidth: 38, alignment: .trailing)
 
-            // Interactive Live Scrubber (Smooth GeometryReader)
+            // Scrubber
             NativePlayerScrubber(videoPlayer: videoPlayer)
 
             // Duration (Monospaced)
@@ -206,7 +204,7 @@ struct NativeVideoPlayerCanvas: View {
             .fixedSize()
             .help(String(localized: "Playback Speed"))
 
-            // Zero-Layout-Shift Volume Control
+            // Volume
             volumeControlWithFloatingCapsule
 
             // Fullscreen Button
@@ -230,8 +228,6 @@ struct NativeVideoPlayerCanvas: View {
                 .stroke(Color.white.opacity(0.18), lineWidth: 1)
         )
     }
-
-    // MARK: - Floating Volume Capsule (Zero Layout Shift Guaranteed)
 
     private var volumeControlWithFloatingCapsule: some View {
         HStack(spacing: 0) {
@@ -298,8 +294,6 @@ struct NativeVideoPlayerCanvas: View {
         }
     }
 
-    // MARK: - Auto-Hide HUD Timer
-
     private func resetControlsTimer() {
         withAnimation(AppAnimation.safe(.easeOut(duration: 0.18))) {
             isControlsVisible = true
@@ -344,8 +338,6 @@ struct NativeVideoPlayerCanvas: View {
     }
 }
 
-// MARK: - Fullscreen Video Modal View
-
 struct PlayerHUDButton: View {
     let icon: String
     let tooltip: String
@@ -374,4 +366,3 @@ struct PlayerHUDButton: View {
     }
 }
 
-// MARK: - Native Player Scrubber

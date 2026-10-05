@@ -1,7 +1,5 @@
 import Foundation
 
-// MARK: - Smart Merge Engine (Deterministic & Zero Data Loss)
-
 /// Tunables for `SmartMergeEngine.merge`.
 enum SyncMerge {
     /// "Never edited": feeds and folders without `updatedAt` compare as this time.
@@ -51,7 +49,6 @@ struct SyncMergeResult: Sendable {
 
 enum SmartMergeEngine {
 
-    // MARK: - Feeds, folders and deletions (last writer wins)
     //
     // Every feed and folder carries `updatedAt` (last user edit) and deletions are kept as tombstones.
     // For each feed (key: lower-cased URL) and folder (key: id) the newest change wins, a deletion

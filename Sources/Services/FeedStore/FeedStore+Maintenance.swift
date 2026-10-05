@@ -3,8 +3,6 @@ import WebKit
 
 extension FeedStore {
 
-    // MARK: - Auto-Cleanup & Storage Management
-
     func autoCleanup(olderThanDays days: Int) {
         guard days > 0 else { return }
         let cutoffDate = Date().addingTimeInterval(-Double(days * 86400))
@@ -48,48 +46,52 @@ extension FeedStore {
     func resetAllDataAndSettings() {
         AppLogger.shared.log("Initiating complete factory reset of all data and settings", level: .warning, category: .storage)
 
-        // 1. Cancel any pending background saves
         pendingSaveTask?.cancel()
         pendingSaveTask = nil
+        storyTask?.cancel()
+        spotlightTask?.cancel()
 
-        // 2. Clear in-memory feed, item, and folder state
         feeds.removeAll()
         items.removeAll()
         folders.removeAll()
         tombstones.removeAll()
+        stories = []
+        storyRefs = [:]
+        refreshBackoff = [:]
 
-        // 3. Invalidate caches and reset aggregate counts
         invalidateItemCaches()
         compactMemory()
         updateCachedCounts()
         updateSmartCategoryCaches()
 
-        // 4. Remove all files from Application Support/Versoline directory
+        // Everything in the support folder.
         if let fileList = try? FileManager.default.contentsOfDirectory(at: saveURL, includingPropertiesForKeys: nil) {
             for file in fileList {
                 try? FileManager.default.removeItem(at: file)
             }
         }
 
-        // 4b. Forget the nearby-sync identity and paired devices (their files were just deleted)
+        // Forget the nearby-sync identity and paired devices (their files were just deleted).
         SyncCoordinator.shared.resetAfterFactoryReset()
+        AnnotationStore.shared.removeAll()
+        ReadingPositions.shared.removeAll()
+        SpotlightIndex.removeAll()
 
-        // 5. Clear offline cache, favicon disk cache, image cache, and downloaded podcasts
+        // Caches and downloads.
         readerCache.clearDiskCache()
         FaviconService.shared.clearDiskCache()
         ImageDownsampleCache.shared.clearDiskCache()
         PodcastDownloadService.shared.deleteAllDownloads()
 
-        // 6. Clear WebKit website storage, memory cache, and shared URL cache
+        // Web view storage and the shared URL cache.
         let types = WKWebsiteDataStore.allWebsiteDataTypes()
         WKWebsiteDataStore.default().removeData(ofTypes: types, modifiedSince: .distantPast) {}
         WebView.flushMemoryCache()
         URLCache.shared.removeAllCachedResponses()
 
-        // 7. Reset all UserDefaults / AppStorage
+        // Preferences.
         if let bundleID = Bundle.main.bundleIdentifier {
             UserDefaults.standard.removePersistentDomain(forName: bundleID)
-            UserDefaults.standard.synchronize()
         }
 
         AppLogger.shared.log("Factory reset complete: all feeds, articles, downloads and settings removed", level: .info, category: .storage)

@@ -36,8 +36,6 @@ enum SidebarItem: Hashable, Identifiable {
     }
 }
 
-// MARK: - Daily Reading Stat Model for Native Charts
-
 struct DailyReadingStat: Identifiable, Hashable {
     let id = UUID()
     let day: String

@@ -1,7 +1,5 @@
 import AppIntents
 
-// MARK: - Shortcuts
-//
 // Two actions for the Shortcuts app and Spotlight: refresh the feeds and read the unread count. They run inside the app
 // (Versoline opens if it is not running), use the same library the window shows and send nothing anywhere.
 

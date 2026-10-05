@@ -10,8 +10,6 @@ enum FeedDiscovery {
         let title: String?
     }
 
-    // MARK: - Reading a page
-
     private static let linkTag = try? NSRegularExpression(pattern: #"<link\b[^>]*>"#, options: [.caseInsensitive])
     private static let attribute = try? NSRegularExpression(
         pattern: #"([a-zA-Z_:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>"']+))"#
@@ -66,8 +64,6 @@ enum FeedDiscovery {
         return head.contains("<rss") || head.contains("<feed") || head.contains("<rdf:rdf")
     }
 
-    // MARK: - Network
-
     private static let session: URLSession = {
         let config = URLSessionConfiguration.ephemeral
         config.timeoutIntervalForRequest = 10
@@ -82,7 +78,7 @@ enum FeedDiscovery {
     static func findFeed(onPageAt address: String) async -> String? {
         guard let pageURL = URL(string: address) else { return nil }
         var request = URLRequest(url: pageURL)
-        request.setValue("Versoline/1.0 (Macintosh; Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko)", forHTTPHeaderField: "User-Agent")
+        request.setValue(AppInfo.userAgent, forHTTPHeaderField: "User-Agent")
 
         if let page = await download(request, limit: 300_000) {
             if let first = candidates(inHTML: String(decoding: page, as: UTF8.self), baseURL: pageURL).first {

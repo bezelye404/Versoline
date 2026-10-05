@@ -110,7 +110,7 @@ struct SidebarView: View {
         }
     }
 
-    // MARK: - Library Section
+    // MARK: Library Section
     //
     // Four everyday lists, then Podcasts / Videos / Downloaded only when there is such media.
     // Only "Unread" carries a count and a colour; everything else is quiet. Folder management and
@@ -173,8 +173,6 @@ struct SidebarView: View {
             }
         }
     }
-
-    // MARK: - Pinned Section (Apple HIG Quick Access)
 
     @ViewBuilder
     private var pinnedSection: some View {
@@ -241,7 +239,7 @@ struct SidebarView: View {
         }
     }
 
-    // MARK: - Smart Streams Section (Dynamic & Zero Clutter)
+    // MARK: Smart Streams Section
 
     @ViewBuilder
     private var smartStreamsSection: some View {
@@ -326,7 +324,7 @@ struct SidebarView: View {
         }
     }
 
-    // MARK: - Row Helper
+    // MARK: Row Helper
 
     @ViewBuilder
     private func sidebarRow(
@@ -385,8 +383,6 @@ struct SidebarView: View {
         }
     }
 
-    // MARK: - Folders Section
-
     @ViewBuilder
     private var foldersSection: some View {
         ForEach(store.folders) { folder in
@@ -419,7 +415,7 @@ struct SidebarView: View {
         }
     }
 
-    // MARK: - Uncategorized Section
+    // MARK: Uncategorized Section
 
     @ViewBuilder
     private var uncategorizedSection: some View {
@@ -481,8 +477,6 @@ struct SidebarView: View {
         }
     }
 
-    // MARK: - Smart Folder Helpers
-
     private func saveSmartFolderRules() {
         guard let folder = editingSmartFolder else { return }
         var parsedKeywords: [String] = []
@@ -507,7 +501,7 @@ struct SidebarView: View {
         smartKeywordsText = ""
     }
 
-    // MARK: - Folder Header
+    // MARK: Folder Header
 
     @ViewBuilder
     private func folderHeader(for folder: Folder) -> some View {
@@ -596,7 +590,7 @@ struct SidebarView: View {
         }
     }
 
-    // MARK: - Feed Context Menu
+    // MARK: Feed Context Menu
 
     @ViewBuilder
     private func feedContextMenu(feed: Feed) -> some View {
@@ -669,4 +663,4 @@ struct SidebarView: View {
     }
 }
 
-// MARK: - Folder Stream Row
+// MARK: Folder Stream Row

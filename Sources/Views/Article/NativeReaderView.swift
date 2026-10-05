@@ -1,8 +1,6 @@
 import SwiftUI
 import AppKit
 
-// MARK: - Native reader
-//
 // Renders an ArticleDocument with plain SwiftUI text and images. No web view, so reading an article needs no
 // WebContent/GPU/Networking helper processes; blocks are lazy so long articles only keep what is on screen.
 
@@ -80,8 +78,6 @@ struct NativeReaderView: View {
         })
     }
 
-    // MARK: Header
-
     private var header: some View {
         VStack(alignment: .leading, spacing: 10) {
             if !metaLine.isEmpty {
@@ -103,8 +99,6 @@ struct NativeReaderView: View {
         }
         .padding(.bottom, 4)
     }
-
-    // MARK: Blocks
 
     private func styled(_ text: AttributedString) -> AttributedString {
         marked(isBionic ? BionicReading.apply(to: text) : text)
@@ -237,8 +231,6 @@ struct NativeReaderView: View {
         }
     }
 }
-
-// MARK: - Image
 
 private struct ReaderImageView: View {
     let url: URL

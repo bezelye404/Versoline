@@ -1,7 +1,5 @@
 import Foundation
 
-// MARK: - Command palette (⌘K): jump to anything, run any command
-//
 // Pure model: building the entries and matching a query involve no UI, so they are unit-tested.
 
 enum PaletteCommand: String, CaseIterable, Sendable {

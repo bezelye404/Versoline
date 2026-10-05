@@ -353,7 +353,7 @@ struct WebView: NSViewRepresentable {
             self.isHTMLMode = isHTMLMode
         }
 
-        // 1. Block popup window creation (window.open, target=_blank auxiliary windows)
+        // Block popup window creation (window.open, target=_blank auxiliary windows)
         func webView(
             _ webView: WKWebView,
             createWebViewWith configuration: WKWebViewConfiguration,
@@ -368,7 +368,7 @@ struct WebView: NSViewRepresentable {
             return nil
         }
 
-        // 2. Decide navigation policy (contain browsing, eliminate click-trap popups)
+        // Decide navigation policy (contain browsing, eliminate click-trap popups)
         func webView(
             _ webView: WKWebView,
             decidePolicyFor navigationAction: WKNavigationAction,
@@ -398,7 +398,7 @@ struct WebView: NSViewRepresentable {
             decisionHandler(.allow)
         }
 
-        // 3. Suppress JavaScript alert popups
+        // Suppress JavaScript alert popups
         func webView(
             _ webView: WKWebView,
             runJavaScriptAlertPanelWithMessage message: String,
@@ -408,7 +408,7 @@ struct WebView: NSViewRepresentable {
             completionHandler()
         }
 
-        // 4. Suppress JavaScript confirm dialog popups
+        // Suppress JavaScript confirm dialog popups
         func webView(
             _ webView: WKWebView,
             runJavaScriptConfirmPanelWithMessage message: String,
@@ -418,7 +418,7 @@ struct WebView: NSViewRepresentable {
             completionHandler(false)
         }
 
-        // 5. Suppress JavaScript text input prompt popups
+        // Suppress JavaScript text input prompt popups
         func webView(
             _ webView: WKWebView,
             runJavaScriptTextInputPanelWithPrompt prompt: String,
@@ -429,7 +429,7 @@ struct WebView: NSViewRepresentable {
             completionHandler(nil)
         }
 
-        // 6. Handle web content process termination gracefully (e.g. under system memory pressure)
+        // Handle web content process termination gracefully (e.g. under system memory pressure)
         func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
             AppLogger.shared.log("WKWebView WebContent process terminated, restoring content...", level: .warning, category: .storage)
             if let lastHTML = lastLoadedHTML {
@@ -441,7 +441,7 @@ struct WebView: NSViewRepresentable {
     }
 }
 
-// MARK: - Native Lightweight Code Syntax Highlighter (Zero External JS / Minimal RAM)
+// MARK: Code highlighting
 
 enum NativeCodeHighlighter {
     private static let preBlockRegex = try? NSRegularExpression(
@@ -529,7 +529,7 @@ enum NativeCodeHighlighter {
     }
 }
 
-// MARK: - Native Bionic Reading Engine (Word Fixation Highlighting)
+// MARK: Bionic reading
 
 enum BionicReadingFormatter {
     private static let tagRegex = try? NSRegularExpression(

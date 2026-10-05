@@ -381,7 +381,7 @@
 
 /* Views/AddFeedSheet.swift */
 "%lld+ Feeds" = "%lld+ Feeds";
-"Browse Curated Feeds (rss.md)" = "Browse Curated Feeds (rss.md)";
+"Browse Curated Feeds" = "Browse Curated Feeds";
 "Folder" = "Folder";
 "Generator" = "Generator";
 "Mode" = "Mode";
@@ -734,3 +734,5 @@
 "Find in Article" = "Find in Article";
 "Find in article" = "Find in article";
 "%d of %d" = "%d of %d";
+"Invalid audio stream URL." = "Invalid audio stream URL.";
+"Playback failed." = "Playback failed.";

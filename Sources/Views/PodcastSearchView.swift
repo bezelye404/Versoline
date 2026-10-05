@@ -27,7 +27,6 @@ struct PodcastSearchView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // MARK: - Search Input Bar
             VStack(spacing: 12) {
                 HStack(spacing: 10) {
                     Image(systemName: "magnifyingglass")
@@ -93,7 +92,6 @@ struct PodcastSearchView: View {
 
             Divider()
 
-            // MARK: - Content Area
             Group {
                 if searchService.isSearching {
                     VStack(spacing: 16) {
@@ -115,8 +113,6 @@ struct PodcastSearchView: View {
         }
     }
 
-    // MARK: - Results List
-
     private var resultsList: some View {
         ScrollView {
             LazyVStack(spacing: 12) {
@@ -127,8 +123,6 @@ struct PodcastSearchView: View {
             .padding(16)
         }
     }
-
-    // MARK: - Podcast Row Card
 
     @ViewBuilder
     private func podcastRow(podcast: PodcastSearchResult) -> some View {
@@ -272,8 +266,6 @@ struct PodcastSearchView: View {
         )
     }
 
-    // MARK: - Actions
-
     private func subscribeToPodcast(_ podcast: PodcastSearchResult) {
         addingURLs.insert(podcast.feedURL)
         Task {
@@ -293,8 +285,6 @@ struct PodcastSearchView: View {
             }
         }
     }
-
-    // MARK: - Idle & Empty States
 
     private var idleWelcomeView: some View {
         VStack(spacing: 16) {

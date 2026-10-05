@@ -8,5 +8,3 @@ struct PodcastChapter: Identifiable, Hashable {
     let seconds: Double
     let title: String
 }
-
-// MARK: - Quote Card Generator & Preview (Native ImageRenderer / Zero External Deps)
