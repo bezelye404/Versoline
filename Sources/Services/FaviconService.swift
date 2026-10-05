@@ -32,8 +32,8 @@ final class FaviconService {
         let dir = appSupport.appendingPathComponent("Versoline/Favicons", isDirectory: true)
         try? fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
         self.cacheDirectory = dir
-        memoryCache.countLimit = 50
-        memoryCache.totalCostLimit = 2 * 1024 * 1024 // Strict 2MB ceiling for all decoded favicons in RAM
+        memoryCache.countLimit = MemoryLimits.favicons.count
+        memoryCache.totalCostLimit = MemoryLimits.favicons.bytes
     }
 
     func clearMemoryCache() {
@@ -192,8 +192,8 @@ final class ImageDownsampleCache {
         self.diskCacheURL = dir
 
         // Strict 2MB RAM ceiling and lower count limit for downsampled thumbnails
-        memoryCache.countLimit = 25
-        memoryCache.totalCostLimit = 2 * 1024 * 1024
+        memoryCache.countLimit = MemoryLimits.images.count
+        memoryCache.totalCostLimit = MemoryLimits.images.bytes
     }
 
     func clearMemory() {
@@ -238,7 +238,7 @@ final class ImageDownsampleCache {
         }
     }
 
-    func enforceQuota(maxSizeBytes: Int64 = 30 * 1024 * 1024) {
+    func enforceQuota(maxSizeBytes: Int64 = Int64(MemoryLimits.imageDiskBytes)) {
         let currentSize = diskCacheSizeBytes
         guard currentSize > maxSizeBytes else { return }
         let targetSize = Int64(Double(maxSizeBytes) * 0.7)
