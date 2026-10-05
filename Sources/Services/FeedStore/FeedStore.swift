@@ -117,7 +117,7 @@ final class FeedStore {
                     Set(self.items.values.flatMap { $0 }.filter { $0.isBookmarked }.map { $0.link })
                 }
                 await readerCache.enforceQuota(maxSizeBytes: 50 * 1024 * 1024, preservedLinks: preserved)
-                await ImageDownsampleCache.shared.enforceQuota(maxSizeBytes: 30 * 1024 * 1024)
+                await ImageDownsampleCache.shared.enforceQuota(maxSizeBytes: Int64(MemoryLimits.imageDiskBytes))
             }
         }
         AppLogger.shared.log("In-memory transient caches compacted for background memory relief", level: .debug, category: .storage)
@@ -150,7 +150,7 @@ final class FeedStore {
             let cache = readerCache
             Task { @MainActor in
                 try? await Task.sleep(for: .seconds(6))
-                cache.enforceQuota(maxSizeBytes: 150 * 1024 * 1024, preservedLinks: preserved)
+                cache.enforceQuota(maxSizeBytes: Int64(MemoryLimits.readerDiskBytes), preservedLinks: preserved)
             }
         }
 
