@@ -24,6 +24,7 @@ echo "==> 2. Building Release binary..."
 xcodebuild -project "${APP_NAME}.xcodeproj" \
   -scheme "${APP_NAME}" \
   -configuration Release \
+  ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO \
   build
 
 DERIVED_PRODUCTS="$(xcodebuild -project "${APP_NAME}.xcodeproj" -scheme "${APP_NAME}" -configuration Release -showBuildSettings | awk -F ' = ' '/BUILT_PRODUCTS_DIR/ {print $2}' | head -n 1)"
