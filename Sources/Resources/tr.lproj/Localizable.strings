@@ -380,7 +380,7 @@
 
 /* Views/AddFeedSheet.swift */
 "%lld+ Feeds" = "%lld+ Akış";
-"Browse Curated Feeds (rss.md)" = "Derlenmiş Akışlara Göz At (rss.md)";
+"Browse Curated Feeds" = "Derlenmiş Akışlara Göz At";
 "Folder" = "Klasör";
 "Generator" = "Oluşturucu";
 "Mode" = "Mod";

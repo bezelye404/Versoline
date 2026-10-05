@@ -95,6 +95,8 @@ extension FeedStore {
         updateSmartCategoryCaches()
         save()
         SyncCoordinator.shared.notifyFeedDeleted(url: feed.url, at: deletedAt)
+        refreshStories()
+        refreshSpotlight()
     }
 
     func refreshFeed(_ feed: Feed) async {

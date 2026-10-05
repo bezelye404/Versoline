@@ -166,7 +166,17 @@ docs/marketing/
 __pycache__/
 *.pyc
 
-# Test coverage output
+# Test, profiling and benchmark output (development only)
+TestResults/
+*.xctestrun
+*.trace
+*.memgraph
 *.profraw
 *.profdata
 *.coverage
+benchmark*.json
+benchmark-results/
+dist/
+
+# Local feed lists kept for the maintainer
+rss-*.opml

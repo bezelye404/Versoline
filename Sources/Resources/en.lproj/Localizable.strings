@@ -381,7 +381,7 @@
 
 /* Views/AddFeedSheet.swift */
 "%lld+ Feeds" = "%lld+ Feeds";
-"Browse Curated Feeds (rss.md)" = "Browse Curated Feeds (rss.md)";
+"Browse Curated Feeds" = "Browse Curated Feeds";
 "Folder" = "Folder";
 "Generator" = "Generator";
 "Mode" = "Mode";
