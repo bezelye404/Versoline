@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import AVFoundation
+@preconcurrency import Translation
 
 struct ArticleDetailView: View {
 
@@ -26,6 +27,13 @@ struct ArticleDetailView: View {
     @State private var activeViewMode: ReadingViewMode = .reader
     @State private var extractedReaderHTML: String? = nil
     @State private var readerDocument: ArticleDocument? = nil
+    // On-device translation (Apple's Translation framework): offered when the article is in another language.
+    @State private var offeredLanguage: Locale.Language? = nil
+    @State private var translatedDocument: ArticleDocument? = nil
+    @State private var translatedTitle: String? = nil
+    @State private var translationConfiguration: TranslationSession.Configuration? = nil
+    @State private var isTranslating = false
+    @State private var translationFailed = false
     @State private var isLoadingReaderMode = false
     @State private var readerFetchFailed = false
     @State private var isSpeaking = false
@@ -178,6 +186,8 @@ struct ArticleDetailView: View {
         extractedReaderHTML = cached
         readerDocument = nil
         readerFetchFailed = false
+        resetTranslation()
+        offeredLanguage = nil
 
         if activeViewMode == .reader && cached == nil {
             loadReaderMode(for: item, forceWeb: false)
@@ -270,6 +280,8 @@ struct ArticleDetailView: View {
                     }
                     .help(String(localized: "Appearance"))
                 }
+
+                translateToolbarButton
 
                 sameStoryMenu(for: item)
 
@@ -834,10 +846,14 @@ struct ArticleDetailView: View {
                     .padding(.top, 4)
             }
 
+            if translationFailed {
+                translationFailedBanner
+            }
+
             if let document = readerDocument, !document.isEmpty {
                 NativeReaderView(
-                    document: document,
-                    title: item.title,
+                    document: translatedDocument ?? document,
+                    title: translatedTitle ?? item.title,
                     metaLine: readerMetaLine(item: item, document: document),
                     byline: readerByline(item: item),
                     fontSize: Double(readerFontSize),
@@ -873,6 +889,116 @@ struct ArticleDetailView: View {
             }.value
             guard !Task.isCancelled else { return }
             readerDocument = document
+            await offerTranslation(for: document, title: title)
+        }
+        .translationTask(translationConfiguration) { session in
+            guard let document = readerDocument else { isTranslating = false; return }
+            let pieces = ArticleTranslation.pieces(of: document, title: item.title)
+            do {
+                let requests = Self.translationRequests(for: pieces)
+                let responses = try await session.translations(from: requests)
+                var translations: [Int: String] = [:]
+                for response in responses {
+                    if let id = response.clientIdentifier.flatMap(Int.init) { translations[id] = response.targetText }
+                }
+                finishTranslation(translations, document: document, item: item)
+            } catch {
+                failTranslation(error, item: item)
+            }
+        }
+    }
+
+    // MARK: - Translation
+
+    private func resetTranslation() {
+        translatedDocument = nil
+        translatedTitle = nil
+        translationConfiguration = nil
+        isTranslating = false
+        translationFailed = false
+    }
+
+    /// Looks at the language of the article and offers translation only when it differs from the user's language and
+    /// the system can translate between the two (languages are downloaded by the system when first needed).
+    private func offerTranslation(for document: ArticleDocument, title: String) async {
+        guard let language = ArticleTranslation.detectedLanguage(of: document, title: title),
+              !ArticleTranslation.isSameLanguage(language, ArticleTranslation.targetLanguage) else {
+            offeredLanguage = nil
+            return
+        }
+        let status = await LanguageAvailability().status(from: language, to: ArticleTranslation.targetLanguage)
+        offeredLanguage = status == .unsupported ? nil : language
+    }
+
+    private func startTranslation() {
+        guard let source = offeredLanguage else { return }
+        translationFailed = false
+        isTranslating = true
+        translationConfiguration = TranslationSession.Configuration(source: source, target: ArticleTranslation.targetLanguage)
+    }
+
+    /// Built in a nonisolated function so the batch is not tied to the main actor when it is handed to the session.
+    nonisolated private static func translationRequests(for pieces: [ArticleTranslation.Piece]) -> [TranslationSession.Request] {
+        pieces.map { TranslationSession.Request(sourceText: $0.text, clientIdentifier: String($0.id)) }
+    }
+
+    private func finishTranslation(_ translations: [Int: String], document: ArticleDocument, item: FeedItem) {
+        isTranslating = false
+        guard currentItem?.id == item.id else { return }
+        translatedDocument = ArticleTranslation.rebuild(document, with: translations)
+        translatedTitle = translations[0]
+    }
+
+    private func failTranslation(_ error: Error, item: FeedItem) {
+        AppLogger.shared.log("Translation failed: \(error.localizedDescription)", level: .warning, category: .ui)
+        isTranslating = false
+        if currentItem?.id == item.id { translationFailed = true }
+    }
+
+    private var translationFailedBanner: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "exclamationmark.triangle")
+                .foregroundStyle(.secondary)
+            Text(String(localized: "Could not translate this article."))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Button(String(localized: "Dismiss")) { translationFailed = false }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .padding(10)
+    }
+
+    @ViewBuilder
+    private var translateToolbarButton: some View {
+        if let source = offeredLanguage, activeViewMode == .reader {
+            if isTranslating {
+                ProgressView().controlSize(.small)
+                    .help(String(localized: "Translating..."))
+            } else if translatedDocument != nil {
+                Button {
+                    AppHaptics.tap()
+                    resetTranslation()
+                } label: {
+                    Label(String(localized: "Show Original"), systemImage: "translate")
+                }
+                .help(String(localized: "Show Original"))
+            } else {
+                Button {
+                    AppHaptics.tap()
+                    startTranslation()
+                } label: {
+                    Label(
+                        String(format: String(localized: "Translate from %@"), Locale.current.localizedString(forLanguageCode: source.languageCode?.identifier ?? "") ?? ""),
+                        systemImage: "translate"
+                    )
+                }
+                .help(String(localized: "Translate this article on your Mac"))
+            }
         }
     }
 
@@ -891,6 +1017,10 @@ struct ArticleDetailView: View {
         }
         let minutes = max(1, Int(ceil(Double(document.wordCount) / 200.0)))
         parts.append(String(format: String(localized: "%d min read"), minutes).uppercased())
+        if translatedDocument != nil, let source = offeredLanguage {
+            let name = Locale.current.localizedString(forLanguageCode: source.languageCode?.identifier ?? "") ?? ""
+            parts.append(String(format: String(localized: "Translated from %@"), name).uppercased())
+        }
         return parts.joined(separator: " · ")
     }
 

@@ -699,3 +699,10 @@
 "After 2 Weeks" = "2 Hafta Sonra";
 "After a Month" = "1 Ay Sonra";
 "Keeps the Unread list about what is new: articles you never opened are marked as read once they are this old. Bookmarks are not affected." = "Okunmamış listesini yeni olanlara odaklı tutar: hiç açmadığınız makaleler bu kadar eskiyince okundu işaretlenir. Yer imleri etkilenmez.";
+"Could not translate this article." = "Bu makale çevrilemedi.";
+"Dismiss" = "Kapat";
+"Translating..." = "Çevriliyor...";
+"Show Original" = "Orijinali Göster";
+"Translate from %@" = "%@ dilinden çevir";
+"Translate this article on your Mac" = "Bu makaleyi Mac'inizde çevirin";
+"Translated from %@" = "%@ dilinden çevrildi";
