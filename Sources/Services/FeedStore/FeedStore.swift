@@ -188,6 +188,7 @@ final class FeedStore {
             // Group stories once the first window is up, not during launch.
             Task { @MainActor [weak self] in
                 try? await Task.sleep(for: .seconds(2))
+                self?.applyAutomaticReadMarking()
                 self?.refreshStories()
             }
         }

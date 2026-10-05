@@ -15,9 +15,11 @@
 		0ECB0D9DA6A43184C58E74BC /* RefreshBackoffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9463750395D6312D73ECBA2D /* RefreshBackoffTests.swift */; };
 		11FAC03043D65C2FC65B974C /* ContentBlockerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D95F851B7D3243C64939BC /* ContentBlockerService.swift */; };
 		1210A9E476E6F0A1439C615F /* FaviconService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02D94482B96A3A67D2BE9C0 /* FaviconService.swift */; };
+		14F717F95D730ED4E16A3AE2 /* LibraryBackupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC9539700E3E340313682FC /* LibraryBackupTests.swift */; };
 		1550DD31E58504D27E651F6A /* bianet.html in Resources */ = {isa = PBXBuildFile; fileRef = 1429AD471AF8CE73B1886318 /* bianet.html */; };
 		1ACF9FBAB2F62EC837E9C973 /* CommandPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 412748923B310439BC3979DD /* CommandPalette.swift */; };
 		1BE5965A56A39E50C28168D1 /* sozcu.html in Resources */ = {isa = PBXBuildFile; fileRef = CD2934DE0FFDFA768770FB99 /* sozcu.html */; };
+		1D262DAF7BCA085646D46DAE /* FeedStore+Backup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A1CA772D3F6E9BFBA077081 /* FeedStore+Backup.swift */; };
 		1E63416EC9A6B18617EA60B8 /* VersolineApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 498D9B9622E0529349F8A755 /* VersolineApp.swift */; };
 		1F2F2872BEC73903388BF88D /* hurriyet.html in Resources */ = {isa = PBXBuildFile; fileRef = C0D5272D333EDF2741243FE5 /* hurriyet.html */; };
 		2022E77965227BB4BC7F7AA6 /* FeedStore+OPML.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F41177A5909AB96A3254E5F /* FeedStore+OPML.swift */; };
@@ -141,6 +143,7 @@
 		F97AA741C7BE7279EF69A3C5 /* ReadingStatsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B84880E13F7F25DBCEFFEE3 /* ReadingStatsSheet.swift */; };
 		F9E7FBB8E211DDED7C178858 /* FeedDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23D491E899DF32887BE9F458 /* FeedDiscovery.swift */; };
 		FA232EE0D0BA737B967E395E /* ConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC10A3A0BE32D4B56D9D4F40 /* ConsoleView.swift */; };
+		FD2699FC6B9A439F64673421 /* LibraryBackup.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C298C27A824C353905535B /* LibraryBackup.swift */; };
 		FFB570FD87FD142E9F52662D /* ArticleSpeechDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A48DED7C5716885E8C8D220 /* ArticleSpeechDelegate.swift */; };
 /* End PBXBuildFile section */
 
@@ -169,9 +172,11 @@
 		15E5F62D8D57E0C3E52776E4 /* AudioPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerService.swift; sourceTree = "<group>"; };
 		171608BFF7A4D1993A076D1E /* HTMLCleanerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLCleanerTests.swift; sourceTree = "<group>"; };
 		18B9364D3261C29B42A42713 /* bbc.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = bbc.html; sourceTree = "<group>"; };
+		1AC9539700E3E340313682FC /* LibraryBackupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryBackupTests.swift; sourceTree = "<group>"; };
 		1F302A5DB707B66DC486CB6A /* ArticleDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleDocument.swift; sourceTree = "<group>"; };
 		21176B4CEDA3BDE8C939B6B4 /* SocialFeedsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialFeedsView.swift; sourceTree = "<group>"; };
 		23D491E899DF32887BE9F458 /* FeedDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedDiscovery.swift; sourceTree = "<group>"; };
+		2A1CA772D3F6E9BFBA077081 /* FeedStore+Backup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FeedStore+Backup.swift"; sourceTree = "<group>"; };
 		2BCB6E669288B72ECD079C1E /* RSSParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSParserTests.swift; sourceTree = "<group>"; };
 		2D789E557A688147D270B120 /* YouTubePlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubePlayerView.swift; sourceTree = "<group>"; };
 		2D871B02ED37A52B01F2B790 /* FeedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItem.swift; sourceTree = "<group>"; };
@@ -248,6 +253,7 @@
 		A5E3296C821F7A38AAEE4026 /* PodcastSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastSearchView.swift; sourceTree = "<group>"; };
 		A5EEC242A0DFB16168D871C7 /* aa.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = aa.html; sourceTree = "<group>"; };
 		A6AADA107F645C1AA673835B /* FeedStorePersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedStorePersistenceTests.swift; sourceTree = "<group>"; };
+		A7C298C27A824C353905535B /* LibraryBackup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryBackup.swift; sourceTree = "<group>"; };
 		A8CEE69DA71165A92D07B06F /* RSSParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSParser.swift; sourceTree = "<group>"; };
 		AB24CA8959980EC771C82E02 /* curated_feeds.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = curated_feeds.json; sourceTree = "<group>"; };
 		ABDC339C3D298A9F17B6C525 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
@@ -343,6 +349,7 @@
 				8BC08937EEE02E9A0D4C014B /* FeedStoreTests.swift */,
 				171608BFF7A4D1993A076D1E /* HTMLCleanerTests.swift */,
 				037F080F56F584EEC68F2683 /* LegacyMigrationTests.swift */,
+				1AC9539700E3E340313682FC /* LibraryBackupTests.swift */,
 				CBA043771DA7DC7A8234241D /* LocalizationTests.swift */,
 				0E9F0FEB5CA6F3CB49B584EC /* LogRedactorTests.swift */,
 				48F09FDFC15680EBC234D9CC /* MemoryBudgetTests.swift */,
@@ -368,6 +375,7 @@
 			isa = PBXGroup;
 			children = (
 				2FA50AB3CBAEC3AB16053E65 /* FeedStore.swift */,
+				2A1CA772D3F6E9BFBA077081 /* FeedStore+Backup.swift */,
 				E65BBA4DAB2D05647FBD5668 /* FeedStore+Counts.swift */,
 				A57F86A88ED909FE6237FCC1 /* FeedStore+Feeds.swift */,
 				CD27E4C67271C92567DA9209 /* FeedStore+Folders.swift */,
@@ -519,6 +527,7 @@
 				AFD8DAD7B298618EDD170D2E /* FeedItemHygiene.swift */,
 				9DD0AA41FA3F5ADB38B4CF65 /* HTMLCleaner.swift */,
 				D3EC7FFFEEE155BA3CB2A62C /* LegacyMigration.swift */,
+				A7C298C27A824C353905535B /* LibraryBackup.swift */,
 				A287CC2D23E0C21EE3376F09 /* MemoryRelief.swift */,
 				7240E37BB4C740D5CF11C268 /* NetworkMonitor.swift */,
 				E4CE756922485ED1735619D8 /* OPMLManager.swift */,
@@ -692,6 +701,7 @@
 				6B807734F51DA47A0751C51B /* FeedStoreTests.swift in Sources */,
 				EA4123069E884B8130A65203 /* HTMLCleanerTests.swift in Sources */,
 				580AC0F6ECF510287E83D44A /* LegacyMigrationTests.swift in Sources */,
+				14F717F95D730ED4E16A3AE2 /* LibraryBackupTests.swift in Sources */,
 				92FB6D43FC8E159D488F337C /* LocalizationTests.swift in Sources */,
 				2AC2FDDAF68FDBE0655EBA8B /* LogRedactorTests.swift in Sources */,
 				84C85E1A8542C9CFDE5665A2 /* MemoryBudgetTests.swift in Sources */,
@@ -744,6 +754,7 @@
 				4C89A1DBA130687A21431A81 /* FeedItemRow.swift in Sources */,
 				7410B2758BF79BFF6E07BB85 /* FeedListView.swift in Sources */,
 				7CF874A695D3C5814389201A /* FeedRow.swift in Sources */,
+				1D262DAF7BCA085646D46DAE /* FeedStore+Backup.swift in Sources */,
 				A5982263D68F95A3478F061F /* FeedStore+Counts.swift in Sources */,
 				A8296E6D6F46D96EE449B707 /* FeedStore+Feeds.swift in Sources */,
 				ACC3053ED5D26AE537FAE18B /* FeedStore+Folders.swift in Sources */,
@@ -766,6 +777,7 @@
 				E46777B181DA876526DA021E /* ItemStream.swift in Sources */,
 				76B5B96C5C29A35EABE9D9E7 /* KeyboardShortcutsHelpView.swift in Sources */,
 				C9E26B2BEF301EC00C9C56BE /* LegacyMigration.swift in Sources */,
+				FD2699FC6B9A439F64673421 /* LibraryBackup.swift in Sources */,
 				8FF87E7DFF38FDF16A635384 /* LocalPeerSyncEngine.swift in Sources */,
 				2A45BD10C889651D86C08C0F /* MemoryRelief.swift in Sources */,
 				AAE5972461D57F525A4D1BFD /* MiniPlayerView.swift in Sources */,

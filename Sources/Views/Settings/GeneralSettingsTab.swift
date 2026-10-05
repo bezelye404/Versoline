@@ -13,6 +13,7 @@ struct GeneralSettingsTab: View {
     @AppStorage(AppSettingsKeys.isContentBlockerEnabled) private var isContentBlockerEnabled = true
     @AppStorage(AppSettingsKeys.showReadingTimeStreams) private var showReadingTimeStreams = false
     @AppStorage(AppSettingsKeys.groupSimilarStories) private var groupSimilarStories = true
+    @AppStorage(AppSettingsKeys.markOldAsReadDays) private var markOldAsReadDays = 0
     @AppStorage(AppSettingsKeys.playYouTubeInApp) private var playYouTubeInApp = true
     @AppStorage(AppSettingsKeys.enableSingleKeyShortcuts) private var enableSingleKeyShortcuts = true
 
@@ -72,6 +73,15 @@ struct GeneralSettingsTab: View {
                             .font(.caption).foregroundStyle(.secondary)
                     }
                 }
+                Picker("Mark Old Unread as Read:", selection: $markOldAsReadDays) {
+                    Text("Never").tag(0)
+                    Text("After 3 Days").tag(3)
+                    Text("After a Week").tag(7)
+                    Text("After 2 Weeks").tag(14)
+                    Text("After a Month").tag(30)
+                }
+                Text("Keeps the Unread list about what is new: articles you never opened are marked as read once they are this old. Bookmarks are not affected.")
+                    .font(.caption).foregroundStyle(.secondary)
                 Toggle(isOn: $showReadingTimeStreams) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Show Quick & Deep Reads")
