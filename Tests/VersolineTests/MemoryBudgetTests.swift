@@ -65,4 +65,23 @@ struct MemoryBudgetTests {
         // Existing layout is ~250 bytes; the bound catches accidental large stored fields.
         #expect(MemoryLayout<FeedItem>.size <= 400)
     }
+
+    @Test("The in-memory caches stay inside the low-RAM budget")
+    func cacheCeilings() {
+        // Raising any of these needs a measurement with scripts/benchmark.sh first (see docs/benchmark.md).
+        let budget = 4 * MemoryLimits.megabyte
+        for (name, limit) in [("reader pages", MemoryLimits.readerPages), ("favicons", MemoryLimits.favicons), ("images", MemoryLimits.images)] {
+            #expect(limit.bytes <= budget, "\(name) may hold at most 4 MB in memory")
+            #expect(limit.count <= 100, "\(name) may hold at most 100 entries in memory")
+        }
+        #expect(MemoryLimits.imageDiskBytes <= 50 * MemoryLimits.megabyte)
+        #expect(MemoryLimits.readerDiskBytes <= 200 * MemoryLimits.megabyte)
+    }
+
+    @Test("The caches are built from those ceilings")
+    func cachesUseTheCeilings() {
+        let extractor = ReaderModeExtractor(cacheDirectory: FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString))
+        #expect(extractor.memoryLimits.count == MemoryLimits.readerPages.count)
+        #expect(extractor.memoryLimits.bytes == MemoryLimits.readerPages.bytes)
+    }
 }

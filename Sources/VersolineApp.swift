@@ -39,7 +39,7 @@ struct VersolineApp: App {
                 await ContentBlockerService.shared.prepare()
                 ReaderModeExtractor.shared.cleanupDiskCache(olderThanDays: 30)
                 ImageDownsampleCache.shared.cleanupDiskCache(olderThanDays: 14)
-                ImageDownsampleCache.shared.enforceQuota(maxSizeBytes: 30 * 1024 * 1024)
+                ImageDownsampleCache.shared.enforceQuota(maxSizeBytes: Int64(MemoryLimits.imageDiskBytes))
             }
         }
 
