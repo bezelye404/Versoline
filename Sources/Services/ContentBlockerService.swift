@@ -7,7 +7,13 @@ final class ContentBlockerService {
 
     static let shared = ContentBlockerService()
 
-    private let ruleListIdentifier = "VersolineContentBlockerRules-v1"
+    /// The compiled list is cached by WebKit under this name. The name carries a fingerprint of the rules, so a changed
+    /// rule set is compiled again instead of the old compiled list being reused after an update.
+    private let ruleListIdentifier: String = {
+        var hash: UInt64 = 0xcbf29ce484222325
+        for byte in ContentBlockerRules.rulesJSON.utf8 { hash = (hash ^ UInt64(byte)) &* 0x100000001b3 }
+        return "VersolineContentBlockerRules-" + String(hash, radix: 16)
+    }()
     private(set) var ruleList: WKContentRuleList?
     private(set) var isReady: Bool = false
 
@@ -25,16 +31,32 @@ final class ContentBlockerService {
             return
         }
 
-        // Check if compiled rules already exist in store cache (instant load)
+        // Compiled lists of older rule sets are of no use any more.
+        for identifier in await Self.availableIdentifiers(in: store) where identifier != ruleListIdentifier && identifier.hasPrefix("VersolineContentBlockerRules") {
+            await Self.remove(identifier, from: store)
+        }
+
+        // Reuse the list compiled on an earlier launch.
         if let cached = await lookupRuleList(store: store) {
             self.ruleList = cached
             self.isReady = true
-            AppLogger.shared.log("Pre-compiled content blocker rules (v6) loaded from store cache.", level: .info, category: .system)
+            AppLogger.shared.log("Content blocker rules loaded from the store cache.", level: .info, category: .system)
             return
         }
 
-        // Otherwise compile rule list asynchronously
         await compileRuleList(store: store)
+    }
+
+    private static func availableIdentifiers(in store: WKContentRuleListStore) async -> [String] {
+        await withCheckedContinuation { continuation in
+            store.getAvailableContentRuleListIdentifiers { continuation.resume(returning: $0 ?? []) }
+        }
+    }
+
+    private static func remove(_ identifier: String, from store: WKContentRuleListStore) async {
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            store.removeContentRuleList(forIdentifier: identifier) { _ in continuation.resume() }
+        }
     }
 
     private func lookupRuleList(store: WKContentRuleListStore) async -> WKContentRuleList? {
@@ -57,7 +79,7 @@ final class ContentBlockerService {
                     } else if let compiled = compiled {
                         self?.ruleList = compiled
                         self?.isReady = true
-                        AppLogger.shared.log("Successfully compiled native WebKit content blocker rules (v6).", level: .info, category: .system)
+                        AppLogger.shared.log("Compiled the content blocker rules.", level: .info, category: .system)
                     }
                     continuation.resume()
                 }
@@ -66,7 +88,7 @@ final class ContentBlockerService {
     }
 }
 
-private enum ContentBlockerRules {
+enum ContentBlockerRules {
 
     private static let blockedDomains: [String] = [
         // Global & US Ad Networks & Trackers

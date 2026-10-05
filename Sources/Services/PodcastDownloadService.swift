@@ -7,10 +7,12 @@ final class PodcastDownloadService {
     static let shared = PodcastDownloadService()
 
     private(set) var downloadedEpisodeIDs: Set<UUID> = []
-    private(set) var activeDownloads: [UUID: Double] = [:] // Progress 0.0...1.0
+    /// Progress of each running download, 0 to 1.
+    private(set) var activeDownloads: [UUID: Double] = [:]
 
     @ObservationIgnored private let downloadsDirectory: URL
     @ObservationIgnored private var downloadTasks: [UUID: URLSessionDownloadTask] = [:]
+    @ObservationIgnored private var progressObservations: [UUID: NSKeyValueObservation] = [:]
 
     @ObservationIgnored private lazy var session: URLSession = {
         let config = URLSessionConfiguration.default
@@ -55,36 +57,55 @@ final class PodcastDownloadService {
     }
 
     func downloadEpisode(_ item: FeedItem) {
-        guard let urlString = item.audioURL, let streamURL = URL(string: urlString) else { return }
+        guard let urlString = item.audioURL, let streamURL = URL(string: urlString), AppInfo.isWebAddress(streamURL) else { return }
         guard !isDownloaded(item.id), activeDownloads[item.id] == nil else { return }
 
         let itemId = item.id
-        activeDownloads[itemId] = 0.05
+        activeDownloads[itemId] = 0.02
         AppLogger.shared.log("Starting offline download for episode: \(item.title)", level: .info, category: .network)
 
         let destination = downloadsDirectory.appendingPathComponent("\(itemId.uuidString).mp3")
 
         let task = session.downloadTask(with: streamURL) { [weak self] tempURL, response, error in
+            // The temporary file is deleted as soon as this handler returns, so it is moved here and not later on the
+            // main actor.
+            var failure = error?.localizedDescription
+            var saved = false
+            if error == nil, let tempURL {
+                if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+                    failure = "HTTP \(http.statusCode)"
+                } else {
+                    do {
+                        try? FileManager.default.removeItem(at: destination)
+                        try FileManager.default.moveItem(at: tempURL, to: destination)
+                        saved = true
+                    } catch {
+                        failure = error.localizedDescription
+                    }
+                }
+            }
+            let outcome = (saved: saved, failure: failure)
             Task { @MainActor in
                 guard let self else { return }
                 self.activeDownloads.removeValue(forKey: itemId)
                 self.downloadTasks.removeValue(forKey: itemId)
-
-                if let tempURL, error == nil {
-                    do {
-                        try? FileManager.default.removeItem(at: destination)
-                        try FileManager.default.moveItem(at: tempURL, to: destination)
-                        self.downloadedEpisodeIDs.insert(itemId)
-                        AppLogger.shared.log("Successfully downloaded episode: \(item.title)", level: .info, category: .storage)
-                    } catch {
-                        AppLogger.shared.log("Failed to save downloaded file: \(error.localizedDescription)", level: .error, category: .storage)
-                    }
-                } else if let error {
-                    AppLogger.shared.log("Download failed: \(error.localizedDescription)", level: .error, category: .network)
+                self.progressObservations.removeValue(forKey: itemId)
+                if outcome.saved {
+                    self.downloadedEpisodeIDs.insert(itemId)
+                    AppLogger.shared.log("Downloaded episode: \(item.title)", level: .info, category: .storage)
+                } else if let reason = outcome.failure {
+                    AppLogger.shared.log("Download failed: \(reason)", level: .error, category: .network)
                 }
             }
         }
 
+        progressObservations[itemId] = task.progress.observe(\.fractionCompleted) { [weak self] progress, _ in
+            let fraction = progress.fractionCompleted
+            Task { @MainActor in
+                guard let self, self.activeDownloads[itemId] != nil else { return }
+                self.activeDownloads[itemId] = max(0.02, fraction)
+            }
+        }
         downloadTasks[itemId] = task
         task.resume()
     }
@@ -92,6 +113,7 @@ final class PodcastDownloadService {
     func cancelDownload(for episodeId: UUID) {
         downloadTasks[episodeId]?.cancel()
         downloadTasks.removeValue(forKey: episodeId)
+        progressObservations.removeValue(forKey: episodeId)
         activeDownloads.removeValue(forKey: episodeId)
     }
 

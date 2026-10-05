@@ -733,3 +733,5 @@
 "Find in Article" = "Makalede Bul";
 "Find in article" = "Makalede bul";
 "%d of %d" = "%d / %d";
+"Invalid audio stream URL." = "Geçersiz ses akışı adresi.";
+"Playback failed." = "Oynatma başarısız oldu.";

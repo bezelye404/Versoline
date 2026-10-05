@@ -52,8 +52,8 @@ final class AudioPlayerService {
     func play(item: FeedItem, feedTitle: String? = nil, store: FeedStore) {
         VideoPlayerService.shared.pause()
 
-        guard let urlString = item.audioURL, let streamURL = URL(string: urlString) else {
-            errorMessage = "Invalid audio stream URL."
+        guard let urlString = item.audioURL, let streamURL = URL(string: urlString), AppInfo.isWebAddress(streamURL) else {
+            errorMessage = String(localized: "Invalid audio stream URL.")
             return
         }
 
@@ -105,7 +105,7 @@ final class AudioPlayerService {
                     self.updateNowPlayingInfo()
                 } else if item.status == .failed {
                     self.isBuffering = false
-                    self.errorMessage = item.error?.localizedDescription ?? "Playback failed."
+                    self.errorMessage = item.error?.localizedDescription ?? String(localized: "Playback failed.")
                     AppLogger.shared.log("Audio playback error: \(self.errorMessage ?? "")", level: .error, category: .ui)
                 }
             }
