@@ -53,7 +53,7 @@ final class FeedStore {
     // Switching views releases previous arrays, saving 70-80% heap compared to multi-array caching.
     struct ActiveViewCache {
         let key: String
-        let items: [FeedItem]
+        var items: [FeedItem]
     }
     @ObservationIgnored var activeViewCache: ActiveViewCache?
     @ObservationIgnored var cachedSmartCategoryCounts: [SmartCategory: Int] = [:]
@@ -82,12 +82,13 @@ final class FeedStore {
     }
 
     func updateItemInActiveViewCache(_ updatedItem: FeedItem) {
-        guard let current = activeViewCache else { return }
-        if let idx = current.items.firstIndex(where: { $0.id == updatedItem.id }) {
-            var newItems = current.items
-            newItems[idx] = updatedItem
-            activeViewCache = ActiveViewCache(key: current.key, items: newItems)
-        }
+        // Take the cache out of the property first so the array has one owner and is changed in place: with a second
+        // owner, changing one item would copy the whole list (the Unread list holds well over a thousand items).
+        guard var cache = activeViewCache,
+              let idx = cache.items.firstIndex(where: { $0.id == updatedItem.id }) else { return }
+        activeViewCache = nil
+        cache.items[idx] = updatedItem
+        activeViewCache = cache
     }
 
     func compactMemory(deep: Bool = false) {

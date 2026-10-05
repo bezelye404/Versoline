@@ -108,6 +108,7 @@
 		C125E06593424E195D6C9AEC /* NativePlayerScrubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C706AC2E89717CED63DBCC5 /* NativePlayerScrubber.swift */; };
 		C4C37CAEDF9613F657F2CB90 /* FeedsSettingsTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = A122A8B77924976290B9D3A2 /* FeedsSettingsTab.swift */; };
 		C4CADC7A579C8B41D6E4819C /* PodcastSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5E3296C821F7A38AAEE4026 /* PodcastSearchView.swift */; };
+		C6A1537823DF191D7AEEE8A8 /* Benchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DEF528B73952AEABB2D6F0 /* Benchmark.swift */; };
 		C71B08FC54C1147C3A54C9BF /* AppAnimationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEEAA2436EA953D6160CADB7 /* AppAnimationTests.swift */; };
 		C790BD121BD68451C5DCC439 /* FeedStore+Sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 827C51101D3DCFEE01E35B1A /* FeedStore+Sync.swift */; };
 		C878A180A51A0B7EAB9D6400 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 05B2FC164B971DDFF41B7248 /* Localizable.strings */; };
@@ -209,6 +210,7 @@
 		7240E37BB4C740D5CF11C268 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		74371D7BFE5B4B3C0F8CDC90 /* AddFeedSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFeedSheet.swift; sourceTree = "<group>"; };
 		75DB4A107DA7CCCE84E0BC20 /* GeneralSettingsTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsTab.swift; sourceTree = "<group>"; };
+		75DEF528B73952AEABB2D6F0 /* Benchmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Benchmark.swift; sourceTree = "<group>"; };
 		76332F3D60EBBE5859E28A9F /* PeerHandshakeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeerHandshakeTests.swift; sourceTree = "<group>"; };
 		7A88C510813FFC523974C03E /* OPMLManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OPMLManagerTests.swift; sourceTree = "<group>"; };
 		7C3DF897D39C75B410A66A44 /* VideoPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerService.swift; sourceTree = "<group>"; };
@@ -497,6 +499,7 @@
 				7FAFB15B100CE44093DCDFED /* AppLogger.swift */,
 				9A87E2D7EFCEF163991CA132 /* ArticleParser.swift */,
 				15E5F62D8D57E0C3E52776E4 /* AudioPlayerService.swift */,
+				75DEF528B73952AEABB2D6F0 /* Benchmark.swift */,
 				C3D95F851B7D3243C64939BC /* ContentBlockerService.swift */,
 				FA7EEAE8836C50ED6DCDC4A4 /* CuratedFeedManager.swift */,
 				F02D94482B96A3A67D2BE9C0 /* FaviconService.swift */,
@@ -707,6 +710,7 @@
 				9BE98E274243DA0108A45257 /* ArticleParser.swift in Sources */,
 				FFB570FD87FD142E9F52662D /* ArticleSpeechDelegate.swift in Sources */,
 				7ED42CFB7BE6A36CA5A23312 /* AudioPlayerService.swift in Sources */,
+				C6A1537823DF191D7AEEE8A8 /* Benchmark.swift in Sources */,
 				7E8F06C054F8C4BF57923068 /* BionicReading.swift in Sources */,
 				1ACF9FBAB2F62EC837E9C973 /* CommandPalette.swift in Sources */,
 				505F7253745CD650CE82D36E /* CommandPaletteView.swift in Sources */,

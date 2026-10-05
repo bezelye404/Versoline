@@ -12,7 +12,7 @@ struct VersolineApp: App {
     @State private var store = FeedStore(
         storageDirectory: Self.isRunningTests
             ? FileManager.default.temporaryDirectory.appendingPathComponent("VersolineTestHost-\(UUID().uuidString)", isDirectory: true)
-            : nil
+            : (Benchmark.isRequested ? Benchmark.scratchLibrary() : nil)
     )
     @AppStorage(AppSettingsKeys.showMenuBarIcon) private var showMenuBarIcon = false
 
