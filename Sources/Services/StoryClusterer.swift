@@ -8,7 +8,7 @@ import Foundation
 /// close in time. Everything is computed locally from data already in memory, nothing is stored, and no model is loaded.
 enum StoryClusterer {
 
-    struct Story: Equatable {
+    struct Story: Equatable, Sendable {
         /// The item shown for the story, then the others, newest first.
         let memberIDs: [UUID]
         let feedCount: Int
@@ -16,7 +16,7 @@ enum StoryClusterer {
         var size: Int { memberIDs.count }
     }
 
-    struct Settings {
+    struct Settings: Sendable {
         /// Cosine similarity at which an item joins a story.
         var threshold: Float = 0.45
         /// Multiplier when both items name numbers and share none.
