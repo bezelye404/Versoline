@@ -711,3 +711,11 @@
 "Import subscriptions from %@?" = "%@ dosyasındaki abonelikler içe aktarılsın mı?";
 "The feeds in the file are added to your library. Feeds you already have are skipped." = "Dosyadaki feed'ler kütüphanenize eklenir. Zaten olanlar atlanır.";
 "Import" = "İçe Aktar";
+"Rules" = "Kurallar";
+"All Feeds" = "Tüm Feed'ler";
+"Rules run on new articles when feeds refresh. They mark matching articles as read or bookmark them; nothing is hidden or deleted." = "Kurallar feed'ler yenilenince gelen yeni makalelere uygulanır. Eşleşen makaleleri okundu yapar veya yer imi ekler; hiçbir şey gizlenmez veya silinmez.";
+"Title or summary contains..." = "Başlık veya özet şunu içerirse...";
+"No rules yet" = "Henüz kural yok";
+"Apply to Existing Articles" = "Mevcut Makalelere Uygula";
+"%d articles changed" = "%d makale değişti";
+"Removed feed" = "Silinmiş feed";

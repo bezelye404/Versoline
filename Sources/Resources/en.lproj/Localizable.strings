@@ -712,3 +712,11 @@
 "Import subscriptions from %@?" = "Import subscriptions from %@?";
 "The feeds in the file are added to your library. Feeds you already have are skipped." = "The feeds in the file are added to your library. Feeds you already have are skipped.";
 "Import" = "Import";
+"Rules" = "Rules";
+"All Feeds" = "All Feeds";
+"Rules run on new articles when feeds refresh. They mark matching articles as read or bookmark them; nothing is hidden or deleted." = "Rules run on new articles when feeds refresh. They mark matching articles as read or bookmark them; nothing is hidden or deleted.";
+"Title or summary contains..." = "Title or summary contains...";
+"No rules yet" = "No rules yet";
+"Apply to Existing Articles" = "Apply to Existing Articles";
+"%d articles changed" = "%d articles changed";
+"Removed feed" = "Removed feed";
