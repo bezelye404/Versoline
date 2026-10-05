@@ -9,6 +9,8 @@ struct FeedItemRow: View {
     var feedTitle: String? = nil
     var feedURL: String? = nil
     var feedImageURL: String? = nil
+    /// How many feeds told this story; shown when more than one.
+    var sourceCount: Int? = nil
 
     private static let relativeDateTimeFormatter: RelativeDateTimeFormatter = {
         let formatter = RelativeDateTimeFormatter()
@@ -87,6 +89,12 @@ struct FeedItemRow: View {
                                 Text("·")
                             }
                             Text(formattedDate)
+                        }
+
+                        if let sourceCount, sourceCount > 1 {
+                            Text("·")
+                            Image(systemName: "square.stack")
+                            Text(String(format: String(localized: "%d sources"), sourceCount))
                         }
 
                         if item.isPodcast {

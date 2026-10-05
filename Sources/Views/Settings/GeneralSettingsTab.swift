@@ -12,6 +12,7 @@ struct GeneralSettingsTab: View {
     @AppStorage(AppSettingsKeys.offlinePrecacheEnabled) private var offlinePrecacheEnabled = false
     @AppStorage(AppSettingsKeys.isContentBlockerEnabled) private var isContentBlockerEnabled = true
     @AppStorage(AppSettingsKeys.showReadingTimeStreams) private var showReadingTimeStreams = false
+    @AppStorage(AppSettingsKeys.groupSimilarStories) private var groupSimilarStories = true
     @AppStorage(AppSettingsKeys.playYouTubeInApp) private var playYouTubeInApp = true
     @AppStorage(AppSettingsKeys.enableSingleKeyShortcuts) private var enableSingleKeyShortcuts = true
 
@@ -64,6 +65,13 @@ struct GeneralSettingsTab: View {
             }
 
             Section("Reading") {
+                Toggle(isOn: $groupSimilarStories) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Group the Same Story")
+                        Text("Shows one row when several of your feeds report the same news, with the other sources one tap away. Reading it marks the other versions as read.")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                }
                 Toggle(isOn: $showReadingTimeStreams) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Show Quick & Deep Reads")

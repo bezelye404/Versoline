@@ -663,3 +663,11 @@
 "Keyboard" = "Klavye";
 
 "No RSS or Atom feed was found at this address." = "Bu adreste RSS veya Atom beslemesi bulunamadı.";
+"Top Stories" = "Öne Çıkanlar";
+"No Top Stories" = "Öne Çıkan Haber Yok";
+"Stories told by three or more of your feeds in the last day will appear here." = "Son bir günde üç veya daha fazla feed'inizin haberleştirdiği olaylar burada görünür.";
+"%d sources" = "%d kaynak";
+"Same Story" = "Aynı Haber";
+"Same story in %d other feeds" = "Aynı haber %d başka feed'de";
+"Group the Same Story" = "Aynı Haberi Grupla";
+"Shows one row when several of your feeds report the same news, with the other sources one tap away. Reading it marks the other versions as read." = "Birkaç feed'iniz aynı haberi verdiğinde tek satır gösterir; diğer kaynaklar bir dokunuş uzakta. Okuyunca diğer sürümleri de okundu işaretler.";

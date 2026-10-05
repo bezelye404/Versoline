@@ -12,6 +12,7 @@ struct FeedListView: View {
 
     @AppStorage(AppSettingsKeys.enableSingleKeyShortcuts) private var enableSingleKeyShortcuts = true
     @AppStorage(AppSettingsKeys.mutedKeywords) private var mutedKeywordsRaw = ""
+    @AppStorage(AppSettingsKeys.groupSimilarStories) private var groupSimilarStories = true
     @AppStorage(AppSettingsKeys.preferredExternalBrowser) private var preferredExternalBrowserRaw = ExternalBrowserOption.systemDefault.rawValue
 
     private var title: String {
@@ -26,15 +27,31 @@ struct FeedListView: View {
         case .longReads: return String(localized: "Deep Reads")
         case .smartCategory(let cat): return cat.displayName
         case .videos: return String(localized: "Videos")
+        case .topStories: return String(localized: "Top Stories")
         case .folder(let id): return store.folders.first(where: { $0.id == id })?.name ?? String(localized: "Folder")
         case .feed(let id): return store.feed(for: id)?.title ?? String(localized: "Feed")
         case nil: return ""
         }
     }
 
+    /// Lists that mix feeds fold the same story into one row; a single feed, a folder or the saved lists do not.
+    private var foldsStories: Bool {
+        guard groupSimilarStories else { return false }
+        switch selection {
+        case .all, .unread, .today, .quickReads, .longReads, .smartCategory: return true
+        default: return false
+        }
+    }
+
+    /// Whether rows show how many feeds told the story.
+    private var showsStorySources: Bool {
+        guard groupSimilarStories else { return false }
+        return foldsStories || selection == .topStories
+    }
+
     private var showFeedName: Bool {
         switch selection {
-        case .all, .bookmarks, .unread, .today, .podcasts, .downloaded, .quickReads, .longReads, .smartCategory, .videos, .folder: return true
+        case .all, .bookmarks, .unread, .today, .podcasts, .downloaded, .quickReads, .longReads, .smartCategory, .videos, .topStories, .folder: return true
         default: return false
         }
     }
@@ -76,6 +93,8 @@ struct FeedListView: View {
             base = store.smartCategoryItems(cat)
         case .videos:
             base = store.items(for: .videos)
+        case .topStories:
+            base = store.topStoryItems()
         case .folder(let id):
             base = store.itemsForFolder(id)
         case .feed(let id):
@@ -103,7 +122,7 @@ struct FeedListView: View {
         }
 
         if searchText.isEmpty {
-            return visibleItems
+            return foldsStories ? store.collapsingStories(in: visibleItems, keeping: selectedArticle?.id) : visibleItems
         }
 
         let query = searchText.lowercased()
@@ -177,7 +196,8 @@ struct FeedListView: View {
                                         isSelected: selectedArticle?.id == item.id,
                                         feedTitle: showFeedName ? feed?.title : nil,
                                         feedURL: feed?.url ?? URL(string: item.link)?.host,
-                                        feedImageURL: feed?.imageURL
+                                        feedImageURL: feed?.imageURL,
+                                        sourceCount: showsStorySources ? store.storySourceCount(for: item) : nil
                                     )
                                     .tag(item.id)
                                     .listRowBackground(EmptyView())
@@ -543,6 +563,7 @@ struct FeedListView: View {
         case .longReads: return "book.closed"
         case .smartCategory(let cat): return cat.systemImage
         case .videos: return "play.rectangle"
+        case .topStories: return "square.stack.3d.up"
         case .folder: return "folder"
         case .feed: return "newspaper"
         }
@@ -560,6 +581,7 @@ struct FeedListView: View {
         case .longReads: return String(localized: "No Deep Reads")
         case .smartCategory(let cat): return cat.displayName
         case .videos: return String(localized: "No Videos")
+        case .topStories: return String(localized: "No Top Stories")
         case .folder: return String(localized: "Folder is Empty")
         case .feed: return String(localized: "Feed is Empty")
         }
@@ -577,6 +599,7 @@ struct FeedListView: View {
         case .longReads: return String(localized: "In-depth articles (7+ minutes) will appear here for deep reading.")
         case .smartCategory: return String(localized: "Articles automatically classified in this category will appear here.")
         case .videos: return String(localized: "Articles containing YouTube videos will appear here.")
+        case .topStories: return String(localized: "Stories told by three or more of your feeds in the last day will appear here.")
         case .folder: return String(localized: "Move feeds into this folder from the sidebar.")
         case .feed: return String(localized: "No articles found in this feed.")
         }

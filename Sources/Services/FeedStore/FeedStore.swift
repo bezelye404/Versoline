@@ -59,6 +59,16 @@ final class FeedStore {
     @ObservationIgnored var cachedSmartCategoryCounts: [SmartCategory: Int] = [:]
     var activeSmartCategories: [SmartCategory] = []
     @ObservationIgnored var lastRefreshDate: Date?
+    /// The same story told by several feeds (see `StoryClusterer`), rebuilt in the background after a refresh.
+    /// `storyRefs` is observed so lists redraw once when a new grouping arrives; the rest is only read on demand.
+    var storyRefs: [UUID: StoryRef] = [:]
+    @ObservationIgnored var stories: [StoryClusterer.Story] = []
+    @ObservationIgnored var storyTask: Task<Void, Never>?
+    struct StoryRef: Equatable {
+        let story: Int
+        let sources: Int
+        let isLead: Bool
+    }
     /// Feeds that keep failing wait longer between automatic refreshes (see `RefreshBackoff`).
     @ObservationIgnored var refreshBackoff: [UUID: RefreshBackoff] = [:]
 
@@ -175,6 +185,11 @@ final class FeedStore {
 
         if storageDirectory == nil {
             SyncCoordinator.shared.configure(with: self)
+            // Group stories once the first window is up, not during launch.
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .seconds(2))
+                self?.refreshStories()
+            }
         }
     }
 }
