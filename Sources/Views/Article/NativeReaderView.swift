@@ -22,6 +22,14 @@ struct NativeReaderView: View {
     var annotations: [String: Annotation] = [:]
     var onToggleHighlight: ((AnnotationTarget) -> Void)? = nil
     var onEditNote: ((AnnotationTarget) -> Void)? = nil
+    /// The article's address: when set, the reader remembers how far it got and continues there next time.
+    var positionKey: String? = nil
+
+    /// Words being searched for in the article (tinted) and a block to scroll to when stepping between matches.
+    var findQuery: String = ""
+    var focusBlock: Int? = nil
+
+    @State private var topBlock: Int?
 
     @Environment(\.appTheme) private var appTheme
 
@@ -40,12 +48,28 @@ struct NativeReaderView: View {
                     annotatedBlock(block)
                 }
             }
+            .scrollTargetLayout()
             .frame(maxWidth: 720, alignment: .leading)
             .padding(.horizontal, 24)
             .padding(.top, 24)
             .padding(.bottom, 56)
             .frame(maxWidth: .infinity)
             .textSelection(.enabled)
+        }
+        .scrollPosition(id: $topBlock, anchor: .top)
+        .onChange(of: focusBlock) { _, block in
+            if let block { withAnimation(AppAnimation.quickFeedback) { topBlock = block } }
+        }
+        .onAppear {
+            if let positionKey, let saved = ReadingPositions.shared.position(for: positionKey), saved < document.blocks.count {
+                topBlock = saved
+            }
+        }
+        .task(id: topBlock) {
+            // Wait until scrolling settles before writing anything down.
+            try? await Task.sleep(for: .seconds(1.2))
+            guard !Task.isCancelled, let positionKey, let topBlock else { return }
+            ReadingPositions.shared.save(link: positionKey, block: topBlock, blockCount: document.blocks.count)
         }
         .background(theme.nativeBackground ?? Color.clear)
         .foregroundStyle(textColor)
@@ -83,7 +107,13 @@ struct NativeReaderView: View {
     // MARK: Blocks
 
     private func styled(_ text: AttributedString) -> AttributedString {
-        isBionic ? BionicReading.apply(to: text) : text
+        marked(isBionic ? BionicReading.apply(to: text) : text)
+    }
+
+    /// The search matches get a yellow background.
+    private func marked(_ text: AttributedString) -> AttributedString {
+        guard !findQuery.isEmpty else { return text }
+        return ReaderFind.highlighted(text, query: findQuery) { $0.backgroundColor = Color.yellow.opacity(0.55) }
     }
 
     private func bodyFont(scale: Double = 1, weight: Font.Weight = .regular) -> Font {
@@ -128,7 +158,7 @@ struct NativeReaderView: View {
         switch block {
         case .heading(let level, let text):
             let scale: Double = level <= 1 ? 1.45 : (level == 2 ? 1.3 : (level == 3 ? 1.15 : 1.05))
-            Text(text)
+            Text(marked(text))
                 .font(bodyFont(scale: scale, weight: .semibold))
                 .padding(.top, fontSize * 0.5)
                 .fixedSize(horizontal: false, vertical: true)

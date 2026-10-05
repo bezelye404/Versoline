@@ -23,6 +23,8 @@ struct ArticleDetailView: View {
     let selectedItem: FeedItem?
     /// Opens another article (used by the "Same Story" menu).
     var onSelectArticle: ((FeedItem) -> Void)? = nil
+    /// Shows the find bar for the article being read (⌥⌘F).
+    @Binding var showFind: Bool
 
     @State private var activeViewMode: ReadingViewMode = .reader
     @State private var extractedReaderHTML: String? = nil
@@ -35,6 +37,10 @@ struct ArticleDetailView: View {
     @State private var isTranslating = false
     @State private var translationFailed = false
     @State private var noteTarget: AnnotationTarget?
+    @State private var findQuery = ""
+    @State private var findPosition = 0
+    @State private var focusBlock: Int?
+    @FocusState private var findFieldFocused: Bool
     @State private var isLoadingReaderMode = false
     @State private var readerFetchFailed = false
     @State private var isSpeaking = false
@@ -190,6 +196,10 @@ struct ArticleDetailView: View {
         readerFetchFailed = false
         resetTranslation()
         offeredLanguage = nil
+        showFind = false
+        findQuery = ""
+        findPosition = 0
+        focusBlock = nil
 
         if activeViewMode == .reader && cached == nil {
             loadReaderMode(for: item, forceWeb: false)
@@ -877,8 +887,14 @@ struct ArticleDetailView: View {
                     onToggleHighlight: translatedDocument == nil ? { target in
                         annotationStore.toggleHighlight(link: item.link, title: item.title, key: target.key, excerpt: target.excerpt)
                     } : nil,
-                    onEditNote: translatedDocument == nil ? { noteTarget = $0 } : nil
+                    onEditNote: translatedDocument == nil ? { noteTarget = $0 } : nil,
+                    positionKey: translatedDocument == nil ? item.link : nil,
+                    findQuery: showFind ? findQuery : "",
+                    focusBlock: focusBlock
                 )
+                .overlay(alignment: .topTrailing) {
+                    if showFind { findBar(for: translatedDocument ?? document) }
+                }
                 .sheet(item: $noteTarget) { target in
                     NoteEditorSheet(
                         excerpt: target.excerpt,
@@ -930,6 +946,56 @@ struct ArticleDetailView: View {
                 failTranslation(error, item: item)
             }
         }
+    }
+
+    // MARK: - Find in article
+
+    private func findBar(for document: ArticleDocument) -> some View {
+        let matches = ReaderFind.matches(in: document, query: findQuery)
+        return HStack(spacing: 6) {
+            Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+            TextField(String(localized: "Find in article"), text: $findQuery)
+                .textFieldStyle(.plain)
+                .frame(width: 160)
+                .focused($findFieldFocused)
+                .onSubmit { stepFind(by: 1, in: matches) }
+                .onExitCommand { showFind = false }
+            if !findQuery.isEmpty {
+                Text(matches.isEmpty ? String(localized: "No matches") : String(format: String(localized: "%d of %d"), min(findPosition, matches.count - 1) + 1, matches.count))
+                    .font(.caption)
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+            }
+            Button { stepFind(by: -1, in: matches) } label: { Image(systemName: "chevron.up") }
+                .disabled(matches.isEmpty)
+            Button { stepFind(by: 1, in: matches) } label: { Image(systemName: "chevron.down") }
+                .disabled(matches.isEmpty)
+            Button { showFind = false } label: { Image(systemName: "xmark.circle.fill") }
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(.regularMaterial, in: Capsule())
+        .overlay(Capsule().stroke(theme.hairlineBorder, lineWidth: 0.5))
+        .padding(12)
+        .onAppear { findFieldFocused = true }
+        .onChange(of: findQuery) { _, _ in
+            findPosition = 0
+            scrollToFindBlock(ReaderFind.matches(in: document, query: findQuery).first?.block)
+        }
+    }
+
+    /// Moves to the next or previous paragraph that contains the query, wrapping around.
+    private func stepFind(by offset: Int, in matches: [ReaderFind.Match]) {
+        guard !matches.isEmpty else { return }
+        findPosition = (min(findPosition, matches.count - 1) + offset + matches.count) % matches.count
+        scrollToFindBlock(matches[findPosition].block)
+    }
+
+    /// Clears the target first so asking for the block the reader last jumped to still scrolls back to it.
+    private func scrollToFindBlock(_ block: Int?) {
+        focusBlock = nil
+        DispatchQueue.main.async { focusBlock = block }
     }
 
     // MARK: - Translation

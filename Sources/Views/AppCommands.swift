@@ -19,6 +19,7 @@ struct AppActions {
     var showConsole: () -> Void
     var toggleFocusMode: () -> Void
     var showCommandPalette: () -> Void
+    var findInArticle: () -> Void
     var hasFeeds: Bool
 }
 
@@ -76,6 +77,9 @@ struct AppCommands: Commands {
                 .disabled(actions == nil)
             Button(String(localized: "Go to...")) { actions?.showCommandPalette() }
                 .keyboardShortcut("k", modifiers: .command)
+                .disabled(actions == nil)
+            Button(String(localized: "Find in Article")) { actions?.findInArticle() }
+                .keyboardShortcut("f", modifiers: [.command, .option])
                 .disabled(actions == nil)
             Button(String(localized: "Reading Insights")) { actions?.showReadingInsights() }
                 .keyboardShortcut("i", modifiers: [.command, .option])

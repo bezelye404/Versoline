@@ -12,6 +12,7 @@ struct ContentView: View {
     @State private var showAddFeed = false
     @State private var addFeedTab: AddFeedTab = .customURL
     @State private var addFeedInitialURL: String?
+    @State private var showFindInArticle = false
     @State private var showConsole = false
     @State private var showShortcutsHelp = false
     @State private var showReadingStats = false
@@ -82,7 +83,7 @@ struct ContentView: View {
                 .navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 480)
                 .background(currentTheme.listBackground)
             } detail: {
-                ArticleDetailView(selectedItem: selectedArticle, onSelectArticle: { selectedArticle = $0 })
+                ArticleDetailView(selectedItem: selectedArticle, onSelectArticle: { selectedArticle = $0 }, showFind: $showFindInArticle)
                     .background(currentTheme.detailBackground)
             }
             .toolbarBackground(currentTheme.windowBackground, for: .windowToolbar)
@@ -163,6 +164,7 @@ struct ContentView: View {
             showConsole: { showConsole = true },
             toggleFocusMode: { toggleFocusMode() },
             showCommandPalette: { setPalette(true) },
+            findInArticle: { showFindInArticle.toggle() },
             hasFeeds: !store.feeds.isEmpty
         ))
         .overlay(alignment: .top) {
@@ -318,6 +320,7 @@ struct ContentView: View {
             case .exportBackup: exportBackup()
             case .restoreBackup: restoreBackup()
             case .markOlderWeekAsRead: confirmMarkOlderAsRead(days: 7)
+            case .findInArticle: showFindInArticle.toggle()
             case .readingInsights: showReadingStats = true
             case .shortcuts: showShortcutsHelp = true
             case .focusMode: toggleFocusMode()

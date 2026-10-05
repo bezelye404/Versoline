@@ -5,7 +5,7 @@ import Foundation
 // Pure model: building the entries and matching a query involve no UI, so they are unit-tested.
 
 enum PaletteCommand: String, CaseIterable, Sendable {
-    case refresh, addFeed, newFolder, importOPML, exportOPML, exportBackup, restoreBackup, markOlderWeekAsRead, readingInsights, shortcuts, focusMode, toggleCompact
+    case refresh, addFeed, newFolder, importOPML, exportOPML, exportBackup, restoreBackup, markOlderWeekAsRead, findInArticle, readingInsights, shortcuts, focusMode, toggleCompact
 
     var title: String {
         switch self {
@@ -17,6 +17,7 @@ enum PaletteCommand: String, CaseIterable, Sendable {
         case .exportBackup: return String(localized: "Export Backup...")
         case .restoreBackup: return String(localized: "Restore Backup...")
         case .markOlderWeekAsRead: return String(localized: "Mark Articles Older Than a Week as Read")
+        case .findInArticle: return String(localized: "Find in Article")
         case .readingInsights: return String(localized: "Reading Insights")
         case .shortcuts: return String(localized: "Keyboard Shortcuts")
         case .focusMode: return String(localized: "Focus Mode")
@@ -34,6 +35,7 @@ enum PaletteCommand: String, CaseIterable, Sendable {
         case .exportBackup: return "externaldrive.badge.plus"
         case .restoreBackup: return "externaldrive.badge.checkmark"
         case .markOlderWeekAsRead: return "checkmark.circle"
+        case .findInArticle: return "text.magnifyingglass"
         case .readingInsights: return "chart.bar.xaxis"
         case .shortcuts: return "keyboard"
         case .focusMode: return "rectangle.expand.vertical"
