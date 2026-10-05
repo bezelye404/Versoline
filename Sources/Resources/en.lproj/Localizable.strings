@@ -722,3 +722,12 @@
 "Removed feed" = "Removed feed";
 "Find Bookmarks in Spotlight" = "Find Bookmarks in Spotlight";
 "Adds the title, summary and link of your bookmarked articles to Spotlight on this Mac. Nothing is stored by Versoline or sent anywhere." = "Adds the title, summary and link of your bookmarked articles to Spotlight on this Mac. Nothing is stored by Versoline or sent anywhere.";
+"Highlights" = "Highlights";
+"No Highlights" = "No Highlights";
+"Right-click a paragraph in an article to highlight it or add a note. Articles with highlights appear here." = "Right-click a paragraph in an article to highlight it or add a note. Articles with highlights appear here.";
+"Highlight" = "Highlight";
+"Remove Highlight" = "Remove Highlight";
+"Add Note..." = "Add Note...";
+"Edit Note..." = "Edit Note...";
+"Save Note" = "Save Note";
+"Copy Highlights and Notes" = "Copy Highlights and Notes";

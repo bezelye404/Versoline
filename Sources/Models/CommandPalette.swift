@@ -66,6 +66,7 @@ enum CommandPalette {
             (.today, String(localized: "Today"), "clock"),
             (.topStories, String(localized: "Top Stories"), "square.stack.3d.up"),
             (.bookmarks, String(localized: "Bookmarks"), "star"),
+            (.highlights, String(localized: "Highlights"), "highlighter"),
             (.all, String(localized: "All Articles"), "tray.full"),
             (.podcasts, String(localized: "Podcasts"), "headphones"),
             (.videos, String(localized: "Videos"), "play.rectangle"),

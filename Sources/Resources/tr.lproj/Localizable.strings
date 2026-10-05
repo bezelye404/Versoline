@@ -721,3 +721,12 @@
 "Removed feed" = "Silinmiş feed";
 "Find Bookmarks in Spotlight" = "Yer İmlerini Spotlight'ta Bul";
 "Adds the title, summary and link of your bookmarked articles to Spotlight on this Mac. Nothing is stored by Versoline or sent anywhere." = "Yer imli makalelerinizin başlığını, özetini ve bağlantısını bu Mac'teki Spotlight'a ekler. Versoline hiçbir şey saklamaz veya göndermez.";
+"Highlights" = "Vurgular";
+"No Highlights" = "Vurgu Yok";
+"Right-click a paragraph in an article to highlight it or add a note. Articles with highlights appear here." = "Bir makalede paragrafa sağ tıklayıp vurgulayın veya not ekleyin. Vurgulu makaleler burada görünür.";
+"Highlight" = "Vurgula";
+"Remove Highlight" = "Vurguyu Kaldır";
+"Add Note..." = "Not Ekle...";
+"Edit Note..." = "Notu Düzenle...";
+"Save Note" = "Notu Kaydet";
+"Copy Highlights and Notes" = "Vurguları ve Notları Kopyala";

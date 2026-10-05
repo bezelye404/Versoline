@@ -144,6 +144,13 @@ struct SidebarView: View {
                 sidebarRow(title: String(localized: "Bookmarks"), systemImage: "star", count: nil, accentColor: .secondary)
             }
 
+            // Only once there is a highlight or a note somewhere.
+            if !AnnotationStore.shared.annotatedLinks.isEmpty {
+                NavigationLink(value: SidebarItem.highlights) {
+                    sidebarRow(title: String(localized: "Highlights"), systemImage: "highlighter", count: nil, accentColor: .secondary)
+                }
+            }
+
             NavigationLink(value: SidebarItem.all) {
                 sidebarRow(title: String(localized: "All Articles"), systemImage: "tray.full", count: nil, accentColor: .secondary)
             }
