@@ -25,7 +25,6 @@ struct ReaderAppearancePopover: View {
                     .font(.system(size: 12, design: .monospaced))
                     .foregroundStyle(.secondary)
                     .frame(minWidth: 48)
-                    .contentTransition(.numericText())
                     .animation(AppAnimation.quickFeedback, value: fontSize)
 
                 Button {

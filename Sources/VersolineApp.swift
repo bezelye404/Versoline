@@ -12,7 +12,7 @@ struct VersolineApp: App {
     @State private var store = FeedStore(
         storageDirectory: Self.isRunningTests
             ? FileManager.default.temporaryDirectory.appendingPathComponent("VersolineTestHost-\(UUID().uuidString)", isDirectory: true)
-            : nil
+            : (Benchmark.isRequested ? Benchmark.scratchLibrary() : nil)
     )
     @AppStorage(AppSettingsKeys.showMenuBarIcon) private var showMenuBarIcon = false
 
@@ -77,6 +77,8 @@ struct VersolineApp: App {
 
     @MainActor
     private static func purgeTransientMemory() {
+        // The benchmark runs without anyone watching, so the app often loses focus; that must not change the numbers.
+        guard !Benchmark.isRequested else { return }
         ImageDownsampleCache.shared.clearMemory()
         FaviconService.shared.clearMemoryCache()
         ReaderModeExtractor.shared.clearMemoryCache()

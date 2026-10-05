@@ -58,10 +58,11 @@ extension FeedStore {
 
             do {
                 let jsonData = try encoder.encode(data)
+                let byteCount = jsonData.count   // the log task must not keep the whole file alive
                 let fileURL = directory.appendingPathComponent("data.json")
                 try jsonData.write(to: fileURL, options: .atomic)
                 Task { @MainActor in
-                    AppLogger.shared.log("Saved database to disk (\(jsonData.count) bytes)", level: .debug, category: .storage)
+                    AppLogger.shared.log("Saved database to disk (\(byteCount) bytes)", level: .debug, category: .storage)
                 }
             } catch {
                 Task { @MainActor in

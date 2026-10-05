@@ -255,8 +255,15 @@ struct ContentView: View {
         // Refreshes only while the app is in front: once when it becomes active (the store throttles to
         // every 15 minutes) and then every 30 minutes. `task(id:)` cancels the loop when the app is
         // deactivated or hidden, so nothing polls in the background.
+        .task {
+            guard Benchmark.isRequested else { return }
+            await Benchmark.run(store: store) { item, list, article in
+                if list { selectedSidebarItem = .feed(item.feedId) }
+                if article { selectedArticle = item }
+            }
+        }
         .task(id: scenePhase) {
-            guard scenePhase == .active else { return }
+            guard scenePhase == .active, !Benchmark.skipRefresh else { return }
             await store.refreshAllFeeds()
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(1800))

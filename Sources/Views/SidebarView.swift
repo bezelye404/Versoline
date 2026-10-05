@@ -209,7 +209,6 @@ struct SidebarView: View {
                         Text("\(pinned.count)")
                             .font(.system(size: 10, weight: .medium, design: .monospaced))
                             .foregroundStyle(.secondary)
-                            .contentTransition(.numericText())
                     }
                     .contentShape(Rectangle())
                 }
@@ -303,7 +302,6 @@ struct SidebarView: View {
                         Text("\(totalCount)")
                             .font(.system(size: 10, weight: .medium, design: .monospaced))
                             .foregroundStyle(.secondary)
-                            .contentTransition(.numericText())
                     }
                     .contentShape(Rectangle())
                 }
@@ -343,13 +341,11 @@ struct SidebarView: View {
                         .padding(.horizontal, 6)
                         .padding(.vertical, 1)
                         .background(theme.activeBadgeBackground, in: Capsule())
-                        .contentTransition(.numericText())
                         .animation(AppAnimation.bouncy, value: count)
                 } else {
                     Text("\(count)")
                         .font(.system(size: 11, weight: .medium, design: .monospaced))
                         .foregroundStyle(.secondary)
-                        .contentTransition(.numericText())
                         .animation(AppAnimation.bouncy, value: count)
                 }
             }
@@ -453,7 +449,6 @@ struct SidebarView: View {
                         Text("\(uncategorized.count)")
                             .font(.system(size: 10, weight: .medium, design: .monospaced))
                             .foregroundStyle(.secondary)
-                            .contentTransition(.numericText())
                     }
                     .contentShape(Rectangle())
                 }
@@ -538,7 +533,6 @@ struct SidebarView: View {
                     Text("\(feedsCount)")
                         .font(.system(size: 10, weight: .medium, design: .monospaced))
                         .foregroundStyle(.secondary)
-                        .contentTransition(.numericText())
                 }
             }
             .contentShape(Rectangle())
