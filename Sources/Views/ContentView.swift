@@ -1,5 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import CoreSpotlight
 
 @MainActor
 struct ContentView: View {
@@ -261,6 +262,11 @@ struct ContentView: View {
         // every 15 minutes) and then every 30 minutes. `task(id:)` cancels the loop when the app is
         // deactivated or hidden, so nothing polls in the background.
         .onOpenURL { openExternal($0) }
+        .onContinueUserActivity(CSSearchableItemActionType) { activity in
+            guard let id = SpotlightIndex.itemID(from: activity.userInfo), let item = store.item(withID: id) else { return }
+            selectedSidebarItem = .bookmarks
+            selectedArticle = item
+        }
         .onChange(of: showAddFeed) { _, isShown in if !isShown { addFeedInitialURL = nil } }
         .task(id: DockBadgeState(count: store.totalUnreadCount(), enabled: showDockBadge)) {
             DockBadge.update(unreadCount: store.totalUnreadCount(), enabled: showDockBadge)
