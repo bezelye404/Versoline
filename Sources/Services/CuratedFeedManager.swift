@@ -22,7 +22,7 @@ final class CuratedFeedManager {
     private(set) var hasLoaded = false
     private(set) var isUpdatingFromRemote = false
 
-    private static let remoteManifestURL = URL(string: "https://raw.githubusercontent.com/bezelye404/versoline/main/Sources/Resources/curated_feeds.json")!
+    private static let remoteManifestURL = AppInfo.repositoryURL.appendingPathComponent("raw/main/Sources/Resources/curated_feeds.json")
 
     private var cacheFileURL: URL {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
@@ -32,7 +32,7 @@ final class CuratedFeedManager {
     }
 
     private init() {
-        // Tembel yükleme: AddFeedSheet açılmadan katalog belleğe yüklenmez
+        // Loaded lazily: the catalog stays out of memory until Add Feed is opened.
     }
 
     func loadIfNeeded() {
@@ -78,7 +78,7 @@ final class CuratedFeedManager {
 
         Task.detached(priority: .utility) {
             var request = URLRequest(url: targetURL, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 15)
-            request.setValue("Versoline/1.0", forHTTPHeaderField: "User-Agent")
+            request.setValue(AppInfo.userAgent, forHTTPHeaderField: "User-Agent")
             if let storedETag, !storedETag.isEmpty {
                 request.setValue(storedETag, forHTTPHeaderField: "If-None-Match")
             }

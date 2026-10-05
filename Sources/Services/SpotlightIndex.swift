@@ -6,7 +6,7 @@ import UniformTypeIdentifiers
 /// Mac; Versoline keeps nothing extra and sends nothing anywhere. Only titles, summaries and links of bookmarks go in.
 enum SpotlightIndex {
 
-    static let domain = "com.bezelye.Versoline.bookmarks"
+    static var domain: String { "\(AppInfo.identifier).bookmarks" }
 
     static var isEnabled: Bool {
         UserDefaults.standard.bool(forKey: AppSettingsKeys.spotlightBookmarks)

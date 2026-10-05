@@ -51,7 +51,7 @@ final class LocalPeerSyncEngine: NSObject, @unchecked Sendable {
     private static let knownPeerTimeout: TimeInterval = 20
     private static let pairingTimeout: TimeInterval = 120
 
-    private let queue = DispatchQueue(label: "com.bezelye.versoline.peer-sync")
+    private let queue = DispatchQueue(label: "\(AppInfo.identifier).peer-sync")
     private let trustStore: PeerTrustStore
 
     // Touched only on `queue`.

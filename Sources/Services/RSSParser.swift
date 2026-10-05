@@ -41,7 +41,7 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         config.urlCache = nil
         config.requestCachePolicy = .reloadIgnoringLocalCacheData
         config.httpAdditionalHeaders = [
-            "User-Agent": "Versoline/1.0 (Macintosh; Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko)"
+            "User-Agent": AppInfo.userAgent
         ]
         return URLSession(configuration: config)
     }()
@@ -135,9 +135,9 @@ final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
         }
 
         if feedURL.host?.lowercased().contains("reddit.com") == true {
-            request.setValue("Versoline/1.0 (macOS; com.bezelye.Versoline; build 7) (by /u/VersolineApp)", forHTTPHeaderField: "User-Agent")
+            request.setValue(AppInfo.redditUserAgent, forHTTPHeaderField: "User-Agent")
         } else {
-            request.setValue("Versoline/1.0 (Macintosh; Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko)", forHTTPHeaderField: "User-Agent")
+            request.setValue(AppInfo.userAgent, forHTTPHeaderField: "User-Agent")
         }
 
         let (data, response) = try await session.data(for: request)
