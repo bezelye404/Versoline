@@ -10,6 +10,7 @@ struct ContentView: View {
     @State private var selectedArticle: FeedItem?
     @State private var showAddFeed = false
     @State private var addFeedTab: AddFeedTab = .customURL
+    @State private var addFeedInitialURL: String?
     @State private var showConsole = false
     @State private var showShortcutsHelp = false
     @State private var showReadingStats = false
@@ -189,7 +190,7 @@ struct ContentView: View {
         .sheet(isPresented: $showAddFeed, onDismiss: {
             CuratedFeedManager.shared.clearMemory()
         }) {
-            AddFeedSheet(initialTab: addFeedTab)
+            AddFeedSheet(initialTab: addFeedTab, initialURL: addFeedInitialURL)
         }
         .sheet(isPresented: $showFolderManagement) {
             FolderManagementView()
@@ -259,6 +260,8 @@ struct ContentView: View {
         // Refreshes only while the app is in front: once when it becomes active (the store throttles to
         // every 15 minutes) and then every 30 minutes. `task(id:)` cancels the loop when the app is
         // deactivated or hidden, so nothing polls in the background.
+        .onOpenURL { openExternal($0) }
+        .onChange(of: showAddFeed) { _, isShown in if !isShown { addFeedInitialURL = nil } }
         .task(id: DockBadgeState(count: store.totalUnreadCount(), enabled: showDockBadge)) {
             DockBadge.update(unreadCount: store.totalUnreadCount(), enabled: showDockBadge)
         }
@@ -337,6 +340,33 @@ struct ContentView: View {
             } catch {
                 store.errorMessage = String(format: String(localized: "Error reading OPML file: %@"), error.localizedDescription)
             }
+        }
+    }
+
+    // MARK: - Links and files from other apps
+
+    private func openExternal(_ url: URL) {
+        switch ExternalLink.kind(of: url) {
+        case .feed(let address):
+            addFeedTab = .customURL
+            addFeedInitialURL = address
+            showAddFeed = true
+        case .opml(let file):
+            let alert = NSAlert()
+            alert.messageText = String(format: String(localized: "Import subscriptions from %@?"), file.lastPathComponent)
+            alert.informativeText = String(localized: "The feeds in the file are added to your library. Feeds you already have are skipped.")
+            alert.addButton(withTitle: String(localized: "Import"))
+            alert.addButton(withTitle: String(localized: "Cancel"))
+            guard alert.runModal() == .alertFirstButtonReturn else { return }
+            Task {
+                do {
+                    await store.importOPML(data: try Data(contentsOf: file))
+                } catch {
+                    store.errorMessage = String(format: String(localized: "Error reading OPML file: %@"), error.localizedDescription)
+                }
+            }
+        case nil:
+            break
         }
     }
 

@@ -101,6 +101,8 @@ struct VersolineApp: App {
                 .frame(minWidth: 800, minHeight: 500)
         }
         .defaultSize(width: 1100, height: 700)
+        // A feed link or an OPML file opened from another app goes to the window that is already there.
+        .handlesExternalEvents(matching: ["*"])
         .commands {
             SidebarCommands()
             AppCommands()

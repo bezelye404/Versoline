@@ -45,6 +45,7 @@
 		51A1EDC7A8EBE67398DDEE12 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6F2757FC5628447B474EC234 /* Assets.xcassets */; };
 		580AC0F6ECF510287E83D44A /* LegacyMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 037F080F56F584EEC68F2683 /* LegacyMigrationTests.swift */; };
 		5A3A47BD32564B1B614E49B9 /* diken.html in Resources */ = {isa = PBXBuildFile; fileRef = DC0B3045E65C57778A101424 /* diken.html */; };
+		5BC89AA876FCC35574C30D83 /* ExternalLinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F968FAE3D71FC2763EBB744 /* ExternalLinkTests.swift */; };
 		5FA5CD3B0D1713949F7FEDBE /* CuratedFeedManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7EEAE8836C50ED6DCDC4A4 /* CuratedFeedManager.swift */; };
 		61EC4CD8A4FFCDC77014A2D9 /* RSSParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCB6E669288B72ECD079C1E /* RSSParserTests.swift */; };
 		651FA254185E24F4EC9422B6 /* FeedDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11000F72C3EED34D212CDBEF /* FeedDiscoveryTests.swift */; };
@@ -95,6 +96,7 @@
 		9C2750AAC3D983B167A178CB /* SocialFeedsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21176B4CEDA3BDE8C939B6B4 /* SocialFeedsView.swift */; };
 		9D92EE1A81A132CFA2DEF3FE /* aa.html in Resources */ = {isa = PBXBuildFile; fileRef = A5EEC242A0DFB16168D871C7 /* aa.html */; };
 		9FD6C55B66E633256C7A15AA /* bbc.html in Resources */ = {isa = PBXBuildFile; fileRef = 18B9364D3261C29B42A42713 /* bbc.html */; };
+		A0711D6AE9D422077A1BF9B2 /* ExternalLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355A5F060AF5E3202364738E /* ExternalLink.swift */; };
 		A5982263D68F95A3478F061F /* FeedStore+Counts.swift in Sources */ = {isa = PBXBuildFile; fileRef = E65BBA4DAB2D05647FBD5668 /* FeedStore+Counts.swift */; };
 		A8296E6D6F46D96EE449B707 /* FeedStore+Feeds.swift in Sources */ = {isa = PBXBuildFile; fileRef = A57F86A88ED909FE6237FCC1 /* FeedStore+Feeds.swift */; };
 		AAE5972461D57F525A4D1BFD /* MiniPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B72BAC0E0E0360E7F984EB69 /* MiniPlayerView.swift */; };
@@ -187,6 +189,7 @@
 		2FA50AB3CBAEC3AB16053E65 /* FeedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedStore.swift; sourceTree = "<group>"; };
 		30275417DC2A49D523352757 /* PodcastSearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastSearchService.swift; sourceTree = "<group>"; };
 		3111CB39F8E51F9C50992D65 /* SmartMergeEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartMergeEngineTests.swift; sourceTree = "<group>"; };
+		355A5F060AF5E3202364738E /* ExternalLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalLink.swift; sourceTree = "<group>"; };
 		374A0237B0BE4542CEB8CB7F /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		3B93733FFD8B0C7DF890D5AE /* SyncCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncCoordinator.swift; sourceTree = "<group>"; };
 		3C706AC2E89717CED63DBCC5 /* NativePlayerScrubber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativePlayerScrubber.swift; sourceTree = "<group>"; };
@@ -202,6 +205,7 @@
 		48F09FDFC15680EBC234D9CC /* MemoryBudgetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryBudgetTests.swift; sourceTree = "<group>"; };
 		498D9B9622E0529349F8A755 /* VersolineApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersolineApp.swift; sourceTree = "<group>"; };
 		4CAFDB0D95DE56126CEF283C /* ArticleTranslation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleTranslation.swift; sourceTree = "<group>"; };
+		4F968FAE3D71FC2763EBB744 /* ExternalLinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalLinkTests.swift; sourceTree = "<group>"; };
 		525C2328F6135054CEEDB04D /* ReaderAppearancePopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderAppearancePopover.swift; sourceTree = "<group>"; };
 		529A66CF0706218F9FCD443C /* FolderManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderManagementView.swift; sourceTree = "<group>"; };
 		5549624F3C1F6E6A5A0D4DE6 /* NativeReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeReaderView.swift; sourceTree = "<group>"; };
@@ -353,6 +357,7 @@
 				819171CEFA63DFC86DE58D0F /* BionicReadingTests.swift */,
 				9F20D231E4B9E229A105EF72 /* CommandPaletteTests.swift */,
 				EE3BE53437271D78C8F76E32 /* DockBadgeTests.swift */,
+				4F968FAE3D71FC2763EBB744 /* ExternalLinkTests.swift */,
 				11000F72C3EED34D212CDBEF /* FeedDiscoveryTests.swift */,
 				6BA42B73273E38D7056A6525 /* FeedItemHygieneTests.swift */,
 				A6AADA107F645C1AA673835B /* FeedStorePersistenceTests.swift */,
@@ -533,6 +538,7 @@
 				C3D95F851B7D3243C64939BC /* ContentBlockerService.swift */,
 				FA7EEAE8836C50ED6DCDC4A4 /* CuratedFeedManager.swift */,
 				A0BC2C20740B1E2613DE138B /* DockBadge.swift */,
+				355A5F060AF5E3202364738E /* ExternalLink.swift */,
 				F02D94482B96A3A67D2BE9C0 /* FaviconService.swift */,
 				23D491E899DF32887BE9F458 /* FeedDiscovery.swift */,
 				42163A4A7D72978A2D14A66B /* FeedHealthService.swift */,
@@ -709,6 +715,7 @@
 				AD9099F8B02EE78E6CD48B4E /* BionicReadingTests.swift in Sources */,
 				7B50D56F55FDAB85FB417355 /* CommandPaletteTests.swift in Sources */,
 				D6AB2660E55A1D5D83CFDE2E /* DockBadgeTests.swift in Sources */,
+				5BC89AA876FCC35574C30D83 /* ExternalLinkTests.swift in Sources */,
 				651FA254185E24F4EC9422B6 /* FeedDiscoveryTests.swift in Sources */,
 				F941AAC80BB7096A13C66F4A /* FeedItemHygieneTests.swift in Sources */,
 				2822235390CB55B71F1C311A /* FeedStorePersistenceTests.swift in Sources */,
@@ -760,6 +767,7 @@
 				5FA5CD3B0D1713949F7FEDBE /* CuratedFeedManager.swift in Sources */,
 				7442E628A5B0991189F17E1A /* DockBadge.swift in Sources */,
 				B26000EE6DE1BEC3A2831AF7 /* EqualizerWaveformView.swift in Sources */,
+				A0711D6AE9D422077A1BF9B2 /* ExternalLink.swift in Sources */,
 				1210A9E476E6F0A1439C615F /* FaviconService.swift in Sources */,
 				00905F32F41F55957BA7E7BF /* Feed.swift in Sources */,
 				F9E7FBB8E211DDED7C178858 /* FeedDiscovery.swift in Sources */,

@@ -709,3 +709,6 @@
 "Translated from %@" = "Translated from %@";
 "Show Unread Count on the Dock Icon" = "Show Unread Count on the Dock Icon";
 "A badge with the number of unread articles. It updates while the app is open; nothing runs in the background." = "A badge with the number of unread articles. It updates while the app is open; nothing runs in the background.";
+"Import subscriptions from %@?" = "Import subscriptions from %@?";
+"The feeds in the file are added to your library. Feeds you already have are skipped." = "The feeds in the file are added to your library. Feeds you already have are skipped.";
+"Import" = "Import";
