@@ -11,6 +11,9 @@ struct AppActions {
     var manageFolders: () -> Void
     var importOPML: () -> Void
     var exportOPML: () -> Void
+    var exportBackup: () -> Void
+    var restoreBackup: () -> Void
+    var markOlderAsRead: (Int) -> Void
     var showReadingInsights: () -> Void
     var showShortcuts: () -> Void
     var showConsole: () -> Void
@@ -47,6 +50,23 @@ struct AppCommands: Commands {
             Button(String(localized: "Export OPML...")) { actions?.exportOPML() }
                 .keyboardShortcut("e", modifiers: [.command, .shift])
                 .disabled(actions == nil || actions?.hasFeeds == false)
+
+            Divider()
+
+            Button(String(localized: "Export Backup...")) { actions?.exportBackup() }
+                .disabled(actions == nil || actions?.hasFeeds == false)
+            Button(String(localized: "Restore Backup...")) { actions?.restoreBackup() }
+                .disabled(actions == nil)
+
+            Divider()
+
+            Menu(String(localized: "Mark Older Articles as Read")) {
+                Button(String(localized: "Older Than a Day")) { actions?.markOlderAsRead(1) }
+                Button(String(localized: "Older Than 3 Days")) { actions?.markOlderAsRead(3) }
+                Button(String(localized: "Older Than a Week")) { actions?.markOlderAsRead(7) }
+                Button(String(localized: "Older Than 2 Weeks")) { actions?.markOlderAsRead(14) }
+            }
+            .disabled(actions == nil || actions?.hasFeeds == false)
         }
 
         CommandGroup(after: .toolbar) {

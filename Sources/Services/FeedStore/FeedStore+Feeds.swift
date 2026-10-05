@@ -197,6 +197,7 @@ extension FeedStore {
         updateSmartCategoryCaches()
         save()
         MemoryRelief.trim()
+        applyAutomaticReadMarking()
         refreshStories()
         AppLogger.shared.log("All feeds refresh finished", level: .info, category: .network)
     }
