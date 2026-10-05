@@ -123,6 +123,7 @@ extension FeedStore {
 
         save(immediate: false, updateCounts: false)
         SyncCoordinator.shared.notifyBookmarkToggled(link: item.link, isBookmarked: isNowBookmarked)
+        refreshSpotlight()
     }
 
     func bookmarkedItems() -> [FeedItem] {

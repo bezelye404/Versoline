@@ -64,6 +64,7 @@ final class FeedStore {
     var storyRefs: [UUID: StoryRef] = [:]
     @ObservationIgnored var stories: [StoryClusterer.Story] = []
     @ObservationIgnored var storyTask: Task<Void, Never>?
+    @ObservationIgnored var spotlightTask: Task<Void, Never>?
     struct StoryRef: Equatable {
         let story: Int
         let sources: Int
@@ -189,6 +190,7 @@ final class FeedStore {
             Task { @MainActor [weak self] in
                 try? await Task.sleep(for: .seconds(2))
                 self?.applyAutomaticReadMarking()
+                self?.refreshSpotlight()
                 self?.refreshStories()
             }
         }

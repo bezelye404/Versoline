@@ -9,6 +9,8 @@ struct GeneralSettingsTab: View {
     @AppStorage(AppSettingsKeys.showFavicons) private var showFavicons = true
     @AppStorage(AppSettingsKeys.showMenuBarIcon) private var showMenuBarIcon = false
     @AppStorage(AppSettingsKeys.showDockBadge) private var showDockBadge = false
+    @AppStorage(AppSettingsKeys.spotlightBookmarks) private var spotlightBookmarks = false
+    @Environment(FeedStore.self) private var store
     @AppStorage(AppSettingsKeys.preferredExternalBrowser) private var preferredExternalBrowserRaw = ExternalBrowserOption.systemDefault.rawValue
     @AppStorage(AppSettingsKeys.offlinePrecacheEnabled) private var offlinePrecacheEnabled = false
     @AppStorage(AppSettingsKeys.isContentBlockerEnabled) private var isContentBlockerEnabled = true
@@ -57,6 +59,14 @@ struct GeneralSettingsTab: View {
                             .font(.caption).foregroundStyle(.secondary)
                     }
                 }
+                Toggle(isOn: $spotlightBookmarks) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Find Bookmarks in Spotlight")
+                        Text("Adds the title, summary and link of your bookmarked articles to Spotlight on this Mac. Nothing is stored by Versoline or sent anywhere.")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+                .onChange(of: spotlightBookmarks) { _, isOn in store.spotlightSettingChanged(isOn: isOn) }
                 Toggle(isOn: $showDockBadge) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Show Unread Count on the Dock Icon")

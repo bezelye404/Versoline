@@ -468,6 +468,7 @@ struct AppSettingsKeys {
     static let groupSimilarStories = "groupSimilarStories"
     static let markOldAsReadDays = "markOldAsReadDays"
     static let showDockBadge = "showDockBadge"
+    static let spotlightBookmarks = "spotlightBookmarks"
     static let showFavicons = "showFavicons"
     static let enableSingleKeyShortcuts = "enableSingleKeyShortcuts"
     static let showMenuBarIcon = "showMenuBarIcon"

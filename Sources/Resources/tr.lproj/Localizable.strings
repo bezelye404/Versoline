@@ -719,3 +719,5 @@
 "Apply to Existing Articles" = "Mevcut Makalelere Uygula";
 "%d articles changed" = "%d makale değişti";
 "Removed feed" = "Silinmiş feed";
+"Find Bookmarks in Spotlight" = "Yer İmlerini Spotlight'ta Bul";
+"Adds the title, summary and link of your bookmarked articles to Spotlight on this Mac. Nothing is stored by Versoline or sent anywhere." = "Yer imli makalelerinizin başlığını, özetini ve bağlantısını bu Mac'teki Spotlight'a ekler. Versoline hiçbir şey saklamaz veya göndermez.";
