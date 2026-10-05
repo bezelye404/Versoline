@@ -22,7 +22,7 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots or screen recordings to help explain the problem.
 
 ### Environment Information
-- **App Version:** (e.g., 0.3.0)
+- **App Version:** (e.g., 0.4.0)
 - **macOS Version:** (e.g., macOS 15.0 Sequoia)
 - **Mac Model & Architecture:** (e.g., MacBook Air M2, Apple Silicon)
 

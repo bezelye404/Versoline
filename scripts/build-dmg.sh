@@ -10,7 +10,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$PROJECT_ROOT"
 
 APP_NAME="Versoline"
-VERSION="${1:-0.3.0}"
+VERSION="${1:-$(awk '/MARKETING_VERSION:/ {print $2; exit}' "$PROJECT_ROOT/project.yml")}"
 DMG_NAME="${APP_NAME}-${VERSION}.dmg"
 DIST_DIR="$PROJECT_ROOT/dist"
 

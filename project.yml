@@ -40,8 +40,8 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: Versoline
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.news
         INFOPLIST_KEY_NSHumanReadableCopyright: "Copyright © 2026 bezelye404. All rights reserved."
-        CURRENT_PROJECT_VERSION: 7
-        MARKETING_VERSION: 0.3.0
+        CURRENT_PROJECT_VERSION: 8
+        MARKETING_VERSION: 0.4.0
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CODE_SIGN_ENTITLEMENTS: Sources/Resources/Versoline.entitlements
         CODE_SIGN_IDENTITY: "-"
