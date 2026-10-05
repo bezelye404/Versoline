@@ -45,6 +45,7 @@
 		4F6EFA16768C9AC3E45375FE /* NativeReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5549624F3C1F6E6A5A0D4DE6 /* NativeReaderView.swift */; };
 		505F7253745CD650CE82D36E /* CommandPaletteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EE61681A09E16B2D5662F2 /* CommandPaletteView.swift */; };
 		51A1EDC7A8EBE67398DDEE12 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6F2757FC5628447B474EC234 /* Assets.xcassets */; };
+		53888B9BE28ED6D1DB568207 /* AppShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA152BA57D1B93A4771268F /* AppShortcuts.swift */; };
 		580AC0F6ECF510287E83D44A /* LegacyMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 037F080F56F584EEC68F2683 /* LegacyMigrationTests.swift */; };
 		5A3A47BD32564B1B614E49B9 /* diken.html in Resources */ = {isa = PBXBuildFile; fileRef = DC0B3045E65C57778A101424 /* diken.html */; };
 		5BC89AA876FCC35574C30D83 /* ExternalLinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F968FAE3D71FC2763EBB744 /* ExternalLinkTests.swift */; };
@@ -317,6 +318,7 @@
 		E7D88D6EFAD0DE566B0D676D /* StoryClustererTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryClustererTests.swift; sourceTree = "<group>"; };
 		E8DD4602529B00933F2530DB /* FeedStore+Maintenance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FeedStore+Maintenance.swift"; sourceTree = "<group>"; };
 		EC433A26DDADD6DE9BEC6D15 /* MotionSafe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionSafe.swift; sourceTree = "<group>"; };
+		EDA152BA57D1B93A4771268F /* AppShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShortcuts.swift; sourceTree = "<group>"; };
 		EE3BE53437271D78C8F76E32 /* DockBadgeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockBadgeTests.swift; sourceTree = "<group>"; };
 		EEBF94143358EC1AAEFECF6C /* LocalPeerSyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalPeerSyncEngine.swift; sourceTree = "<group>"; };
 		F02D94482B96A3A67D2BE9C0 /* FaviconService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaviconService.swift; sourceTree = "<group>"; };
@@ -551,6 +553,7 @@
 			isa = PBXGroup;
 			children = (
 				7FAFB15B100CE44093DCDFED /* AppLogger.swift */,
+				EDA152BA57D1B93A4771268F /* AppShortcuts.swift */,
 				9A87E2D7EFCEF163991CA132 /* ArticleParser.swift */,
 				4CAFDB0D95DE56126CEF283C /* ArticleTranslation.swift */,
 				15E5F62D8D57E0C3E52776E4 /* AudioPlayerService.swift */,
@@ -773,6 +776,7 @@
 				D30E39AA6E2810B0BB586FC1 /* AppCommands.swift in Sources */,
 				2C532173A7887BFC5B4CB7C5 /* AppLogger.swift in Sources */,
 				2C8B93C8DEB9668B7E18FD48 /* AppSettings.swift in Sources */,
+				53888B9BE28ED6D1DB568207 /* AppShortcuts.swift in Sources */,
 				4AC95FD055B6E1F6B4F63D5B /* ArticleDetailView.swift in Sources */,
 				82D7EEF4CFE9B0CB34AF9D09 /* ArticleDocument.swift in Sources */,
 				9BE98E274243DA0108A45257 /* ArticleParser.swift in Sources */,

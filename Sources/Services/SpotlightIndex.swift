@@ -1,5 +1,5 @@
 import Foundation
-import CoreSpotlight
+@preconcurrency import CoreSpotlight
 import UniformTypeIdentifiers
 
 /// Puts bookmarked articles in Spotlight (Settings > General, off by default). The index is Spotlight's own, on this
