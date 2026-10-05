@@ -36,6 +36,7 @@ enum Benchmark {
     struct Sample: Codable {
         let label: String
         let footprintMB: Double
+        let peakMB: Double
         let webKitStarted: Bool
     }
 
@@ -60,7 +61,10 @@ enum Benchmark {
     }
 
     /// Memory the system charges to this process (the number `footprint` and Activity Monitor's "Memory" column report).
-    static func footprintMB() -> Double {
+    static func footprintMB() -> Double { memoryMB().current }
+
+    /// Current and highest footprint so far, in MB.
+    static func memoryMB() -> (current: Double, peak: Double) {
         var info = task_vm_info_data_t()
         var count = mach_msg_type_number_t(MemoryLayout<task_vm_info_data_t>.size / MemoryLayout<integer_t>.size)
         let status = withUnsafeMutablePointer(to: &info) { pointer in
@@ -68,7 +72,8 @@ enum Benchmark {
                 task_info(mach_task_self_, task_flavor_t(TASK_VM_INFO), $0, &count)
             }
         }
-        return status == KERN_SUCCESS ? Double(info.phys_footprint) / 1_048_576 : 0
+        guard status == KERN_SUCCESS else { return (0, 0) }
+        return (Double(info.phys_footprint) / 1_048_576, Double(info.ledger_phys_footprint_peak) / 1_048_576)
     }
 
     /// One text article per feed, round-robin, newest first. Podcasts and videos are left out: they start players.
@@ -90,7 +95,8 @@ enum Benchmark {
     static func run(store: FeedStore, show: @escaping (FeedItem, _ list: Bool, _ article: Bool) -> Void) async {
         var samples: [Sample] = []
         func record(_ label: String) {
-            samples.append(Sample(label: label, footprintMB: (footprintMB() * 10).rounded() / 10, webKitStarted: WebView.isWebKitInUse))
+            let memory = memoryMB()
+            samples.append(Sample(label: label, footprintMB: (memory.current * 10).rounded() / 10, peakMB: (memory.peak * 10).rounded() / 10, webKitStarted: WebView.isWebKitInUse))
         }
 
         try? await Task.sleep(for: .seconds(15))   // launch work (favicons, content blocker, cache cleanup) settles

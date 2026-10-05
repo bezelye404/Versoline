@@ -22,23 +22,29 @@ A Release build has its own, usually empty, library; the script copies the libra
 
 | | footprint |
 |---|---|
-| Idle after launch, no refresh | 46 MB |
-| Idle after the first refresh | 67 MB (the refresh leaves about 20 MB resident) |
-| Control (`none`, 36 steps) | flat (+0.0 to +0.4 MB) |
-| Opening 12 articles (`both`) | 67 → 92 MB |
-| Opening 100 articles (`both`) | 81 → 203 MB, no plateau |
+| Idle after launch, no refresh | 48 MB |
+| Idle after the first refresh | about 67 MB (the refresh leaves about 20 MB resident) |
+| Control (`none`, 36 steps) | flat |
+| Opening 100 articles (`both`) | 48 → 74 MB (before the fix below: 81 → 203 MB, no plateau) |
+| Marking 36 items read (`mark-only`) | +5 MB (before the fix: +50 MB) |
 
 WebKit's helper processes are never started by reading (the "WebKit started" column stays `no`), except for the few
 articles that fall back to the web view.
 
-## What is known about the growth while reading
+## The reading leak: `.contentTransition(.numericText())`
 
-About 1 MB per article stays resident and does not level off. Each of these was ruled out by switching it off and
-repeating the run: article images, drawing the article, fetching and extracting the page, and writing the library to disk.
-Switching only the list (`list`, 100 steps) levels off at +9 MB. Marking items read without showing them
-(`mark-only`) reproduces most of the growth, so it is tied to the read-state update path and what redraws because of it,
-not to the reader. The memory is live in the heap rather than leaked (`leaks` finds 52 KB), most of the live growth is
-CoreGraphics glyph bitmaps drawn by SwiftUI's software text path, and the rest is heap fragmentation that
-`malloc_zone_pressure_relief` does not return. Single runs vary by tens of megabytes; compare medians of several runs.
-The next step is Instruments (Allocations, "Persistent" bytes by call stack) on a Debug build launched with
-`--benchmark --benchmark-mode=mark-only --benchmark-count=36 --benchmark-hold=60`.
+Reading used to grow the footprint by about 1.4 MB per article without levelling off. It was found by switching things
+off and repeating the run: article images, drawing the article, fetching, extracting and saving were all ruled out, and
+`mark-only` (no article shown) reproduced it. Skipping only the unread-count updates in the read-state change took the
+growth from +50 MB to +5 MB, and the counts feed the sidebar. Every count in the sidebar had
+`.contentTransition(.numericText())`: each change drew intermediate frames of the morphing digits through CoreGraphics'
+software text path, and its glyph bitmap cache kept them (`heap` showed it as `CGGlyphBuilderLockBitmaps`; `leaks` found
+nothing, because the cache is reachable). Removing the transition fixed it: three runs of `mark-only` gave +4.8, +5.5
+and +4.9 MB. `NoNumericTextTransitionTests` keeps it from coming back.
+
+## Tips for measuring
+
+- Compare several runs; single runs can differ by tens of megabytes when something else on the Mac steals focus. The
+  benchmark disables the focus-triggered memory purge so the app's state does not depend on which window is in front.
+- `BENCHMARK_FLAGS="--benchmark-..."` passes extra launch arguments. `heap <pid>` and `footprint -p <pid>` work on a
+  run started with `--benchmark-hold=60`; start it with `MallocStackLogging=1` to get allocation sites in `heap` output.

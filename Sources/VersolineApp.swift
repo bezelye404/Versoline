@@ -77,6 +77,8 @@ struct VersolineApp: App {
 
     @MainActor
     private static func purgeTransientMemory() {
+        // The benchmark runs without anyone watching, so the app often loses focus; that must not change the numbers.
+        guard !Benchmark.isRequested else { return }
         ImageDownsampleCache.shared.clearMemory()
         FaviconService.shared.clearMemoryCache()
         ReaderModeExtractor.shared.clearMemoryCache()
