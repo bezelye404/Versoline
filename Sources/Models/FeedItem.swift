@@ -1,6 +1,6 @@
 import Foundation
 
-struct FeedItem: Codable, Identifiable, Hashable {
+struct FeedItem: Codable, Identifiable, Hashable, Sendable {
     var id: UUID   // `var` only so a load can repair duplicated identities
     let feedId: UUID
     var title: String

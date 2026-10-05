@@ -20,6 +20,8 @@ struct ArticleDetailView: View {
     @AppStorage(AppSettingsKeys.playYouTubeInApp) private var playYouTubeInApp = true
 
     let selectedItem: FeedItem?
+    /// Opens another article (used by the "Same Story" menu).
+    var onSelectArticle: ((FeedItem) -> Void)? = nil
 
     @State private var activeViewMode: ReadingViewMode = .reader
     @State private var extractedReaderHTML: String? = nil
@@ -268,6 +270,8 @@ struct ArticleDetailView: View {
                     }
                     .help(String(localized: "Appearance"))
                 }
+
+                sameStoryMenu(for: item)
 
                 Button {
                     AppHaptics.tap()
@@ -705,6 +709,27 @@ struct ArticleDetailView: View {
             chapters.append(PodcastChapter(timestamp: timeLabel, seconds: totalSeconds, title: titleStr))
         }
         return chapters
+    }
+
+    /// The same story as told by the user's other feeds, newest first.
+    @ViewBuilder
+    private func sameStoryMenu(for item: FeedItem) -> some View {
+        let others = store.otherItemsInStory(of: item)
+        if !others.isEmpty, let onSelectArticle {
+            Menu {
+                ForEach(others.prefix(15)) { other in
+                    Button {
+                        AppHaptics.tap()
+                        onSelectArticle(other)
+                    } label: {
+                        Text(verbatim: "\(store.feed(for: other.feedId)?.title ?? "") · \(other.title)")
+                    }
+                }
+            } label: {
+                Label(String(format: String(localized: "Same story in %d other feeds"), Set(others.map(\.feedId)).count), systemImage: "square.stack")
+            }
+            .help(String(localized: "Same Story"))
+        }
     }
 
     private func shareArticleOrEpisode(item: FeedItem) {
