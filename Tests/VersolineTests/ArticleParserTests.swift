@@ -181,13 +181,28 @@ struct ArticleParserTests {
         #expect(texts(doc) == ["Body text of the story is here for the reader."])
     }
 
-    @Test("Layout tables are walked through; data tables become one line per row")
+    @Test("Layout tables are walked through; data tables become a table block")
     func tables() {
         let layout = parse("<table><tr><td><p>Story inside a layout table that is long enough.</p></td></tr></table>")
         #expect(texts(layout) == ["Story inside a layout table that is long enough."])
 
         let data = parse("<table><tr><th>Team</th><th>Score</th></tr><tr><td>Galatasaray</td><td>2</td></tr></table>")
-        #expect(texts(data) == ["Team · Score", "Galatasaray · 2"])
+        guard case .table(let rows, let hasHeader) = data.blocks.first else { Issue.record("no table block"); return }
+        #expect(data.blocks.count == 1)
+        #expect(hasHeader)
+        #expect(rows.map { $0.map { String($0.characters) } } == [["Team", "Score"], ["Galatasaray", "2"]])
+        #expect(data.plainText == "Team\tScore\nGalatasaray\t2")
+    }
+
+    @Test("Short rows are padded, a header-less table is recognised and one-column tables become paragraphs")
+    func tableShapes() {
+        let ragged = parse("<table><tr><td>A</td><td>B</td><td>C</td></tr><tr><td>1</td></tr></table>")
+        guard case .table(let rows, let hasHeader) = ragged.blocks.first else { Issue.record("no table block"); return }
+        #expect(!hasHeader)
+        #expect(rows.map(\.count) == [3, 3])
+
+        let column = parse("<table><tr><td>First value in a column</td></tr><tr><td>Second value in a column</td></tr></table>")
+        #expect(texts(column) == ["First value in a column", "Second value in a column"])
     }
 
     @Test("A document ends with content, not with a rule or a stray heading")

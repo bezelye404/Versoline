@@ -29,12 +29,15 @@ final class ReaderModeExtractor {
         }
         try? FileManager.default.createDirectory(at: cacheDir, withIntermediateDirectories: true)
         self.cacheDirectory = cacheDir
-        memoryCache.countLimit = 5
-        memoryCache.totalCostLimit = 2 * 1024 * 1024 // Strict 2MB RAM ceiling
+        memoryCache.countLimit = MemoryLimits.readerPages.count
+        memoryCache.totalCostLimit = MemoryLimits.readerPages.bytes
         if cacheDirectory == nil {
             cleanupLegacyDirectories()
         }
     }
+
+    /// The ceilings the page cache was built with (read by the memory budget test).
+    var memoryLimits: (count: Int, bytes: Int) { (memoryCache.countLimit, memoryCache.totalCostLimit) }
 
     func clearMemoryCache() {
         memoryCache.removeAllObjects()
@@ -374,7 +377,7 @@ final class ReaderModeExtractor {
         }
     }
 
-    func enforceQuota(maxSizeBytes: Int64 = 150 * 1024 * 1024, preservedLinks: Set<String> = []) {
+    func enforceQuota(maxSizeBytes: Int64 = Int64(MemoryLimits.readerDiskBytes), preservedLinks: Set<String> = []) {
         let currentSize = diskCacheSizeBytes
         guard currentSize > maxSizeBytes else { return }
 

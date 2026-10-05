@@ -55,9 +55,10 @@ struct AddFeedSheet: View {
 
     private let curatedManager = CuratedFeedManager.shared
 
-    init(initialTab: AddFeedTab = .customURL) {
+    init(initialTab: AddFeedTab = .customURL, initialURL: String? = nil) {
         self.initialTab = initialTab
         _selectedTab = State(initialValue: initialTab)
+        _feedURL = State(initialValue: initialURL ?? "")
     }
 
     private var availableCategories: [CuratedFeedCategory] {

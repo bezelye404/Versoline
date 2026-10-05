@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import AVFoundation
+@preconcurrency import Translation
 
 struct ArticleDetailView: View {
 
@@ -22,10 +23,24 @@ struct ArticleDetailView: View {
     let selectedItem: FeedItem?
     /// Opens another article (used by the "Same Story" menu).
     var onSelectArticle: ((FeedItem) -> Void)? = nil
+    /// Shows the find bar for the article being read (⌥⌘F).
+    @Binding var showFind: Bool
 
     @State private var activeViewMode: ReadingViewMode = .reader
     @State private var extractedReaderHTML: String? = nil
     @State private var readerDocument: ArticleDocument? = nil
+    // On-device translation (Apple's Translation framework): offered when the article is in another language.
+    @State private var offeredLanguage: Locale.Language? = nil
+    @State private var translatedDocument: ArticleDocument? = nil
+    @State private var translatedTitle: String? = nil
+    @State private var translationConfiguration: TranslationSession.Configuration? = nil
+    @State private var isTranslating = false
+    @State private var translationFailed = false
+    @State private var noteTarget: AnnotationTarget?
+    @State private var findQuery = ""
+    @State private var findPosition = 0
+    @State private var focusBlock: Int?
+    @FocusState private var findFieldFocused: Bool
     @State private var isLoadingReaderMode = false
     @State private var readerFetchFailed = false
     @State private var isSpeaking = false
@@ -37,6 +52,7 @@ struct ArticleDetailView: View {
     @Namespace private var animationNamespace
 
     private let networkMonitor = NetworkMonitor.shared
+    private let annotationStore = AnnotationStore.shared
 
     private var currentTheme: ReaderTheme {
         if readerThemeRaw == ReaderTheme.system.rawValue {
@@ -178,6 +194,12 @@ struct ArticleDetailView: View {
         extractedReaderHTML = cached
         readerDocument = nil
         readerFetchFailed = false
+        resetTranslation()
+        offeredLanguage = nil
+        showFind = false
+        findQuery = ""
+        findPosition = 0
+        focusBlock = nil
 
         if activeViewMode == .reader && cached == nil {
             loadReaderMode(for: item, forceWeb: false)
@@ -271,6 +293,8 @@ struct ArticleDetailView: View {
                     .help(String(localized: "Appearance"))
                 }
 
+                translateToolbarButton
+
                 sameStoryMenu(for: item)
 
                 Button {
@@ -333,6 +357,15 @@ struct ArticleDetailView: View {
                         shareArticleOrEpisode(item: item)
                     } label: {
                         Label(String(localized: "Share..."), systemImage: "square.and.arrow.up")
+                    }
+
+                    if annotationStore.hasAnnotations(forArticle: item.link) {
+                        Button {
+                            NSPasteboard.general.clearContents()
+                            NSPasteboard.general.setString(annotationStore.markdown(forArticle: item.link), forType: .string)
+                        } label: {
+                            Label(String(localized: "Copy Highlights and Notes"), systemImage: "highlighter")
+                        }
                     }
 
                     Button {
@@ -834,10 +867,14 @@ struct ArticleDetailView: View {
                     .padding(.top, 4)
             }
 
+            if translationFailed {
+                translationFailedBanner
+            }
+
             if let document = readerDocument, !document.isEmpty {
                 NativeReaderView(
-                    document: document,
-                    title: item.title,
+                    document: translatedDocument ?? document,
+                    title: translatedTitle ?? item.title,
                     metaLine: readerMetaLine(item: item, document: document),
                     byline: readerByline(item: item),
                     fontSize: Double(readerFontSize),
@@ -845,8 +882,27 @@ struct ArticleDetailView: View {
                     lineHeight: currentLineHeight,
                     theme: currentTheme,
                     isBionic: isBionicReadingEnabled,
-                    onOpenURL: { currentExternalBrowser.open(url: $0) }
+                    onOpenURL: { currentExternalBrowser.open(url: $0) },
+                    annotations: translatedDocument == nil ? annotationStore.byBlock(forArticle: item.link) : [:],
+                    onToggleHighlight: translatedDocument == nil ? { target in
+                        annotationStore.toggleHighlight(link: item.link, title: item.title, key: target.key, excerpt: target.excerpt)
+                    } : nil,
+                    onEditNote: translatedDocument == nil ? { noteTarget = $0 } : nil,
+                    positionKey: translatedDocument == nil ? item.link : nil,
+                    findQuery: showFind ? findQuery : "",
+                    focusBlock: focusBlock
                 )
+                .overlay(alignment: .topTrailing) {
+                    if showFind { findBar(for: translatedDocument ?? document) }
+                }
+                .sheet(item: $noteTarget) { target in
+                    NoteEditorSheet(
+                        excerpt: target.excerpt,
+                        note: annotationStore.byBlock(forArticle: item.link)[target.key]?.note ?? ""
+                    ) { text in
+                        annotationStore.setNote(text, link: item.link, title: item.title, key: target.key, excerpt: target.excerpt)
+                    }
+                }
             } else if readerDocument != nil {
                 // Nothing readable was found (empty or script-only content): the web reader still shows something.
                 WebView(
@@ -873,6 +929,173 @@ struct ArticleDetailView: View {
             }.value
             guard !Task.isCancelled else { return }
             readerDocument = document
+            await offerTranslation(for: document, title: title)
+        }
+        .translationTask(translationConfiguration) { session in
+            guard let document = readerDocument else { isTranslating = false; return }
+            let pieces = ArticleTranslation.pieces(of: document, title: item.title)
+            do {
+                let requests = Self.translationRequests(for: pieces)
+                let responses = try await session.translations(from: requests)
+                var translations: [Int: String] = [:]
+                for response in responses {
+                    if let id = response.clientIdentifier.flatMap(Int.init) { translations[id] = response.targetText }
+                }
+                finishTranslation(translations, document: document, item: item)
+            } catch {
+                failTranslation(error, item: item)
+            }
+        }
+    }
+
+    // MARK: - Find in article
+
+    private func findBar(for document: ArticleDocument) -> some View {
+        let matches = ReaderFind.matches(in: document, query: findQuery)
+        return HStack(spacing: 6) {
+            Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+            TextField(String(localized: "Find in article"), text: $findQuery)
+                .textFieldStyle(.plain)
+                .frame(width: 160)
+                .focused($findFieldFocused)
+                .onSubmit { stepFind(by: 1, in: matches) }
+                .onExitCommand { showFind = false }
+            if !findQuery.isEmpty {
+                Text(matches.isEmpty ? String(localized: "No matches") : String(format: String(localized: "%d of %d"), min(findPosition, matches.count - 1) + 1, matches.count))
+                    .font(.caption)
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+            }
+            Button { stepFind(by: -1, in: matches) } label: { Image(systemName: "chevron.up") }
+                .disabled(matches.isEmpty)
+            Button { stepFind(by: 1, in: matches) } label: { Image(systemName: "chevron.down") }
+                .disabled(matches.isEmpty)
+            Button { showFind = false } label: { Image(systemName: "xmark.circle.fill") }
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(.regularMaterial, in: Capsule())
+        .overlay(Capsule().stroke(theme.hairlineBorder, lineWidth: 0.5))
+        .padding(12)
+        .task {
+            // The field does not exist in the window yet when the bar appears; focusing it at once is ignored.
+            for _ in 0..<5 {
+                try? await Task.sleep(for: .milliseconds(60))
+                findFieldFocused = true
+                if findFieldFocused { break }
+            }
+        }
+        .onChange(of: findQuery) { _, _ in
+            findPosition = 0
+            scrollToFindBlock(ReaderFind.matches(in: document, query: findQuery).first?.block)
+        }
+    }
+
+    /// Moves to the next or previous paragraph that contains the query, wrapping around.
+    private func stepFind(by offset: Int, in matches: [ReaderFind.Match]) {
+        guard !matches.isEmpty else { return }
+        findPosition = (min(findPosition, matches.count - 1) + offset + matches.count) % matches.count
+        scrollToFindBlock(matches[findPosition].block)
+    }
+
+    /// Clears the target first so asking for the block the reader last jumped to still scrolls back to it.
+    private func scrollToFindBlock(_ block: Int?) {
+        focusBlock = nil
+        DispatchQueue.main.async { focusBlock = block }
+    }
+
+    // MARK: - Translation
+
+    private func resetTranslation() {
+        translatedDocument = nil
+        translatedTitle = nil
+        translationConfiguration = nil
+        isTranslating = false
+        translationFailed = false
+    }
+
+    /// Looks at the language of the article and offers translation only when it differs from the user's language and
+    /// the system can translate between the two (languages are downloaded by the system when first needed).
+    private func offerTranslation(for document: ArticleDocument, title: String) async {
+        guard let language = ArticleTranslation.detectedLanguage(of: document, title: title),
+              !ArticleTranslation.isSameLanguage(language, ArticleTranslation.targetLanguage) else {
+            offeredLanguage = nil
+            return
+        }
+        let status = await LanguageAvailability().status(from: language, to: ArticleTranslation.targetLanguage)
+        offeredLanguage = status == .unsupported ? nil : language
+    }
+
+    private func startTranslation() {
+        guard let source = offeredLanguage else { return }
+        translationFailed = false
+        isTranslating = true
+        translationConfiguration = TranslationSession.Configuration(source: source, target: ArticleTranslation.targetLanguage)
+    }
+
+    /// Built in a nonisolated function so the batch is not tied to the main actor when it is handed to the session.
+    nonisolated private static func translationRequests(for pieces: [ArticleTranslation.Piece]) -> [TranslationSession.Request] {
+        pieces.map { TranslationSession.Request(sourceText: $0.text, clientIdentifier: String($0.id)) }
+    }
+
+    private func finishTranslation(_ translations: [Int: String], document: ArticleDocument, item: FeedItem) {
+        isTranslating = false
+        guard currentItem?.id == item.id else { return }
+        translatedDocument = ArticleTranslation.rebuild(document, with: translations)
+        translatedTitle = translations[0]
+    }
+
+    private func failTranslation(_ error: Error, item: FeedItem) {
+        AppLogger.shared.log("Translation failed: \(error.localizedDescription)", level: .warning, category: .ui)
+        isTranslating = false
+        if currentItem?.id == item.id { translationFailed = true }
+    }
+
+    private var translationFailedBanner: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "exclamationmark.triangle")
+                .foregroundStyle(.secondary)
+            Text(String(localized: "Could not translate this article."))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Button(String(localized: "Dismiss")) { translationFailed = false }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .padding(10)
+    }
+
+    @ViewBuilder
+    private var translateToolbarButton: some View {
+        if let source = offeredLanguage, activeViewMode == .reader {
+            if isTranslating {
+                ProgressView().controlSize(.small)
+                    .help(String(localized: "Translating..."))
+            } else if translatedDocument != nil {
+                Button {
+                    AppHaptics.tap()
+                    resetTranslation()
+                } label: {
+                    Label(String(localized: "Show Original"), systemImage: "translate")
+                }
+                .help(String(localized: "Show Original"))
+            } else {
+                Button {
+                    AppHaptics.tap()
+                    startTranslation()
+                } label: {
+                    Label(
+                        String(format: String(localized: "Translate from %@"), Locale.current.localizedString(forLanguageCode: source.languageCode?.identifier ?? "") ?? ""),
+                        systemImage: "translate"
+                    )
+                }
+                .help(String(localized: "Translate this article on your Mac"))
+            }
         }
     }
 
@@ -891,6 +1114,10 @@ struct ArticleDetailView: View {
         }
         let minutes = max(1, Int(ceil(Double(document.wordCount) / 200.0)))
         parts.append(String(format: String(localized: "%d min read"), minutes).uppercased())
+        if translatedDocument != nil, let source = offeredLanguage {
+            let name = Locale.current.localizedString(forLanguageCode: source.languageCode?.identifier ?? "") ?? ""
+            parts.append(String(format: String(localized: "Translated from %@"), name).uppercased())
+        }
         return parts.joined(separator: " · ")
     }
 

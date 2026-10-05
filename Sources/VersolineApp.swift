@@ -30,12 +30,16 @@ struct VersolineApp: App {
 
         Self.setupMemoryPressureMonitor()
 
+        NotificationCenter.default.addObserver(forName: NSApplication.willTerminateNotification, object: nil, queue: .main) { _ in
+            MainActor.assumeIsolated { AnnotationStore.shared.flush() }
+        }
+
         if !Self.isRunningTests {
             Task { @MainActor in
                 await ContentBlockerService.shared.prepare()
                 ReaderModeExtractor.shared.cleanupDiskCache(olderThanDays: 30)
                 ImageDownsampleCache.shared.cleanupDiskCache(olderThanDays: 14)
-                ImageDownsampleCache.shared.enforceQuota(maxSizeBytes: 30 * 1024 * 1024)
+                ImageDownsampleCache.shared.enforceQuota(maxSizeBytes: Int64(MemoryLimits.imageDiskBytes))
             }
         }
 
@@ -101,6 +105,8 @@ struct VersolineApp: App {
                 .frame(minWidth: 800, minHeight: 500)
         }
         .defaultSize(width: 1100, height: 700)
+        // A feed link or an OPML file opened from another app goes to the window that is already there.
+        .handlesExternalEvents(matching: ["*"])
         .commands {
             SidebarCommands()
             AppCommands()

@@ -12,6 +12,7 @@ enum SidebarItem: Hashable, Identifiable {
     case smartCategory(SmartCategory)
     case videos
     case topStories
+    case highlights
     case folder(UUID)
     case feed(UUID)
 
@@ -28,6 +29,7 @@ enum SidebarItem: Hashable, Identifiable {
         case .smartCategory(let cat): return "sidebar-smart-\(cat.rawValue)"
         case .videos: return "sidebar-videos"
         case .topStories: return "sidebar-top-stories"
+        case .highlights: return "sidebar-highlights"
         case .folder(let uuid): return "sidebar-folder-\(uuid.uuidString)"
         case .feed(let uuid): return "sidebar-feed-\(uuid.uuidString)"
         }
