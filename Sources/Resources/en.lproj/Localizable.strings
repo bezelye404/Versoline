@@ -700,3 +700,10 @@
 "After 2 Weeks" = "After 2 Weeks";
 "After a Month" = "After a Month";
 "Keeps the Unread list about what is new: articles you never opened are marked as read once they are this old. Bookmarks are not affected." = "Keeps the Unread list about what is new: articles you never opened are marked as read once they are this old. Bookmarks are not affected.";
+"Could not translate this article." = "Could not translate this article.";
+"Dismiss" = "Dismiss";
+"Translating..." = "Translating...";
+"Show Original" = "Show Original";
+"Translate from %@" = "Translate from %@";
+"Translate this article on your Mac" = "Translate this article on your Mac";
+"Translated from %@" = "Translated from %@";
