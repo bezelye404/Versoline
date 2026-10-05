@@ -82,7 +82,7 @@ enum FeedDiscovery {
     static func findFeed(onPageAt address: String) async -> String? {
         guard let pageURL = URL(string: address) else { return nil }
         var request = URLRequest(url: pageURL)
-        request.setValue("Versoline/1.0 (Macintosh; Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko)", forHTTPHeaderField: "User-Agent")
+        request.setValue(AppInfo.userAgent, forHTTPHeaderField: "User-Agent")
 
         if let page = await download(request, limit: 300_000) {
             if let first = candidates(inHTML: String(decoding: page, as: UTF8.self), baseURL: pageURL).first {

@@ -35,6 +35,7 @@
 		30ABF0BAAE33AC87BEB31D3C /* odatv.html in Resources */ = {isa = PBXBuildFile; fileRef = 4474601B87A4441034A0BBF4 /* odatv.html */; };
 		310DEF8013E03E2F932FFDD4 /* FolderStreamRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04573C580283AB13B44C1E7C /* FolderStreamRow.swift */; };
 		34B8E608834C3DF4FC434B6B /* FeedRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28428308E8731D8A21EA6C70 /* FeedRule.swift */; };
+		362B3C432D03702982D70326 /* FaviconSourceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAE53E0B9035CC7528221141 /* FaviconSourceTests.swift */; };
 		39B20F231F0DFBEF9C5CA7BA /* AddFeedSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74371D7BFE5B4B3C0F8CDC90 /* AddFeedSheet.swift */; };
 		3F66D863D6C4C23B9A236451 /* FeedStore+Rules.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D2F59C59011ADF7085CDFC7 /* FeedStore+Rules.swift */; };
 		40E02A356C8DC28301B10045 /* SmartMergeEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8715B2B9006F7C3B90C75139 /* SmartMergeEngine.swift */; };
@@ -95,6 +96,7 @@
 		8FF87E7DFF38FDF16A635384 /* LocalPeerSyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBF94143358EC1AAEFECF6C /* LocalPeerSyncEngine.swift */; };
 		90ED9FCEF6C5A328C9328659 /* VideoPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C3DF897D39C75B410A66A44 /* VideoPlayerService.swift */; };
 		91051E0D4AA1F7A9CB450B76 /* SocialFeedResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF8DE1268C48887A20C2426A /* SocialFeedResolverTests.swift */; };
+		922ECF53A95F14DE43763239 /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05E3363BDC9B04353F933CDC /* AppInfo.swift */; };
 		92A93702CFD98C548792D221 /* MemoryLimits.swift in Sources */ = {isa = PBXBuildFile; fileRef = 490D86B5636A3947EA17AED7 /* MemoryLimits.swift */; };
 		92FB6D43FC8E159D488F337C /* LocalizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBA043771DA7DC7A8234241D /* LocalizationTests.swift */; };
 		946A49855A40FD4993DB7B04 /* ensonhaber.html in Resources */ = {isa = PBXBuildFile; fileRef = 909B969B622C8DF903181C64 /* ensonhaber.html */; };
@@ -182,6 +184,7 @@
 /* Begin PBXFileReference section */
 		037F080F56F584EEC68F2683 /* LegacyMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyMigrationTests.swift; sourceTree = "<group>"; };
 		04573C580283AB13B44C1E7C /* FolderStreamRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderStreamRow.swift; sourceTree = "<group>"; };
+		05E3363BDC9B04353F933CDC /* AppInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInfo.swift; sourceTree = "<group>"; };
 		095EC2CC2671D488A81C2202 /* Folder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Folder.swift; sourceTree = "<group>"; };
 		09D4B3F3935F0C5AC5522AD1 /* RSSParserRetentionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSParserRetentionTests.swift; sourceTree = "<group>"; };
 		0BDE9E050870EEB461C07516 /* FiltersSettingsTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersSettingsTab.swift; sourceTree = "<group>"; };
@@ -291,6 +294,7 @@
 		A6AADA107F645C1AA673835B /* FeedStorePersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedStorePersistenceTests.swift; sourceTree = "<group>"; };
 		A7C298C27A824C353905535B /* LibraryBackup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryBackup.swift; sourceTree = "<group>"; };
 		A8CEE69DA71165A92D07B06F /* RSSParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSParser.swift; sourceTree = "<group>"; };
+		AAE53E0B9035CC7528221141 /* FaviconSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaviconSourceTests.swift; sourceTree = "<group>"; };
 		AB24CA8959980EC771C82E02 /* curated_feeds.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = curated_feeds.json; sourceTree = "<group>"; };
 		ABDC339C3D298A9F17B6C525 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		AEEAA2436EA953D6160CADB7 /* AppAnimationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAnimationTests.swift; sourceTree = "<group>"; };
@@ -391,6 +395,7 @@
 				9F20D231E4B9E229A105EF72 /* CommandPaletteTests.swift */,
 				EE3BE53437271D78C8F76E32 /* DockBadgeTests.swift */,
 				4F968FAE3D71FC2763EBB744 /* ExternalLinkTests.swift */,
+				AAE53E0B9035CC7528221141 /* FaviconSourceTests.swift */,
 				11000F72C3EED34D212CDBEF /* FeedDiscoveryTests.swift */,
 				6BA42B73273E38D7056A6525 /* FeedItemHygieneTests.swift */,
 				E2E9F159992B4B54785A13B3 /* FeedRuleTests.swift */,
@@ -473,6 +478,7 @@
 			isa = PBXGroup;
 			children = (
 				BB916521728741E05AB7FEC6 /* Annotation.swift */,
+				05E3363BDC9B04353F933CDC /* AppInfo.swift */,
 				CD8C88EA3FDA633C357495C3 /* AppSettings.swift */,
 				1F302A5DB707B66DC486CB6A /* ArticleDocument.swift */,
 				C559A5692D91BAED93D824F5 /* BionicReading.swift */,
@@ -765,6 +771,7 @@
 				7B50D56F55FDAB85FB417355 /* CommandPaletteTests.swift in Sources */,
 				D6AB2660E55A1D5D83CFDE2E /* DockBadgeTests.swift in Sources */,
 				5BC89AA876FCC35574C30D83 /* ExternalLinkTests.swift in Sources */,
+				362B3C432D03702982D70326 /* FaviconSourceTests.swift in Sources */,
 				651FA254185E24F4EC9422B6 /* FeedDiscoveryTests.swift in Sources */,
 				F941AAC80BB7096A13C66F4A /* FeedItemHygieneTests.swift in Sources */,
 				E87864A37DFF22CD09A42850 /* FeedRuleTests.swift in Sources */,
@@ -802,6 +809,7 @@
 				39B20F231F0DFBEF9C5CA7BA /* AddFeedSheet.swift in Sources */,
 				56AF9C3F86E178745BBE869F /* Annotation.swift in Sources */,
 				D30E39AA6E2810B0BB586FC1 /* AppCommands.swift in Sources */,
+				922ECF53A95F14DE43763239 /* AppInfo.swift in Sources */,
 				2C532173A7887BFC5B4CB7C5 /* AppLogger.swift in Sources */,
 				2C8B93C8DEB9668B7E18FD48 /* AppSettings.swift in Sources */,
 				53888B9BE28ED6D1DB568207 /* AppShortcuts.swift in Sources */,

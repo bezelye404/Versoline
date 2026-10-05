@@ -157,7 +157,7 @@ final class SocialFeedResolver {
 
         var request = URLRequest(url: targetURL)
         request.httpMethod = "GET"
-        request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36", forHTTPHeaderField: "User-Agent")
+        request.setValue(AppInfo.browserUserAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("text/html,application/xhtml+xml", forHTTPHeaderField: "Accept")
 
         do {
@@ -227,7 +227,7 @@ final class SocialFeedResolver {
         }
 
         var req = URLRequest(url: url)
-        req.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36", forHTTPHeaderField: "User-Agent")
+        req.setValue(AppInfo.browserUserAgent, forHTTPHeaderField: "User-Agent")
 
         guard let (data, response) = try? await session.data(for: req),
               let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {

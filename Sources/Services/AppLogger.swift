@@ -92,7 +92,7 @@ public final class AppLogger {
     public private(set) var entries: [LogEntry] = []
     public var maxEntries: Int = 200
 
-    private let osLog = Logger(subsystem: "com.bezelye.Versoline", category: "App")
+    private let osLog = Logger(subsystem: AppInfo.identifier, category: "App")
 
     private static let timeFormatter: DateFormatter = {
         let df = DateFormatter()
