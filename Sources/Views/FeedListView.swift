@@ -28,6 +28,7 @@ struct FeedListView: View {
         case .smartCategory(let cat): return cat.displayName
         case .videos: return String(localized: "Videos")
         case .topStories: return String(localized: "Top Stories")
+        case .highlights: return String(localized: "Highlights")
         case .folder(let id): return store.folders.first(where: { $0.id == id })?.name ?? String(localized: "Folder")
         case .feed(let id): return store.feed(for: id)?.title ?? String(localized: "Feed")
         case nil: return ""
@@ -51,7 +52,7 @@ struct FeedListView: View {
 
     private var showFeedName: Bool {
         switch selection {
-        case .all, .bookmarks, .unread, .today, .podcasts, .downloaded, .quickReads, .longReads, .smartCategory, .videos, .topStories, .folder: return true
+        case .all, .bookmarks, .unread, .today, .podcasts, .downloaded, .quickReads, .longReads, .smartCategory, .videos, .topStories, .highlights, .folder: return true
         default: return false
         }
     }
@@ -95,6 +96,9 @@ struct FeedListView: View {
             base = store.items(for: .videos)
         case .topStories:
             base = store.topStoryItems()
+        case .highlights:
+            let links = AnnotationStore.shared.annotatedLinks
+            base = store.allItems().filter { links.contains($0.link) }
         case .folder(let id):
             base = store.itemsForFolder(id)
         case .feed(let id):
@@ -564,6 +568,7 @@ struct FeedListView: View {
         case .smartCategory(let cat): return cat.systemImage
         case .videos: return "play.rectangle"
         case .topStories: return "square.stack.3d.up"
+        case .highlights: return "highlighter"
         case .folder: return "folder"
         case .feed: return "newspaper"
         }
@@ -582,6 +587,7 @@ struct FeedListView: View {
         case .smartCategory(let cat): return cat.displayName
         case .videos: return String(localized: "No Videos")
         case .topStories: return String(localized: "No Top Stories")
+        case .highlights: return String(localized: "No Highlights")
         case .folder: return String(localized: "Folder is Empty")
         case .feed: return String(localized: "Feed is Empty")
         }
@@ -600,6 +606,7 @@ struct FeedListView: View {
         case .smartCategory: return String(localized: "Articles automatically classified in this category will appear here.")
         case .videos: return String(localized: "Articles containing YouTube videos will appear here.")
         case .topStories: return String(localized: "Stories told by three or more of your feeds in the last day will appear here.")
+        case .highlights: return String(localized: "Right-click a paragraph in an article to highlight it or add a note. Articles with highlights appear here.")
         case .folder: return String(localized: "Move feeds into this folder from the sidebar.")
         case .feed: return String(localized: "No articles found in this feed.")
         }

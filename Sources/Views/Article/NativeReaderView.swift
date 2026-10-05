@@ -17,6 +17,11 @@ struct NativeReaderView: View {
     let theme: ReaderTheme
     let isBionic: Bool
     let onOpenURL: (URL) -> Void
+    /// Highlights and notes of this article by the key of the text they belong to; with the two callbacks they make
+    /// the context menu of a paragraph offer Highlight and Note. Left empty for a translated article.
+    var annotations: [String: Annotation] = [:]
+    var onToggleHighlight: ((AnnotationTarget) -> Void)? = nil
+    var onEditNote: ((AnnotationTarget) -> Void)? = nil
 
     @Environment(\.appTheme) private var appTheme
 
@@ -32,7 +37,7 @@ struct NativeReaderView: View {
             LazyVStack(alignment: .leading, spacing: fontSize * 0.9) {
                 header
                 ForEach(Array(document.blocks.enumerated()), id: \.offset) { _, block in
-                    blockView(block)
+                    annotatedBlock(block)
                 }
             }
             .frame(maxWidth: 720, alignment: .leading)
@@ -83,6 +88,39 @@ struct NativeReaderView: View {
 
     private func bodyFont(scale: Double = 1, weight: Font.Weight = .regular) -> Font {
         .system(size: fontSize * scale, weight: weight, design: fontFamily.nativeDesign)
+    }
+
+    /// A block with its highlight, its note and the menu to make them.
+    @ViewBuilder
+    private func annotatedBlock(_ block: ArticleBlock) -> some View {
+        if let key = block.annotationKey, let onToggleHighlight, let onEditNote {
+            let annotation = annotations[key]
+            let target = AnnotationTarget(key: key, excerpt: block.plainText)
+            let isHighlighted = annotation?.isHighlighted == true
+            VStack(alignment: .leading, spacing: 6) {
+                blockView(block)
+                    .padding(isHighlighted ? 8 : 0)
+                    .background(isHighlighted ? Color.yellow.opacity(0.26) : .clear, in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+                if let note = annotation?.note, !note.isEmpty {
+                    HStack(alignment: .top, spacing: 6) {
+                        Image(systemName: "text.bubble")
+                            .font(.system(size: 11))
+                        Text(note)
+                            .font(.system(size: max(12, fontSize * 0.85)))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .foregroundStyle(textColor.opacity(0.7))
+                    .padding(8)
+                    .background(textColor.opacity(0.06), in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+                }
+            }
+            .contextMenu {
+                Button(isHighlighted ? String(localized: "Remove Highlight") : String(localized: "Highlight")) { onToggleHighlight(target) }
+                Button(annotation?.note?.isEmpty == false ? String(localized: "Edit Note...") : String(localized: "Add Note...")) { onEditNote(target) }
+            }
+        } else {
+            blockView(block)
+        }
     }
 
     @ViewBuilder

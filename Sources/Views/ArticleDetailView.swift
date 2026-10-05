@@ -34,6 +34,7 @@ struct ArticleDetailView: View {
     @State private var translationConfiguration: TranslationSession.Configuration? = nil
     @State private var isTranslating = false
     @State private var translationFailed = false
+    @State private var noteTarget: AnnotationTarget?
     @State private var isLoadingReaderMode = false
     @State private var readerFetchFailed = false
     @State private var isSpeaking = false
@@ -45,6 +46,7 @@ struct ArticleDetailView: View {
     @Namespace private var animationNamespace
 
     private let networkMonitor = NetworkMonitor.shared
+    private let annotationStore = AnnotationStore.shared
 
     private var currentTheme: ReaderTheme {
         if readerThemeRaw == ReaderTheme.system.rawValue {
@@ -345,6 +347,15 @@ struct ArticleDetailView: View {
                         shareArticleOrEpisode(item: item)
                     } label: {
                         Label(String(localized: "Share..."), systemImage: "square.and.arrow.up")
+                    }
+
+                    if annotationStore.hasAnnotations(forArticle: item.link) {
+                        Button {
+                            NSPasteboard.general.clearContents()
+                            NSPasteboard.general.setString(annotationStore.markdown(forArticle: item.link), forType: .string)
+                        } label: {
+                            Label(String(localized: "Copy Highlights and Notes"), systemImage: "highlighter")
+                        }
                     }
 
                     Button {
@@ -861,8 +872,21 @@ struct ArticleDetailView: View {
                     lineHeight: currentLineHeight,
                     theme: currentTheme,
                     isBionic: isBionicReadingEnabled,
-                    onOpenURL: { currentExternalBrowser.open(url: $0) }
+                    onOpenURL: { currentExternalBrowser.open(url: $0) },
+                    annotations: translatedDocument == nil ? annotationStore.byBlock(forArticle: item.link) : [:],
+                    onToggleHighlight: translatedDocument == nil ? { target in
+                        annotationStore.toggleHighlight(link: item.link, title: item.title, key: target.key, excerpt: target.excerpt)
+                    } : nil,
+                    onEditNote: translatedDocument == nil ? { noteTarget = $0 } : nil
                 )
+                .sheet(item: $noteTarget) { target in
+                    NoteEditorSheet(
+                        excerpt: target.excerpt,
+                        note: annotationStore.byBlock(forArticle: item.link)[target.key]?.note ?? ""
+                    ) { text in
+                        annotationStore.setNote(text, link: item.link, title: item.title, key: target.key, excerpt: target.excerpt)
+                    }
+                }
             } else if readerDocument != nil {
                 // Nothing readable was found (empty or script-only content): the web reader still shows something.
                 WebView(

@@ -30,6 +30,10 @@ struct VersolineApp: App {
 
         Self.setupMemoryPressureMonitor()
 
+        NotificationCenter.default.addObserver(forName: NSApplication.willTerminateNotification, object: nil, queue: .main) { _ in
+            MainActor.assumeIsolated { AnnotationStore.shared.flush() }
+        }
+
         if !Self.isRunningTests {
             Task { @MainActor in
                 await ContentBlockerService.shared.prepare()
