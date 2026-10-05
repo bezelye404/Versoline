@@ -14,12 +14,16 @@ extension FeedStore {
     func refreshStories() {
         storyTask?.cancel()
         let all = items.values.flatMap { $0 }
-        var settings = StoryClusterer.Settings()
-        settings.preferredFeeds = Set(feeds.filter(\.isPinned).map(\.id))
-        storyTask = Task.detached(priority: .utility) { [weak self] in
-            let found = StoryClusterer.stories(in: all, settings: settings)
-            guard !Task.isCancelled else { return }
-            await MainActor.run { self?.applyStories(found) }
+        var configured = StoryClusterer.Settings()
+        configured.preferredFeeds = Set(feeds.filter(\.isPinned).map(\.id))
+        let settings = configured   // a `let`: a closure that crosses actors cannot capture a mutable variable
+        // The comparison runs off the main actor on plain values; only the result comes back to the store.
+        storyTask = Task { @MainActor [weak self] in
+            let found = await Task.detached(priority: .utility) {
+                StoryClusterer.stories(in: all, settings: settings)
+            }.value
+            guard !Task.isCancelled, let self else { return }
+            self.applyStories(found)
         }
     }
 
