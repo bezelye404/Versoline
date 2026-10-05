@@ -978,7 +978,14 @@ struct ArticleDetailView: View {
         .background(.regularMaterial, in: Capsule())
         .overlay(Capsule().stroke(theme.hairlineBorder, lineWidth: 0.5))
         .padding(12)
-        .onAppear { findFieldFocused = true }
+        .task {
+            // The field does not exist in the window yet when the bar appears; focusing it at once is ignored.
+            for _ in 0..<5 {
+                try? await Task.sleep(for: .milliseconds(60))
+                findFieldFocused = true
+                if findFieldFocused { break }
+            }
+        }
         .onChange(of: findQuery) { _, _ in
             findPosition = 0
             scrollToFindBlock(ReaderFind.matches(in: document, query: findQuery).first?.block)
