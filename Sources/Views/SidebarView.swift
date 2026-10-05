@@ -23,6 +23,7 @@ struct SidebarView: View {
     @AppStorage("isSmartStreamsExpanded") private var isSmartStreamsExpanded: Bool = true
     @AppStorage("isUncategorizedExpanded") private var isUncategorizedExpanded: Bool = true
     @AppStorage(AppSettingsKeys.showReadingTimeStreams) private var showReadingTimeStreams = false
+    @AppStorage(AppSettingsKeys.groupSimilarStories) private var groupSimilarStories = true
 
     var body: some View {
         List(selection: $selectedItem) {
@@ -130,6 +131,13 @@ struct SidebarView: View {
 
             NavigationLink(value: SidebarItem.today) {
                 sidebarRow(title: String(localized: "Today"), systemImage: "clock", count: nil, accentColor: .secondary)
+            }
+
+            // Only when some story is told by several of the user's feeds.
+            if groupSimilarStories, store.topStoryCount() > 0 {
+                NavigationLink(value: SidebarItem.topStories) {
+                    sidebarRow(title: String(localized: "Top Stories"), systemImage: "square.stack.3d.up", count: nil, accentColor: .secondary)
+                }
             }
 
             NavigationLink(value: SidebarItem.bookmarks) {

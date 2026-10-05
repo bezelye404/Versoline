@@ -77,6 +77,7 @@ extension FeedStore {
             updateSmartCategoryCaches()
             save()
             SyncCoordinator.shared.notifyFeedAddedOrUpdated(feed)
+            refreshStories()
             AppLogger.shared.log("Successfully added feed \"\(feed.title)\" with \(cappedItems.count) items", level: .info, category: .storage)
         } catch {
             let errorMsg = String(format: String(localized: "Failed to load feed: %@"), error.localizedDescription)
@@ -117,6 +118,7 @@ extension FeedStore {
             isLoading = false
             updateSmartCategoryCaches()
             save()
+            refreshStories()
         } catch {
             let errorMsg = String(format: String(localized: "Refresh failed: %@"), error.localizedDescription)
             errorMessage = errorMsg
@@ -195,6 +197,7 @@ extension FeedStore {
         updateSmartCategoryCaches()
         save()
         MemoryRelief.trim()
+        refreshStories()
         AppLogger.shared.log("All feeds refresh finished", level: .info, category: .network)
     }
 

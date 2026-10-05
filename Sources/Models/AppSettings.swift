@@ -465,6 +465,7 @@ struct AppSettingsKeys {
     static let readerFontSize = "readerFontSize"
     static let readerLineHeight = "readerLineHeight"
     static let isCompactListMode = "isCompactListMode"
+    static let groupSimilarStories = "groupSimilarStories"
     static let showFavicons = "showFavicons"
     static let enableSingleKeyShortcuts = "enableSingleKeyShortcuts"
     static let showMenuBarIcon = "showMenuBarIcon"
