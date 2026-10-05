@@ -44,16 +44,16 @@ if [ -f "$LIBRARY" ]; then cp "$LIBRARY" "$TMP_DIR/benchmark-library.json"; else
 
 rm -f "$RESULT"
 echo "==> Running ($COUNT articles, ${SECONDS_EACH}s each; the app quits when done)..."
-open -n -W "$APP" --args --benchmark "--benchmark-count=$COUNT" "--benchmark-seconds=$SECONDS_EACH" "--benchmark-mode=$MODE"
+open -n -W "$APP" --args --benchmark "--benchmark-count=$COUNT" "--benchmark-seconds=$SECONDS_EACH" "--benchmark-mode=$MODE" ${BENCHMARK_FLAGS:-}
 
 [ -f "$RESULT" ] || { echo "No result file at $RESULT" >&2; exit 1; }
 python3 - "$RESULT" "$CONFIG" <<'PY'
 import json, sys
 r = json.load(open(sys.argv[1]))
 print(f"\n{sys.argv[2]} build: {r['feeds']} feeds, {r['items']} items, {r['articles']} articles opened")
-print(f"{'step':<22}{'footprint':>12}   WebKit started")
+print(f"{'step':<22}{'footprint':>12}{'peak':>12}   WebKit started")
 for s in r["samples"]:
-    print(f"{s['label']:<22}{s['footprintMB']:>9.1f} MB   {'yes' if s['webKitStarted'] else 'no'}")
+    print(f"{s['label']:<22}{s['footprintMB']:>9.1f} MB{s['peakMB']:>9.1f} MB   {'yes' if s['webKitStarted'] else 'no'}")
 first, last = r["samples"][0]["footprintMB"], r["samples"][-1]["footprintMB"]
 print(f"\ngrowth while reading: {last - first:+.1f} MB")
 PY

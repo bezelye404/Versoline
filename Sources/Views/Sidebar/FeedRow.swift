@@ -37,7 +37,6 @@ struct FeedRow: View {
                 Text("\(unread)")
                     .font(.system(size: 11, weight: .medium, design: .monospaced))
                     .foregroundStyle(.secondary)
-                    .contentTransition(.numericText())
                     .animation(AppAnimation.bouncy, value: unread)
             }
         }
