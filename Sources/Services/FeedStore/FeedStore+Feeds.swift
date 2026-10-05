@@ -2,8 +2,6 @@ import Foundation
 
 extension FeedStore {
 
-    // MARK: - Feed Management
-
     func addFeed(url: String, folderId: UUID? = nil) async {
         var targetURL = url.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !targetURL.isEmpty else { return }
@@ -263,7 +261,7 @@ extension FeedStore {
                 updatedItems.append(contentsOf: preservedBookmarks)
             }
 
-            // Memory safety: Enforce maxItemsPerFeed cap for non-bookmarked items
+            // Keep at most `maxItemsPerFeed` articles that are not bookmarked
             if updatedItems.count > Self.maxItemsPerFeed {
                 let bookmarks = updatedItems.filter { $0.isBookmarked }
                 let nonBookmarks = updatedItems
@@ -291,8 +289,6 @@ extension FeedStore {
             }
         }
     }
-
-    // MARK: - Network (nonisolated)
 
     nonisolated static func fetchFeed(
         url: String,

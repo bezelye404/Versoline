@@ -14,8 +14,6 @@ final class OPMLManager: NSObject, XMLParserDelegate, @unchecked Sendable {
     private var currentFolder: String?
     private var outlineNesting: Int = 0
 
-    // MARK: - Parse OPML
-
     func parse(data: Data) -> [OPMLFeed] {
         feeds = []
         currentFolder = nil
@@ -28,8 +26,6 @@ final class OPMLManager: NSObject, XMLParserDelegate, @unchecked Sendable {
 
         return feeds
     }
-
-    // MARK: - Generate OPML
 
     static func generate(feeds: [Feed], folders: [Folder]) -> String {
         var lines: [String] = []
@@ -61,8 +57,6 @@ final class OPMLManager: NSObject, XMLParserDelegate, @unchecked Sendable {
 
         return lines.joined(separator: "\n")
     }
-
-    // MARK: - XMLParserDelegate
 
     func parser(
         _ parser: XMLParser,
@@ -101,8 +95,6 @@ final class OPMLManager: NSObject, XMLParserDelegate, @unchecked Sendable {
         }
         outlineNesting -= 1
     }
-
-    // MARK: - Helpers
 
     private static func escapeXML(_ string: String) -> String {
         string

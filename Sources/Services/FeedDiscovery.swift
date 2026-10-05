@@ -10,8 +10,6 @@ enum FeedDiscovery {
         let title: String?
     }
 
-    // MARK: - Reading a page
-
     private static let linkTag = try? NSRegularExpression(pattern: #"<link\b[^>]*>"#, options: [.caseInsensitive])
     private static let attribute = try? NSRegularExpression(
         pattern: #"([a-zA-Z_:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>"']+))"#
@@ -65,8 +63,6 @@ enum FeedDiscovery {
         guard !head.contains("<html"), !head.contains("<!doctype html") else { return false }
         return head.contains("<rss") || head.contains("<feed") || head.contains("<rdf:rdf")
     }
-
-    // MARK: - Network
 
     private static let session: URLSession = {
         let config = URLSessionConfiguration.ephemeral

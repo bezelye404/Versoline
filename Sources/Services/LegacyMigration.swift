@@ -1,7 +1,6 @@
 import Foundation
 import SwiftUI
 
-// MARK: - Legacy Data Migration (easyRSS -> Versoline)
 /// Handles one-time, non-destructive migration of persisted user data (subscriptions, articles,
 /// downloaded podcast episodes, and cached favicons) from the legacy easyRSS application storage
 /// (`~/Library/Application Support/EasyRSS`) to the new Versoline directory
@@ -21,7 +20,6 @@ public final class LegacyMigration {
 
     public static let shared = LegacyMigration()
 
-    // MARK: - Constants
     public static let legacyDirName = "EasyRSS"
     public static let newDirName = "Versoline"
     public static let markerFileName = ".migrated-from-easyrss"
@@ -42,7 +40,6 @@ public final class LegacyMigration {
         UserDefaults.standard.set(true, forKey: Self.migrationNoticeShownKey)
     }
 
-    // MARK: - Migration Execution
     @discardableResult
     public static func runMigration(
         fileManager: FileManager = .default,
@@ -62,7 +59,7 @@ public final class LegacyMigration {
         let newURL = baseAppSupportURL.appendingPathComponent(newDirName, isDirectory: true)
         let markerURL = newURL.appendingPathComponent(markerFileName, isDirectory: false)
 
-        // 1. If marker exists, migration was already completed safely.
+        // If marker exists, migration was already completed safely.
         if fileManager.fileExists(atPath: markerURL.path) {
             return .alreadyCompleted
         }
@@ -70,7 +67,7 @@ public final class LegacyMigration {
         let legacyExists = fileManager.fileExists(atPath: legacyURL.path)
         let newExists = fileManager.fileExists(atPath: newURL.path)
 
-        // 2. If new exists without marker and legacy exists, this indicates an interrupted/partial copy.
+        // If new exists without marker and legacy exists, this indicates an interrupted/partial copy.
         // Clean up partial target before re-copying.
         if newExists && !fileManager.fileExists(atPath: markerURL.path) && legacyExists {
             do {
@@ -84,12 +81,12 @@ public final class LegacyMigration {
             return .notNeeded
         }
 
-        // 3. If legacy directory does not exist, nothing to migrate.
+        // If legacy directory does not exist, nothing to migrate.
         if !fileManager.fileExists(atPath: legacyURL.path) {
             return .notNeeded
         }
 
-        // 4. Perform non-destructive copy (APFS clone-on-write) from legacy to new URL.
+        // Perform non-destructive copy (APFS clone-on-write) from legacy to new URL.
         do {
             try fileManager.copyItem(at: legacyURL, to: newURL)
             try writeMarker(at: markerURL, fileManager: fileManager)

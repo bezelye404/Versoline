@@ -59,8 +59,6 @@ struct ConsoleView: View {
         .background(Color(nsColor: .windowBackgroundColor))
     }
 
-    // MARK: - Header
-
     private var headerView: some View {
         HStack(spacing: 12) {
             Image(systemName: "terminal")
@@ -130,8 +128,6 @@ struct ConsoleView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
     }
-
-    // MARK: - Filter Bar
 
     private var filterBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -225,8 +221,6 @@ struct ConsoleView: View {
         }
     }
 
-    // MARK: - Log List
-
     private var logListView: some View {
         ScrollViewReader { proxy in
             ScrollView {
@@ -266,8 +260,6 @@ struct ConsoleView: View {
         .frame(maxWidth: .infinity, minHeight: 240)
     }
 
-    // MARK: - Footer
-
     private var footerView: some View {
         HStack {
             Toggle("Auto-scroll", isOn: $autoScrollToBottom)
@@ -291,8 +283,6 @@ struct ConsoleView: View {
         .padding(.vertical, 8)
         .background(Color(nsColor: .controlBackgroundColor).opacity(0.3))
     }
-
-    // MARK: - Actions
 
     private func copyAllLogs() {
         let text = logger.exportFormattedLogs()
@@ -321,8 +311,6 @@ struct ConsoleView: View {
         try? text.write(to: url, atomically: true, encoding: .utf8)
     }
 }
-
-// MARK: - Log Row Component
 
 struct LogRow: View {
     let entry: LogEntry

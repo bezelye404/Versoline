@@ -1,8 +1,6 @@
 import SwiftUI
 import AppKit
 
-// MARK: - Spotify-Style Universal Mini Player (Podcasts & Videos)
-
 struct MiniPlayerView: View {
 
     @Bindable private var audioPlayer = AudioPlayerService.shared
@@ -74,19 +72,17 @@ struct MiniPlayerView: View {
                 Divider()
 
                 HStack(spacing: 16) {
-                    // MARK: - Left: Artwork, Info & Direct "Go to Article" Action
+
                     leftMediaInfoSection(media: media)
                         .frame(minWidth: 160, idealWidth: 220, maxWidth: 280, alignment: .leading)
 
                     Spacer(minLength: 8)
 
-                    // MARK: - Center: Transport Controls & Interactive Scrubber
                     centerControlsSection(media: media)
                         .frame(maxWidth: 440)
 
                     Spacer(minLength: 8)
 
-                    // MARK: - Right: Tools (Speed, Sleep Timer, Queue, Volume, Fullscreen, Close)
                     rightToolsSection(media: media)
                         .frame(minWidth: 200, alignment: .trailing)
                 }
@@ -97,8 +93,6 @@ struct MiniPlayerView: View {
             .transition(.move(edge: .bottom).combined(with: .opacity))
         }
     }
-
-    // MARK: - Left Media Info Section
 
     @ViewBuilder
     private func leftMediaInfoSection(media: ActiveMedia) -> some View {
@@ -193,7 +187,7 @@ struct MiniPlayerView: View {
         }
     }
 
-    // MARK: - Center Controls Section
+    // MARK: Center Controls Section
 
     @ViewBuilder
     private func centerControlsSection(media: ActiveMedia) -> some View {
@@ -295,7 +289,7 @@ struct MiniPlayerView: View {
         }
     }
 
-    // MARK: - Right Tools Section
+    // MARK: Right Tools Section
 
     @ViewBuilder
     private func rightToolsSection(media: ActiveMedia) -> some View {
@@ -463,7 +457,7 @@ struct MiniPlayerView: View {
         }
     }
 
-    // MARK: - Media State Helpers
+    // MARK: Media State Helpers
 
     private func mediaIsPodcast(_ media: ActiveMedia) -> Bool {
         if case .podcast = media { return true }

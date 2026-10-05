@@ -1,7 +1,5 @@
 import SwiftUI
 
-// MARK: - Cheap, Reduce-Motion-aware SwiftUI effects
-//
 // SF Symbol effects and numeric content transitions are drawn by the system on already-rendered
 // symbols/text, so they cost no extra memory and no layout work. Both helpers do nothing when the
 // user has "Reduce Motion" turned on.

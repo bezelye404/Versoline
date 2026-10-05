@@ -30,13 +30,10 @@ final class AnnotationStore {
     @ObservationIgnored private var saveTask: Task<Void, Never>?
 
     init(directory: URL? = nil) {
-        let base = directory ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("Versoline", isDirectory: true)
+        let base = directory ?? AppInfo.supportDirectory
         try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
         fileURL = base.appendingPathComponent("annotations.json")
     }
-
-    // MARK: Reading
 
     private func loadIfNeeded() {
         guard !loaded else { return }
@@ -67,8 +64,6 @@ final class AnnotationStore {
         return Set(annotations.map(\.articleLink))
     }
 
-    // MARK: Changing
-
     private func update(link: String, title: String, key: String, excerpt: String, _ change: (inout Annotation) -> Void) {
         loadIfNeeded()
         if let index = annotations.firstIndex(where: { $0.articleLink == link && $0.blockKey == key }) {
@@ -97,8 +92,6 @@ final class AnnotationStore {
         scheduleSave()
     }
 
-    // MARK: Export
-
     /// The highlights and notes of an article as Markdown, in the order they were made.
     func markdown(forArticle link: String) -> String {
         let items = annotations(forArticle: link).sorted { $0.createdAt < $1.createdAt }
@@ -113,8 +106,6 @@ final class AnnotationStore {
         return lines.joined(separator: "\n")
     }
 
-    // MARK: Saving
-
     private func scheduleSave() {
         saveTask?.cancel()
         let snapshot = annotations
@@ -126,6 +117,14 @@ final class AnnotationStore {
             encoder.dateEncodingStrategy = .iso8601
             if let data = try? encoder.encode(snapshot) { try? data.write(to: url, options: .atomic) }
         }
+    }
+
+    /// Forgets every annotation, in memory and on disk (factory reset).
+    func removeAll() {
+        saveTask?.cancel()
+        annotations = []
+        loaded = true
+        try? FileManager.default.removeItem(at: fileURL)
     }
 
     /// Writes immediately (before quitting, and in tests).

@@ -2,8 +2,6 @@ import Foundation
 
 extension FeedStore {
 
-    // MARK: - Folder Management
-
     @discardableResult
     func addFolder(name: String) -> Folder {
         let folder = Folder(name: name, updatedAt: Date())

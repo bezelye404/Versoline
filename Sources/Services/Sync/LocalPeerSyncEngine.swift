@@ -2,8 +2,6 @@ import Foundation
 import MultipeerConnectivity
 import AppKit
 
-// MARK: - Local Peer Sync Engine (paired devices only, encrypted)
-//
 // Transport for nearby sync. Everything that decides *who may talk* lives in `PeerHandshake`
 // (mutual authentication and pairing, unit-tested without a network). This class only moves bytes:
 //
@@ -76,8 +74,6 @@ final class LocalPeerSyncEngine: NSObject, @unchecked Sendable {
         for token in observers { NSWorkspace.shared.notificationCenter.removeObserver(token) }
     }
 
-    // MARK: - Public API (safe from any thread)
-
     func setHandlers(_ handlers: Handlers) {
         queue.async { self.handlers = handlers }
     }
@@ -128,8 +124,6 @@ final class LocalPeerSyncEngine: NSObject, @unchecked Sendable {
             for event in events { self.send(.event(event), to: [peer], session: session) }
         }
     }
-
-    // MARK: - Lifecycle (on queue)
 
     private func startOnQueue() {
         guard session == nil, let identity = trustStore.identity() else { return }
@@ -183,8 +177,6 @@ final class LocalPeerSyncEngine: NSObject, @unchecked Sendable {
             }
         })
     }
-
-    // MARK: - Links and handshake plumbing (on queue)
 
     private func makeLink(for peer: MCPeerID) -> Link? {
         guard let identity else { return nil }
@@ -292,8 +284,6 @@ final class LocalPeerSyncEngine: NSObject, @unchecked Sendable {
     }
 }
 
-// MARK: - MCSessionDelegate
-
 extension LocalPeerSyncEngine: MCSessionDelegate {
 
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
@@ -324,8 +314,6 @@ extension LocalPeerSyncEngine: MCSessionDelegate {
     func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) {}
 }
 
-// MARK: - MCNearbyServiceAdvertiserDelegate
-
 extension LocalPeerSyncEngine: MCNearbyServiceAdvertiserDelegate {
 
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
@@ -347,8 +335,6 @@ extension LocalPeerSyncEngine: MCNearbyServiceAdvertiserDelegate {
         queue.async { self.log("Nearby advertising failed: \(message)", .error) }
     }
 }
-
-// MARK: - MCNearbyServiceBrowserDelegate
 
 extension LocalPeerSyncEngine: MCNearbyServiceBrowserDelegate {
 

@@ -51,9 +51,8 @@ enum Benchmark {
     /// `benchmark-library.json` in the app's temporary folder (a Release build has its own, possibly empty, library);
     /// otherwise the app's own library is copied.
     static func scratchLibrary() -> URL? {
-        guard let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return nil }
         let provided = FileManager.default.temporaryDirectory.appendingPathComponent("benchmark-library.json")
-        let source = FileManager.default.fileExists(atPath: provided.path) ? provided : support.appendingPathComponent("Versoline/data.json")
+        let source = FileManager.default.fileExists(atPath: provided.path) ? provided : AppInfo.supportDirectory.appendingPathComponent("data.json")
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("VersolineBenchmark-\(UUID().uuidString)", isDirectory: true)
         try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         try? FileManager.default.copyItem(at: source, to: directory.appendingPathComponent("data.json"))

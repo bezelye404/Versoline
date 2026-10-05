@@ -41,5 +41,10 @@ final class ReadingPositions {
         if let data = try? JSONEncoder().encode(entries) { defaults.set(data, forKey: key) }
     }
 
+    func removeAll() {
+        entries = []
+        defaults.removeObject(forKey: key)
+    }
+
     var count: Int { entries.count }
 }

@@ -2,8 +2,6 @@ import Foundation
 
 extension FeedStore {
 
-    // MARK: - Persistence
-
     struct StorageData: Codable {
         let feeds: [Feed]
         let items: [UUID: [FeedItem]]

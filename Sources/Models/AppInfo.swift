@@ -12,6 +12,21 @@ enum AppInfo {
         Bundle.main.bundleIdentifier ?? "com.bezelye.Versoline"
     }
 
+    /// Where everything the app keeps lives: `~/Library/Application Support/Versoline`, inside the app's sandbox
+    /// container. Not created here.
+    static var supportDirectory: URL {
+        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? FileManager.default.temporaryDirectory
+        return base.appendingPathComponent("Versoline", isDirectory: true)
+    }
+
+    /// Feeds, article pages and images are only ever fetched over the web. A feed or OPML file naming a `file:` or
+    /// other address is refused rather than read.
+    static func isWebAddress(_ url: URL) -> Bool {
+        guard let scheme = url.scheme?.lowercased() else { return false }
+        return (scheme == "http" || scheme == "https") && url.host?.isEmpty == false
+    }
+
     static let repositoryURL = URL(string: "https://github.com/bezelye404/Versoline")!
 
     /// Announces the app to the servers it reads feeds from.

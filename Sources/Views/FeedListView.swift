@@ -335,7 +335,7 @@ struct FeedListView: View {
         }
     }
 
-    // MARK: - Keyboard Shortcuts
+    // MARK: Keyboard Shortcuts
 
     @ViewBuilder
     private func keyboardShortcutsBridge(in items: [FeedItem]) -> some View {
@@ -459,7 +459,7 @@ struct FeedListView: View {
         }
     }
 
-    // MARK: - Context Menu
+    // MARK: Context Menu
 
     @ViewBuilder
     private func itemContextMenu(item: FeedItem) -> some View {
@@ -514,8 +514,6 @@ struct FeedListView: View {
             }
         }
     }
-
-    // MARK: - Empty State (Editorial, Minimalist & Calm)
 
     @ViewBuilder
     private func emptyState(for item: SidebarItem) -> some View {
@@ -613,4 +611,4 @@ struct FeedListView: View {
     }
 }
 
-// MARK: - Feed Item Row (Calm, Editorial & GPU Composited)
+// MARK: Feed Item Row

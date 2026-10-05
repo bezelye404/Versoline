@@ -1,7 +1,5 @@
 import SwiftUI
 
-// MARK: - Native reader colours
-//
 // The same palette the web-based reader uses, as SwiftUI colours. `.system` returns nil so the reader follows
 // the app's own appearance instead of painting over it.
 

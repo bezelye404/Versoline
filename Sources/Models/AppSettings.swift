@@ -182,7 +182,7 @@ enum ExternalBrowserOption: String, CaseIterable, Identifiable {
     }
 }
 
-// MARK: - App Color Themes & Surfaces
+// MARK: Color themes
 
 enum AppColorPalette: String, CaseIterable, Identifiable {
     case slate
@@ -394,7 +394,7 @@ enum AppColorPalette: String, CaseIterable, Identifiable {
         listBackground
     }
 
-    // MARK: - Surfaces & Chrome
+    // MARK: Surfaces
     var toolbarBackground: Color {
         windowBackground
     }
@@ -410,7 +410,6 @@ enum AppColorPalette: String, CaseIterable, Identifiable {
         Color.primary.opacity(0.04)
     }
 
-    // MARK: - Badges & Counts
     var badgeBackground: Color {
         Color(nsColor: NSColor(name: nil) { appearance in
             let isDark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
@@ -430,7 +429,6 @@ enum AppColorPalette: String, CaseIterable, Identifiable {
         accentColor
     }
 
-    // MARK: - Status & Media Pigments
     var podcastColor: Color {
         Color(red: 0.52, green: 0.44, blue: 0.70)
     }
@@ -488,5 +486,4 @@ struct AppSettingsKeys {
     static let legacyICloudSyncEnabled = "isSyncEnabled"
     static let isLocalPeerSyncEnabled = "isLocalPeerSyncEnabled"
 }
-
 

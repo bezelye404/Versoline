@@ -29,8 +29,6 @@ enum StoryClusterer {
         var preferredFeeds: Set<UUID> = []
     }
 
-    // MARK: - Words
-
     private static let stopWords: Set<String> = [
         // Turkish
         "ve", "ile", "icin", "bir", "bu", "su", "o", "de", "da", "ki", "mi", "mu", "gibi", "kadar", "daha", "en", "cok",
@@ -83,7 +81,6 @@ enum StoryClusterer {
         return result
     }
 
-    // MARK: - Vectors
     //
     // Words are turned into small integers first: comparing and hashing `Int32`s instead of strings keeps the work
     // (and the memory it leaves behind in the heap) a fraction of what string keys cost.
@@ -117,8 +114,6 @@ enum StoryClusterer {
         var newest: Date
         var numbers: Set<Term>
     }
-
-    // MARK: - Clustering
 
     /// Stories with at least two items, most sources first. `now` is only used to leave out old items.
     static func stories(in items: [FeedItem], now: Date = Date(), settings: Settings = Settings()) -> [Story] {

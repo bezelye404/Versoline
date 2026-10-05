@@ -100,7 +100,7 @@ struct SocialFeedsView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    // MARK: - YouTube Section
+    // MARK: YouTube Section
 
     private var youtubeSection: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -242,7 +242,7 @@ struct SocialFeedsView: View {
         }
     }
 
-    // MARK: - Reddit Section
+    // MARK: Reddit Section
 
     private var redditSection: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -336,7 +336,7 @@ struct SocialFeedsView: View {
         }
     }
 
-    // MARK: - Subreddit Fields
+    // MARK: Subreddit Fields
 
     private var subredditFields: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -415,7 +415,7 @@ struct SocialFeedsView: View {
         }
     }
 
-    // MARK: - User Fields
+    // MARK: User Fields
 
     private var userFields: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -460,8 +460,6 @@ struct SocialFeedsView: View {
             }
         }
     }
-
-    // MARK: - Helpers & Actions
 
     private var currentRedditIdentifier: String {
         redditTarget == .subreddit ? redditSubreddit : redditUsername

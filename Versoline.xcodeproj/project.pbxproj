@@ -111,6 +111,7 @@
 		9D92EE1A81A132CFA2DEF3FE /* aa.html in Resources */ = {isa = PBXBuildFile; fileRef = A5EEC242A0DFB16168D871C7 /* aa.html */; };
 		9FD6C55B66E633256C7A15AA /* bbc.html in Resources */ = {isa = PBXBuildFile; fileRef = 18B9364D3261C29B42A42713 /* bbc.html */; };
 		A0711D6AE9D422077A1BF9B2 /* ExternalLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355A5F060AF5E3202364738E /* ExternalLink.swift */; };
+		A0D7FA5C85380A7664D60F6C /* AppInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 139315C3DB98104904EAA1B6 /* AppInfoTests.swift */; };
 		A5982263D68F95A3478F061F /* FeedStore+Counts.swift in Sources */ = {isa = PBXBuildFile; fileRef = E65BBA4DAB2D05647FBD5668 /* FeedStore+Counts.swift */; };
 		A8296E6D6F46D96EE449B707 /* FeedStore+Feeds.swift in Sources */ = {isa = PBXBuildFile; fileRef = A57F86A88ED909FE6237FCC1 /* FeedStore+Feeds.swift */; };
 		AAE5972461D57F525A4D1BFD /* MiniPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B72BAC0E0E0360E7F984EB69 /* MiniPlayerView.swift */; };
@@ -194,6 +195,7 @@
 		11000F72C3EED34D212CDBEF /* FeedDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedDiscoveryTests.swift; sourceTree = "<group>"; };
 		116DA537996365CE0A61DE90 /* PodcastDownloadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastDownloadService.swift; sourceTree = "<group>"; };
 		1284D4F02E4C4B4953454AAE /* ReaderFindTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderFindTests.swift; sourceTree = "<group>"; };
+		139315C3DB98104904EAA1B6 /* AppInfoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInfoTests.swift; sourceTree = "<group>"; };
 		1429AD471AF8CE73B1886318 /* bianet.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = bianet.html; sourceTree = "<group>"; };
 		15E5F62D8D57E0C3E52776E4 /* AudioPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerService.swift; sourceTree = "<group>"; };
 		171608BFF7A4D1993A076D1E /* HTMLCleanerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLCleanerTests.swift; sourceTree = "<group>"; };
@@ -389,6 +391,7 @@
 			children = (
 				36E1644E21AC31B154AA1699 /* AnnotationTests.swift */,
 				AEEAA2436EA953D6160CADB7 /* AppAnimationTests.swift */,
+				139315C3DB98104904EAA1B6 /* AppInfoTests.swift */,
 				3CE61036D7FF9820011B3794 /* ArticleParserTests.swift */,
 				DF4BA4EE5050D6F747E9F7C6 /* ArticleTranslationTests.swift */,
 				819171CEFA63DFC86DE58D0F /* BionicReadingTests.swift */,
@@ -765,6 +768,7 @@
 			files = (
 				8047230C66E0B041AEA2710D /* AnnotationTests.swift in Sources */,
 				C71B08FC54C1147C3A54C9BF /* AppAnimationTests.swift in Sources */,
+				A0D7FA5C85380A7664D60F6C /* AppInfoTests.swift in Sources */,
 				7A04D66093BD11139791639A /* ArticleParserTests.swift in Sources */,
 				95705F98B990A02D3832BD7E /* ArticleTranslationTests.swift in Sources */,
 				AD9099F8B02EE78E6CD48B4E /* BionicReadingTests.swift in Sources */,

@@ -1,14 +1,12 @@
 import Foundation
 import CryptoKit
 
-// MARK: - Peer Handshake (mutual authentication and device pairing)
-//
 // Nearby sync only talks to devices the user has paired. Two things are enforced here, independent of
 // the transport (MultipeerConnectivity), so they can be tested without a network:
 //
-// 1. Known devices prove they hold the private key they were paired with (signed challenge over
+// Known devices prove they hold the private key they were paired with (signed challenge over
 //    both fresh nonces and both device ids).
-// 2. Unknown devices can only join while *both* users have opened "Pair New Device". Both screens then
+// Unknown devices can only join while *both* users have opened "Pair New Device". Both screens then
 //    show the same 6-digit code and each user confirms it matches. The code is derived from both
 //    identity keys and from nonces exchanged with a commit-reveal step, so a man in the middle
 //    cannot choose keys that make the two codes agree.
@@ -110,8 +108,6 @@ final class PeerHandshake {
         return Data(bytes)
     }
 
-    // MARK: Driving the state machine
-
     /// First message to send once the transport is connected.
     func start() -> HandshakeStep {
         guard case .idle = state else { return HandshakeStep() }
@@ -177,8 +173,6 @@ final class PeerHandshake {
         step.send.insert(.pairDecision(accepted: true), at: 0)
         return step
     }
-
-    // MARK: Steps
 
     private func handleHello(_ hello: PeerHello) -> HandshakeStep {
         guard hello.deviceId != deviceId, hello.nonce.count == 32, hello.publicKey.count == 32 else {
@@ -251,8 +245,6 @@ final class PeerHandshake {
         state = .finished
         return HandshakeStep(event: .failed(reason))
     }
-
-    // MARK: Pure helpers (exposed for tests)
 
     static func commitment(for pairNonce: Data) -> Data {
         Data(SHA256.hash(data: Data("versoline-commit-v1".utf8) + pairNonce))

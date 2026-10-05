@@ -12,8 +12,6 @@ enum ArticleTranslation {
         let text: String
     }
 
-    // MARK: - Language
-
     /// The language the article is written in, or nil when it is not clear (short or mixed text).
     static func detectedLanguage(of document: ArticleDocument, title: String) -> Locale.Language? {
         var sample = title
@@ -41,8 +39,6 @@ enum ArticleTranslation {
     static var targetLanguage: Locale.Language {
         Locale.Language(identifier: Locale.preferredLanguages.first ?? "en")
     }
-
-    // MARK: - Document to pieces and back
 
     /// Text of the title and of every translatable part of the document, in order. Code, rules and images without a
     /// caption have no text to translate.

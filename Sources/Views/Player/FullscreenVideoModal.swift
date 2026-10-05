@@ -23,5 +23,3 @@ struct FullscreenVideoModal: View {
         }
     }
 }
-
-// MARK: - Player HUD Button (Apple HIG Hover Style)
