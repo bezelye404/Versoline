@@ -89,5 +89,3 @@ struct FiltersSettingsTab: View {
         mutedKeywordsRaw = current.joined(separator: ",")
     }
 }
-
-// MARK: - 5. Sync Tab

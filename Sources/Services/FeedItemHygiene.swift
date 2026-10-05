@@ -1,7 +1,5 @@
 import Foundation
 
-// MARK: - Feed item hygiene
-//
 // Some feeds carry entries that are not articles: social "follow us" promos, links to the home page,
 // the same story listed several times, or items with no <link> at all (podcast hosts often identify
 // episodes only by <guid> and the audio file). Without a unique link, items share one identity, which
@@ -67,8 +65,6 @@ enum FeedItemHygiene {
         }
         return components.string ?? link
     }
-
-    // MARK: - Helpers
 
     private static func isWebURL(_ text: String) -> Bool {
         guard let url = URL(string: text), let scheme = url.scheme?.lowercased(), scheme == "http" || scheme == "https" else { return false }

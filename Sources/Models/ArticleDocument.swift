@@ -1,7 +1,5 @@
 import Foundation
 
-// MARK: - Article document
-//
 // A cleaned article as a short list of blocks. The native reader renders these with plain SwiftUI text
 // and images, so reading an article needs no web view (and none of WebKit's extra processes).
 

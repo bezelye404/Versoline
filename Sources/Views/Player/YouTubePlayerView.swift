@@ -1,8 +1,6 @@
 import SwiftUI
 import WebKit
 
-// MARK: - Shared Video Canvas View (Zero-Reload Reparenting via VideoPlayerService)
-
 struct YouTubePlayerView: View {
 
     @Environment(\.appTheme) private var theme
@@ -118,8 +116,6 @@ struct YouTubePlayerView: View {
         }
     }
 
-    // MARK: - Premium Cinema Thumbnail Cover
-
     private var thumbnailCover: some View {
         GeometryReader { geo in
             ZStack {
@@ -142,7 +138,7 @@ struct YouTubePlayerView: View {
                 .scaleEffect(isThumbnailHovered ? 1.03 : 1.0)
                 .animation(AppAnimation.safe(.spring(response: 0.45, dampingFraction: 0.8)), value: isThumbnailHovered)
 
-                // Dark Cinema Gradient
+                // Darkening gradient under the title
                 LinearGradient(
                     colors: [
                         Color.black.opacity(0.35),
@@ -211,5 +207,3 @@ struct YouTubePlayerView: View {
         }
     }
 }
-
-// MARK: - Native Video Player Canvas (SwiftUI Hardware Video & Native Glass HUD)

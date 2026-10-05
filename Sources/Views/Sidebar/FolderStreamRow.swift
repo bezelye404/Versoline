@@ -33,5 +33,3 @@ struct FolderStreamRow: View {
         }
     }
 }
-
-// MARK: - Feed Row

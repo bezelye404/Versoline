@@ -81,7 +81,7 @@ extension FeedStore {
             }
         }
 
-        // Pre-classify feeds into Smart Categories
+        // Classify each feed once, not once per article
         var feedsPerCategory: [SmartCategory: [Feed]] = [:]
         for feed in feeds {
             if let cat = SmartCategoryClassifier.classify(feed: feed) {

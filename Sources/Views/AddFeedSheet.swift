@@ -122,7 +122,7 @@ struct AddFeedSheet: View {
         }
     }
 
-    // MARK: - Custom URL View
+    // MARK: Custom URL View
 
     private var customURLView: some View {
         VStack(spacing: 0) {
@@ -211,7 +211,7 @@ struct AddFeedSheet: View {
         }
     }
 
-    // MARK: - Curated Catalog View
+    // MARK: Curated Catalog View
 
     private var curatedCatalogView: some View {
         VStack(spacing: 0) {
@@ -377,7 +377,7 @@ struct AddFeedSheet: View {
         }
     }
 
-    // MARK: - Row & Chip Components
+    // MARK: Row & Chip Components
 
     private func curatedFeedRow(feed: CuratedFeed, category: String) -> some View {
         let isAlreadyAdded = store.feeds.contains(where: { $0.url == feed.url })
@@ -490,7 +490,7 @@ struct AddFeedSheet: View {
         )
     }
 
-    // MARK: - Actions
+    // MARK: Actions
 
     private func addFeed() {
         guard !feedURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }

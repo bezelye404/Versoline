@@ -25,7 +25,7 @@ final class ContentBlockerService {
             return
         }
 
-        // 1. Check if compiled rules already exist in store cache (instant load)
+        // Check if compiled rules already exist in store cache (instant load)
         if let cached = await lookupRuleList(store: store) {
             self.ruleList = cached
             self.isReady = true
@@ -33,7 +33,7 @@ final class ContentBlockerService {
             return
         }
 
-        // 2. Otherwise compile rule list asynchronously
+        // Otherwise compile rule list asynchronously
         await compileRuleList(store: store)
     }
 
@@ -65,8 +65,6 @@ final class ContentBlockerService {
         }
     }
 }
-
-// MARK: - Curated Lightweight Content Blocking Rules
 
 private enum ContentBlockerRules {
 

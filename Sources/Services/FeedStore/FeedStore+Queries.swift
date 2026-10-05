@@ -2,8 +2,6 @@ import Foundation
 
 extension FeedStore {
 
-    // MARK: - Streams (podcasts, videos, reading time)
-
     func items(for stream: ItemStream) -> [FeedItem] {
         getActiveViewItems(key: stream.cacheKey) {
             items.values.flatMap { $0 }
@@ -15,8 +13,6 @@ extension FeedStore {
     func count(for stream: ItemStream) -> Int {
         cachedStreamCounts[stream, default: 0]
     }
-
-    // MARK: - Smart Categories
 
     func smartCategoryItems(_ category: SmartCategory) -> [FeedItem] {
         getActiveViewItems(key: "smart_\(category.rawValue)") {
@@ -36,8 +32,6 @@ extension FeedStore {
         }
         return smartCategoryItems(category).count
     }
-
-    // MARK: - Reading Statistics
 
     func totalReadCount() -> Int {
         cachedTotalReadCount
@@ -87,8 +81,6 @@ extension FeedStore {
         items[feedId] = feedItems
         save()
     }
-
-    // MARK: - Queries
 
     var totalItemCount: Int {
         cachedTotalItemCount

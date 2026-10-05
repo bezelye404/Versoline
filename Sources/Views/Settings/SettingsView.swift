@@ -56,5 +56,3 @@ struct SettingsView: View {
         .frame(width: 580, height: 510)
     }
 }
-
-// MARK: - 1. General Tab

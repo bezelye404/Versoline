@@ -71,5 +71,3 @@ struct ReaderSettingsTab: View {
         .padding(10)
     }
 }
-
-// MARK: - 3. Shortcuts Tab

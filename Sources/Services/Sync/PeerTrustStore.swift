@@ -2,8 +2,6 @@ import Foundation
 import CryptoKit
 import os
 
-// MARK: - Trusted devices and this device's identity
-//
 // Stored next to the library under `~/Library/Application Support/Versoline` (so a factory reset
 // removes them) with owner-only file permissions. The private key never leaves this Mac.
 
@@ -54,8 +52,6 @@ final class PeerTrustStore: @unchecked Sendable {
     private var identityURL: URL { directory.appendingPathComponent("sync-identity.json") }
     private var peersURL: URL { directory.appendingPathComponent("sync-trusted-devices.json") }
 
-    // MARK: Identity
-
     /// Loads the identity, creating and saving it on first use.
     func identity() -> LocalPeerIdentity? {
         state.withLock { s in
@@ -71,8 +67,6 @@ final class PeerTrustStore: @unchecked Sendable {
             return created
         }
     }
-
-    // MARK: Trusted peers
 
     var peers: [TrustedPeer] {
         state.withLock { s in
@@ -107,8 +101,6 @@ final class PeerTrustStore: @unchecked Sendable {
     func forgetAll() {
         state.withLock { $0 = State() }
     }
-
-    // MARK: Persistence
 
     private func loadIfNeeded(_ s: inout State) {
         guard !s.loaded else { return }

@@ -2,8 +2,6 @@ import Foundation
 import Observation
 import AppKit
 
-// MARK: - Sync Coordinator (nearby sync between paired Macs)
-//
 // Off by default. When enabled the app advertises on the local network, but only talks to devices the
 // user has paired (see `PeerHandshake`). There is no server, no cloud storage and no account.
 //
@@ -41,9 +39,7 @@ final class SyncCoordinator {
     @ObservationIgnored private var engineConfigured = false
 
     private static var storageDirectory: URL {
-        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
-            ?? FileManager.default.temporaryDirectory
-        return base.appendingPathComponent("Versoline", isDirectory: true)
+        AppInfo.supportDirectory
     }
 
     private init() {
@@ -57,8 +53,6 @@ final class SyncCoordinator {
         feedStore = store
         if isEnabled { startEngine() }
     }
-
-    // MARK: - Enabling
 
     func setEnabled(_ enabled: Bool) {
         isEnabled = enabled
@@ -103,8 +97,6 @@ final class SyncCoordinator {
         }
         engine.setHandlers(handlers)
     }
-
-    // MARK: - Pairing
 
     /// Opens a two-minute window in which this Mac accepts a new device. The other Mac must do the same.
     func startPairing() {
@@ -162,8 +154,6 @@ final class SyncCoordinator {
         sendSnapshot(to: peer)
     }
 
-    // MARK: - Outgoing
-
     private func sendSnapshot(to peer: TrustedPeer) {
         guard let store = feedStore else { return }
         var events = store.syncSnapshotEvents()
@@ -219,8 +209,6 @@ final class SyncCoordinator {
         engine.broadcast(.folderDeleted(id: id, deletedAt: date))
     }
 
-    // MARK: - Settings
-
     private func setupSettingsObserver() {
         NotificationCenter.default.addObserver(
             forName: UserDefaults.didChangeNotification, object: nil, queue: .main
@@ -243,8 +231,6 @@ final class SyncCoordinator {
             self.engine.broadcast(.settings(current))
         }
     }
-
-    // MARK: - Incoming
 
     private func handleIncoming(_ event: SyncPeerEvent) {
         guard isEnabled else { return }

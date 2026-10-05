@@ -2,8 +2,6 @@ import Foundation
 
 extension FeedStore {
 
-    // MARK: - Item Management
-
     func markAsRead(_ item: FeedItem, includingStory: Bool = true) {
         guard var feedItems = items[item.feedId],
               let index = feedItems.firstIndex(where: { $0.id == item.id }) else { return }
@@ -107,8 +105,6 @@ extension FeedStore {
 
         save(immediate: false, updateCounts: false)
     }
-
-    // MARK: - Bookmarks
 
     func toggleBookmark(_ item: FeedItem) {
         guard var feedItems = items[item.feedId],

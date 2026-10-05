@@ -1,7 +1,5 @@
 import Foundation
 
-// MARK: - HTML to article blocks
-//
 // Turns article HTML (a feed's content or a fetched page's main content) into `ArticleDocument`.
 // The HTML is parsed into a DOM with Foundation's `XMLDocument` (libxml2, tidy mode), so real nesting is
 // understood instead of regex-matching tags. While walking the tree it drops what is not article text:
@@ -21,7 +19,7 @@ enum ArticleParser {
         return builder.finish(title: title)
     }
 
-    // MARK: - Parsing
+    // MARK: Parsing
 
     fileprivate static func bodyElement(from html: String) -> XMLElement? {
         guard !html.isEmpty,
@@ -64,8 +62,6 @@ enum ArticleParser {
         if let original = element.attribute(forName: "data-tag")?.stringValue { return original.lowercased() }
         return element.name?.lowercased() ?? ""
     }
-
-    // MARK: - Element classes
 
     private static let inlineTags: Set<String> = [
         "a", "abbr", "acronym", "b", "bdi", "bdo", "big", "br", "cite", "code", "data", "del", "dfn", "em", "font", "i",
@@ -111,7 +107,7 @@ enum ArticleParser {
     /// Whole-line labels of buttons and signatures. Matched exactly because they are common words inside real sentences.
     private static let chromeLines: Set<String> = ["kaydet", "paylaş", "yazdır", "yorumlar", "yorum", "reklam", "tweet", "|", "-", "•"]
 
-    // MARK: - Builder
+    // MARK: Builder
 
     fileprivate struct Style {
         var bold = false
@@ -129,8 +125,6 @@ enum ArticleParser {
         static let maxImages = 30
         static let maxTableRows = 60
         static let maxTableColumns = 8
-
-        // MARK: Walking
 
         /// Block-level structure: inline content between block elements becomes an anonymous paragraph.
         mutating func collect(_ nodes: [XMLNode]) {
@@ -242,8 +236,6 @@ enum ArticleParser {
             if isBlock { ArticleParser.appendText(" ", style: style, to: &buffer) }
         }
 
-        // MARK: Blocks
-
         private mutating func emitParagraph(_ buffer: AttributedString) {
             let text = ArticleParser.trimmed(buffer)
             guard !text.characters.isEmpty else { return }
@@ -340,8 +332,6 @@ enum ArticleParser {
         }
     }
 
-    // MARK: - Text helpers
-
     fileprivate static func appendText(_ raw: String, style: Style, to buffer: inout AttributedString) {
         var text = collapse(raw)
         guard !text.isEmpty else { return }
@@ -396,7 +386,7 @@ enum ArticleParser {
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    // MARK: - Page furniture rules
+    // MARK: Page furniture rules
 
     fileprivate static func isDiscarded(_ element: XMLElement, name: String) -> Bool {
         if discardedTags.contains(name) { return true }
@@ -473,7 +463,7 @@ enum ArticleParser {
         return items.count == 1 && words[0] <= 2
     }
 
-    // MARK: - DOM helpers
+    // MARK: DOM helpers
 
     fileprivate static func containsBlock(_ element: XMLElement) -> Bool {
         containsAny(element, of: blockTags)
@@ -588,8 +578,7 @@ extension ArticleParser {
     }
 }
 
-
-// MARK: - Finding the article in a whole page
+// MARK: Finding the article in a whole page
 //
 // Readability-style scoring on the DOM: every paragraph-like block credits its container (fully) and the
 // container's parent (half), weighted by link density and class/id hints; the best container, plus siblings
@@ -709,7 +698,7 @@ extension ArticleParser {
         return textLength >= 250 ? result : nil
     }
 
-    // MARK: - Structured data fallback
+    // MARK: Structured data fallback
 
     private static let jsonLDScript = try? NSRegularExpression(
         pattern: #"<script[^>]*ld\+json[^>]*>([\s\S]*?)</script>"#, options: [.caseInsensitive]

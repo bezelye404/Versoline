@@ -22,7 +22,7 @@ struct VersolineApp: App {
             LegacyMigration.runMigration()
         }
 
-        // Memory optimization: Strict URLCache capacity limits (2MB RAM / 25MB Disk)
+        // Keep the shared URL cache small: 2 MB in memory, 25 MB on disk.
         URLCache.shared = URLCache(
             memoryCapacity: 2 * 1024 * 1024,
             diskCapacity: 25 * 1024 * 1024
@@ -43,7 +43,7 @@ struct VersolineApp: App {
             }
         }
 
-        // Memory optimization: Purge transient RAM caches and flush network/WebKit memory when the app is minimized, hidden or backgrounded
+        // Give memory back when the app goes to the background or is hidden.
         NotificationCenter.default.addObserver(
             forName: NSApplication.willResignActiveNotification,
             object: nil,
@@ -191,8 +191,6 @@ struct VersolineApp: App {
     }
 }
 
-// MARK: - App Design Theme Environment & Tokens
-
 private struct AppThemeKey: EnvironmentKey {
     static let defaultValue: AppColorPalette = .slate
 }
@@ -206,58 +204,55 @@ extension EnvironmentValues {
 
 enum AppTheme {
 
-    // MARK: - Colors (Sade, doymamış renk paleti ve yüzeyler)
     enum Colors {
         private static var currentPalette: AppColorPalette {
             let raw = UserDefaults.standard.string(forKey: AppSettingsKeys.appColorPalette) ?? AppColorPalette.slate.rawValue
             return AppColorPalette(rawValue: raw) ?? .slate
         }
 
-        /// Ana vurgu: Seçili sakin paletin doğal rengi
+        /// Main accent of the selected palette.
         static var accent: Color { currentPalette.accentColor }
 
-        /// Okunmamış göstergesi: Zarif ve net bir nokta
+        /// Unread dot.
         static var unreadDot: Color { currentPalette.unreadDotColor }
 
-        /// Yıldız / Yerimi: Sıcak kehribar / altın tonu
+        /// Bookmark star.
         static var bookmark: Color { currentPalette.bookmarkColor }
 
-        /// Çevrimdışı / İkaz durumu: Sakin sarı/kehribar
+        /// Offline and warning states.
         static var warning: Color { currentPalette.warningColor }
 
-        /// İndirme / Başarılı durum: Doymamış, doğal yeşil
+        /// Downloads and success.
         static var success: Color { currentPalette.successColor }
 
-        /// YouTube göstergesi: Doğal tuğla/koyu kırmızı
+        /// YouTube marker.
         static var youtube: Color { currentPalette.youtubeColor }
 
-        /// Podcast mikro-etiket rengi: Nötr mor/indigo
+        /// Podcast marker.
         static var podcast: Color { currentPalette.podcastColor }
 
-        // MARK: Arka Plan ve Yüzeyler
-        /// Kart hover arka planı: Çok hafif saydam kontrol dolgusu
+        /// Card background on hover.
         static var cardHover: Color { currentPalette.cardHover }
 
-        /// Seçili kart arka planı
+        /// Selected card background.
         static var cardSelected: Color { currentPalette.cardSelected }
 
-        /// Seçili kart kenarlık çizgisi
+        /// Selected card border.
         static var cardSelectedBorder: Color { currentPalette.cardSelectedBorder }
 
-        /// Ultra ince sınır çizgileri (Hairline borders)
+        /// Hairline borders.
         static var hairlineBorder: Color { currentPalette.hairlineBorder }
         static var subtleBorder: Color { currentPalette.hairlineBorder }
 
-        /// Hap ve sayaç dolguları
+        /// Pills and counters.
         static var badgeBackground: Color { currentPalette.badgeBackground }
         static var badgeText: Color { currentPalette.badgeText }
 
-        /// Aktif sayaç rozeti dolgusu
+        /// Counter of the active row.
         static var activeBadgeBackground: Color { currentPalette.activeBadgeBackground }
         static var activeBadgeText: Color { currentPalette.activeBadgeText }
     }
 
-    // MARK: - Radius & Spacing Tokens
     enum Metrics {
         static let cardCornerRadius: CGFloat = 9
         static let pillCornerRadius: CGFloat = 20
@@ -266,10 +261,8 @@ enum AppTheme {
     }
 }
 
-// MARK: - Dokunsal Haptik Geri Bildirim (AppKit Haptics)
-
 enum AppHaptics {
-    /// Hafif seçim tıklaması (okundu, yıldız, sekme değiştirme)
+    /// Light tap for marking read, starring and switching tabs.
     @MainActor
     static func tap() {
         NSHapticFeedbackManager.defaultPerformer.perform(
@@ -278,7 +271,7 @@ enum AppHaptics {
         )
     }
 
-    /// Seçim değişikliği bildirimi
+    /// Selection change.
     @MainActor
     static func selection() {
         NSHapticFeedbackManager.defaultPerformer.perform(
@@ -287,7 +280,7 @@ enum AppHaptics {
         )
     }
 
-    /// Onay / İşlem tamamlandı tıklaması
+    /// Confirmation of a finished action.
     @MainActor
     static func notifySuccess() {
         NSHapticFeedbackManager.defaultPerformer.perform(
@@ -296,14 +289,12 @@ enum AppHaptics {
         )
     }
 
-    /// Genel bildirim tıklaması
+    /// General notification.
     @MainActor
     static func notification() {
         notifySuccess()
     }
 }
-
-// MARK: - Animasyon Motoru (Apple HIG Motion & GPU-Composited Guidelines)
 
 @MainActor
 enum AppAnimation {
@@ -311,51 +302,51 @@ enum AppAnimation {
     // springs and bounces with a short fade). Call sites need no extra handling; use `safe(_:)`
     // for one-off animations that are not one of these tokens.
 
-    /// Hızlı ve hassas yay: Liste güncellemeleri, segment değişimleri (0.22s)
+    /// List updates and segmented controls.
     static var snappy: Animation { safe(.snappy(duration: 0.22, extraBounce: 0.05)) }
 
-    /// Hafif mikro-etkileşim yayı: Yıldızlama, okundu ikonu, sayaç balonu (0.24s)
+    /// Starring, the read icon and counters.
     static var bouncy: Animation { safe(.bouncy(duration: 0.24, extraBounce: 0.10)) }
 
-    /// Akıcı kayan kapsül yayı: Okuma modu switch'i ve seçim kapsülü (0.26s)
+    /// The reading mode switch and selection capsule.
     static var slidingPill: Animation { safe(.spring(response: 0.26, dampingFraction: 0.78)) }
 
-    /// Etkileşimli buton/seçim yayı (0.22s)
+    /// Buttons and selection while dragging.
     static var interactiveSpring: Animation { safe(.interactiveSpring(response: 0.22, dampingFraction: 0.80)) }
 
-    /// Kart tıklama/dokunma tepkisi: Basılma hissi (0.15s)
+    /// Pressing a card.
     static var cardPress: Animation { safe(.interactiveSpring(response: 0.15, dampingFraction: 0.75)) }
 
-    /// Pürüzsüz sayfa ve modal açılış yayı (0.26s)
+    /// Pages and sheets appearing.
     static var pageReveal: Animation { safe(.spring(response: 0.26, dampingFraction: 0.85)) }
 
-    /// Hızlı, ipeksi ve keskin makale içerik geçiş yayı (0.20s, Apple HIG uyumlu, sıçramasız)
+    /// Switching between articles; no bounce.
     static var articleTransition: Animation { safe(.spring(response: 0.20, dampingFraction: 0.90)) }
 
-    /// Klasör akordeon açılma yayı (0.24s)
+    /// Folders expanding.
     static var accordion: Animation { safe(.spring(response: 0.24, dampingFraction: 0.82)) }
 
-    /// Pürüzsüz hover geçişi (0.12s)
+    /// Hover changes.
     static var hover: Animation { safe(.easeInOut(duration: 0.12)) }
 
-    /// Hızlı durum değişimi için easeOut (0.14s)
+    /// Quick state changes.
     static var quickFeedback: Animation { safe(.easeOut(duration: 0.14)) }
 
-    /// Erişilebilirlik (Reduce Motion) aktifken kullanılacak sade fade geçişi
+    /// The short fade used when Reduce Motion is on.
     static let reduced = Animation.easeInOut(duration: 0.14)
 
-    /// Reduce Motion durumuna göre uygun animasyonu döndürür
+    /// The animation itself, or the short fade when Reduce Motion is on.
     static func motion(_ animation: Animation, reduceMotion: Bool) -> Animation {
         reduceMotion ? reduced : animation
     }
 
-    /// Sistem "Reduce Motion" ayarına göre animasyonu sadeleştirir. Token olmayan tek seferlik
-    /// animasyonlar için kullanın: `withAnimation(AppAnimation.safe(.spring(...)))`.
+    /// Follows the system Reduce Motion setting; for one-off animations that are not a token above:
+    /// `withAnimation(AppAnimation.safe(.spring(...)))`.
     static func safe(_ animation: Animation) -> Animation {
         motion(animation, reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion)
     }
 
-    /// Liste elemanlarının basamaklı belirmesi için gecikme (maksimum 0.15s)
+    /// Delay for rows appearing one after another, at most 0.15 s.
     static func stagger(index: Int) -> Double {
         min(Double(index) * 0.015, 0.15)
     }

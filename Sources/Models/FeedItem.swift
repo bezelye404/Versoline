@@ -13,7 +13,7 @@ struct FeedItem: Codable, Identifiable, Hashable, Sendable {
     var isBookmarked: Bool
     var category: String?
 
-    // Memory optimization: snippet routes directly to itemDescription to eliminate duplicate heap allocations
+    // `snippet` is another name for `itemDescription`, so the text is stored once.
     var snippet: String {
         get { itemDescription }
         set { itemDescription = newValue }
@@ -75,8 +75,6 @@ struct FeedItem: Codable, Identifiable, Hashable, Sendable {
         return min(max(playbackPosition / totalSecs, 0.0), 1.0)
     }
 
-    // MARK: - YouTube Video Metadata (Computed / 0 Byte Overhead)
-
     var youtubeVideoID: String? {
         guard let url = URL(string: link), let host = url.host?.lowercased() else { return nil }
         if host.contains("youtube.com") {
@@ -108,8 +106,6 @@ struct FeedItem: Codable, Identifiable, Hashable, Sendable {
         guard let id = youtubeVideoID else { return nil }
         return URL(string: "https://img.youtube.com/vi/\(id)/hqdefault.jpg")
     }
-
-    // MARK: - Smart Streams Categorization (0 Byte Memory Overhead)
 
     /// Reading time in minutes. Prefers the value computed at ingest from the full article body
     /// (`readingMinutes`), because the body itself is not kept on the item and `itemDescription`
@@ -242,7 +238,7 @@ struct FeedItem: Codable, Identifiable, Hashable, Sendable {
         self.readingMinutes = readingMinutes
     }
 
-    // Backward-compatible decoding and optimized single-field encoding
+    // Decoding accepts older files; `snippet` is not written because it equals `itemDescription`.
     enum CodingKeys: String, CodingKey {
         case id, feedId, title, link, itemDescription, pubDate, author, isRead, content, isBookmarked, snippet, category
         case audioURL, audioDuration, audioType, audioLength, playbackPosition, isFinished, readingMinutes
@@ -289,7 +285,7 @@ struct FeedItem: Codable, Identifiable, Hashable, Sendable {
         try container.encodeIfPresent(content, forKey: .content)
         try container.encode(isBookmarked, forKey: .isBookmarked)
         try container.encodeIfPresent(category, forKey: .category)
-        // snippet is omitted from encoding: saves ~35% JSON disk space and avoids redundant heap strings
+        // `snippet` is left out: it is the same text as `itemDescription`.
         try container.encodeIfPresent(audioURL, forKey: .audioURL)
         try container.encodeIfPresent(audioDuration, forKey: .audioDuration)
         try container.encodeIfPresent(audioType, forKey: .audioType)

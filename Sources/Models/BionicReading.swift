@@ -1,7 +1,5 @@
 import Foundation
 
-// MARK: - Bionic reading for native text
-//
 // Bolds the first letters of every word so the eye can skim. Works on AttributedString so links and code
 // keep their look; the HTML formatter in WebView.swift stays for the web-based reader.
 

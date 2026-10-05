@@ -34,7 +34,6 @@ struct ContentView: View {
         AppColorPalette(rawValue: appColorPaletteRaw) ?? .slate
     }
 
-
     var body: some View {
         VStack(spacing: 0) {
             if LegacyMigration.shared.showImportNotification {
@@ -292,7 +291,7 @@ struct ContentView: View {
         }
     }
 
-    // MARK: - Focus mode and command palette
+    // MARK: Focus mode and command palette
 
     private func toggleFocusMode() {
         withAnimation(AppAnimation.pageReveal) {
@@ -329,8 +328,6 @@ struct ContentView: View {
         }
     }
 
-    // MARK: - OPML Import
-
     private func importOPML() {
         let panel = NSOpenPanel()
         panel.title = String(localized: "Select OPML File")
@@ -352,8 +349,6 @@ struct ContentView: View {
             }
         }
     }
-
-    // MARK: - Links and files from other apps
 
     private func openExternal(_ url: URL) {
         switch ExternalLink.kind(of: url) {
@@ -380,7 +375,7 @@ struct ContentView: View {
         }
     }
 
-    // MARK: - Backup
+    // MARK: Backup
 
     private func exportBackup() {
         let panel = NSSavePanel()
@@ -429,8 +424,6 @@ struct ContentView: View {
         selectedSidebarItem = .unread
     }
 
-    // MARK: - Old unread articles
-
     private func confirmMarkOlderAsRead(days: Int) {
         let count = store.unreadItems(olderThanDays: days).count
         let alert = NSAlert()
@@ -448,8 +441,6 @@ struct ContentView: View {
         guard alert.runModal() == .alertFirstButtonReturn else { return }
         store.markOlderThanAsRead(days: days)
     }
-
-    // MARK: - OPML Export
 
     private func exportOPML() {
         let panel = NSSavePanel()

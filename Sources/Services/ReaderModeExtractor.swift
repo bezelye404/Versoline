@@ -24,8 +24,7 @@ final class ReaderModeExtractor {
         if let cacheDirectory {
             cacheDir = cacheDirectory
         } else {
-            let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            cacheDir = appSupport.appendingPathComponent("Versoline/ReaderCache_v4", isDirectory: true)
+            cacheDir = AppInfo.supportDirectory.appendingPathComponent("ReaderCache_v4", isDirectory: true)
         }
         try? FileManager.default.createDirectory(at: cacheDir, withIntermediateDirectories: true)
         self.cacheDirectory = cacheDir
@@ -67,8 +66,6 @@ final class ReaderModeExtractor {
         }
     }
 
-    // MARK: - Cache Helpers
-
     private func cacheKey(for urlString: String) -> String {
         let inputData = Data(urlString.utf8)
         let hash = SHA256.hash(data: inputData)
@@ -79,8 +76,6 @@ final class ReaderModeExtractor {
         let key = cacheKey(for: urlString)
         return cacheDirectory.appendingPathComponent("\(key).html")
     }
-
-    // MARK: - Substantive Content Validation
 
     func isSubstantiveContent(_ html: String) -> Bool {
         let stripped = html.strippingHTML().trimmingCharacters(in: .whitespacesAndNewlines)
@@ -129,8 +124,6 @@ final class ReaderModeExtractor {
         }
     }
 
-    // MARK: - Extraction
-
     func formatFeedContentAsReaderHTML(
         title: String,
         author: String?,
@@ -140,7 +133,7 @@ final class ReaderModeExtractor {
         feedTitle: String? = nil,
         includeHeader: Bool = true
     ) -> String {
-        // 1. Strip out advertisements, tracking banners, and repetitive noise
+        // Strip out advertisements, tracking banners, and repetitive noise
         var cleaned = htmlContent
             .strippingAdsAndBanners()
             .cleaningRSSBoilerplate()
@@ -148,19 +141,19 @@ final class ReaderModeExtractor {
         // Optimize all images with loading="lazy" and decoding="async" to prevent offscreen memory bloat
         cleaned = Self.optimizeImagesForLowMemory(cleaned)
 
-        // 2. Clean out duplicate leading <h1> or <h2> matching the title
+        // Clean out duplicate leading <h1> or <h2> matching the title
         if let firstH1Range = cleaned.range(of: #"^\s*<h1[^>]*>[\s\S]*?</h1>"#, options: [.regularExpression, .caseInsensitive]) {
             cleaned.removeSubrange(firstH1Range)
         }
 
-        // 3. Clean out leading banner ads (e.g. standalone ad images before content)
+        // Clean out leading banner ads (e.g. standalone ad images before content)
         cleaned = cleaned.replacingOccurrences(
             of: #"^\s*(?:<(?:p|div)[^>]*>\s*)?<a[^>]*>(?:<img[^>]*banner[^>]*>|<img[^>]*reklam[^>]*>|<img[^>]*ad[^>]*>)</a>(?:\s*</(?:p|div)>)?"#,
             with: "",
             options: [.regularExpression, .caseInsensitive]
         )
 
-        // 4. Build integrated editorial header that scrolls naturally with article
+        // Build integrated editorial header that scrolls naturally with article
         var headerHTML = ""
         if includeHeader {
             let plainWordCount = cleaned.strippingHTML().split(whereSeparator: { $0.isWhitespace }).count
@@ -204,12 +197,12 @@ final class ReaderModeExtractor {
         pubDate: Date? = nil,
         forceWebFetch: Bool = false
     ) async -> String? {
-        // 1. Check memory or disk cache first (offline support) if not force-reloading
+        // Check memory or disk cache first (offline support) if not force-reloading
         if !forceWebFetch, let cached = cachedContent(for: urlString, requireSubstantive: true) {
             return cached
         }
 
-        // 2. Direct format for Reddit or YouTube
+        // Direct format for Reddit or YouTube
         let isReddit = urlString.lowercased().contains("reddit.com")
         let isYouTube = urlString.lowercased().contains("youtube.com") || urlString.lowercased().contains("youtu.be")
 
@@ -226,7 +219,7 @@ final class ReaderModeExtractor {
             return formatted
         }
 
-        guard let url = URL(string: urlString) else {
+        guard let url = URL(string: urlString), AppInfo.isWebAddress(url) else {
             if let fallbackContent, !fallbackContent.isEmpty {
                 return formatFeedContentAsReaderHTML(title: title ?? "", author: author, pubDate: pubDate, htmlContent: fallbackContent, link: urlString, includeHeader: true)
             }
@@ -268,7 +261,7 @@ final class ReaderModeExtractor {
             AppLogger.shared.log("Reader mode web extraction error: \(error.localizedDescription)", level: .warning, category: .network, details: urlString)
         }
 
-        // 3. Fallback to feed content if web extraction failed
+        // Fallback to feed content if web extraction failed
         if let fallbackContent, !fallbackContent.isEmpty {
             let formatted = formatFeedContentAsReaderHTML(
                 title: title ?? "",
@@ -282,8 +275,6 @@ final class ReaderModeExtractor {
 
         return nil
     }
-
-    // MARK: - Low-Memory Image Optimization (Lazy Loading + Async Decoding + Tracking Pixel Stripping)
 
     private static let trackingPixelRegex = try? NSRegularExpression(
         pattern: #"(?i)<img[^>]*(?:width=["'](?:0|1)["'][^>]*height=["'](?:0|1)["']|height=["'](?:0|1)["'][^>]*width=["'](?:0|1)["'])[^>]*>"#,
@@ -305,19 +296,19 @@ final class ReaderModeExtractor {
 
         var result = html
 
-        // 1. Strip 1x1 tracking pixels/beacons
+        // Strip 1x1 tracking pixels/beacons
         if let pixelRegex = trackingPixelRegex {
             let ns = result as NSString
             result = pixelRegex.stringByReplacingMatches(in: result, options: [], range: NSRange(location: 0, length: ns.length), withTemplate: "")
         }
 
-        // 2. Inject loading="lazy" to all <img> tags that lack it
+        // Inject loading="lazy" to all <img> tags that lack it
         if let lazyRegex = missingLazyImgRegex {
             let ns = result as NSString
             result = lazyRegex.stringByReplacingMatches(in: result, options: [], range: NSRange(location: 0, length: ns.length), withTemplate: #"$1 loading="lazy"$2"#)
         }
 
-        // 3. Inject decoding="async" to all <img> tags that lack it
+        // Inject decoding="async" to all <img> tags that lack it
         if let asyncRegex = missingAsyncDecodeRegex {
             let ns = result as NSString
             result = asyncRegex.stringByReplacingMatches(in: result, options: [], range: NSRange(location: 0, length: ns.length), withTemplate: #"$1 decoding="async"$2"#)
@@ -325,8 +316,6 @@ final class ReaderModeExtractor {
 
         return result
     }
-
-    // MARK: - Cache Management & Quota Enforcement
 
     var diskCacheSizeBytes: Int64 {
         let fm = FileManager.default

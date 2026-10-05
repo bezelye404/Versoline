@@ -1,7 +1,5 @@
 import SwiftUI
 
-// MARK: - Menu bar commands
-//
 // Rarely used actions live in the menu bar (where macOS users expect them) instead of crowding the
 // window toolbar. The focused window publishes what the commands can do through `AppActions`.
 

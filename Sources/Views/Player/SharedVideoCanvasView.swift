@@ -21,5 +21,3 @@ struct SharedVideoCanvasView: NSViewRepresentable {
         VideoPlayerService.shared.detachIfAttached(to: nsView)
     }
 }
-
-// MARK: - Main YouTube Custom Player View
