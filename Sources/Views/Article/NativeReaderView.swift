@@ -199,6 +199,26 @@ struct NativeReaderView: View {
                 }
             }
 
+        case .table(let rows, let hasHeader):
+            ScrollView(.horizontal, showsIndicators: false) {
+                Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 0) {
+                    ForEach(Array(rows.enumerated()), id: \.offset) { rowIndex, row in
+                        GridRow {
+                            ForEach(Array(row.enumerated()), id: \.offset) { _, cell in
+                                Text(marked(cell))
+                                    .font(bodyFont(scale: 0.92, weight: hasHeader && rowIndex == 0 ? .semibold : .regular))
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .frame(maxWidth: 260, alignment: .leading)
+                                    .padding(.vertical, 6)
+                            }
+                        }
+                        .background(hasHeader && rowIndex == 0 ? textColor.opacity(0.07) : (rowIndex % 2 == 1 ? textColor.opacity(0.03) : .clear))
+                    }
+                }
+                .padding(.horizontal, 10)
+            }
+            .background(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(textColor.opacity(0.12), lineWidth: 1))
+
         case .code(let code):
             ScrollView(.horizontal, showsIndicators: false) {
                 Text(code)

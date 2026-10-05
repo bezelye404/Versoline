@@ -17,6 +17,7 @@ enum ReaderFind {
         switch block {
         case .heading(_, let text), .paragraph(let text), .quote(let text): return [String(text.characters)]
         case .list(_, let items): return items.map { String($0.characters) }
+        case .table(let rows, _): return rows.flatMap { $0.map { String($0.characters) } }
         case .image(_, _, let caption): return caption.map { [$0] } ?? []
         case .code, .rule: return []
         }

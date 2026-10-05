@@ -12,6 +12,7 @@ enum ArticleBlock: Equatable, Sendable {
     case list(ordered: Bool, items: [AttributedString])
     case code(String)
     case image(url: URL, alt: String, caption: String?)
+    case table(rows: [[AttributedString]], hasHeader: Bool)
     case rule
 
     /// Visible text of a text-bearing block, empty for images and rules.
@@ -23,6 +24,8 @@ enum ArticleBlock: Equatable, Sendable {
             return items.map { String($0.characters) }.joined(separator: "\n")
         case .code(let code):
             return code
+        case .table(let rows, _):
+            return rows.map { $0.map { String($0.characters) }.joined(separator: "\t") }.joined(separator: "\n")
         case .image, .rule:
             return ""
         }
@@ -34,7 +37,7 @@ extension ArticleBlock {
     /// It is a hash of the text, so it survives reloading the article but not an edit of the text by the publisher.
     var annotationKey: String? {
         switch self {
-        case .heading, .paragraph, .quote, .list:
+        case .heading, .paragraph, .quote, .list, .table:
             let text = plainText.trimmingCharacters(in: .whitespacesAndNewlines)
             guard text.count >= 3 else { return nil }
             return Self.fnv1a(text)

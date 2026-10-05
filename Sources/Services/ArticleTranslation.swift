@@ -61,6 +61,8 @@ enum ArticleTranslation {
                 append(String(text.characters))
             case .list(_, let items):
                 for item in items { append(String(item.characters)) }
+            case .table(let rows, _):
+                for row in rows { for cell in row { append(String(cell.characters)) } }
             case .image(_, _, let caption):
                 if let caption { append(caption) }
             case .code, .rule:
@@ -89,6 +91,7 @@ enum ArticleTranslation {
             case .paragraph(let text): blocks.append(.paragraph(replaced(text)))
             case .quote(let text): blocks.append(.quote(replaced(text)))
             case .list(let ordered, let items): blocks.append(.list(ordered: ordered, items: items.map { replaced($0) }))
+            case .table(let rows, let hasHeader): blocks.append(.table(rows: rows.map { row in row.map { replaced($0) } }, hasHeader: hasHeader))
             case .image(let url, let alt, let caption):
                 if let caption {
                     let id = next()

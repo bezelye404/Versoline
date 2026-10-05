@@ -127,6 +127,8 @@ enum ArticleParser {
 
         static let maxBlocks = 800
         static let maxImages = 30
+        static let maxTableRows = 60
+        static let maxTableColumns = 8
 
         // MARK: Walking
 
@@ -283,15 +285,24 @@ enum ArticleParser {
                 collect(table.children ?? [])
                 return
             }
-            var rows = 0
-            for row in ArticleParser.descendants(of: table, named: "tr") where rows < 40 {
-                let cells = ((row.children ?? []).compactMap { $0 as? XMLElement })
+            var rows: [[AttributedString]] = []
+            var hasHeader = false
+            for row in ArticleParser.descendants(of: table, named: "tr") where rows.count < Builder.maxTableRows {
+                let cellElements = ((row.children ?? []).compactMap { $0 as? XMLElement })
                     .filter { ["td", "th"].contains(ArticleParser.name(of: $0)) }
-                    .map { String(ArticleParser.trimmed(inlineText(of: $0)).characters) }
-                    .filter { !$0.isEmpty }
-                guard !cells.isEmpty else { continue }
-                blocks.append(.paragraph(AttributedString(cells.joined(separator: " · "))))
-                rows += 1
+                let cells = cellElements.prefix(Builder.maxTableColumns).map { ArticleParser.trimmed(inlineText(of: $0)) }
+                guard cells.contains(where: { !$0.characters.isEmpty }) else { continue }
+                if rows.isEmpty, cellElements.allSatisfy({ ArticleParser.name(of: $0) == "th" }) { hasHeader = true }
+                rows.append(Array(cells))
+            }
+            guard !rows.isEmpty else { return }
+            // A single row or column is a list of values, not a table.
+            if rows.count == 1 || rows.allSatisfy({ $0.count == 1 }) {
+                for row in rows { for cell in row where !cell.characters.isEmpty { blocks.append(.paragraph(cell)) } }
+            } else {
+                // Short rows are padded so the grid lines up.
+                let width = rows.map(\.count).max() ?? 0
+                blocks.append(.table(rows: rows.map { $0 + Array(repeating: AttributedString(), count: width - $0.count) }, hasHeader: hasHeader))
             }
         }
 
@@ -557,6 +568,8 @@ private extension ArticleBlock {
             return ArticleParser.joinedItems(items)
         case .code(let code):
             return AttributedString(code)
+        case .table(let rows, _):
+            return ArticleParser.joinedItems(rows.map { row in row.reduce(into: AttributedString()) { $0 += ($0.characters.isEmpty ? AttributedString() : AttributedString(" · ")) + $1 } })
         case .image, .rule:
             return AttributedString()
         }

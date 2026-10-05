@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Motion:** SF Symbol bounce on bookmark and read toggles and numeric transitions, both disabled under Reduce Motion.
 
 ### Reader
+- **Tables** in articles are shown as tables (header row, striped rows, scrolling sideways when wide) instead of one line per row. They are translated cell by cell, searched by Find in Article, and a table with a single row or column still becomes plain paragraphs.
 - **Continue where you left off:** a long article reopens at the paragraph you had reached (the last few hundred articles are remembered, locally; an article read to the end or left near the top is forgotten).
 - **Find in Article** (⌥⌘F, or the command palette): a small find bar tints every match in the reader and steps from paragraph to paragraph; case, accents and the Turkish dotless i do not matter.
 - **Better article extraction:** the page is parsed as a DOM and scored like Readability (paragraph density, link density, class and id hints, JSON-LD `articleBody` as a fallback) instead of regex-matching the biggest `<article>`. Content that Next.js streams inside hidden placeholders is now recognised, and "Fetch Full Article" says so when a page yields nothing instead of doing nothing.

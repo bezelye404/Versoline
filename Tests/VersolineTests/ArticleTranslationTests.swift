@@ -15,17 +15,18 @@ struct ArticleTranslationTests {
             .quote(AttributedString("A quote")),
             .rule,
             .paragraph(AttributedString("   ")),
+            .table(rows: [[AttributedString("Team"), AttributedString("Score")], [AttributedString("Galatasaray"), AttributedString("2")]], hasHeader: true),
         ])
     }
 
     @Test func piecesFollowTheDocumentAndSkipCodeRulesAndEmptyText() {
         let pieces = ArticleTranslation.pieces(of: document(), title: "The title")
-        #expect(pieces.map(\.text) == ["The title", "A heading", "First paragraph.", "A caption", "one", "two", "A quote"])
-        #expect(pieces.map(\.id) == [0, 1, 2, 3, 4, 5, 6])   // code and rules take no id; empty text does, and is left out
+        #expect(pieces.map(\.text) == ["The title", "A heading", "First paragraph.", "A caption", "one", "two", "A quote", "Team", "Score", "Galatasaray", "2"])
+        #expect(pieces.map(\.id) == [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11])   // code and rules take no id; empty text does, and is left out
     }
 
     @Test func rebuildPutsTranslationsInPlaceAndKeepsEverythingElse() {
-        let translations: [Int: String] = [0: "Başlık", 1: "Bir başlık", 2: "İlk paragraf.", 3: "Bir alt yazı", 4: "bir", 5: "iki", 6: "Bir alıntı"]
+        let translations: [Int: String] = [0: "Başlık", 1: "Bir başlık", 2: "İlk paragraf.", 3: "Bir alt yazı", 4: "bir", 5: "iki", 6: "Bir alıntı", 8: "Takım", 9: "Skor", 10: "Galatasaray", 11: "2"]
         let rebuilt = ArticleTranslation.rebuild(document(), with: translations)
         #expect(rebuilt.blocks.count == document().blocks.count)
         #expect(rebuilt.blocks[0].plainText == "Bir başlık")
@@ -36,6 +37,7 @@ struct ArticleTranslationTests {
         #expect(rebuilt.blocks[5].plainText == "bir\niki")
         #expect(rebuilt.blocks[6].plainText == "Bir alıntı")
         #expect(rebuilt.blocks[7] == .rule)
+        #expect(rebuilt.blocks[9].plainText == "Takım\tSkor\nGalatasaray\t2")
     }
 
     @Test func missingTranslationsKeepTheOriginalText() {

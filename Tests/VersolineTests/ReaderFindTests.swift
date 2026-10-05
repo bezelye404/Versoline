@@ -12,6 +12,7 @@ struct ReaderFindTests {
             .list(ordered: false, items: [AttributedString("Birinci madde"), AttributedString("ŞAMPİYON olmak")]),
             .image(url: URL(string: "https://example.com/a.jpg")!, alt: "", caption: "Şampiyon takım"),
             .paragraph(AttributedString("Hiçbir ilgisi yok.")),
+            .table(rows: [[AttributedString("Takım"), AttributedString("Durum")], [AttributedString("Galatasaray"), AttributedString("Şampiyon")]], hasHeader: true),
         ])
     }
 
@@ -22,11 +23,12 @@ struct ReaderFindTests {
             ReaderFind.Match(block: 1, count: 2),
             ReaderFind.Match(block: 3, count: 1),
             ReaderFind.Match(block: 4, count: 1),
+            ReaderFind.Match(block: 6, count: 1),
         ])
     }
 
     @Test func caseAccentsAndTheTurkishDotlessIDoNotMatter() {
-        #expect(ReaderFind.matches(in: document(), query: "SAMPIYON").count == 4)
+        #expect(ReaderFind.matches(in: document(), query: "SAMPIYON").count == 5)
         #expect(ReaderFind.matches(in: document(), query: "istanbul").map(\.block) == [1])
         #expect(ReaderFind.matches(in: document(), query: "ISTANBUL").map(\.block) == [1])
     }
