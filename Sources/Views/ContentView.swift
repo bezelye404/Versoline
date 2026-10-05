@@ -19,6 +19,7 @@ struct ContentView: View {
     @State private var newFolderName = ""
     @State private var showFolderManagement = false
     @AppStorage(AppSettingsKeys.isCompactListMode) private var isCompactListMode = false
+    @AppStorage(AppSettingsKeys.showDockBadge) private var showDockBadge = false
     @AppStorage(AppSettingsKeys.appColorPalette) private var appColorPaletteRaw = AppColorPalette.slate.rawValue
 
     private var detailShowsPlayingEpisode: Bool {
@@ -258,6 +259,9 @@ struct ContentView: View {
         // Refreshes only while the app is in front: once when it becomes active (the store throttles to
         // every 15 minutes) and then every 30 minutes. `task(id:)` cancels the loop when the app is
         // deactivated or hidden, so nothing polls in the background.
+        .task(id: DockBadgeState(count: store.totalUnreadCount(), enabled: showDockBadge)) {
+            DockBadge.update(unreadCount: store.totalUnreadCount(), enabled: showDockBadge)
+        }
         .task {
             guard Benchmark.isRequested else { return }
             await Benchmark.run(store: store) { item, list, article in
@@ -422,6 +426,11 @@ struct ContentView: View {
             store.errorMessage = String(format: String(localized: "Error saving OPML file: %@"), error.localizedDescription)
         }
     }
+}
+
+private struct DockBadgeState: Hashable {
+    let count: Int
+    let enabled: Bool
 }
 
 private struct WindowThemeBridge: NSViewRepresentable {

@@ -707,3 +707,5 @@
 "Translate from %@" = "Translate from %@";
 "Translate this article on your Mac" = "Translate this article on your Mac";
 "Translated from %@" = "Translated from %@";
+"Show Unread Count on the Dock Icon" = "Show Unread Count on the Dock Icon";
+"A badge with the number of unread articles. It updates while the app is open; nothing runs in the background." = "A badge with the number of unread articles. It updates while the app is open; nothing runs in the background.";
