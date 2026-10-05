@@ -1,6 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
-import CoreSpotlight
+@preconcurrency import CoreSpotlight
 
 @MainActor
 struct ContentView: View {
@@ -271,6 +271,7 @@ struct ContentView: View {
         .task(id: DockBadgeState(count: store.totalUnreadCount(), enabled: showDockBadge)) {
             DockBadge.update(unreadCount: store.totalUnreadCount(), enabled: showDockBadge)
         }
+        .task { FeedStore.current = store }
         .task {
             guard Benchmark.isRequested else { return }
             await Benchmark.run(store: store) { item, list, article in

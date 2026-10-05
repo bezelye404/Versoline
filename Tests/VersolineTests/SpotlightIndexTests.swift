@@ -1,6 +1,6 @@
 import Testing
 import Foundation
-import CoreSpotlight
+@preconcurrency import CoreSpotlight
 @testable import Versoline
 
 struct SpotlightIndexTests {
