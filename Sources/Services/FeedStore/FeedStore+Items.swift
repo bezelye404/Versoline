@@ -4,7 +4,7 @@ extension FeedStore {
 
     // MARK: - Item Management
 
-    func markAsRead(_ item: FeedItem) {
+    func markAsRead(_ item: FeedItem, includingStory: Bool = true) {
         guard var feedItems = items[item.feedId],
               let index = feedItems.firstIndex(where: { $0.id == item.id }) else { return }
 
@@ -22,6 +22,7 @@ extension FeedStore {
 
         save(immediate: false, updateCounts: false)
         SyncCoordinator.shared.notifyReadArticles(links: [item.link])
+        if includingStory { markStoryAsRead(of: item) }
     }
 
     func markAllAsRead(feedId: UUID) {

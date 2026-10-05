@@ -664,3 +664,11 @@
 "Keyboard" = "Keyboard";
 
 "No RSS or Atom feed was found at this address." = "No RSS or Atom feed was found at this address.";
+"Top Stories" = "Top Stories";
+"No Top Stories" = "No Top Stories";
+"Stories told by three or more of your feeds in the last day will appear here." = "Stories told by three or more of your feeds in the last day will appear here.";
+"%d sources" = "%d sources";
+"Same Story" = "Same Story";
+"Same story in %d other feeds" = "Same story in %d other feeds";
+"Group the Same Story" = "Group the Same Story";
+"Shows one row when several of your feeds report the same news, with the other sources one tap away. Reading it marks the other versions as read." = "Shows one row when several of your feeds report the same news, with the other sources one tap away. Reading it marks the other versions as read.";

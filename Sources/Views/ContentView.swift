@@ -79,7 +79,7 @@ struct ContentView: View {
                 .navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 480)
                 .background(currentTheme.listBackground)
             } detail: {
-                ArticleDetailView(selectedItem: selectedArticle)
+                ArticleDetailView(selectedItem: selectedArticle, onSelectArticle: { selectedArticle = $0 })
                     .background(currentTheme.detailBackground)
             }
             .toolbarBackground(currentTheme.windowBackground, for: .windowToolbar)
