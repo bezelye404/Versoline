@@ -8,6 +8,7 @@ struct GeneralSettingsTab: View {
     @AppStorage(AppSettingsKeys.isCompactListMode) private var isCompactListMode = false
     @AppStorage(AppSettingsKeys.showFavicons) private var showFavicons = true
     @AppStorage(AppSettingsKeys.showMenuBarIcon) private var showMenuBarIcon = false
+    @AppStorage(AppSettingsKeys.showDockBadge) private var showDockBadge = false
     @AppStorage(AppSettingsKeys.preferredExternalBrowser) private var preferredExternalBrowserRaw = ExternalBrowserOption.systemDefault.rawValue
     @AppStorage(AppSettingsKeys.offlinePrecacheEnabled) private var offlinePrecacheEnabled = false
     @AppStorage(AppSettingsKeys.isContentBlockerEnabled) private var isContentBlockerEnabled = true
@@ -53,6 +54,13 @@ struct GeneralSettingsTab: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Show Site Favicons")
                         Text("Displays website logos next to feeds and article titles for quick visual recognition.")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+                Toggle(isOn: $showDockBadge) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Show Unread Count on the Dock Icon")
+                        Text("A badge with the number of unread articles. It updates while the app is open; nothing runs in the background.")
                             .font(.caption).foregroundStyle(.secondary)
                     }
                 }

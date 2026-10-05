@@ -61,6 +61,7 @@
 		72D3918C143AC5E8349B62C3 /* ReaderTheme+Native.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B986C317716340F9D9681D4 /* ReaderTheme+Native.swift */; };
 		7323B966BA75FF522189CABC /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B2AF1314D3ED28D8EBBF87B /* SidebarView.swift */; };
 		7410B2758BF79BFF6E07BB85 /* FeedListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 820EBF240155D2F38C1F5E81 /* FeedListView.swift */; };
+		7442E628A5B0991189F17E1A /* DockBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0BC2C20740B1E2613DE138B /* DockBadge.swift */; };
 		75E4C7C89881F64EAC55BD6F /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 374A0237B0BE4542CEB8CB7F /* WebView.swift */; };
 		766F533CE9A9CF89A66D9C57 /* FeedItemHygiene.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD8DAD7B298618EDD170D2E /* FeedItemHygiene.swift */; };
 		76B5B96C5C29A35EABE9D9E7 /* KeyboardShortcutsHelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5752FDC6DD90D696F80B2D70 /* KeyboardShortcutsHelpView.swift */; };
@@ -129,6 +130,7 @@
 		D2BED8F0213A53A2A48E206F /* PodcastDownloadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 116DA537996365CE0A61DE90 /* PodcastDownloadService.swift */; };
 		D30E39AA6E2810B0BB586FC1 /* AppCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE436D71F0990FF1AC5ABB39 /* AppCommands.swift */; };
 		D6432F6837CABE42953544C8 /* SmartCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6137F417E9871CED956FB64A /* SmartCategory.swift */; };
+		D6AB2660E55A1D5D83CFDE2E /* DockBadgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3BE53437271D78C8F76E32 /* DockBadgeTests.swift */; };
 		D72A017E55A166667C6F9AAC /* FeedStore+Queries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CA0C9EA407F829A10469035 /* FeedStore+Queries.swift */; };
 		D852578125D7D0F1E1EFD3E4 /* PodcastSearchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7052D00681A970A1BC032D3A /* PodcastSearchResult.swift */; };
 		DA617566C82DB520D32CE461 /* FiltersSettingsTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BDE9E050870EEB461C07516 /* FiltersSettingsTab.swift */; };
@@ -250,6 +252,7 @@
 		9DD0AA41FA3F5ADB38B4CF65 /* HTMLCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLCleaner.swift; sourceTree = "<group>"; };
 		9F20D231E4B9E229A105EF72 /* CommandPaletteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandPaletteTests.swift; sourceTree = "<group>"; };
 		A0922EF21F3CC741198F15EC /* FullscreenVideoModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullscreenVideoModal.swift; sourceTree = "<group>"; };
+		A0BC2C20740B1E2613DE138B /* DockBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockBadge.swift; sourceTree = "<group>"; };
 		A122A8B77924976290B9D3A2 /* FeedsSettingsTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedsSettingsTab.swift; sourceTree = "<group>"; };
 		A287CC2D23E0C21EE3376F09 /* MemoryRelief.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryRelief.swift; sourceTree = "<group>"; };
 		A57F86A88ED909FE6237FCC1 /* FeedStore+Feeds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FeedStore+Feeds.swift"; sourceTree = "<group>"; };
@@ -296,6 +299,7 @@
 		E7D88D6EFAD0DE566B0D676D /* StoryClustererTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryClustererTests.swift; sourceTree = "<group>"; };
 		E8DD4602529B00933F2530DB /* FeedStore+Maintenance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FeedStore+Maintenance.swift"; sourceTree = "<group>"; };
 		EC433A26DDADD6DE9BEC6D15 /* MotionSafe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionSafe.swift; sourceTree = "<group>"; };
+		EE3BE53437271D78C8F76E32 /* DockBadgeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockBadgeTests.swift; sourceTree = "<group>"; };
 		EEBF94143358EC1AAEFECF6C /* LocalPeerSyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalPeerSyncEngine.swift; sourceTree = "<group>"; };
 		F02D94482B96A3A67D2BE9C0 /* FaviconService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaviconService.swift; sourceTree = "<group>"; };
 		F6B76B2B4BB2CFC172F28F14 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -348,6 +352,7 @@
 				DF4BA4EE5050D6F747E9F7C6 /* ArticleTranslationTests.swift */,
 				819171CEFA63DFC86DE58D0F /* BionicReadingTests.swift */,
 				9F20D231E4B9E229A105EF72 /* CommandPaletteTests.swift */,
+				EE3BE53437271D78C8F76E32 /* DockBadgeTests.swift */,
 				11000F72C3EED34D212CDBEF /* FeedDiscoveryTests.swift */,
 				6BA42B73273E38D7056A6525 /* FeedItemHygieneTests.swift */,
 				A6AADA107F645C1AA673835B /* FeedStorePersistenceTests.swift */,
@@ -527,6 +532,7 @@
 				75DEF528B73952AEABB2D6F0 /* Benchmark.swift */,
 				C3D95F851B7D3243C64939BC /* ContentBlockerService.swift */,
 				FA7EEAE8836C50ED6DCDC4A4 /* CuratedFeedManager.swift */,
+				A0BC2C20740B1E2613DE138B /* DockBadge.swift */,
 				F02D94482B96A3A67D2BE9C0 /* FaviconService.swift */,
 				23D491E899DF32887BE9F458 /* FeedDiscovery.swift */,
 				42163A4A7D72978A2D14A66B /* FeedHealthService.swift */,
@@ -702,6 +708,7 @@
 				95705F98B990A02D3832BD7E /* ArticleTranslationTests.swift in Sources */,
 				AD9099F8B02EE78E6CD48B4E /* BionicReadingTests.swift in Sources */,
 				7B50D56F55FDAB85FB417355 /* CommandPaletteTests.swift in Sources */,
+				D6AB2660E55A1D5D83CFDE2E /* DockBadgeTests.swift in Sources */,
 				651FA254185E24F4EC9422B6 /* FeedDiscoveryTests.swift in Sources */,
 				F941AAC80BB7096A13C66F4A /* FeedItemHygieneTests.swift in Sources */,
 				2822235390CB55B71F1C311A /* FeedStorePersistenceTests.swift in Sources */,
@@ -751,6 +758,7 @@
 				E87950B0C39E04C423F48074 /* ContentView.swift in Sources */,
 				46706FCE697536256918DD47 /* CuratedFeed.swift in Sources */,
 				5FA5CD3B0D1713949F7FEDBE /* CuratedFeedManager.swift in Sources */,
+				7442E628A5B0991189F17E1A /* DockBadge.swift in Sources */,
 				B26000EE6DE1BEC3A2831AF7 /* EqualizerWaveformView.swift in Sources */,
 				1210A9E476E6F0A1439C615F /* FaviconService.swift in Sources */,
 				00905F32F41F55957BA7E7BF /* Feed.swift in Sources */,

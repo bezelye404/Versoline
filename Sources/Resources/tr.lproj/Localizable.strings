@@ -706,3 +706,5 @@
 "Translate from %@" = "%@ dilinden çevir";
 "Translate this article on your Mac" = "Bu makaleyi Mac'inizde çevirin";
 "Translated from %@" = "%@ dilinden çevrildi";
+"Show Unread Count on the Dock Icon" = "Okunmamış Sayısını Dock Simgesinde Göster";
+"A badge with the number of unread articles. It updates while the app is open; nothing runs in the background." = "Okunmamış makale sayısını gösteren bir rozet. Uygulama açıkken güncellenir; arka planda hiçbir şey çalışmaz.";
