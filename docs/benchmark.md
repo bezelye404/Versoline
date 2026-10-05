@@ -31,12 +31,13 @@ A Release build has its own, usually empty, library; the script copies the libra
 WebKit's helper processes are never started by reading (the "WebKit started" column stays `no`), except for the few
 articles that fall back to the web view.
 
-## The refresh leaves about 20 MB resident (open)
+## What the refresh leaves resident
 
-With `--benchmark-refresh` the footprint after the first refresh is about 72 MB instead of 48 MB, and it does not come back
-(`malloc_zone_pressure_relief` returns nothing). Tried and ruled out: bounded parsing of big feeds (already in), closing the
-URLSession's idle HTTPS connections after the refresh (no change). Not yet examined: the cost of the 43 parsed results being
-applied to the store (`applyFeedUpdate` rebuilds every item) and `heap`'s view of what is live after a refresh.
+With `--benchmark-refresh` the footprint after the first refresh is about 72 MB instead of 48 MB and `malloc_zone_pressure_relief`
+returns nothing. `heap` shows the live heap growing by about 11 MB (30 → 42 MB), a third of it network state (TLS buffers,
+certificates, HTTP/2 buffers: `SSLBuffer`, `OPENSSL_malloc`, `SecCertificate`, `Endpoint`) and the rest spread thin over many
+small objects, plus a few MB of fragmentation. Closing the parser session's idle connections after the refresh gained at most
+1 to 2 MB and was not kept. Bounded parsing of big feeds is already in. Nothing left looks like a single fixable cost.
 
 ## The reading leak: `.contentTransition(.numericText())`
 
