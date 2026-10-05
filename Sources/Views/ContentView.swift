@@ -152,6 +152,9 @@ struct ContentView: View {
             manageFolders: { showFolderManagement = true },
             importOPML: { importOPML() },
             exportOPML: { exportOPML() },
+            exportBackup: { exportBackup() },
+            restoreBackup: { restoreBackup() },
+            markOlderAsRead: { confirmMarkOlderAsRead(days: $0) },
             showReadingInsights: { showReadingStats = true },
             showShortcuts: { showShortcutsHelp = true },
             showConsole: { showConsole = true },
@@ -298,6 +301,9 @@ struct ContentView: View {
             case .newFolder: showAddFolder = true
             case .importOPML: importOPML()
             case .exportOPML: exportOPML()
+            case .exportBackup: exportBackup()
+            case .restoreBackup: restoreBackup()
+            case .markOlderWeekAsRead: confirmMarkOlderAsRead(days: 7)
             case .readingInsights: showReadingStats = true
             case .shortcuts: showShortcutsHelp = true
             case .focusMode: toggleFocusMode()
@@ -328,6 +334,75 @@ struct ContentView: View {
                 store.errorMessage = String(format: String(localized: "Error reading OPML file: %@"), error.localizedDescription)
             }
         }
+    }
+
+    // MARK: - Backup
+
+    private func exportBackup() {
+        let panel = NSSavePanel()
+        panel.title = String(localized: "Export Backup")
+        panel.allowedContentTypes = [.json]
+        panel.nameFieldStringValue = "Versoline Backup \(Date().formatted(.iso8601.year().month().day())).json"
+
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            try store.backupData().write(to: url, options: .atomic)
+        } catch {
+            store.errorMessage = String(format: String(localized: "Could not save the backup: %@"), error.localizedDescription)
+        }
+    }
+
+    private func restoreBackup() {
+        let panel = NSOpenPanel()
+        panel.title = String(localized: "Select a Backup")
+        panel.allowedContentTypes = [.json]
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = false
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+
+        let envelope: LibraryBackup.Envelope
+        do {
+            envelope = try LibraryBackup.read(Data(contentsOf: url))
+        } catch {
+            store.errorMessage = error.localizedDescription
+            return
+        }
+
+        let summary = LibraryBackup.summary(of: envelope)
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Replace your library with this backup?")
+        alert.informativeText = String(
+            format: String(localized: "The backup from %@ has %d feeds and %d articles. Your current library is kept as data.json.before-restore in the Versoline folder."),
+            summary.createdAt.formatted(date: .abbreviated, time: .shortened), summary.feeds, summary.articles
+        )
+        alert.addButton(withTitle: String(localized: "Restore"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+
+        selectedArticle = nil
+        selectedSidebarItem = nil
+        store.restoreBackup(envelope)
+        selectedSidebarItem = .unread
+    }
+
+    // MARK: - Old unread articles
+
+    private func confirmMarkOlderAsRead(days: Int) {
+        let count = store.unreadItems(olderThanDays: days).count
+        let alert = NSAlert()
+        if count == 0 {
+            alert.messageText = String(localized: "Nothing to mark")
+            alert.informativeText = String(localized: "There are no unread articles that old.")
+            alert.addButton(withTitle: String(localized: "OK"))
+            alert.runModal()
+            return
+        }
+        alert.messageText = String(format: String(localized: "Mark %d articles as read?"), count)
+        alert.informativeText = String(format: String(localized: "Unread articles published more than %d days ago will be marked as read. Bookmarks stay as they are."), days)
+        alert.addButton(withTitle: String(localized: "Mark as Read"))
+        alert.addButton(withTitle: String(localized: "Cancel"))
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        store.markOlderThanAsRead(days: days)
     }
 
     // MARK: - OPML Export
