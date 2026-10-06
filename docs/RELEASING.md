@@ -53,3 +53,13 @@ Run the verification script to check SHA-256 and signatures:
     --title "Versoline v<VERSION>" \
     --notes-file docs/release-<VERSION>.md
   ```
+
+### 5. Update the Homebrew tap
+
+The cask lives in the separate repository `bezelye404/homebrew-versoline` (`Casks/versoline.rb`). After the GitHub Release is published, set `version` and `sha256` there (the checksum is in the release notes, or run `shasum -a 256 dist/Versoline-<VERSION>.dmg`) and push:
+
+```bash
+brew audit --cask --online bezelye404/versoline/versoline
+```
+
+Users then get the new version with `brew upgrade --cask versoline`.
