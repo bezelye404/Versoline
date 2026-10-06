@@ -219,9 +219,7 @@ struct SidebarView: View {
 
                         Spacer()
 
-                        Text("\(pinned.count)")
-                            .font(.system(size: 10, weight: .medium, design: .monospaced))
-                            .foregroundStyle(.secondary)
+                        headerCount(pinned.count)
                     }
                     .contentShape(Rectangle())
                 }
@@ -312,9 +310,7 @@ struct SidebarView: View {
 
                         Spacer()
 
-                        Text("\(totalCount)")
-                            .font(.system(size: 10, weight: .medium, design: .monospaced))
-                            .foregroundStyle(.secondary)
+                        headerCount(totalCount)
                     }
                     .contentShape(Rectangle())
                 }
@@ -325,6 +321,15 @@ struct SidebarView: View {
     }
 
     // MARK: Row Helper
+
+    // Section headers sit outside the list rows' content inset, so their counts need the same trailing space as
+    // the badges in the rows below to line up with them.
+    private func headerCount(_ value: Int) -> some View {
+        Text("\(value)")
+            .font(.system(size: 10, weight: .medium, design: .monospaced))
+            .foregroundStyle(.secondary)
+            .padding(.trailing, 11)
+    }
 
     @ViewBuilder
     private func sidebarRow(
@@ -457,9 +462,7 @@ struct SidebarView: View {
 
                         Spacer()
 
-                        Text("\(uncategorized.count)")
-                            .font(.system(size: 10, weight: .medium, design: .monospaced))
-                            .foregroundStyle(.secondary)
+                        headerCount(uncategorized.count)
                     }
                     .contentShape(Rectangle())
                 }
@@ -539,9 +542,7 @@ struct SidebarView: View {
                 Spacer()
 
                 if feedsCount > 0 {
-                    Text("\(feedsCount)")
-                        .font(.system(size: 10, weight: .medium, design: .monospaced))
-                        .foregroundStyle(.secondary)
+                    headerCount(feedsCount)
                 }
             }
             .contentShape(Rectangle())
