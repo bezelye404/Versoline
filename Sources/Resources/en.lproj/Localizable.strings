@@ -736,3 +736,7 @@
 "%d of %d" = "%d of %d";
 "Invalid audio stream URL." = "Invalid audio stream URL.";
 "Playback failed." = "Playback failed.";
+"Language" = "Language";
+"Language:" = "Language:";
+"Restart Versoline to use the new language." = "Restart Versoline to use the new language.";
+"Restart Now" = "Restart Now";

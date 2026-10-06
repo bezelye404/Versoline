@@ -14,6 +14,7 @@
 		041E1F56A3BFB3EB8504A9C7 /* birgun.html in Resources */ = {isa = PBXBuildFile; fileRef = B0645DDE9C8C0B1F55B75604 /* birgun.html */; };
 		06153453F82387E16F0E44BD /* Folder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 095EC2CC2671D488A81C2202 /* Folder.swift */; };
 		0ECB0D9DA6A43184C58E74BC /* RefreshBackoffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9463750395D6312D73ECBA2D /* RefreshBackoffTests.swift */; };
+		0F641BB4270754609ED3A042 /* AppLanguageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A58F2DD5DA5302378543A762 /* AppLanguageTests.swift */; };
 		11FAC03043D65C2FC65B974C /* ContentBlockerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D95F851B7D3243C64939BC /* ContentBlockerService.swift */; };
 		1210A9E476E6F0A1439C615F /* FaviconService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02D94482B96A3A67D2BE9C0 /* FaviconService.swift */; };
 		14F717F95D730ED4E16A3AE2 /* LibraryBackupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC9539700E3E340313682FC /* LibraryBackupTests.swift */; };
@@ -102,6 +103,7 @@
 		946A49855A40FD4993DB7B04 /* ensonhaber.html in Resources */ = {isa = PBXBuildFile; fileRef = 909B969B622C8DF903181C64 /* ensonhaber.html */; };
 		94DFABE681404BDF3781641E /* RulesSettingsTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94CD8CBEA6352BC5F1265F16 /* RulesSettingsTab.swift */; };
 		95705F98B990A02D3832BD7E /* ArticleTranslationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF4BA4EE5050D6F747E9F7C6 /* ArticleTranslationTests.swift */; };
+		962ADBF4CED337263E1C48C8 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79BB77382AA409E3E107EB0 /* AppLanguage.swift */; };
 		970F7F391E438F99AB413FBC /* SyncSettingsTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85EE9383116A514AB679EB72 /* SyncSettingsTab.swift */; };
 		98CD211C92C300CCFF2EED7E /* ReaderFixtureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8181D9FFC88827EC10CDB462 /* ReaderFixtureTests.swift */; };
 		99CA9980F3CC66C0D1D6067A /* FolderManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 529A66CF0706218F9FCD443C /* FolderManagementView.swift */; };
@@ -291,6 +293,7 @@
 		A287CC2D23E0C21EE3376F09 /* MemoryRelief.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryRelief.swift; sourceTree = "<group>"; };
 		A4BFBFEC139535BEE7306EE0 /* SpotlightIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightIndex.swift; sourceTree = "<group>"; };
 		A57F86A88ED909FE6237FCC1 /* FeedStore+Feeds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FeedStore+Feeds.swift"; sourceTree = "<group>"; };
+		A58F2DD5DA5302378543A762 /* AppLanguageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLanguageTests.swift; sourceTree = "<group>"; };
 		A5E3296C821F7A38AAEE4026 /* PodcastSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastSearchView.swift; sourceTree = "<group>"; };
 		A5EEC242A0DFB16168D871C7 /* aa.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = aa.html; sourceTree = "<group>"; };
 		A6AADA107F645C1AA673835B /* FeedStorePersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedStorePersistenceTests.swift; sourceTree = "<group>"; };
@@ -310,6 +313,7 @@
 		C0D5272D333EDF2741243FE5 /* hurriyet.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = hurriyet.html; sourceTree = "<group>"; };
 		C3D95F851B7D3243C64939BC /* ContentBlockerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentBlockerService.swift; sourceTree = "<group>"; };
 		C559A5692D91BAED93D824F5 /* BionicReading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BionicReading.swift; sourceTree = "<group>"; };
+		C79BB77382AA409E3E107EB0 /* AppLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLanguage.swift; sourceTree = "<group>"; };
 		CAF5200E25F88125B820F66A /* ReaderModeExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderModeExtractor.swift; sourceTree = "<group>"; };
 		CB4B6CD4C5A5680BF84F9E74 /* ReaderSettingsTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderSettingsTab.swift; sourceTree = "<group>"; };
 		CBA043771DA7DC7A8234241D /* LocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationTests.swift; sourceTree = "<group>"; };
@@ -392,6 +396,7 @@
 				36E1644E21AC31B154AA1699 /* AnnotationTests.swift */,
 				AEEAA2436EA953D6160CADB7 /* AppAnimationTests.swift */,
 				139315C3DB98104904EAA1B6 /* AppInfoTests.swift */,
+				A58F2DD5DA5302378543A762 /* AppLanguageTests.swift */,
 				3CE61036D7FF9820011B3794 /* ArticleParserTests.swift */,
 				DF4BA4EE5050D6F747E9F7C6 /* ArticleTranslationTests.swift */,
 				819171CEFA63DFC86DE58D0F /* BionicReadingTests.swift */,
@@ -482,6 +487,7 @@
 			children = (
 				BB916521728741E05AB7FEC6 /* Annotation.swift */,
 				05E3363BDC9B04353F933CDC /* AppInfo.swift */,
+				C79BB77382AA409E3E107EB0 /* AppLanguage.swift */,
 				CD8C88EA3FDA633C357495C3 /* AppSettings.swift */,
 				1F302A5DB707B66DC486CB6A /* ArticleDocument.swift */,
 				C559A5692D91BAED93D824F5 /* BionicReading.swift */,
@@ -769,6 +775,7 @@
 				8047230C66E0B041AEA2710D /* AnnotationTests.swift in Sources */,
 				C71B08FC54C1147C3A54C9BF /* AppAnimationTests.swift in Sources */,
 				A0D7FA5C85380A7664D60F6C /* AppInfoTests.swift in Sources */,
+				0F641BB4270754609ED3A042 /* AppLanguageTests.swift in Sources */,
 				7A04D66093BD11139791639A /* ArticleParserTests.swift in Sources */,
 				95705F98B990A02D3832BD7E /* ArticleTranslationTests.swift in Sources */,
 				AD9099F8B02EE78E6CD48B4E /* BionicReadingTests.swift in Sources */,
@@ -814,6 +821,7 @@
 				56AF9C3F86E178745BBE869F /* Annotation.swift in Sources */,
 				D30E39AA6E2810B0BB586FC1 /* AppCommands.swift in Sources */,
 				922ECF53A95F14DE43763239 /* AppInfo.swift in Sources */,
+				962ADBF4CED337263E1C48C8 /* AppLanguage.swift in Sources */,
 				2C532173A7887BFC5B4CB7C5 /* AppLogger.swift in Sources */,
 				2C8B93C8DEB9668B7E18FD48 /* AppSettings.swift in Sources */,
 				53888B9BE28ED6D1DB568207 /* AppShortcuts.swift in Sources */,

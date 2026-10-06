@@ -20,12 +20,36 @@ struct GeneralSettingsTab: View {
     @AppStorage(AppSettingsKeys.playYouTubeInApp) private var playYouTubeInApp = true
     @AppStorage(AppSettingsKeys.enableSingleKeyShortcuts) private var enableSingleKeyShortcuts = true
 
+    @State private var language = AppLanguage.current()
+    @State private var launchLanguage = AppLanguage.current()
+
     private var selectedPalette: AppColorPalette {
         AppColorPalette(rawValue: appColorPaletteRaw) ?? .slate
     }
 
     var body: some View {
         Form {
+            Section("Language") {
+                Picker("Language:", selection: $language) {
+                    ForEach(AppLanguage.allCases) { option in
+                        if let name = option.nativeName {
+                            Text(verbatim: name).tag(option)
+                        } else {
+                            Text("System Default").tag(option)
+                        }
+                    }
+                }
+                .onChange(of: language) { _, newValue in newValue.apply() }
+                if language != launchLanguage {
+                    HStack {
+                        Text("Restart Versoline to use the new language.")
+                            .font(.caption).foregroundStyle(.secondary)
+                        Spacer()
+                        Button("Restart Now") { AppLanguage.relaunch() }
+                    }
+                }
+            }
+
             Section("Appearance") {
                 VStack(alignment: .leading, spacing: 8) {
                     // One row of colour swatches instead of ten large cards.

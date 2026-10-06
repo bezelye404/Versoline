@@ -735,3 +735,7 @@
 "%d of %d" = "%d / %d";
 "Invalid audio stream URL." = "Geçersiz ses akışı adresi.";
 "Playback failed." = "Oynatma başarısız oldu.";
+"Language" = "Dil";
+"Language:" = "Dil:";
+"Restart Versoline to use the new language." = "Yeni dili kullanmak için Versoline'ı yeniden başlat.";
+"Restart Now" = "Şimdi Yeniden Başlat";
