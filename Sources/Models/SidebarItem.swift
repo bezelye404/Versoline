@@ -4,6 +4,7 @@ enum SidebarItem: Hashable, Identifiable {
     case all
     case unread
     case today
+    case calendar
     case bookmarks
     case podcasts
     case downloaded
@@ -21,6 +22,7 @@ enum SidebarItem: Hashable, Identifiable {
         case .all: return "sidebar-all"
         case .unread: return "sidebar-unread"
         case .today: return "sidebar-today"
+        case .calendar: return "sidebar-calendar"
         case .bookmarks: return "sidebar-bookmarks"
         case .podcasts: return "sidebar-podcasts"
         case .downloaded: return "sidebar-downloaded"

@@ -739,3 +739,9 @@
 "Language:" = "Dil:";
 "Restart Versoline to use the new language." = "Yeni dili kullanmak için Versoline'ı yeniden başlat.";
 "Restart Now" = "Şimdi Yeniden Başlat";
+"Calendar" = "Takvim";
+"Previous Month" = "Önceki Ay";
+"Next Month" = "Sonraki Ay";
+"%@, %d articles, %d bookmarked" = "%@, %d makale, %d favori";
+"No bookmarks on this day" = "Bu günde favori yok";
+"No articles on this day" = "Bu günde makale yok";

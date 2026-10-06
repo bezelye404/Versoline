@@ -75,6 +75,8 @@ struct ContentView: View {
                             browseCatalog: { addFeedTab = .curatedCatalog; showAddFeed = true },
                             importOPML: { importOPML() }
                         )
+                    } else if selectedSidebarItem == .calendar {
+                        CalendarView(selectedArticle: $selectedArticle)
                     } else {
                         FeedListView(selection: selectedSidebarItem, selectedArticle: $selectedArticle)
                     }

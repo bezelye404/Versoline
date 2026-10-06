@@ -20,6 +20,7 @@ struct FeedListView: View {
         case .all: return String(localized: "All Articles")
         case .unread: return String(localized: "Unread")
         case .today: return String(localized: "Today")
+        case .calendar: return String(localized: "Calendar")
         case .bookmarks: return String(localized: "Bookmarks")
         case .podcasts: return String(localized: "Podcasts")
         case .downloaded: return String(localized: "Downloaded Episodes")
@@ -80,6 +81,8 @@ struct FeedListView: View {
             }
         case .today:
             base = store.todayItems()
+        case .calendar:
+            base = []   // the calendar has its own view
         case .bookmarks:
             base = store.bookmarkedItems()
         case .podcasts:
@@ -558,6 +561,7 @@ struct FeedListView: View {
         case .all: return "tray"
         case .unread: return "envelope.open"
         case .today: return "clock"
+        case .calendar: return "calendar"
         case .bookmarks: return "star"
         case .podcasts: return "headphones"
         case .downloaded: return "arrow.down.circle"
@@ -577,6 +581,7 @@ struct FeedListView: View {
         case .all: return String(localized: "No Articles")
         case .unread: return String(localized: "All Caught Up")
         case .today: return String(localized: "No Articles Today")
+        case .calendar: return String(localized: "No Articles")
         case .bookmarks: return String(localized: "No Bookmarks")
         case .podcasts: return String(localized: "No Podcasts")
         case .downloaded: return String(localized: "No Downloads")
@@ -596,6 +601,7 @@ struct FeedListView: View {
         case .all: return String(localized: "No articles yet. Start by adding a feed.")
         case .unread: return String(localized: "No unread articles.")
         case .today: return String(localized: "No articles published today.")
+        case .calendar: return String(localized: "No articles yet. Start by adding a feed.")
         case .bookmarks: return String(localized: "Star articles to save them for later.")
         case .podcasts: return String(localized: "Subscribe to podcast feeds to see episodes here.")
         case .downloaded: return String(localized: "Downloaded podcast episodes will appear here for offline playback.")

@@ -740,3 +740,9 @@
 "Language:" = "Language:";
 "Restart Versoline to use the new language." = "Restart Versoline to use the new language.";
 "Restart Now" = "Restart Now";
+"Calendar" = "Calendar";
+"Previous Month" = "Previous Month";
+"Next Month" = "Next Month";
+"%@, %d articles, %d bookmarked" = "%@, %d articles, %d bookmarked";
+"No bookmarks on this day" = "No bookmarks on this day";
+"No articles on this day" = "No articles on this day";

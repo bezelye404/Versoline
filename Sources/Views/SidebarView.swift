@@ -133,6 +133,10 @@ struct SidebarView: View {
                 sidebarRow(title: String(localized: "Today"), systemImage: "clock", count: nil, accentColor: .secondary)
             }
 
+            NavigationLink(value: SidebarItem.calendar) {
+                sidebarRow(title: String(localized: "Calendar"), systemImage: "calendar", count: nil, accentColor: .secondary)
+            }
+
             // Only when some story is told by several of the user's feeds.
             if groupSimilarStories, store.topStoryCount() > 0 {
                 NavigationLink(value: SidebarItem.topStories) {

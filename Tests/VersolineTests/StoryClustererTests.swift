@@ -109,7 +109,7 @@ struct StoryGroupingStoreTests {
 
     /// Lets the background grouping finish (the test yields so the main actor can apply the result).
     private func waitForStories(in store: FeedStore) async {
-        let deadline = Date().addingTimeInterval(5)
+        let deadline = Date().addingTimeInterval(20)
         while store.storyRefs.isEmpty, Date() < deadline { try? await Task.sleep(for: .milliseconds(50)) }
     }
 

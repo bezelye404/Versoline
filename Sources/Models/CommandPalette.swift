@@ -64,6 +64,7 @@ enum CommandPalette {
         let lists: [(SidebarItem, String, String)] = [
             (.unread, String(localized: "Unread"), "envelope.badge"),
             (.today, String(localized: "Today"), "clock"),
+            (.calendar, String(localized: "Calendar"), "calendar"),
             (.topStories, String(localized: "Top Stories"), "square.stack.3d.up"),
             (.bookmarks, String(localized: "Bookmarks"), "star"),
             (.highlights, String(localized: "Highlights"), "highlighter"),
