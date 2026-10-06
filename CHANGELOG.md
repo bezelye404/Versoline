@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-10-07
+
+### Fixed
+- The counts in the sidebar section headers (Smart Streams, Feeds, folders, Pinned) lined up further right than the counts in the rows below them. They now share the same right edge.
+
 ## [0.4.0] - 2026-10-05
 
 ### Added
