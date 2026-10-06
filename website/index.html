@@ -4,7 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Versoline: RSS reader and podcast player for Mac</title>
-  <meta name="description" content="Versoline is a native macOS app for reading RSS and Atom feeds, listening to podcasts and following YouTube channels and Reddit communities. No account, no analytics, free and open source.">
+  <meta name="description" content="Versoline is a free, open-source RSS reader and podcast player for Mac. Read RSS and Atom feeds, listen to podcasts and follow YouTube and Reddit in one native app. No account, no analytics.">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <meta name="author" content="bezelye404">
+  <link rel="alternate" hreflang="en" href="https://bezelye404.github.io/Versoline/">
+  <link rel="alternate" hreflang="tr" href="https://bezelye404.github.io/Versoline/tr/">
+  <link rel="alternate" hreflang="x-default" href="https://bezelye404.github.io/Versoline/">
   <link rel="canonical" href="https://bezelye404.github.io/Versoline/">
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#f2f5f7" media="(prefers-color-scheme: light)">
@@ -18,27 +23,80 @@
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Versoline">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="tr_TR">
   <meta property="og:title" content="Versoline: RSS reader and podcast player for Mac">
   <meta property="og:description" content="Read RSS and Atom feeds, listen to podcasts and follow YouTube and Reddit in one native Mac app. No account, no analytics.">
   <meta property="og:url" content="https://bezelye404.github.io/Versoline/">
   <meta property="og:image" content="https://bezelye404.github.io/Versoline/assets/icon-512.png">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
+  <meta property="og:image:alt" content="Versoline app icon: an RSS symbol in amber on dark blue">
   <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Versoline: RSS reader and podcast player for Mac">
+  <meta name="twitter:description" content="A free, open-source RSS reader and podcast player for Mac. No account, no analytics.">
+  <meta name="twitter:image" content="https://bezelye404.github.io/Versoline/assets/icon-512.png">
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "Versoline",
-    "alternateName": "easyRSS",
-    "applicationCategory": "NewsApplication",
-    "operatingSystem": "macOS 15 or later",
-    "description": "A native macOS app for reading RSS and Atom feeds, listening to podcasts and following YouTube channels and Reddit communities. No account, no analytics.",
-    "url": "https://bezelye404.github.io/Versoline/",
-    "downloadUrl": "https://github.com/bezelye404/Versoline/releases/latest",
-    "codeRepository": "https://github.com/bezelye404/Versoline",
-    "license": "https://opensource.org/licenses/MIT",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "inLanguage": ["en", "tr"]
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://bezelye404.github.io/Versoline/#website",
+        "url": "https://bezelye404.github.io/Versoline/",
+        "name": "Versoline",
+        "alternateName": ["Versoline RSS reader", "Versoline for Mac"],
+        "inLanguage": ["en", "tr"],
+        "publisher": { "@id": "https://bezelye404.github.io/Versoline/#author" }
+      },
+      {
+        "@type": "Person",
+        "@id": "https://bezelye404.github.io/Versoline/#author",
+        "name": "bezelye404",
+        "url": "https://github.com/bezelye404"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://bezelye404.github.io/Versoline/#app",
+        "name": "Versoline",
+        "alternateName": ["Versoline RSS reader", "easyRSS"],
+        "applicationCategory": "NewsApplication",
+        "operatingSystem": "macOS 15 or later",
+        "description": "A free, open-source RSS reader and podcast player for Mac. Reads RSS and Atom feeds, plays podcasts and follows YouTube channels and Reddit communities. No account, no analytics.",
+        "url": "https://bezelye404.github.io/Versoline/",
+        "downloadUrl": "https://github.com/bezelye404/Versoline/releases/latest",
+        "installUrl": "https://github.com/bezelye404/Versoline/releases/latest",
+        "codeRepository": "https://github.com/bezelye404/Versoline",
+        "sameAs": ["https://github.com/bezelye404/Versoline"],
+        "license": "https://opensource.org/licenses/MIT",
+        "isAccessibleForFree": true,
+        "author": { "@id": "https://bezelye404.github.io/Versoline/#author" },
+        "image": "https://bezelye404.github.io/Versoline/assets/icon-512.png",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "inLanguage": ["en", "tr"]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is Versoline?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Versoline is a free, open-source RSS reader and podcast player for Mac, written in Swift and SwiftUI. It was previously called easyRSS." }
+          },
+          {
+            "@type": "Question",
+            "name": "Does Versoline need an account?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. There are no accounts, no analytics and no crash reporting. Your data is stored on your Mac." }
+          },
+          {
+            "@type": "Question",
+            "name": "Which macOS versions does Versoline support?",
+            "acceptedAnswer": { "@type": "Answer", "text": "macOS 15 (Sequoia) or later, on Apple silicon and Intel Macs." }
+          }
+        ]
+      }
+    ]
   }
   </script>
 </head>
@@ -53,6 +111,7 @@
           <li><a href="#features">Features</a></li>
           <li><a href="#privacy">Privacy</a></li>
           <li><a href="#install">Install</a></li>
+          <li><a href="#about">About</a></li>
           <li><a href="#faq">FAQ</a></li>
           <li><a href="https://github.com/bezelye404/Versoline">GitHub</a></li>
         </ul>
@@ -64,8 +123,8 @@
     <div class="hero" id="top">
       <div class="wrap">
         <img class="hero-icon" src="assets/icon-512.png" alt="Versoline app icon" width="96" height="96">
-        <h1>An RSS reader and podcast player for Mac</h1>
-        <p class="lead">Versoline reads RSS and Atom feeds, plays podcasts and follows YouTube channels and Reddit communities. It is written in Swift and SwiftUI, uses only Apple's frameworks, and keeps everything on your Mac.</p>
+        <h1>Versoline: an RSS reader and podcast player for Mac</h1>
+        <p class="lead">Versoline brings your RSS and Atom feeds, podcasts, YouTube channels and Reddit communities into one Mac app. It's written in Swift and SwiftUI, uses only Apple's frameworks, and keeps your data on your Mac.</p>
         <div class="actions">
           <a class="btn" href="https://github.com/bezelye404/Versoline/releases/latest">Download for macOS</a>
           <a class="btn secondary" href="https://github.com/bezelye404/Versoline">View source on GitHub</a>
@@ -84,43 +143,43 @@
     <section id="features">
       <div class="wrap">
         <h2>What it does</h2>
-        <p class="intro">Feeds, articles, podcasts and video in one window, with the reading view at the centre.</p>
+        <p class="intro">Your feeds, articles, podcasts and videos in one window, with reading at the centre.</p>
         <div class="grid">
           <article class="card">
             <h3>Feeds and sources</h3>
-            <p>RSS 2.0 and Atom, YouTube channels and playlists, Reddit subreddits and users. Paste a site address and Versoline looks for the feed. OPML import and export with folders.</p>
+            <p>RSS 2.0 and Atom, YouTube channels and playlists, Reddit subreddits and users. Paste a site address and Versoline finds the feed for you. OPML import and export keep your folders.</p>
           </article>
           <article class="card">
-            <h3>A reading view without a web view</h3>
-            <p>Articles are laid out with native SwiftUI text: headings, lists, quotes, code, tables and images with captions. Menus, share bars and ads are removed, and the original page is one click away.</p>
+            <h3>A reader that isn't a web page</h3>
+            <p>Articles are set in native SwiftUI text: headings, lists, quotes, code, tables and images with captions. Menus, share bars and ads are left out, and the original page is one click away.</p>
           </article>
           <article class="card">
             <h3>Same story, once</h3>
-            <p>When several feeds report the same news, the list shows one row with the number of sources. A Top Stories list shows what three or more of your feeds cover. Grouping is computed on your Mac and can be turned off.</p>
+            <p>When several of your feeds cover the same news, the list shows one row with the number of sources. Top Stories collects what three or more feeds are talking about. The grouping happens on your Mac, and you can turn it off.</p>
           </article>
           <article class="card">
             <h3>Typography and themes</h3>
-            <p>System, serif, sans-serif and monospaced fonts, font size and line height, ten colour palettes and Bionic Reading.</p>
+            <p>System, serif, sans-serif and monospaced fonts, adjustable size and line height, ten colour palettes and Bionic Reading.</p>
           </article>
           <article class="card">
             <h3>Translate on your Mac</h3>
-            <p>Articles in another language are translated with Apple's Translation framework, so the text does not leave your Mac.</p>
+            <p>Articles in another language are translated with Apple's Translation framework, so the text stays on your Mac.</p>
           </article>
           <article class="card">
             <h3>Highlights, notes and search</h3>
-            <p>Find in Article, highlights and notes on paragraphs, and a saved reading position in long articles. Bookmarks can be indexed in Spotlight if you turn that on.</p>
+            <p>Find in Article, highlights and notes on paragraphs, and Versoline remembers where you stopped in long articles. Bookmarks can show up in Spotlight if you want them to.</p>
           </article>
           <article class="card">
             <h3>Podcasts and video</h3>
-            <p>Search the Apple Podcasts directory, stream or download episodes, set a sleep timer and a queue, and play from 0.75x to 2x. Videos play in an embedded player or in your browser.</p>
+            <p>Search the Apple Podcasts directory, stream or download episodes, and use a queue, a sleep timer and speeds from 0.75x to 2x. Videos play in an embedded player or in your browser.</p>
           </article>
           <article class="card">
             <h3>Rules and muted keywords</h3>
-            <p>Mark new articles as read, bookmark them, or hide topics you do not want to see. Feed Health lists feeds that fail or have gone quiet.</p>
+            <p>Mark new articles as read, bookmark them automatically, or hide topics you don't want to see. Feed Health shows feeds that fail or have gone quiet.</p>
           </article>
           <article class="card">
             <h3>Backup and nearby sync</h3>
-            <p>Back up the whole library as one file. Optionally sync your own Macs directly over the local network after pairing them with a code. No server is involved.</p>
+            <p>Back up the whole library as one file. If you want, your own Macs can sync over the local network after you pair them with a code. There is no server in between.</p>
           </article>
         </div>
       </div>
@@ -150,7 +209,7 @@
     <section id="privacy">
       <div class="wrap">
         <h2>Privacy and data</h2>
-        <p class="intro">Versoline has no account system, no analytics and no crash reporting. Everything it stores lives in <code>~/Library/Application Support/Versoline</code>. The network requests it makes go directly from your Mac, and each has a reason.</p>
+        <p class="intro">Versoline has no accounts, no analytics and no crash reporting. Everything it stores lives in <code>~/Library/Application Support/Versoline</code>. Its network requests go straight from your Mac, and each one has a reason.</p>
         <div class="table-scroll">
           <table>
             <thead><tr><th scope="col">Request</th><th scope="col">To whom</th><th scope="col">When</th></tr></thead>
@@ -165,7 +224,7 @@
             </tbody>
           </table>
         </div>
-        <p style="margin-top:1.25rem">Story grouping, translation, Spotlight indexing, highlights and notes all run on your Mac. The app has no third-party dependencies, and the source is public so you can check any of this.</p>
+        <p style="margin-top:1.25rem">Story grouping, translation, Spotlight indexing, highlights and notes all happen on your Mac. The app has no third-party dependencies, and the source is public, so you can check any of this yourself.</p>
       </div>
     </section>
 
@@ -178,9 +237,9 @@
               <li>Download the <code>.dmg</code> from the <a href="https://github.com/bezelye404/Versoline/releases/latest">latest release</a>.</li>
               <li>Open it and drag <strong>Versoline</strong> to <strong>Applications</strong>.</li>
             </ol>
-            <p>Versoline is signed ad hoc, without a paid Apple Developer certificate, so macOS may say the developer cannot be verified on first launch. Right-click the app and choose <strong>Open</strong>, or run:</p>
+            <p>Versoline is signed ad hoc, without a paid Apple Developer certificate, so macOS may tell you it can't verify the developer the first time. Right-click the app and choose <strong>Open</strong>, or run:</p>
             <pre><code>xattr -cr /Applications/Versoline.app</code></pre>
-            <p>If you used the earlier name <strong>easyRSS</strong>, Versoline imports its data on first launch and leaves the old folder untouched.</p>
+            <p>If you used it under its earlier name, <strong>easyRSS</strong>, Versoline imports that data on first launch and leaves the old folder alone.</p>
           </div>
           <div>
             <h2>Build from source</h2>
@@ -195,32 +254,43 @@ xcodebuild -project Versoline.xcodeproj \
       </div>
     </section>
 
+    <section id="about">
+      <div class="wrap">
+        <h2>About the name</h2>
+        <p class="intro"><em>Verso</em> is the left-hand page of an open book, the one you turn to. <em>Line</em> is the stream of stories and the lines of text you read. Versoline is an independent, open-source Mac app for reading feeds. It was called <strong>easyRSS</strong> until version 0.3, and it has no connection to companies or products with a similar name.</p>
+      </div>
+    </section>
+
     <section id="faq">
       <div class="wrap">
         <h2>Frequently asked questions</h2>
         <details>
+          <summary>What is Versoline?</summary>
+          <p>Versoline is a free, open-source RSS reader and podcast player for Mac, written in Swift and SwiftUI. It was previously called easyRSS.</p>
+        </details>
+        <details>
           <summary>Does Versoline need an account or an internet connection?</summary>
-          <p>No account. It needs the network to fetch feeds and articles. Articles and episodes you have already loaded or downloaded stay available offline.</p>
+          <p>No account. It needs the network to fetch feeds and articles, but anything you've already loaded or downloaded stays available offline.</p>
         </details>
         <details>
           <summary>Where is my data, and how do I move it to another Mac?</summary>
-          <p>In <code>~/Library/Application Support/Versoline</code>. Use File &gt; Export Backup and Restore Backup, export your subscriptions as OPML, or turn on nearby sync between your own Macs.</p>
+          <p>In <code>~/Library/Application Support/Versoline</code>. To move it, use File &gt; Export Backup and Restore Backup, export your subscriptions as OPML, or turn on nearby sync between your own Macs.</p>
         </details>
         <details>
           <summary>How do I import my subscriptions from another reader?</summary>
-          <p>Export an OPML file from it and choose File &gt; Import OPML, or open the file with Versoline.</p>
+          <p>Export an OPML file from that app, then choose File &gt; Import OPML in Versoline, or just open the file with it.</p>
         </details>
         <details>
           <summary>Can I follow a site that has no visible RSS link?</summary>
-          <p>Paste the site address in Add Feed. If the site advertises a feed, or uses a common feed path, Versoline finds it.</p>
+          <p>Usually, yes. Paste the site address in Add Feed. If the site advertises a feed or uses a common feed path, Versoline will find it.</p>
         </details>
         <details>
           <summary>Which languages does the app support?</summary>
-          <p>English and Turkish.</p>
+          <p>English and Turkish. You can pick one in Settings &gt; General.</p>
         </details>
         <details>
           <summary>Is it free?</summary>
-          <p>Yes. It is released under the MIT license, and the source code is on GitHub.</p>
+          <p>Yes, and always will be. It's released under the MIT license, and the source code is on GitHub.</p>
         </details>
       </div>
     </section>
@@ -235,7 +305,7 @@ xcodebuild -project Versoline.xcodeproj \
         <li><a href="https://github.com/bezelye404/Versoline/issues">Report an issue</a></li>
         <li><a href="https://github.com/bezelye404/Versoline/blob/main/LICENSE">MIT license</a></li>
       </ul>
-      <p>Versoline, formerly easyRSS. This site loads no scripts, fonts or trackers.</p>
+      <p>Versoline, formerly easyRSS. English · <a href="tr/" hreflang="tr" lang="tr">Türkçe</a>. This site loads no scripts, fonts or trackers.</p>
     </div>
   </footer>
 </body>
