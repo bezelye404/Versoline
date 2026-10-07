@@ -280,6 +280,8 @@ struct ContentView: View {
             await Benchmark.run(store: store) { item, list, article in
                 if list { selectedSidebarItem = .feed(item.feedId) }
                 if article { selectedArticle = item }
+            } showCalendar: {
+                selectedSidebarItem = .calendar
             }
         }
         .task(id: scenePhase) {

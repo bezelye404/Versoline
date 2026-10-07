@@ -12,7 +12,8 @@ BENCHMARK_LIBRARY=/path/to/data.json scripts/benchmark.sh
 ```
 
 Modes: `both` (switch to the article's feed and open it), `list`, `article`, `mark-only` (mark read without showing it)
-and `none` (a control: nothing happens, the footprint must stay flat).
+`calendar` (open the calendar and step back through the days, three days per step) and `none` (a control: nothing
+happens, the footprint must stay flat).
 
 A Release build has its own, usually empty, library; the script copies the library of the "Versoline Dev" app (or
 `BENCHMARK_LIBRARY`) next to it. Extra launch arguments: `--benchmark-refresh` (include the refresh), `--benchmark-hold=N`
@@ -27,6 +28,12 @@ A Release build has its own, usually empty, library; the script copies the libra
 | Control (`none`, 36 steps) | flat |
 | Opening 100 articles (`both`) | 48 → 74 MB (before the fix below: 81 → 203 MB, no plateau) |
 | Marking 36 items read (`mark-only`) | +5 MB (before the fix: +50 MB) |
+
+The calendar view reads the library in place and keeps only the month's counts and the selected day's articles. Its
+first version asked the store for a sorted copy of every article, which stayed in memory while the calendar was open
+(about 2.5 to 8.7 MB for 10,000 articles); recomputing the view 200 times now grows the footprint by 0.03 MB. Opening
+the calendar costs about the same as opening any article list (+15 to +20 MB, mostly the list views themselves). Whole-app
+numbers varied by ±10 MB between identical runs on a library with many fresh favicons, so compare medians of several runs.
 
 WebKit's helper processes are never started by reading (the "WebKit started" column stays `no`), except for the few
 articles that fall back to the web view.

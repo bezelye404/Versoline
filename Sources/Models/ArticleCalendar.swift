@@ -10,7 +10,7 @@ enum ArticleCalendar {
     }
 
     /// Per-day counts for the articles that fall inside `month`. The key is the start of the day.
-    static func summaries(for items: [FeedItem], in month: Date, calendar: Calendar = .current) -> [Date: DaySummary] {
+    static func summaries(for items: some Sequence<FeedItem>, in month: Date, calendar: Calendar = .current) -> [Date: DaySummary] {
         guard let interval = calendar.dateInterval(of: .month, for: month) else { return [:] }
         var result: [Date: DaySummary] = [:]
         for item in items {
@@ -26,7 +26,7 @@ enum ArticleCalendar {
     }
 
     /// The articles published on `day`, newest first. Bookmarked ones only when `bookmarkedOnly` is set.
-    static func items(on day: Date, from items: [FeedItem], bookmarkedOnly: Bool, calendar: Calendar = .current) -> [FeedItem] {
+    static func items(on day: Date, from items: some Sequence<FeedItem>, bookmarkedOnly: Bool, calendar: Calendar = .current) -> [FeedItem] {
         items
             .filter { item in
                 guard let date = item.pubDate, calendar.isDate(date, inSameDayAs: day) else { return false }
