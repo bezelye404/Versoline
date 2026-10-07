@@ -275,6 +275,12 @@ struct ContentView: View {
             DockBadge.update(unreadCount: store.totalUnreadCount(), enabled: showDockBadge)
         }
         .task { FeedStore.current = store }
+        .task(id: WidgetState(unread: store.totalUnreadCount(), items: store.cachedTotalItemCount)) {
+            // A short pause, so a refresh that changes many counts in a row writes the snapshot once.
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
+            WidgetUpdater.update(store: store)
+        }
         .task {
             guard Benchmark.isRequested else { return }
             await Benchmark.run(store: store) { item, list, article in
@@ -375,7 +381,18 @@ struct ContentView: View {
                 }
             }
         case nil:
-            break
+            openFromWidget(url)
+        }
+    }
+
+    /// `versoline://open?link=...` from the widget shows that article; `versoline://unread` shows the Unread list.
+    private func openFromWidget(_ url: URL) {
+        guard url.scheme == WidgetSnapshot.urlScheme else { return }
+        if url.host == "unread" {
+            selectedSidebarItem = .unread
+        } else if let link = WidgetSnapshot.articleLink(from: url), let item = store.item(withLink: link) {
+            selectedSidebarItem = .all
+            selectedArticle = item
         }
     }
 
@@ -461,6 +478,11 @@ struct ContentView: View {
             store.errorMessage = String(format: String(localized: "Error saving OPML file: %@"), error.localizedDescription)
         }
     }
+}
+
+private struct WidgetState: Hashable {
+    let unread: Int
+    let items: Int
 }
 
 private struct DockBadgeState: Hashable {

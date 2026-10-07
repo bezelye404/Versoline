@@ -35,6 +35,9 @@ if [ ! -d "$BUILT_APP" ]; then
     exit 1
 fi
 
+echo "==> Adding the app group (widget data) and signing..."
+"$PROJECT_ROOT/scripts/sign-app-groups.sh" "$BUILT_APP"
+
 mkdir -p "$DIST_DIR"
 rm -f "$DIST_DIR/$DMG_NAME"
 

@@ -25,4 +25,9 @@ extension FeedStore {
     func item(withID id: UUID) -> FeedItem? {
         items.values.lazy.flatMap { $0 }.first { $0.id == id }
     }
+
+    /// The article with this link, for links that open from the widget.
+    func item(withLink link: String) -> FeedItem? {
+        items.values.lazy.flatMap { $0 }.first { $0.link == link }
+    }
 }
