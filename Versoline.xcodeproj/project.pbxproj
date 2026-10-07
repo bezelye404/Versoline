@@ -1106,6 +1106,7 @@
 				PRODUCT_NAME = VersolineWidget;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				WIDGET_DISPLAY_NAME = "Versoline Dev";
 			};
 			name = Debug;
 		};
@@ -1249,6 +1250,7 @@
 				PRODUCT_NAME = VersolineWidget;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				WIDGET_DISPLAY_NAME = Versoline;
 			};
 			name = Release;
 		};

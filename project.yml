@@ -38,7 +38,7 @@ targets:
     info:
       path: Widget/Info.plist
       properties:
-        CFBundleDisplayName: Versoline
+        CFBundleDisplayName: $(WIDGET_DISPLAY_NAME)
         AppGroupIdentifier: $(APP_GROUP_ID)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
@@ -47,6 +47,7 @@ targets:
         PRODUCT_NAME: VersolineWidget
         PRODUCT_BUNDLE_IDENTIFIER: com.bezelye.Versoline.Widget
         APP_GROUP_ID: group.com.bezelye.Versoline
+        WIDGET_DISPLAY_NAME: Versoline
         GENERATE_INFOPLIST_FILE: YES
         SKIP_INSTALL: YES
         CODE_SIGN_ENTITLEMENTS: Widget/VersolineWidget.entitlements
@@ -57,6 +58,7 @@ targets:
         Debug:
           PRODUCT_BUNDLE_IDENTIFIER: com.bezelye.Versoline.dev.Widget
           APP_GROUP_ID: group.com.bezelye.Versoline.dev
+          WIDGET_DISPLAY_NAME: Versoline Dev
           ENABLE_DEBUG_DYLIB: NO
 
   Versoline:

@@ -180,3 +180,7 @@ dist/
 
 # Local feed lists kept for the maintainer
 rss-*.opml
+
+# Build products and local build folders
+*.appex
+*.xcarchive
