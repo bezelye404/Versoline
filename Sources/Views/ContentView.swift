@@ -30,6 +30,13 @@ struct ContentView: View {
         return playing.id == selected.id
     }
 
+    @AppStorage(AppSettingsKeys.mutedKeywords) private var mutedKeywordsRaw = ""
+
+    private var widgetState: WidgetState {
+        WidgetState(unread: store.totalUnreadCount(), items: store.cachedTotalItemCount, stories: store.storyRefs.count,
+                    palette: appColorPaletteRaw, muted: mutedKeywordsRaw)
+    }
+
     private var currentTheme: AppColorPalette {
         AppColorPalette(rawValue: appColorPaletteRaw) ?? .slate
     }
@@ -275,11 +282,26 @@ struct ContentView: View {
             DockBadge.update(unreadCount: store.totalUnreadCount(), enabled: showDockBadge)
         }
         .task { FeedStore.current = store }
+        .task(id: widgetState) {
+            // A pause, so a refresh or a run of "mark as read" writes the snapshot once, not for every change.
+            try? await Task.sleep(for: .seconds(5))
+            guard !Task.isCancelled else { return }
+            WidgetUpdater.update(store: store)
+        }
+        // Leaving the app must not strand the widget up to five seconds behind.
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didResignActiveNotification)) { _ in
+            WidgetUpdater.update(store: store)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
+            WidgetUpdater.update(store: store)
+        }
         .task {
             guard Benchmark.isRequested else { return }
             await Benchmark.run(store: store) { item, list, article in
                 if list { selectedSidebarItem = .feed(item.feedId) }
                 if article { selectedArticle = item }
+            } showCalendar: {
+                selectedSidebarItem = .calendar
             }
         }
         .task(id: scenePhase) {
@@ -373,7 +395,18 @@ struct ContentView: View {
                 }
             }
         case nil:
-            break
+            openFromWidget(url)
+        }
+    }
+
+    /// `versoline://open?link=...` from the widget shows that article; `versoline://unread` shows the Unread list.
+    private func openFromWidget(_ url: URL) {
+        guard url.scheme == WidgetSnapshot.urlScheme else { return }
+        if url.host == "unread" {
+            selectedSidebarItem = .unread
+        } else if let link = WidgetSnapshot.articleLink(from: url), let item = store.item(withLink: link) {
+            selectedSidebarItem = .all
+            selectedArticle = item
         }
     }
 
@@ -459,6 +492,15 @@ struct ContentView: View {
             store.errorMessage = String(format: String(localized: "Error saving OPML file: %@"), error.localizedDescription)
         }
     }
+}
+
+/// What the widget shows depends on these; any change schedules a snapshot update.
+private struct WidgetState: Hashable {
+    let unread: Int
+    let items: Int
+    let stories: Int
+    let palette: String
+    let muted: String
 }
 
 private struct DockBadgeState: Hashable {

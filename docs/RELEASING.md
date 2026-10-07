@@ -26,6 +26,8 @@ Run the automated packaging script:
 ./scripts/build-dmg.sh <VERSION>
 ```
 
+The script also runs `scripts/sign-app-groups.sh`, which adds the app group entitlement to the app and its widget after the build and signs them again (ad hoc). Without it the widget has no data.
+
 *Example:* `./scripts/build-dmg.sh 0.4.0`  
 This produces `dist/Versoline-<VERSION>.dmg`.
 

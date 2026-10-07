@@ -18,7 +18,17 @@
                 <string>feeds</string>
             </array>
         </dict>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>Versoline links from the widget</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>versoline</string>
+            </array>
+        </dict>
     </array>
+    <key>AppGroupIdentifier</key>
+    <string>$(APP_GROUP_ID)</string>
     <key>CFBundleDocumentTypes</key>
     <array>
         <dict>

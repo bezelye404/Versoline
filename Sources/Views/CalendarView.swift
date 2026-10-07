@@ -10,15 +10,36 @@ struct CalendarView: View {
     @State private var month = Date()
     @State private var selectedDay = Calendar.current.startOfDay(for: Date())
     @State private var bookmarksOnly = false
+    @State private var summaries: [Date: ArticleCalendar.DaySummary] = [:]
+    @State private var dayItems: [FeedItem] = []
 
     private let calendar = Calendar.current
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
 
-    var body: some View {
-        let everything = store.allItems()
-        let summaries = ArticleCalendar.summaries(for: everything, in: month, calendar: calendar)
-        let dayItems = ArticleCalendar.items(on: selectedDay, from: everything, bookmarkedOnly: bookmarksOnly, calendar: calendar)
+    /// What the view shows depends on these; the counts change whenever an article is added, read or bookmarked.
+    private struct Snapshot: Hashable {
+        let month: Date
+        let day: Date
+        let bookmarksOnly: Bool
+        let itemCount: Int
+        let unreadCount: Int
+        let bookmarkCount: Int
+    }
 
+    private var snapshot: Snapshot {
+        Snapshot(month: month, day: selectedDay, bookmarksOnly: bookmarksOnly, itemCount: store.cachedTotalItemCount,
+                 unreadCount: store.cachedTotalUnreadCount, bookmarkCount: store.cachedBookmarkCount)
+    }
+
+    /// Reads the library in place instead of asking the store for a sorted copy of every article, and keeps only
+    /// the month's counts and the selected day's articles.
+    private func reload() {
+        let everything = store.items.values.joined()
+        summaries = ArticleCalendar.summaries(for: everything, in: month, calendar: calendar)
+        dayItems = ArticleCalendar.items(on: selectedDay, from: everything, bookmarkedOnly: bookmarksOnly, calendar: calendar)
+    }
+
+    var body: some View {
         VStack(spacing: 0) {
             monthHeader
             weekdayRow
@@ -39,6 +60,12 @@ struct CalendarView: View {
             dayList(dayItems)
         }
         .background(theme.listBackground)
+        .task(id: snapshot) { reload() }
+        .onChange(of: Benchmark.CalendarDriver.shared.day) { _, day in
+            guard let day else { return }
+            month = day
+            selectedDay = calendar.startOfDay(for: day)
+        }
     }
 
     // MARK: Month

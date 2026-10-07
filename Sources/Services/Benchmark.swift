@@ -90,8 +90,15 @@ enum Benchmark {
         return picked
     }
 
+    /// Lets the benchmark move the calendar view to another day (mode `calendar`).
+    @MainActor @Observable
+    final class CalendarDriver {
+        static let shared = CalendarDriver()
+        var day: Date?
+    }
+
     /// Runs the whole sequence, writes the result and quits.
-    static func run(store: FeedStore, show: @escaping (FeedItem, _ list: Bool, _ article: Bool) -> Void) async {
+    static func run(store: FeedStore, show: @escaping (FeedItem, _ list: Bool, _ article: Bool) -> Void, showCalendar: @escaping () -> Void = {}) async {
         var samples: [Sample] = []
         func record(_ label: String) {
             let memory = memoryMB()
@@ -100,6 +107,24 @@ enum Benchmark {
 
         try? await Task.sleep(for: .seconds(15))   // launch work (favicons, content blocker, cache cleanup) settles
         record("idle")
+
+        if mode == "calendar" {
+            // Walk the calendar back through the library, a few days per step, and measure after each third step.
+            showCalendar()
+            for step in 0..<articleCount {
+                CalendarDriver.shared.day = Calendar.current.date(byAdding: .day, value: -step * 3, to: Date())
+                try? await Task.sleep(for: .seconds(secondsPerArticle))
+                if (step + 1) % 3 == 0 || step == articleCount - 1 { record("after \(step + 1) days") }
+            }
+            try? await Task.sleep(for: .seconds(2))
+            record("final")
+            let items = store.items.values.reduce(0) { $0 + $1.count }
+            let result = Result(articles: articleCount, items: items, feeds: store.feeds.count, samples: samples)
+            if let data = try? JSONEncoder().encode(result) { try? data.write(to: resultURL, options: .atomic) }
+            if holdSeconds > 0 { try? await Task.sleep(for: .seconds(holdSeconds)) }
+            NSApplication.shared.terminate(nil)
+            return
+        }
 
         let articles = pickArticles(from: store, count: articleCount)
         if mode == "mark-only-small", let first = articles.first {

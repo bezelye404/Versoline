@@ -25,6 +25,7 @@ xcodebuild -project Versoline.xcodeproj -scheme Versoline -configuration "$CONFI
 
 APP="build/DerivedData/Build/Products/$CONFIG/Versoline.app"
 [ -d "$APP" ] || { echo "Build output not found: $APP" >&2; exit 1; }
+scripts/sign-app-groups.sh "$APP"
 
 if [ "$CONFIG" = "Debug" ]; then BUNDLE_ID="com.bezelye.Versoline.dev"; else BUNDLE_ID="com.bezelye.Versoline"; fi
 BINARY="$(pwd)/$APP/Contents/MacOS/Versoline"
