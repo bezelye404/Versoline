@@ -1,0 +1,2333 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="referrer" content="no-referrer">
+<title>Dino</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    font-family: monospace;
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  #score-board {
+    color: #555;
+    font-size: clamp(10px, 2.5vw, 13px);
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+    display: flex;
+    gap: 24px;
+  }
+
+  #score-board span { color: #111; }
+
+  #game-wrapper {
+    position: relative;
+    border: 1px solid #ccc;
+    background: #fff;
+    overflow: hidden;
+    width: 100%;
+    max-width: 1000px;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    image-rendering: pixelated;
+  }
+
+  #overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.92);
+    color: #111;
+    gap: 12px;
+  }
+
+  #overlay h1 {
+    font-size: clamp(14px, 4vw, 18px);
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: #111;
+  }
+
+  #overlay p {
+    font-size: clamp(9px, 2vw, 11px);
+    color: #666;
+    line-height: 1.8;
+    text-align: center;
+  }
+
+  #overlay .hint {
+    font-size: clamp(8px, 2vw, 10px);
+    color: #333;
+    animation: blink 1.4s infinite;
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+
+
+  /* Dark Mode Styles */
+  body.dark-mode {
+    background: #121212;
+    color: #e8eaed;
+  }
+  body.dark-mode #score-board {
+    color: #acb0b6;
+  }
+  body.dark-mode #score-board span {
+    color: #f1f3f4;
+  }
+  body.dark-mode #game-wrapper {
+    border-color: #3c4043;
+    background: #202124;
+  }
+  body.dark-mode #overlay {
+    background: rgba(32, 33, 36, 0.92);
+    color: #f1f3f4;
+  }
+  body.dark-mode #overlay h1 {
+    color: #f1f3f4;
+  }
+  body.dark-mode #overlay p {
+    color: #acb0b6;
+  }
+  body.dark-mode #overlay .hint {
+    color: #e8eaed;
+  }
+
+
+  #top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1000px;
+    margin-bottom: 10px;
+    padding: 0 10px;
+  }
+
+  #theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+  }
+
+  #theme-toggle:hover {
+    background: rgba(0,0,0,0.05);
+  }
+
+  body.dark-mode #theme-toggle:hover {
+    background: rgba(255,255,255,0.08);
+  }
+
+  body.dark-mode .theme-icon-moon { display: none !important; }
+  body.dark-mode .theme-icon-sun { display: block !important; }
+
+  /* Mode Selector Styles (Segmented Control for Mobile optimization) */
+  .mode-selector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0;
+    pointer-events: auto;
+  }
+
+  .mode-selector span {
+    font-size: clamp(10px, 2.8vw, 13px);
+    font-weight: bold;
+    color: #666;
+  }
+
+  body.dark-mode .mode-selector span {
+    color: #acb0b6;
+  }
+
+  .segmented-control {
+    display: flex;
+    background: #eeeeee;
+    border-radius: 8px;
+    padding: 3px;
+    gap: 2px;
+    width: 240px;
+  }
+
+  body.dark-mode .segmented-control {
+    background: #2c2c2f;
+  }
+
+  .mode-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 10px 16px;
+    font-family: inherit;
+    font-size: clamp(11px, 3vw, 13px);
+    font-weight: bold;
+    color: #555;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body.dark-mode .mode-btn {
+    color: #acb0b6;
+  }
+
+  .mode-btn:active {
+    transform: scale(0.96);
+  }
+
+  .mode-btn.active {
+    background: #ffffff;
+    color: #111;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  body.dark-mode .mode-btn.active {
+    background: #3c4043;
+    color: #f1f3f4;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  #name-input-panel {
+    display: none;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.96);
+    padding: 12px 18px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  
+  body.dark-mode #name-input-panel {
+    background: rgba(32, 33, 36, 0.96);
+    border-color: #3c4043;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  #player-name {
+    border: 1px solid #ccc;
+    background: #fff;
+    color: #111;
+  }
+
+  body.dark-mode #player-name {
+    border-color: #555;
+    background: #202124;
+    color: #f1f3f4;
+  }
+
+  #leaderboard-section {
+    margin-top: 24px;
+    width: 100%;
+    max-width: 1000px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  body.dark-mode #leaderboard-section {
+    background: #202124;
+    border-color: #3c4043;
+  }
+
+  #leaderboard-section h2 {
+    font-size: clamp(11px, 3.2vw, 14px);
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    color: #111;
+  }
+
+  body.dark-mode #leaderboard-section h2 {
+    color: #f1f3f4;
+  }
+
+  #leaderboard-table {
+    width: 100%;
+    max-width: 400px;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+  }
+
+  #leaderboard-table th, #leaderboard-table td {
+    padding: 8px 12px;
+    font-size: clamp(10px, 2.8vw, 12px);
+    border-bottom: 1px solid #eee;
+  }
+
+  .lb-share-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 3px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    transition: background 0.2s, color 0.2s;
+    vertical-align: middle;
+  }
+
+  .lb-share-btn:hover {
+    background: rgba(0,0,0,0.07);
+    color: #111;
+  }
+
+  body.dark-mode .lb-share-btn {
+    color: #acb0b6;
+  }
+
+  body.dark-mode .lb-share-btn:hover {
+    background: rgba(255,255,255,0.1);
+    color: #f1f3f4;
+  }
+
+  body.dark-mode #leaderboard-table th, body.dark-mode #leaderboard-table td {
+    border-bottom-color: #3c4043;
+  }
+
+  #leaderboard-table th {
+    font-weight: bold;
+    color: #666;
+    text-align: left;
+    border-bottom-width: 2px;
+  }
+
+  body.dark-mode #leaderboard-table th {
+    color: #acb0b6;
+  }
+
+  #leaderboard-table td {
+    color: #333;
+  }
+
+  body.dark-mode #leaderboard-table td {
+    color: #e8eaed;
+  }
+
+
+
+  #audio-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+  }
+
+  #audio-toggle:hover {
+    background: rgba(0,0,0,0.05);
+  }
+
+  body.dark-mode #audio-toggle:hover {
+    background: rgba(255,255,255,0.08);
+  }
+  #share-modal {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.96);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    z-index: 10;
+    padding: 20px;
+  }
+
+  body.dark-mode #share-modal {
+    background: rgba(32, 33, 36, 0.96);
+  }
+
+  #import-code-btn, #copy-code-btn {
+    font-family: inherit;
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: #535353;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s, transform 0.1s;
+  }
+  #import-code-btn:active, #copy-code-btn:active {
+    transform: scale(0.96);
+  }
+  body.dark-mode #import-code-btn, body.dark-mode #copy-code-btn {
+    background: #acb0b6;
+    color: #202124;
+  }
+
+  .close-btn {
+    padding: 6px 16px;
+    border: 1px solid #535353;
+    background: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    font-family: inherit;
+    font-weight: bold;
+    color: #535353;
+  }
+
+  body.dark-mode .close-btn {
+    border-color: #acb0b6;
+    color: #acb0b6;
+  }
+
+  #share-btn {
+    margin-top: 6px;
+    font-family: inherit;
+    font-size: clamp(10px, 2.8vw, 12px);
+    padding: 6px 14px;
+    border-radius: 6px;
+    background: #535353;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  body.dark-mode #share-btn {
+    background: #acb0b6;
+    color: #202124;
+  }
+
+  #dismiss-share-btn {
+    margin-top: 6px;
+    font-family: inherit;
+    font-size: clamp(10px, 2.8vw, 12px);
+    line-height: 1;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: none;
+    border: 1px solid #535353;
+    color: #535353;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  body.dark-mode #dismiss-share-btn {
+    border-color: #acb0b6;
+    color: #acb0b6;
+  }
+
+  #leaderboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    position: relative;
+  }
+
+  #leaderboard-toggle-btn {
+    position: absolute;
+    right: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    transition: background 0.2s;
+  }
+
+  #leaderboard-toggle-btn:hover {
+    background: rgba(0,0,0,0.05);
+  }
+
+  body.dark-mode #leaderboard-toggle-btn {
+    color: #acb0b6;
+  }
+
+  body.dark-mode #leaderboard-toggle-btn:hover {
+    background: rgba(255,255,255,0.08);
+  }
+
+  #leaderboard-toggle-btn svg {
+    transition: transform 0.2s;
+  }
+
+  #leaderboard-toggle-btn.collapsed svg {
+    transform: rotate(180deg);
+  }
+
+  .custom-selectors {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .select-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .select-group label {
+    font-size: 10px;
+    font-weight: bold;
+    color: #666;
+  }
+
+  body.dark-mode .select-group label {
+    color: #acb0b6;
+  }
+
+  .select-group select {
+    font-family: inherit;
+    font-size: 11px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 4px 8px;
+    outline: none;
+    background: #fff;
+    color: #333;
+    cursor: pointer;
+  }
+
+  body.dark-mode .select-group select {
+    background: #202124;
+    border-color: #3c4043;
+    color: #f1f3f4;
+  }
+
+  /* Matrix Theme Override */
+  body.theme-matrix {
+    background: #000000;
+    color: #00ff00;
+  }
+
+  body.theme-matrix #score-board, 
+  body.theme-matrix #score-board span, 
+  body.theme-matrix #leaderboard-section h2, 
+  body.theme-matrix #stats-section h2, 
+  body.theme-matrix td,
+  body.theme-matrix th,
+  body.theme-matrix .stat-val,
+  body.theme-matrix .stat-lbl,
+  body.theme-matrix .mode-selector span,
+  body.theme-matrix .select-group label {
+    color: #00ff00 !important;
+  }
+
+  body.theme-matrix #game-wrapper, 
+  body.theme-matrix #leaderboard-section,
+  body.theme-matrix #stats-section,
+  body.theme-matrix #player-name,
+  body.theme-matrix #import-code-input,
+  body.theme-matrix #share-code-input,
+  body.theme-matrix .select-group select {
+    border-color: #00ff00 !important;
+    background: #000000 !important;
+    color: #00ff00 !important;
+  }
+
+  body.theme-matrix #overlay,
+  body.theme-matrix #share-modal {
+    background: rgba(0,0,0,0.96) !important;
+    color: #00ff00 !important;
+  }
+
+  body.theme-matrix #overlay h1, 
+  body.theme-matrix #overlay p, 
+  body.theme-matrix #overlay .hint,
+  body.theme-matrix .hint,
+  body.theme-matrix #name-panel-title {
+    color: #00ff00 !important;
+  }
+
+  body.theme-matrix .mode-btn,
+  body.theme-matrix #theme-toggle,
+  body.theme-matrix #audio-toggle,
+  body.theme-matrix #leaderboard-toggle-btn,
+  body.theme-matrix #save-name-btn,
+  body.theme-matrix #share-btn,
+  body.theme-matrix #dismiss-share-btn,
+  body.theme-matrix #import-code-btn,
+  body.theme-matrix #copy-code-btn,
+  body.theme-matrix .close-btn,
+  body.theme-matrix .lb-share-btn {
+    border: 1px solid #00ff00 !important;
+    color: #00ff00 !important;
+    background: #000000 !important;
+  }
+
+  body.theme-matrix .mode-btn.active {
+    background: #00ff00 !important;
+    color: #000000 !important;
+  }
+
+  body.theme-matrix #leaderboard-table th, 
+  body.theme-matrix #leaderboard-table td {
+    border-bottom-color: #003300 !important;
+  }
+
+  /* Cyberpunk Theme Override */
+  body.theme-cyberpunk {
+    background: #0f051d;
+    color: #ff007f;
+  }
+
+  body.theme-cyberpunk #score-board, 
+  body.theme-cyberpunk #score-board span, 
+  body.theme-cyberpunk #leaderboard-section h2, 
+  body.theme-cyberpunk #stats-section h2, 
+  body.theme-cyberpunk td,
+  body.theme-cyberpunk th,
+  body.theme-cyberpunk .stat-val,
+  body.theme-cyberpunk .stat-lbl,
+  body.theme-cyberpunk .mode-selector span,
+  body.theme-cyberpunk .select-group label {
+    color: #ff007f !important;
+  }
+
+  body.theme-cyberpunk #game-wrapper, 
+  body.theme-cyberpunk #leaderboard-section,
+  body.theme-cyberpunk #stats-section,
+  body.theme-cyberpunk #player-name,
+  body.theme-cyberpunk #import-code-input,
+  body.theme-cyberpunk #share-code-input,
+  body.theme-cyberpunk .select-group select {
+    border-color: #ff007f !important;
+    background: #0f051d !important;
+    color: #00ffff !important;
+  }
+
+  body.theme-cyberpunk #overlay,
+  body.theme-cyberpunk #share-modal {
+    background: rgba(15, 5, 29, 0.96) !important;
+    color: #00ffff !important;
+  }
+
+  body.theme-cyberpunk #overlay h1, 
+  body.theme-cyberpunk #overlay p, 
+  body.theme-cyberpunk #overlay .hint,
+  body.theme-cyberpunk #overlay .hint,
+  body.theme-cyberpunk #name-panel-title {
+    color: #00ffff !important;
+  }
+
+  body.theme-cyberpunk .mode-btn,
+  body.theme-cyberpunk #theme-toggle,
+  body.theme-cyberpunk #audio-toggle,
+  body.theme-cyberpunk #leaderboard-toggle-btn,
+  body.theme-cyberpunk #save-name-btn,
+  body.theme-cyberpunk #share-btn,
+  body.theme-cyberpunk #dismiss-share-btn,
+  body.theme-cyberpunk #import-code-btn,
+  body.theme-cyberpunk #copy-code-btn,
+  body.theme-cyberpunk .close-btn,
+  body.theme-cyberpunk .lb-share-btn {
+    border: 1px solid #ff007f !important;
+    color: #00ffff !important;
+    background: #0f051d !important;
+  }
+
+  body.theme-cyberpunk .mode-btn.active {
+    background: #ff007f !important;
+    color: #0f051d !important;
+  }
+
+  body.theme-cyberpunk #leaderboard-table th, 
+  body.theme-cyberpunk #leaderboard-table td {
+    border-bottom-color: #2a085c !important;
+  }
+
+  /* ── Tablet (≤ 1024px) ─────────────────────────────────────────────── */
+  @media (max-width: 1024px) {
+    body {
+      padding: 12px 20px;
+      overflow-y: auto;
+      justify-content: flex-start;
+      padding-top: 20px;
+    }
+
+    #top-bar {
+      padding: 0 8px;
+    }
+
+    #leaderboard-section {
+      margin-top: 16px;
+      margin-bottom: 16px;
+    }
+
+    #leaderboard-table {
+      max-width: 360px;
+    }
+
+    .segmented-control {
+      width: 220px;
+    }
+  }
+
+  /* ── Mobile landscape / small tablet (≤ 768px) ──────────────────────── */
+  @media (max-width: 768px) {
+    body {
+      padding: 12px;
+      overflow-y: auto;
+      justify-content: flex-start;
+      padding-top: 16px;
+    }
+
+    #top-bar {
+      padding: 0 4px;
+      margin-bottom: 10px;
+    }
+
+    #game-wrapper {
+      border-radius: 12px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+      border-color: #e0e0e0;
+    }
+
+    body.dark-mode #game-wrapper {
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+      border-color: #3c4043;
+    }
+
+    #overlay {
+      gap: 8px;
+    }
+
+    #leaderboard-section {
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+      margin-bottom: 12px;
+    }
+
+    #leaderboard-table {
+      max-width: 100%;
+    }
+
+    #leaderboard-table th, #leaderboard-table td {
+      padding: 7px 8px;
+    }
+
+    .segmented-control {
+      width: 200px;
+    }
+
+    .mode-btn {
+      padding: 8px 12px;
+    }
+
+    #name-input-panel {
+      padding: 10px 14px;
+    }
+
+    .custom-selectors {
+      gap: 8px;
+    }
+  }
+
+  /* ── Mobile portrait (≤ 480px) ──────────────────────────────────────── */
+  @media (max-width: 480px) {
+    body {
+      padding: 8px;
+      padding-top: 12px;
+    }
+
+    #top-bar {
+      padding: 0 2px;
+      margin-bottom: 8px;
+    }
+
+    #score-board {
+      gap: 14px;
+      font-size: clamp(10px, 3.5vw, 13px);
+    }
+
+    #game-wrapper {
+      border-radius: 10px;
+    }
+
+    #overlay {
+      gap: 6px;
+      padding: 8px;
+    }
+
+    #overlay h1 {
+      font-size: clamp(14px, 5vw, 20px);
+    }
+
+    #leaderboard-section {
+      border-radius: 10px;
+      padding: 10px 8px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+
+    #leaderboard-section h2 {
+      font-size: clamp(11px, 4vw, 14px);
+      margin-bottom: 8px;
+    }
+
+    #leaderboard-table th, #leaderboard-table td {
+      padding: 6px 6px;
+      font-size: clamp(10px, 3.2vw, 12px);
+    }
+
+    .segmented-control {
+      width: 180px;
+    }
+
+    .mode-btn {
+      padding: 8px 8px;
+      font-size: clamp(10px, 3.5vw, 13px);
+    }
+
+    #name-input-panel {
+      padding: 8px 10px;
+      width: calc(100% - 8px);
+    }
+
+    #player-name {
+      width: 80px;
+    }
+
+    .custom-selectors {
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .select-group select {
+      font-size: 10px;
+      padding: 3px 6px;
+    }
+
+    #share-btn, #dismiss-share-btn {
+      font-size: clamp(9px, 3vw, 12px);
+      padding: 5px 10px;
+    }
+
+    #import-code-input {
+      font-size: 10px;
+      padding: 5px 8px;
+    }
+
+    #import-code-btn {
+      font-size: 10px;
+      padding: 5px 8px;
+      white-space: nowrap;
+    }
+
+    #share-code-input {
+      font-size: clamp(10px, 3vw, 13px);
+    }
+  }
+
+  /* ── Very small phones (≤ 360px) ────────────────────────────────────── */
+  @media (max-width: 360px) {
+    body {
+      padding: 6px;
+      padding-top: 8px;
+    }
+
+    #score-board {
+      gap: 10px;
+    }
+
+    .segmented-control {
+      width: 160px;
+    }
+
+    .mode-btn {
+      padding: 7px 6px;
+    }
+
+    #leaderboard-table th, #leaderboard-table td {
+      padding: 5px 4px;
+    }
+
+    #name-input-panel {
+      width: 100%;
+    }
+
+    #player-name {
+      width: 70px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="top-bar">
+  <div id="score-board">
+    SKOR: <span id="score">00000</span> &nbsp; EN İYİ: <span id="hi">00000</span>
+  </div>
+  <div style="display: flex; gap: 8px;">
+    <button id="audio-toggle" aria-label="Sesi Kapat/Aç">
+      <svg class="audio-icon-on" viewBox="0 0 24 24" width="20" height="20" style="display: block; fill: currentColor;">
+        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+      </svg>
+      <svg class="audio-icon-off" viewBox="0 0 24 24" width="20" height="20" style="display: none; fill: currentColor;">
+        <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.21.05-.42.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+      </svg>
+    </button>
+    <button id="theme-toggle" aria-label="Temayı Değiştir">
+      <svg class="theme-icon-moon" viewBox="0 0 24 24" width="20" height="20" style="display: block; fill: currentColor;">
+        <path d="M12.3 22h-.1c-5.5 0-10-4.5-10-10 0-4.8 3.5-8.9 8.2-9.8.5-.1 1 .2 1.1.7.2.5-.1 1.1-.6 1.3-3.7 1.2-6.2 4.7-6.2 8.6 0 4.4 3.6 8 8 8 3.9 0 7.4-2.5 8.6-6.2.2-.5.7-.8 1.3-.6.5.2.8.7.7 1.1-.9 4.7-5 8.2-9.8 8.2-.4 0-.8 0-1.2-.2Z"/>
+      </svg>
+      <svg class="theme-icon-sun" viewBox="0 0 24 24" width="20" height="20" style="display: none; fill: currentColor;">
+        <path d="M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm0-7a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1Zm0 15a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0v-2a1 1 0 0 1 1-1ZM4.22 4.22a1 1 0 0 1 1.42 0l1.41 1.41a1 1 0 1 1-1.41 1.42L4.22 5.64a1 1 0 0 1 0-1.42Zm12.73 12.73a1 1 0 0 1 1.41 0l1.42 1.41a1 1 0 1 1-1.42 1.42l-1.41-1.42a1 1 0 0 1 0-1.41ZM2 12a1 1 0 0 1 1-1h2a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1Zm15 0a1 1 0 0 1 1-1h2a1 1 0 1 1 0 2h-2a1 1 0 0 1-1-1ZM5.64 16.97a1 1 0 0 1 0 1.41l-1.42 1.42a1 1 0 1 1-1.41-1.42l1.41-1.41a1 1 0 0 1 1.42 0Zm12.72-12.75a1 1 0 0 1 0 1.42l-1.41 1.41a1 1 0 1 1-1.42-1.41l1.41-1.42a1 1 0 0 1 1.42 0Z"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<div id="game-wrapper">
+  <canvas id="c" width="1000" height="300"></canvas>
+  <div id="overlay">
+    <h1 id="overlay-title">DINO</h1>
+    <p id="overlay-sub">deadass google game</p>
+    
+    <div id="name-input-panel" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onpointerdown="event.stopPropagation()">
+      <div style="font-size: clamp(8px, 1.8vw, 10px); color: #d93025; margin-bottom: 6px; font-weight: bold; text-transform: uppercase;">KİŞİSEL VERİNİ PAYLAŞMA ENAYİ</div>
+      <div style="font-size: clamp(9px, 2.2vw, 11px); font-weight: bold; margin-bottom: 8px; color: inherit;" id="name-panel-title">YENİ REKOR! İSMİNİZ:</div>
+      <div style="display: flex; gap: 8px; justify-content: center;">
+        <input type="text" id="player-name" maxlength="10" placeholder="AAA" style="width: 100px; text-align: center; text-transform: uppercase; font-family: inherit; font-size: clamp(11px, 2.8vw, 13px); border: 1px solid #ccc; border-radius: 6px; padding: 6px; outline: none; background: inherit; color: inherit;" />
+        <button id="save-name-btn" type="button" style="font-family: inherit; font-size: clamp(11px, 2.8vw, 13px); padding: 6px 12px; border-radius: 6px; background: #535353; color: white; border: none; cursor: pointer; font-weight: bold;">KAYDET</button>
+        <button id="skip-save-btn" type="button" class="close-btn" style="font-size: clamp(11px, 2.8vw, 13px); padding: 6px 12px;">KAYDETME</button>
+      </div>
+    </div>
+
+    <div class="custom-selectors" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()">
+      <div class="select-group">
+        <label for="dino-skin">AKSESUAR</label>
+        <select id="dino-skin">
+          <option value="none">Yok</option>
+          <option value="sunglasses">Güneş Gözlüğü</option>
+          <option value="partyhat">Parti Şapkası</option>
+          <option value="cowboy">Kovboy Şapkası</option>
+          <option value="crown">Taç</option>
+          <option value="mohawk">Mohawk</option>
+          <option value="snail">Salyangoz</option>
+        </select>
+      </div>
+      <div class="select-group">
+        <label for="theme-select">TEMA</label>
+        <select id="theme-select">
+          <option value="classic">Klasik</option>
+          <option value="matrix">Matrix</option>
+          <option value="cyberpunk">Cyberpunk</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="mode-selector" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()">
+      <span>Zıplama Modu:</span>
+      <div class="segmented-control">
+        <button type="button" class="mode-btn active" data-value="classic">Klasik</button>
+        <button type="button" class="mode-btn" data-value="dynamic">Dinamik</button>
+      </div>
+    </div>
+    <div id="share-btn-row" style="display: none; align-items: center; gap: 6px;" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()">
+      <button id="share-btn" type="button">SKORU PAYLAŞ</button>
+      <button id="dismiss-share-btn" type="button" aria-label="Kapat" title="Kapat">×</button>
+    </div>
+    <div class="hint" id="overlay-hint">BAŞLAMAK İÇİN DOKUN / BOŞLUK</div>
+  </div>
+
+  <div id="share-modal" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()">
+    <div style="font-weight: bold; font-size: clamp(11px, 3.2vw, 14px); text-transform: uppercase;" id="share-modal-title">PAYLAŞIM KODU</div>
+    <p style="font-size: clamp(8px, 2.2vw, 10px); color: #666; max-width: 300px; text-align: center; line-height: 1.4;">Aşağıdaki kodu kopyalayarak arkadaşlarınızla paylaşabilirsiniz:</p>
+    <input type="text" id="share-code-input" readonly style="width: 80%; max-width: 300px; text-align: center; font-family: inherit; font-size: clamp(11px, 2.8vw, 13px); border: 1px solid #ccc; border-radius: 6px; padding: 6px; outline: none; background: #fafafa; color: #333; font-weight: bold; text-transform: uppercase;" />
+    <div style="display: flex; gap: 8px;">
+      <button id="copy-code-btn" type="button">KODU KOPYALA</button>
+      <button class="close-btn" id="close-share-btn">KAPAT</button>
+    </div>
+  </div>
+</div>
+
+<div id="leaderboard-section">
+  <div id="leaderboard-header">
+    <h2>LİDERLİK TABLOSU</h2>
+    <button id="leaderboard-toggle-btn" type="button" aria-label="Liderlik Tablosunu Aç/Kapat" title="Liderlik Tablosunu Aç/Kapat">
+      <svg viewBox="0 0 24 24" width="18" height="18" style="display: block; fill: currentColor;">
+        <path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/>
+      </svg>
+    </button>
+  </div>
+  <div id="leaderboard-content" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+    <table id="leaderboard-table">
+      <thead>
+        <tr>
+          <th style="width: 60px; text-align: center;">SIRA</th>
+          <th>OYUNCU</th>
+          <th style="text-align: right;">SKOR</th>
+          <th style="width: 36px;"></th>
+        </tr>
+      </thead>
+      <tbody id="leaderboard-body">
+        <!-- High scores inserted here -->
+      </tbody>
+    </table>
+
+    <div style="display: flex; gap: 8px; margin-top: 14px; width: 100%; max-width: 400px; justify-content: center; align-items: center; flex-wrap: wrap;" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()">
+      <input type="text" id="import-code-input" placeholder="PAYLAŞIM KODU GİR" style="text-transform: uppercase; font-family: inherit; font-size: 11px; border: 1px solid #ccc; border-radius: 6px; padding: 6px 10px; outline: none; background: inherit; color: inherit; flex: 1; min-width: 140px; text-align: center;" />
+      <button id="import-code-btn" type="button">SKORU YÜKLE</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+
+// Check if mobile portrait screen
+const isMobilePortrait = window.innerWidth < 768 && window.innerHeight > window.innerWidth;
+if (isMobilePortrait) {
+  canvas.width = 600;
+  canvas.height = 400; // More portrait aspect ratio (3:2) compared to desktop (10:3)
+}
+
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+const GROUND = H - 40;
+
+const C_LIGHT = {
+  bg:     '#ffffff',
+  ground: '#888888',
+  dino:   '#535353',
+  obs:    '#535353',
+  cloud:  '#dddddd',
+  dot:    '#cccccc',
+};
+
+const C_DARK = {
+  bg:     '#202124',
+  ground: '#acb0b6',
+  dino:   '#f1f3f4',
+  obs:    '#f1f3f4',
+  cloud:  '#3c4043',
+  dot:    '#3c4043',
+};
+
+let C = { ...C_LIGHT };
+let isDarkMode = false;
+let isJumpingInput = false;
+let jumpMode = 'classic';
+
+const C_MATRIX = {
+  bg:     '#000000',
+  ground: '#00ff00',
+  dino:   '#00ff00',
+  obs:    '#00ff00',
+  cloud:  '#003300',
+  dot:    '#003300',
+};
+
+const C_CYBERPUNK = {
+  bg:     '#0f051d',
+  ground: '#ff007f',
+  dino:   '#00ffff',
+  obs:    '#ff007f',
+  cloud:  '#2a085c',
+  dot:    '#2a085c',
+};
+
+const SKIN_COLORS = {
+  sunglasses: {
+    classic: '#111111',
+    dark: '#ffffff',
+    matrix: '#00ff00',
+    cyberpunk: '#00ffff'
+  },
+  partyhat: {
+    classic: '#d93025',
+    dark: '#ff8a80',
+    matrix: '#00ff00',
+    cyberpunk: '#ff007f'
+  },
+  cowboy: {
+    classic: '#8B4513',
+    dark: '#cd853f',
+    matrix: '#00ff00',
+    cyberpunk: '#ff007f'
+  },
+  crown: {
+    classic: '#FFD700',
+    dark: '#FFD700',
+    matrix: '#00ff00',
+    cyberpunk: '#ffff00'
+  },
+  mohawk: {
+    classic: '#ff4444',
+    dark: '#ff6666',
+    matrix: '#00ff00',
+    cyberpunk: '#ff007f'
+  },
+  snail: {
+    classic: '#c8a96e',
+    dark: '#d4b483',
+    matrix: '#00ff00',
+    cyberpunk: '#ff007f'
+  }
+};
+
+let currentThemeName = 'classic';
+let activeSkin = 'none';
+
+let isMuted = false;
+let audioCtx = null;
+
+let lastMilestone = 0;
+
+// ───────── Parçacık sistemi ─────────
+let particles = [];
+function spawnParticles(x, y, count, colors, vxRange, vyRange, lifeRange) {
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: x + (Math.random() - 0.5) * 10,
+      y: y,
+      vx: vxRange[0] + Math.random() * (vxRange[1] - vxRange[0]),
+      vy: vyRange[0] + Math.random() * (vyRange[1] - vyRange[0]),
+      life: lifeRange[0] + Math.random() * (lifeRange[1] - lifeRange[0]),
+      maxLife: 0,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      size: 1 + Math.random() * 2,
+    });
+    particles[particles.length - 1].maxLife = particles[particles.length - 1].life;
+  }
+}
+function updateAndDrawParticles() {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.15; // yerçekimi
+    p.life--;
+    if (p.life <= 0) { particles.splice(i, 1); continue; }
+    const alpha = p.life / p.maxLife;
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = p.color;
+    ctx.fillRect(Math.round(p.x), Math.round(p.y), Math.ceil(p.size), Math.ceil(p.size));
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ───────── Gece/Gündüz döngüsü ─────────
+// Sadece klasik/dark temada aktiftir; matrix/cyberpunk kendi renklerini korur.
+// cycle: 0=tam gündüz, 0.5=tam gece, sinüs dalgası ile gider
+let dayNightT = 0;         // 0..1 arası: 0=gündüz, 1=gece
+let dayNightDir = 1;       // +1=kararmaya gidiyor, -1=aydınlanıyor
+let lastDayNightScore = 0; // son geçiş skoru
+const DAY_NIGHT_INTERVAL = 300; // kaç skorluk aralıkla geçiş
+const DAY_NIGHT_SPEED = 0.004;  // geçiş hızı
+
+// Yıldızlar (bir kere oluştur)
+const STARS = Array.from({length: 40}, () => ({
+  x: Math.random(),
+  y: Math.random() * 0.55,
+  r: 0.5 + Math.random() * 1.5,
+}));
+
+function setDarkMode(dark) {
+  isDarkMode = dark;
+  updateTheme();
+}
+
+function updateTheme() {
+  document.body.classList.remove('dark-mode', 'theme-matrix', 'theme-cyberpunk');
+  
+  if (currentThemeName === 'matrix') {
+    document.body.classList.add('theme-matrix');
+    C = { ...C_MATRIX };
+  } else if (currentThemeName === 'cyberpunk') {
+    document.body.classList.add('theme-cyberpunk');
+    C = { ...C_CYBERPUNK };
+  } else {
+    if (isDarkMode) {
+      document.body.classList.add('dark-mode');
+      C = { ...C_DARK };
+    } else {
+      C = { ...C_LIGHT };
+    }
+  }
+  
+  const sunIcon = document.querySelector('.theme-icon-sun');
+  const moonIcon = document.querySelector('.theme-icon-moon');
+  if (isDarkMode) {
+    if (sunIcon) sunIcon.style.display = 'block';
+    if (moonIcon) moonIcon.style.display = 'none';
+  } else {
+    if (sunIcon) sunIcon.style.display = 'none';
+    if (moonIcon) moonIcon.style.display = 'block';
+  }
+  
+  localStorage.setItem('theme_name', currentThemeName);
+  localStorage.setItem('theme_dark', isDarkMode ? 'true' : 'false');
+  
+  const themeSelect = document.getElementById('theme-select');
+  if (themeSelect) {
+    themeSelect.value = currentThemeName;
+  }
+}
+
+let state = 'idle';
+let score = 0, hiScore = 0, frame = 0;
+let speed = 5;
+
+// Three-phase speed curve — no hard ceiling, growth slows logarithmically after score 2000
+function calcSpeed(s) {
+  if (s < 500)  return 5 + s * 0.01;                         // 5 → 10
+  if (s < 2000) return 10 + (s - 500) * (8 / 1500);         // 10 → 18
+  return 18 + Math.log2(1 + (s - 2000) / 500) * 2;          // 18 → ∞ (slow log growth)
+}
+
+// Leaderboard Implementation
+let leaderboard = [];
+
+// Cached DOM refs — avoids repeated getElementById in the hot game loop and handlers
+const elScore       = document.getElementById('score');
+const elHi          = document.getElementById('hi');
+const elOverlay     = document.getElementById('overlay');
+const elOvTitle     = document.getElementById('overlay-title');
+const elOvSub       = document.getElementById('overlay-sub');
+const elOvHint      = document.getElementById('overlay-hint');
+const elNamePanel   = document.getElementById('name-input-panel');
+const elShareBtnRow = document.getElementById('share-btn-row');
+const elPlayerName  = document.getElementById('player-name');
+const elShareModal  = document.getElementById('share-modal');
+const elShareCode   = document.getElementById('share-code-input');
+const elImportInput = document.getElementById('import-code-input');
+const elLbBody      = document.getElementById('leaderboard-body');
+const elModeSel     = document.querySelector('.mode-selector');
+
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+}
+
+function initAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
+
+function playTone(freq, type, duration, slideTo) {
+  if (isMuted) return;
+  initAudio();
+  if (!audioCtx) return;
+
+  const osc = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+  
+  osc.type = type || 'sine';
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+  
+  if (slideTo) {
+    osc.frequency.exponentialRampToValueAtTime(slideTo, audioCtx.currentTime + duration);
+  }
+  
+  gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.005, audioCtx.currentTime + duration);
+  
+  osc.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+  
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+}
+
+function playJumpSound() {
+  playTone(150, 'triangle', 0.15, 600);
+}
+
+function playCrashSound() {
+  playTone(200, 'sawtooth', 0.4, 20);
+}
+
+function playMilestoneSound() {
+  if (isMuted) return;
+  playTone(880, 'square', 0.08);
+  setTimeout(() => {
+    playTone(1200, 'square', 0.08);
+  }, 80);
+}
+
+function setMuted(muted) {
+  isMuted = muted;
+  localStorage.setItem('muted', isMuted ? 'true' : 'false');
+  const iconOn = document.querySelector('.audio-icon-on');
+  const iconOff = document.querySelector('.audio-icon-off');
+  if (iconOn && iconOff) {
+    if (isMuted) {
+      iconOn.style.display = 'none';
+      iconOff.style.display = 'block';
+    } else {
+      iconOn.style.display = 'block';
+      iconOff.style.display = 'none';
+    }
+  }
+}
+
+
+
+// Skin accessories helpers
+function getSkinColor(skinType) {
+  if (currentThemeName === 'matrix') return SKIN_COLORS[skinType].matrix;
+  if (currentThemeName === 'cyberpunk') return SKIN_COLORS[skinType].cyberpunk;
+  return isDarkMode ? SKIN_COLORS[skinType].dark : SKIN_COLORS[skinType].classic;
+}
+
+// anti-cheat cryptographic verification signature generator
+function generateSignature(name, scoreVal) {
+  const salt = 'D1n0S4urS3cr3tS4lt!';
+  const str = `${name}-${scoreVal}-${salt}`;
+  let hash = 5381;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 33) ^ str.charCodeAt(i);
+  }
+  return (hash >>> 0).toString(16).toUpperCase();
+}
+
+// UTF-8 safe base64 helpers using modern TextEncoder/TextDecoder
+function utf8ToBase64(str) {
+  return btoa(String.fromCharCode(...new TextEncoder().encode(str)));
+}
+
+function base64ToUtf8(str) {
+  return new TextDecoder().decode(Uint8Array.from(atob(str), c => c.charCodeAt(0)));
+}
+
+// Encodes name and score into a verified Base64 share code
+function encodeShareCode(name, scoreVal) {
+  const sig = generateSignature(name, scoreVal);
+  const rawStr = `${name}-${scoreVal}-${sig}`;
+  return utf8ToBase64(rawStr);
+}
+
+// Decodes and verifies share code
+function decodeAndVerifyShareCode(codeStr) {
+  try {
+    const rawStr = base64ToUtf8(codeStr.trim());
+    const parts = rawStr.split('-');
+    if (parts.length === 3) {
+      const name = parts[0];
+      const scoreVal = parseInt(parts[1], 10);
+      const sig = parts[2];
+      
+      if (generateSignature(name, scoreVal) === sig) {
+        return { name, score: scoreVal };
+      }
+    }
+  } catch (e) {
+    // Decode failed
+  }
+  return null;
+}
+
+// Shared score loader
+function loadSharedScore(codeStr) {
+  if (!codeStr) return;
+  
+  // Clean up code: if it's a URL, extract the query param
+  let cleanCode = codeStr.trim();
+  if (cleanCode.includes('?share=')) {
+    const urlParts = cleanCode.split('?share=');
+    if (urlParts.length > 1) {
+      cleanCode = urlParts[1].split('&')[0];
+    }
+  }
+  
+  // Decode and verify
+  const verifiedData = decodeAndVerifyShareCode(cleanCode);
+  if (verifiedData) {
+    const { name, score: sharedScore } = verifiedData;
+    
+    // Add to local leaderboard
+    const saved = localStorage.getItem('leaderboard');
+    let currentLeaderboard = [];
+    if (saved) {
+      try { currentLeaderboard = JSON.parse(saved); } catch(e) {}
+    }
+    
+    currentLeaderboard.push({ name: name, score: sharedScore });
+    currentLeaderboard.sort((a, b) => b.score - a.score);
+    currentLeaderboard = currentLeaderboard.slice(0, 5);
+    
+    localStorage.setItem('leaderboard', JSON.stringify(currentLeaderboard));
+    
+    alert(`Tebrikler! ${name} kullanıcısının ${sharedScore} puanlık doğrulanmış skoru başarıyla yerel liderlik tablonuza eklendi!`);
+    
+    leaderboard = currentLeaderboard;
+    hiScore = leaderboard.length > 0 ? leaderboard[0].score : 0;
+    elHi.textContent = hiScore.toString().padStart(5, '0');
+    renderLeaderboard();
+    elImportInput.value = '';
+  } else {
+    alert('Hata: Geçersiz, bozulmuş veya hileli paylaşım kodu!');
+  }
+}
+
+// Share URL checker
+function checkShareUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const shareVal = params.get('share');
+  if (shareVal) {
+    loadSharedScore(shareVal);
+    // Clean URL
+    const cleanUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, document.title, cleanUrl);
+  }
+}
+
+function openShareModal(name, scoreVal) {
+  elShareCode.value = encodeShareCode(name, scoreVal);
+  elShareModal.style.display = 'flex';
+}
+
+const SHARE_ICON_SVG = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>`;
+
+function renderLeaderboard() {
+  elLbBody.innerHTML = '';
+  leaderboard.forEach((entry, idx) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="text-align: center; font-weight: bold; color: ${idx === 0 ? '#d93025' : 'inherit'};">#${idx + 1}</td>
+      <td style="text-transform: uppercase;">${escapeHtml(entry.name)}</td>
+      <td style="text-align: right; font-weight: bold;">${entry.score.toString().padStart(5, '0')}</td>
+      <td style="text-align: center; padding: 4px 6px;">
+        <button class="lb-share-btn" type="button" title="Bu skoru paylaş" data-idx="${idx}">${SHARE_ICON_SVG}</button>
+      </td>
+    `;
+    elLbBody.appendChild(tr);
+  });
+}
+
+// Single delegated listener for all leaderboard share buttons
+elLbBody.addEventListener('click', e => {
+  const btn = e.target.closest('.lb-share-btn');
+  if (!btn) return;
+  e.stopPropagation();
+  const entry = leaderboard[parseInt(btn.dataset.idx, 10)];
+  if (entry) openShareModal(entry.name, entry.score);
+});
+
+async function loadLeaderboard() {
+  const saved = localStorage.getItem('leaderboard');
+  if (saved) {
+    try {
+      leaderboard = JSON.parse(saved);
+    } catch (e) {
+      leaderboard = [];
+    }
+  }
+  
+  if (!leaderboard || leaderboard.length === 0) {
+    try {
+      const response = await fetch('leaderboard.json');
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          leaderboard = data.map(item => ({
+            name: String(item.name || 'AAA').slice(0, 10).trim().toUpperCase(),
+            score: Math.max(0, parseInt(item.score, 10) || 0)
+          }));
+        }
+      }
+    } catch (e) {
+      console.warn('Could not fetch leaderboard.json (likely due to CORS or file:// limitations). Using static defaults.', e);
+    }
+    
+    if (!Array.isArray(leaderboard) || leaderboard.length === 0) {
+      leaderboard = [
+        { name: "Dino", score: 500 },
+        { name: "Rex", score: 400 },
+        { name: "Cera", score: 300 },
+        { name: "Spike", score: 200 },
+        { name: "Petrie", score: 100 }
+      ];
+    }
+    localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+  }
+  
+  hiScore = leaderboard.length > 0 ? leaderboard[0].score : 0;
+  elHi.textContent = hiScore.toString().padStart(5, '0');
+  renderLeaderboard();
+}
+
+loadLeaderboard();
+
+const dino = {
+  x: 80, y: GROUND, w: 44, h: 48,
+  vy: 0, onGround: true,
+  legPhase: 0,
+  jump() {
+    if (this.onGround) {
+      this.vy = -16;
+      this.onGround = false;
+      playJumpSound();
+    }
+  },
+  update() {
+    if (!this.onGround) {
+      if (jumpMode === 'dynamic' && !isJumpingInput && this.vy < -4) { this.vy = -4; }
+      this.vy += 0.8;
+      this.y += this.vy;
+      if (this.y >= GROUND) { this.y = GROUND; this.vy = 0; this.onGround = true; }
+    }
+    if (this.onGround) this.legPhase += Math.min(0.55, 0.15 + speed * 0.02);
+  },
+  get top()    { return this.y - this.h; },
+  get right()  { return this.x + this.w - 6; },
+  get bottom() { return this.y; },
+  get left()   { return this.x + 6; },
+};
+
+let obstacles = [];
+let nextObs = 80;
+
+function spawnObs() {
+  if (Math.random() < 0.65) {
+    const count = Math.floor(Math.random() * 3) + 1;
+    obstacles.push({ type: 'cactus', x: W + 20, w: 18 + count * 10, h: 40 + Math.random() * 20, count });
+  } else {
+    const isLow = Math.random() < 0.5;
+    const birdY = isLow ? GROUND - 35 : GROUND - 85;
+    obstacles.push({ type: 'bird', x: W + 20, w: 44, h: 24, y: birdY, flap: 0 });
+  }
+}
+
+let clouds = Array.from({length: 4}, () => ({
+  x: Math.random() * W, y: 20 + Math.random() * 100,
+  w: 60 + Math.random() * 60, speed: 0.3 + Math.random() * 0.3
+}));
+
+let groundDots = Array.from({length: 20}, () => ({ x: Math.random() * W, r: Math.random() * 2 + 1 }));
+
+function px(x, y, w, h, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(Math.round(x), Math.round(y), w, h);
+}
+
+const DINO_BODY = [
+  "                 ##########     ",
+  "                ############    ",
+  "                ##  ########    ",
+  "                ############    ",
+  "                ############    ",
+  "                ############    ",
+  "                ############    ",
+  "                ######          ",
+  "                ##########      ",
+  "    #         #######           ",
+  "    #        ########           ",
+  "    ##     ############         ",
+  "    ##     ############         ",
+  "    ###   ###########.#         ",
+  "    #################           ",
+  "    #################           ",
+  "     ################           ",
+  "      ##############            ",
+  "      ##############            ",
+  "       ###########              ",
+  "        #########               "
+];
+
+const DINO_LEGS_FRAME1 = [
+  "          ### ###               ",
+  "          ### ###               ",
+  "          ##    #               ",
+  "          #                     ",
+  "          ##                    "
+];
+
+const DINO_LEGS_FRAME2 = [
+  "          ### ###               ",
+  "          ### ###               ",
+  "           ##   #               ",
+  "                #               ",
+  "                ##              "
+];
+
+const DINO_LEGS_IDLE = [
+  "          ### ###               ",
+  "          ### ###               ",
+  "          ##    #               ",
+  "          #     #               ",
+  "          ##    ##              "
+];
+
+function drawDino(d) {
+  const x = d.x;
+  const startY = d.y - 52;
+  const col = C.dino;
+  const pixelSize = 2;
+
+  for (let r = 0; r < DINO_BODY.length; r++) {
+    const rowStr = DINO_BODY[r];
+    for (let c = 0; c < rowStr.length; c++) {
+      if (rowStr[c] === '#') {
+        px(x + c * pixelSize, startY + r * pixelSize, pixelSize, pixelSize, col);
+      }
+    }
+  }
+
+  let legsGrid = DINO_LEGS_IDLE;
+  if (!d.onGround) {
+    legsGrid = DINO_LEGS_IDLE;
+  } else if (state === 'running') {
+    legsGrid = (Math.floor(d.legPhase) % 2 === 0) ? DINO_LEGS_FRAME1 : DINO_LEGS_FRAME2;
+  }
+
+  for (let r = 0; r < legsGrid.length; r++) {
+    const rowStr = legsGrid[r];
+    const bodyRowIndex = DINO_BODY.length + r;
+    for (let c = 0; c < rowStr.length; c++) {
+      if (rowStr[c] === '#') {
+        px(x + c * pixelSize, startY + bodyRowIndex * pixelSize, pixelSize, pixelSize, col);
+      }
+    }
+  }
+
+  // Draw skin accessory if selected
+  if (activeSkin === 'sunglasses') {
+    const frameColor = getSkinColor('sunglasses');
+    // Lens tint rengi - koyu cam efekti
+    const lensColor = currentThemeName === 'matrix' ? '#005500'
+                    : currentThemeName === 'cyberpunk' ? '#004444'
+                    : isDarkMode ? '#555555' : '#222244';
+    // --- Sol cam ---
+    px(x + 15*pixelSize, startY + 1*pixelSize, 5*pixelSize, pixelSize, frameColor);
+    px(x + 14*pixelSize, startY + 2*pixelSize, pixelSize, 3*pixelSize, frameColor);
+    px(x + 20*pixelSize, startY + 2*pixelSize, pixelSize, 3*pixelSize, frameColor);
+    px(x + 15*pixelSize, startY + 5*pixelSize, 5*pixelSize, pixelSize, frameColor);
+    px(x + 15*pixelSize, startY + 2*pixelSize, 5*pixelSize, 3*pixelSize, lensColor);
+    // --- Burun köprüsü ---
+    px(x + 20*pixelSize, startY + 3*pixelSize, 2*pixelSize, pixelSize, frameColor);
+    // --- Sağ cam ---
+    px(x + 22*pixelSize, startY + 1*pixelSize, 5*pixelSize, pixelSize, frameColor);
+    px(x + 21*pixelSize, startY + 2*pixelSize, pixelSize, 3*pixelSize, frameColor);
+    px(x + 27*pixelSize, startY + 2*pixelSize, pixelSize, 3*pixelSize, frameColor);
+    px(x + 22*pixelSize, startY + 5*pixelSize, 5*pixelSize, pixelSize, frameColor);
+    px(x + 22*pixelSize, startY + 2*pixelSize, 5*pixelSize, 3*pixelSize, lensColor);
+    // --- Kulak çubukları ---
+    px(x + 13*pixelSize, startY + 2*pixelSize, pixelSize, 2*pixelSize, frameColor);
+    px(x + 28*pixelSize, startY + 2*pixelSize, pixelSize, 2*pixelSize, frameColor);
+
+    // --- Animasyonlu cam parlaması (glint) ---
+    const highlightColor = currentThemeName === 'matrix' ? '#00aa00'
+                         : currentThemeName === 'cyberpunk' ? '#00aaaa'
+                         : isDarkMode ? '#aaaacc' : '#6666aa';
+    // Sabit köşe parlama
+    px(x + 15*pixelSize, startY + 2*pixelSize, pixelSize, pixelSize, highlightColor);
+    px(x + 22*pixelSize, startY + 2*pixelSize, pixelSize, pixelSize, highlightColor);
+    // Animasyonlu glint: her 90 frame'de bir kısa parlama
+    const glintCycle = frame % 90;
+    if (glintCycle < 8) {
+      const glintAlpha = Math.sin((glintCycle / 7) * Math.PI);
+      ctx.globalAlpha = glintAlpha * 0.85;
+      const glintCol = currentThemeName === 'matrix' ? '#aaffaa'
+                     : currentThemeName === 'cyberpunk' ? '#aaffff'
+                     : '#ffffff';
+      px(x + 16*pixelSize, startY + 2*pixelSize, 2*pixelSize, pixelSize, glintCol);
+      px(x + 23*pixelSize, startY + 2*pixelSize, 2*pixelSize, pixelSize, glintCol);
+      ctx.globalAlpha = 1;
+    }
+  } else if (activeSkin === 'partyhat') {
+    const hatColor = getSkinColor('partyhat');
+    const detailColor = getSkinColor('sunglasses');
+    // Pom-pom
+    px(x + 20 * pixelSize, startY - 5 * pixelSize, pixelSize, pixelSize, detailColor);
+    // Tip
+    px(x + 20 * pixelSize, startY - 4 * pixelSize, pixelSize, pixelSize, hatColor);
+    // Row -3
+    px(x + 19 * pixelSize, startY - 3 * pixelSize, pixelSize, pixelSize, hatColor);
+    px(x + 20 * pixelSize, startY - 3 * pixelSize, pixelSize, pixelSize, detailColor);
+    px(x + 21 * pixelSize, startY - 3 * pixelSize, pixelSize, pixelSize, hatColor);
+    // Row -2
+    px(x + 18 * pixelSize, startY - 2 * pixelSize, pixelSize, pixelSize, hatColor);
+    px(x + 19 * pixelSize, startY - 2 * pixelSize, pixelSize, pixelSize, hatColor);
+    px(x + 20 * pixelSize, startY - 2 * pixelSize, pixelSize, pixelSize, hatColor);
+    px(x + 21 * pixelSize, startY - 2 * pixelSize, pixelSize, pixelSize, hatColor);
+    px(x + 22 * pixelSize, startY - 2 * pixelSize, pixelSize, pixelSize, hatColor);
+    // Row -1
+    px(x + 17 * pixelSize, startY - 1 * pixelSize, pixelSize, pixelSize, hatColor);
+    px(x + 18 * pixelSize, startY - 1 * pixelSize, pixelSize, pixelSize, detailColor);
+    px(x + 19 * pixelSize, startY - 1 * pixelSize, pixelSize, pixelSize, hatColor);
+    px(x + 20 * pixelSize, startY - 1 * pixelSize, pixelSize, pixelSize, hatColor);
+    px(x + 21 * pixelSize, startY - 1 * pixelSize, pixelSize, pixelSize, hatColor);
+    px(x + 22 * pixelSize, startY - 1 * pixelSize, pixelSize, pixelSize, detailColor);
+    px(x + 23 * pixelSize, startY - 1 * pixelSize, pixelSize, pixelSize, hatColor);
+
+  } else if (activeSkin === 'cowboy') {
+    // 🤠 Kovboy Şapkası
+    const hatColor = getSkinColor('cowboy');
+    const bandColor = currentThemeName === 'matrix' ? '#009900'
+                    : currentThemeName === 'cyberpunk' ? '#cc0066'
+                    : isDarkMode ? '#8B6914' : '#5C2D00';
+    // Geniş ağzlık (brim) - en geniş kısım
+    px(x + 11*pixelSize, startY - 1*pixelSize, 18*pixelSize, 2*pixelSize, hatColor);
+    // Şapka gövdesi alt
+    px(x + 14*pixelSize, startY - 2*pixelSize, 12*pixelSize, pixelSize, hatColor);
+    // Şerit (band)
+    px(x + 14*pixelSize, startY - 3*pixelSize, 12*pixelSize, pixelSize, bandColor);
+    // Şapka gövdesi orta
+    px(x + 15*pixelSize, startY - 5*pixelSize, 10*pixelSize, 2*pixelSize, hatColor);
+    // Şapka tepesi
+    px(x + 16*pixelSize, startY - 7*pixelSize, 8*pixelSize, 2*pixelSize, hatColor);
+    // Toka/rozet detayı
+    const buckleColor = currentThemeName === 'matrix' ? '#00ff00'
+                      : currentThemeName === 'cyberpunk' ? '#ffff00'
+                      : '#FFD700';
+    px(x + 19*pixelSize, startY - 3*pixelSize, 2*pixelSize, pixelSize, buckleColor);
+
+  } else if (activeSkin === 'crown') {
+    // 👑 Altın Taç - yaylanma animasyonu
+    const crownColor = getSkinColor('crown');
+    const gemRed  = currentThemeName === 'matrix' ? '#00ff00' : currentThemeName === 'cyberpunk' ? '#ff00ff' : '#ff2020';
+    const gemBlue = currentThemeName === 'matrix' ? '#00aa00' : currentThemeName === 'cyberpunk' ? '#00ffff' : '#2244ff';
+    // Zıplama yaylanması: yerde iken hafif sinüs, havada iken daha fazla
+    const bobOffset = d.onGround
+      ? Math.round(Math.sin(frame * 0.15) * 0.7)   // koşarken hafif sarsıntı
+      : Math.round(Math.sin(frame * 0.25) * 1.5);   // havada daha belirgin
+    const cY = startY + bobOffset;
+    // Taban şeridi
+    px(x + 16*pixelSize, cY - 2*pixelSize, 14*pixelSize, 2*pixelSize, crownColor);
+    // Sol kenarlık
+    px(x + 16*pixelSize, cY - 5*pixelSize, 2*pixelSize, 3*pixelSize, crownColor);
+    // Sağ kenarlık
+    px(x + 28*pixelSize, cY - 5*pixelSize, 2*pixelSize, 3*pixelSize, crownColor);
+    // Sol orta diş
+    px(x + 19*pixelSize, cY - 5*pixelSize, 2*pixelSize, 3*pixelSize, crownColor);
+    // Orta büyük diş
+    px(x + 22*pixelSize, cY - 8*pixelSize, 2*pixelSize, 6*pixelSize, crownColor);
+    // Sağ orta diş
+    px(x + 25*pixelSize, cY - 5*pixelSize, 2*pixelSize, 3*pixelSize, crownColor);
+    // Mücevher sol
+    px(x + 16*pixelSize, cY - 5*pixelSize, 2*pixelSize, 2*pixelSize, gemRed);
+    // Mücevher orta (mavi)
+    px(x + 22*pixelSize, cY - 8*pixelSize, 2*pixelSize, 2*pixelSize, gemBlue);
+    // Mücevher sağ
+    px(x + 28*pixelSize, cY - 5*pixelSize, 2*pixelSize, 2*pixelSize, gemRed);
+
+  } else if (activeSkin === 'mohawk') {
+    // Mohawk / Punk Saçı
+    const spikeColor = getSkinColor('mohawk');
+    const spikeColor2 = currentThemeName === 'matrix' ? '#003300'
+                      : currentThemeName === 'cyberpunk' ? '#660033'
+                      : isDarkMode ? '#cc2222' : '#ff8800';
+    // Orta tepe
+    px(x + 19*pixelSize, startY - 9*pixelSize, 2*pixelSize, pixelSize, spikeColor);
+    px(x + 19*pixelSize, startY - 8*pixelSize, 2*pixelSize, 2*pixelSize, spikeColor);
+    // Sol tepe
+    px(x + 16*pixelSize, startY - 7*pixelSize, 2*pixelSize, pixelSize, spikeColor2);
+    px(x + 16*pixelSize, startY - 6*pixelSize, 2*pixelSize, 2*pixelSize, spikeColor2);
+    // Sağ tepe
+    px(x + 22*pixelSize, startY - 7*pixelSize, 2*pixelSize, pixelSize, spikeColor2);
+    px(x + 22*pixelSize, startY - 6*pixelSize, 2*pixelSize, 2*pixelSize, spikeColor2);
+    // Taban çizgisi
+    px(x + 14*pixelSize, startY - 5*pixelSize, 12*pixelSize, 2*pixelSize, spikeColor);
+    // Çift renk efekti
+    px(x + 17*pixelSize, startY - 5*pixelSize, 2*pixelSize, 2*pixelSize, spikeColor2);
+    px(x + 21*pixelSize, startY - 5*pixelSize, 2*pixelSize, 2*pixelSize, spikeColor2);
+
+  } else if (activeSkin === 'snail') {
+    // Salyangoz Kabuğu - dinonun başının üstünde yuvarlak spiral kabuk
+    const shellColor  = getSkinColor('snail');
+    const shellDark   = currentThemeName === 'matrix' ? '#005500'
+                      : currentThemeName === 'cyberpunk' ? '#770033'
+                      : isDarkMode ? '#8a6830' : '#6b3f15';
+    const shellMid    = currentThemeName === 'matrix' ? '#009900'
+                      : currentThemeName === 'cyberpunk' ? '#cc5577'
+                      : isDarkMode ? '#c09555' : '#a07838';
+    const shellLight  = currentThemeName === 'matrix' ? '#33ff33'
+                      : currentThemeName === 'cyberpunk' ? '#ffaacc'
+                      : isDarkMode ? '#eed8a0' : '#f5e8c0';
+    const eyeCol      = currentThemeName === 'matrix' ? '#00ff00'
+                      : currentThemeName === 'cyberpunk' ? '#ff44aa'
+                      : isDarkMode ? '#ffffff' : '#111111';
+    const stalkCol    = currentThemeName === 'matrix' ? '#007700'
+                      : currentThemeName === 'cyberpunk' ? '#aa3366'
+                      : isDarkMode ? '#b09060' : '#8a6030';
+
+    // Kabuk: daire benzeri, sağa hafif yaslanmış (kafanın üstü col 16-28, ortası ~22)
+    // Alt taban - kafaya oturma yüzeyi
+    px(x + 16*pixelSize, startY - 1*pixelSize, 12*pixelSize, pixelSize, shellDark);
+    // 1. katman
+    px(x + 15*pixelSize, startY - 3*pixelSize, 14*pixelSize, 2*pixelSize, shellColor);
+    // 2. katman (en geniş)
+    px(x + 14*pixelSize, startY - 7*pixelSize, 16*pixelSize, 4*pixelSize, shellColor);
+    // 3. katman
+    px(x + 15*pixelSize, startY - 10*pixelSize, 14*pixelSize, 3*pixelSize, shellColor);
+    // 4. katman (tepe)
+    px(x + 17*pixelSize, startY - 12*pixelSize, 10*pixelSize, 2*pixelSize, shellColor);
+    // Yuvarlak tepe
+    px(x + 19*pixelSize, startY - 13*pixelSize, 6*pixelSize, pixelSize, shellColor);
+
+    // Spiral çizgileri - dıştan içe doğru
+    // Dış halka
+    px(x + 14*pixelSize, startY - 5*pixelSize, 16*pixelSize, pixelSize, shellDark);
+    px(x + 15*pixelSize, startY - 9*pixelSize, 14*pixelSize, pixelSize, shellDark);
+    // İç halka
+    px(x + 18*pixelSize, startY - 7*pixelSize, 8*pixelSize, pixelSize, shellMid);
+    // Spiral merkezi (koyu göbek)
+    px(x + 20*pixelSize, startY - 9*pixelSize, 4*pixelSize, 3*pixelSize, shellDark);
+    px(x + 21*pixelSize, startY - 8*pixelSize, 2*pixelSize, pixelSize, shellLight);
+
+    // Parlama / highlight
+    px(x + 16*pixelSize, startY - 10*pixelSize, 2*pixelSize, 2*pixelSize, shellLight);
+    px(x + 24*pixelSize, startY - 11*pixelSize, 2*pixelSize, pixelSize, shellLight);
+
+    // Göz sapları animasyonu: yavaş yukarı-aşağı titreşim
+    const eyeBob = Math.round(Math.sin(frame * 0.12) * 1.5); // -1..+1 px
+    // Sol anten
+    px(x + 16*pixelSize, startY - 14*pixelSize + eyeBob, pixelSize, 2*pixelSize, stalkCol);
+    px(x + 15*pixelSize, startY - 15*pixelSize + eyeBob, pixelSize, pixelSize, stalkCol);
+    px(x + 15*pixelSize, startY - 16*pixelSize + eyeBob, 2*pixelSize, pixelSize, eyeCol);
+    // Sağ anten
+    px(x + 24*pixelSize, startY - 14*pixelSize + eyeBob, pixelSize, 2*pixelSize, stalkCol);
+    px(x + 25*pixelSize, startY - 15*pixelSize + eyeBob, pixelSize, pixelSize, stalkCol);
+    px(x + 24*pixelSize, startY - 16*pixelSize + eyeBob, 2*pixelSize, pixelSize, eyeCol);
+  }
+}
+
+function drawCactus(o) {
+  for (let i = 0; i < o.count; i++) {
+    const cx = o.x + i * 18, ch = o.h - i * 6;
+    px(cx+6,  GROUND - ch,           10, ch, C.obs);
+    px(cx,    GROUND - ch*0.65,        6, 14, C.obs);
+    px(cx,    GROUND - ch*0.65 - 10,  10,  6, C.obs);
+    px(cx+16, GROUND - ch*0.5,         6, 12, C.obs);
+    px(cx+10, GROUND - ch*0.5 - 8,    10,  6, C.obs);
+  }
+}
+
+function drawBird(o) {
+  o.flap += 0.2;
+  const up = Math.sin(o.flap) > 0;
+  const x = o.x, y = o.y;
+  px(x+8,  y+8,  26, 14, C.obs);
+  px(x+34, y+10, 10,  5, C.obs);
+  px(x+28, y+8,   5,  5, C.bg);
+  px(x+30, y+10,  2,  2, C.obs);
+  if (up) { px(x+6, y,    22, 10, C.obs); px(x+4, y+18, 22, 8, C.obs); }
+  else    { px(x+6, y+16, 22, 10, C.obs); px(x+4, y+2,  22, 8, C.obs); }
+}
+
+function drawGround() {
+  px(0, GROUND, W, 2, C.ground);
+  for (const d of groundDots) {
+    ctx.fillStyle = C.dot;
+    ctx.fillRect(Math.round(d.x), GROUND + 5 + (d.r < 2 ? 2 : 0), d.r * 2, d.r);
+  }
+}
+
+function drawClouds() {
+  for (const c of clouds) {
+    px(c.x,    c.y,   c.w,      14, C.cloud);
+    px(c.x+10, c.y-8, c.w - 20, 12, C.cloud);
+  }
+}
+
+function hitTest(d, o) {
+  const oY = o.type === 'bird' ? o.y : GROUND - o.h;
+  return d.right > o.x+4 && d.left < o.x + o.w - 4 &&
+         d.bottom > oY + 4 && d.top < oY + o.h - 4;
+}
+
+// Gece/gündüz gökyüzü ve yıldız çizimi
+function drawSky() {
+  // Sadece klasik temada gece/gündüz aktif
+  if (currentThemeName !== 'classic') return;
+
+  if (dayNightT < 0.01) return; // tam gündüz: arka plan yeterli
+
+  // Gece renkleri: gökyüzü gradyanı
+  const nightTop    = isDarkMode ? '#000818' : '#0a0e2a';
+  const nightBottom = isDarkMode ? '#0a0a20' : '#141830';
+  const grd = ctx.createLinearGradient(0, 0, 0, GROUND);
+  grd.addColorStop(0,   nightTop);
+  grd.addColorStop(1,   nightBottom);
+
+  ctx.globalAlpha = Math.min(1, dayNightT * 1.2);
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, W, GROUND);
+  ctx.globalAlpha = 1;
+
+  // Yıldızlar
+  const starAlpha = Math.max(0, (dayNightT - 0.3) / 0.7);
+  if (starAlpha > 0) {
+    ctx.globalAlpha = starAlpha;
+    for (const s of STARS) {
+      const twinkle = 0.6 + 0.4 * Math.sin(frame * 0.05 + s.x * 10);
+      ctx.globalAlpha = starAlpha * twinkle;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(s.x * W, s.y * GROUND, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Ay
+    const moonAlpha = Math.min(1, starAlpha * 1.5);
+    ctx.globalAlpha = moonAlpha;
+    ctx.fillStyle = '#f0e8c0';
+    ctx.beginPath();
+    ctx.arc(W * 0.82, GROUND * 0.22, 14, 0, Math.PI * 2);
+    ctx.fill();
+    // Ay krater detayları
+    ctx.fillStyle = '#d8d0a8';
+    ctx.beginPath(); ctx.arc(W * 0.82 + 4, GROUND * 0.22 - 3, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(W * 0.82 - 5, GROUND * 0.22 + 4, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
+function loop() {
+  requestAnimationFrame(loop);
+
+  // ── Arka plan ──
+  ctx.fillStyle = C.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // ── Gece/Gündüz güncelle ──
+  if (state === 'running' && currentThemeName === 'classic') {
+    // Her DAY_NIGHT_INTERVAL skorda yön değiştir
+    if (score - lastDayNightScore >= DAY_NIGHT_INTERVAL) {
+      lastDayNightScore = score;
+      dayNightDir *= -1;
+    }
+    dayNightT = Math.max(0, Math.min(1, dayNightT + DAY_NIGHT_SPEED * dayNightDir));
+  }
+
+  drawSky();
+  drawClouds();
+  drawGround();
+
+  if (state === 'running') {
+    frame++;
+    score += 0.1;
+    speed = calcSpeed(score);
+
+    for (const c of clouds) {
+      c.x -= c.speed;
+      if (c.x + c.w < 0) { c.x = W + 20; c.y = 20 + Math.random() * 100; c.w = 60 + Math.random() * 60; }
+    }
+    for (const d of groundDots) {
+      d.x -= speed * 0.5;
+      if (d.x < 0) d.x = W + Math.random() * 40;
+    }
+
+    // Toz parçacıkları - koşarken (her 6 frame)
+    if (dino.onGround && frame % 6 === 0) {
+      const dustColors = currentThemeName === 'matrix' ? ['#003300','#005500']
+                       : currentThemeName === 'cyberpunk' ? ['#220044','#440066']
+                       : isDarkMode ? ['#3c4043','#555'] : ['#ccc','#ddd','#bbb'];
+      spawnParticles(
+        dino.x + 18, GROUND,
+        2, dustColors,
+        [-1.5, 0.5], [-1.5, -0.2],
+        [12, 20]
+      );
+    }
+
+    const wasOnGround = dino.onGround;
+    dino.update();
+
+    // İniş tozu
+    if (!wasOnGround && dino.onGround) {
+      const dustColors = currentThemeName === 'matrix' ? ['#004400','#007700','#00aa00']
+                       : currentThemeName === 'cyberpunk' ? ['#440055','#880099','#cc00cc']
+                       : isDarkMode ? ['#555','#777','#999'] : ['#bbb','#ccc','#eee'];
+      spawnParticles(
+        dino.x + 22, GROUND,
+        8, dustColors,
+        [-3, 3], [-3, -0.5],
+        [18, 30]
+      );
+    }
+
+    nextObs--;
+    if (nextObs <= 0) {
+      spawnObs();
+      const gapPx = 380 + Math.random() * 300;
+      nextObs = gapPx / speed;
+    }
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+      obstacles[i].x -= speed;
+      if (obstacles[i].x + obstacles[i].w < 0) { obstacles.splice(i, 1); continue; }
+      if (hitTest(dino, obstacles[i])) { die(); }
+    }
+
+    elScore.textContent = Math.floor(score).toString().padStart(5, '0');
+
+    // Milestone sound trigger
+    const currentMilestone = Math.floor(score / 100) * 100;
+    if (currentMilestone > 0 && currentMilestone > lastMilestone) {
+      lastMilestone = currentMilestone;
+      playMilestoneSound();
+    }
+  }
+
+  for (const o of obstacles) {
+    if (o.type === 'cactus') drawCactus(o); else drawBird(o);
+  }
+  updateAndDrawParticles();
+  drawDino(dino);
+}
+
+function die() {
+  state = 'dead';
+  const finalScore = Math.floor(score);
+
+  // Çarpışma parçacık patlaması
+  const sparkColors = currentThemeName === 'matrix' ? ['#00ff00','#00aa00','#007700']
+                    : currentThemeName === 'cyberpunk' ? ['#ff007f','#00ffff','#ff00ff','#ffff00']
+                    : isDarkMode ? ['#f1f3f4','#acb0b6','#ffffff'] : ['#535353','#888','#333','#aaa'];
+  spawnParticles(
+    dino.x + 22, dino.y - 26,
+    18, sparkColors,
+    [-5, 5], [-7, -1],
+    [25, 45]
+  );
+
+  // Play retro explosion crash sound
+  playCrashSound();
+
+
+
+  // Temporarily update high score display if beaten
+  hiScore = Math.max(hiScore, finalScore);
+  elHi.textContent = hiScore.toString().padStart(5, '0');
+  
+  elOverlay.style.display = 'flex';
+  elOvTitle.textContent = 'GAME OVER';
+  elOvSub.textContent = `SKORUN: ${finalScore.toString().padStart(5,'0')}`;
+
+  const qualifies = leaderboard.length < 5 || finalScore > leaderboard[leaderboard.length - 1].score;
+
+  if (qualifies) {
+    elModeSel.style.display = 'none';
+    elNamePanel.style.display = 'block';
+    elOvHint.style.display = 'none';
+    elShareBtnRow.style.display = 'none';
+    elPlayerName.value = '';
+    setTimeout(() => elPlayerName.focus(), 100);
+  } else {
+    elModeSel.style.display = 'flex';
+    elNamePanel.style.display = 'none';
+    elOvHint.textContent = 'YENİDEN BAŞLAMAK İÇİN DOKUN / BOŞLUK';
+    elOvHint.style.display = 'block';
+    elShareBtnRow.style.display = 'flex';
+  }
+}
+
+function startGame() {
+  if (elNamePanel.style.display === 'block') return;
+
+  state = 'running';
+  score = 0; frame = 0; speed = 5;
+  obstacles = []; nextObs = 80;
+  particles = [];
+  dino.y = GROUND; dino.vy = 0; dino.onGround = true;
+  lastMilestone = 0;
+  lastDayNightScore = 0;
+  dayNightT = 0;
+  dayNightDir = 1;
+
+  elShareBtnRow.style.display = 'none';
+  elScore.textContent = '00000';
+  elOverlay.style.display = 'none';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' || e.code === 'ArrowUp') {
+    if (document.activeElement === elPlayerName) return;
+    if (elNamePanel.style.display === 'block') return;
+    if (elShareModal.style.display === 'flex') return;
+    e.preventDefault();
+    isJumpingInput = true;
+    if (state !== 'running') startGame(); else dino.jump();
+  }
+});
+
+document.addEventListener('keyup', e => {
+  if (e.code === 'Space' || e.code === 'ArrowUp') {
+    isJumpingInput = false;
+  }
+});
+
+// Screen-wide click/touch pointer events to jump
+document.addEventListener('pointerdown', e => {
+  if (!e.isPrimary) return;
+  if (e.button !== 0 && e.pointerType !== 'touch') return;
+  // Ignore clicks/touches on interactive controls (theme toggle / game modes / name panel / leaderboard section / select inputs)
+  if (
+    e.target.closest('button') || 
+    e.target.closest('select') || 
+    e.target.closest('input') || 
+    e.target.closest('.custom-selectors') || 
+    e.target.closest('#share-modal') || 
+    e.target.closest('.mode-selector') || 
+    e.target.closest('#name-input-panel') || 
+    e.target.closest('#leaderboard-section')
+  ) return;
+
+  isJumpingInput = true;
+  if (state !== 'running') {
+    startGame();
+  } else {
+    dino.jump();
+  }
+});
+
+document.addEventListener('pointerup', e => {
+  if (!e.isPrimary) return;
+  if (
+    e.target.closest('button') || 
+    e.target.closest('select') || 
+    e.target.closest('input') || 
+    e.target.closest('.custom-selectors') || 
+    e.target.closest('#share-modal') || 
+    e.target.closest('.mode-selector') || 
+    e.target.closest('#name-input-panel') || 
+    e.target.closest('#leaderboard-section')
+  ) return;
+  isJumpingInput = false;
+});
+
+document.addEventListener('pointercancel', e => {
+  if (!e.isPrimary) return;
+  isJumpingInput = false;
+});
+
+// Theme toggle initialization and listeners
+const themeToggleBtn = document.getElementById('theme-toggle');
+themeToggleBtn.addEventListener('click', () => {
+  isDarkMode = !isDarkMode;
+  currentThemeName = 'classic'; // Reset to classic on toggle button click
+  updateTheme();
+});
+
+const themeSelect = document.getElementById('theme-select');
+if (themeSelect) {
+  themeSelect.addEventListener('change', (e) => {
+    currentThemeName = e.target.value;
+    updateTheme();
+  });
+}
+
+// Skin initialization and listener
+const skinSelect = document.getElementById('dino-skin');
+if (skinSelect) {
+  skinSelect.addEventListener('change', (e) => {
+    activeSkin = e.target.value;
+    localStorage.setItem('dino_skin', activeSkin);
+  });
+}
+
+// Audio mute button listener
+const audioToggleBtn = document.getElementById('audio-toggle');
+if (audioToggleBtn) {
+  audioToggleBtn.addEventListener('click', () => {
+    setMuted(!isMuted);
+  });
+}
+
+// Mode Buttons segmented control
+const modeBtns = document.querySelectorAll('.mode-btn');
+modeBtns.forEach(btn => {
+  const selectMode = (e) => {
+    e.preventDefault();
+    modeBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    jumpMode = btn.getAttribute('data-value');
+  };
+  btn.addEventListener('click', selectMode);
+  btn.addEventListener('touchstart', selectMode, { passive: false });
+});
+
+document.getElementById('share-btn').addEventListener('click', () => {
+  const finalScore = Math.floor(score);
+  let name = elNamePanel.style.display === 'block'
+    ? (elPlayerName.value.trim().toLocaleUpperCase('tr-TR').replace(/[^A-Z0-9ÇĞİÖŞÜ]/g, '') || 'AAA')
+    : (localStorage.getItem('last_player_name') || 'AAA');
+  elShareCode.value = encodeShareCode(name, finalScore);
+  elShareModal.style.display = 'flex';
+});
+
+document.getElementById('dismiss-share-btn').addEventListener('click', () => {
+  elShareBtnRow.style.display = 'none';
+});
+
+const copyCodeBtn = document.getElementById('copy-code-btn');
+copyCodeBtn.addEventListener('click', () => {
+  elShareCode.select();
+  elShareCode.setSelectionRange(0, 99999);
+  navigator.clipboard.writeText(elShareCode.value).then(() => {
+    const orig = copyCodeBtn.textContent;
+    copyCodeBtn.textContent = 'KOPYALANDI!';
+    setTimeout(() => { copyCodeBtn.textContent = orig; }, 1500);
+  }).catch(err => console.error('Copy failed: ', err));
+});
+
+document.getElementById('close-share-btn').addEventListener('click', () => {
+  elShareModal.style.display = 'none';
+});
+
+document.getElementById('import-code-btn').addEventListener('click', () => {
+  loadSharedScore(elImportInput.value);
+});
+
+elImportInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') loadSharedScore(elImportInput.value);
+});
+
+function saveScore() {
+  let name = elPlayerName.value.trim().toLocaleUpperCase('tr-TR').replace(/[^A-Z0-9ÇĞİÖŞÜ]/g, '');
+  if (!name) name = 'AAA';
+  localStorage.setItem('last_player_name', name);
+
+  leaderboard.push({ name, score: Math.floor(score) });
+  leaderboard.sort((a, b) => b.score - a.score);
+  leaderboard = leaderboard.slice(0, 5);
+  localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+
+  hiScore = leaderboard[0].score;
+  elHi.textContent = hiScore.toString().padStart(5, '0');
+  renderLeaderboard();
+
+  elNamePanel.style.display = 'none';
+  elOvHint.textContent = 'YENİDEN BAŞLAMAK İÇİN DOKUN / BOŞLUK';
+  elOvHint.style.display = 'block';
+  elShareBtnRow.style.display = 'flex';
+  elModeSel.style.display = 'flex';
+}
+
+function skipSave() {
+  hiScore = leaderboard.length > 0 ? leaderboard[0].score : 0;
+  elHi.textContent = hiScore.toString().padStart(5, '0');
+  elNamePanel.style.display = 'none';
+  elOvHint.textContent = 'YENİDEN BAŞLAMAK İÇİN DOKUN / BOŞLUK';
+  elOvHint.style.display = 'block';
+  elModeSel.style.display = 'flex';
+}
+
+document.getElementById('save-name-btn').addEventListener('click', saveScore);
+document.getElementById('skip-save-btn').addEventListener('click', skipSave);
+elPlayerName.addEventListener('keydown', e => { if (e.key === 'Enter') saveScore(); });
+elPlayerName.addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/[^a-zA-Z0-9çÇğĞıİöÖşŞüÜ]/g, '');
+});
+
+// Setup audio activation on first user interaction (browser policy)
+function tryUnlockAudio() {
+  initAudio();
+  document.removeEventListener('keydown', tryUnlockAudio);
+  document.removeEventListener('pointerdown', tryUnlockAudio);
+}
+document.addEventListener('keydown', tryUnlockAudio);
+document.addEventListener('pointerdown', tryUnlockAudio);
+
+// Initialize all features on load
+function initCustomization() {
+  // Theme init
+  const savedThemeName = localStorage.getItem('theme_name') || 'classic';
+  const savedThemeDark = localStorage.getItem('theme_dark');
+  
+  if (savedThemeDark === 'true') {
+    isDarkMode = true;
+  } else if (savedThemeDark === 'false') {
+    isDarkMode = false;
+  } else {
+    isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  
+  currentThemeName = savedThemeName;
+  updateTheme();
+  
+  // Skin init
+  const savedSkin = localStorage.getItem('dino_skin') || 'none';
+  activeSkin = savedSkin;
+  const skinSelect = document.getElementById('dino-skin');
+  if (skinSelect) skinSelect.value = activeSkin;
+  
+  // Audio init
+  const savedMuted = localStorage.getItem('muted') === 'true';
+  setMuted(savedMuted);
+
+  // Leaderboard collapse init
+  setLeaderboardCollapsed(localStorage.getItem('leaderboard_collapsed') === 'true');
+
+  // Scan shared scores URL parameters
+  checkShareUrl();
+}
+
+// Leaderboard show/hide toggle
+function setLeaderboardCollapsed(collapsed) {
+  const content = document.getElementById('leaderboard-content');
+  const btn = document.getElementById('leaderboard-toggle-btn');
+  if (content) content.style.display = collapsed ? 'none' : 'flex';
+  if (btn) btn.classList.toggle('collapsed', collapsed);
+  localStorage.setItem('leaderboard_collapsed', collapsed ? 'true' : 'false');
+}
+
+const leaderboardToggleBtn = document.getElementById('leaderboard-toggle-btn');
+if (leaderboardToggleBtn) {
+  leaderboardToggleBtn.addEventListener('click', () => {
+    const content = document.getElementById('leaderboard-content');
+    const isCollapsed = content && content.style.display === 'none';
+    setLeaderboardCollapsed(!isCollapsed);
+  });
+}
+
+initCustomization();
+
+loop();
+</script>
+</body>
+</html>
