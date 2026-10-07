@@ -171,7 +171,11 @@ The widget reads its data from a small folder the app writes to; both are allowe
 
 ## Contributing
 
-Issues and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first: the project keeps to Apple's frameworks only, makes no network requests except to the sites a user reads, stores nothing outside the app's folder, and keeps memory use low.
+Issues and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first: the project keeps to Apple's frameworks only, makes no network requests except to the sites a user reads, stores nothing outside its own folders, and keeps memory use low.
+
+## Website
+
+[bezelye404.github.io/Versoline](https://bezelye404.github.io/Versoline/) · [Türkçe](https://bezelye404.github.io/Versoline/tr/)
 
 ## Credits
 
