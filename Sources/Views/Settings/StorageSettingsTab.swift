@@ -15,6 +15,9 @@ struct StorageSettingsTab: View {
     @State private var clearedWebCache = false
     @State private var showResetConfirmation = false
     @State private var resetCompleted = false
+    @State private var showPermissionsConfirmation = false
+    @State private var permissionsResetDone = false
+    @State private var commandCopied = false
 
     private var formattedImageCacheSize: String {
         let bytes = ImageDownsampleCache.shared.diskCacheSizeBytes
@@ -158,6 +161,36 @@ struct StorageSettingsTab: View {
                 }
             }
 
+            Section("Permissions & Access") {
+                Button {
+                    showPermissionsConfirmation = true
+                } label: {
+                    Label("Reset Permissions & Access...", systemImage: "hand.raised.slash")
+                }
+
+                Text("Turns off the Dock badge, menu bar icon, Spotlight bookmarks, widget data and nearby sync, and forgets your paired Macs. Your feeds and articles stay.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                if permissionsResetDone {
+                    Text("Access has been reset. Everything optional is off; turn on what you want in Settings.")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                }
+
+                Text("macOS keeps its own record of what you allowed (for example local network access), and an app cannot clear that itself. Open Privacy & Security, or paste the command into Terminal.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                HStack {
+                    Button("Open Privacy & Security") { PermissionsReset.openPrivacySettings() }
+                    Button(LocalizedStringKey(commandCopied ? "Copied" : "Copy Terminal Command")) {
+                        PermissionsReset.copySystemResetCommand()
+                        commandCopied = true
+                    }
+                }
+            }
+
             Section("Factory Reset") {
                 Button(role: .destructive) {
                     showResetConfirmation = true
@@ -179,6 +212,15 @@ struct StorageSettingsTab: View {
         }
         .formStyle(.grouped)
         .padding(10)
+        .alert("Reset Permissions and Access?", isPresented: $showPermissionsConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Reset Access", role: .destructive) {
+                PermissionsReset.run(store: store)
+                permissionsResetDone = true
+            }
+        } message: {
+            Text("The Dock badge, menu bar icon, Spotlight bookmarks, widget data and nearby sync are turned off, and your paired Macs are forgotten. Your feeds, articles and other settings are kept.")
+        }
         .alert("Reset All Data and Settings?", isPresented: $showResetConfirmation) {
             Button("Cancel", role: .cancel) { }
             Button("Reset Everything", role: .destructive) {

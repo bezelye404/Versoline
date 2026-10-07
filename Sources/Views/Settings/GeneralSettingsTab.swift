@@ -9,6 +9,7 @@ struct GeneralSettingsTab: View {
     @AppStorage(AppSettingsKeys.showFavicons) private var showFavicons = true
     @AppStorage(AppSettingsKeys.showMenuBarIcon) private var showMenuBarIcon = false
     @AppStorage(AppSettingsKeys.showDockBadge) private var showDockBadge = false
+    @AppStorage(AppSettingsKeys.shareWithWidget) private var shareWithWidget = true
     @AppStorage(AppSettingsKeys.spotlightBookmarks) private var spotlightBookmarks = false
     @Environment(FeedStore.self) private var store
     @AppStorage(AppSettingsKeys.preferredExternalBrowser) private var preferredExternalBrowserRaw = ExternalBrowserOption.systemDefault.rawValue
@@ -95,6 +96,13 @@ struct GeneralSettingsTab: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Show Unread Count on the Dock Icon")
                         Text("A badge with the number of unread articles. It updates while the app is open; nothing runs in the background.")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+                Toggle(isOn: $shareWithWidget) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Show Articles in the Widget")
+                        Text("Writes the unread count and a few headlines to one small file that the widget reads. Turn it off to delete that file and leave the widget empty.")
                             .font(.caption).foregroundStyle(.secondary)
                     }
                 }
