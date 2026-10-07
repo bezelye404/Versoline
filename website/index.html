@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Versoline: RSS reader and podcast player for Mac</title>
-  <meta name="description" content="Versoline is a free, open-source RSS reader and podcast player for Mac. Read RSS and Atom feeds, listen to podcasts and follow YouTube and Reddit in one native app. No account, no analytics.">
+  <meta name="description" content="Versoline is a free, open-source RSS reader and podcast player for Mac, with a calendar and a desktop widget. Read RSS and Atom feeds, listen to podcasts and follow YouTube and Reddit in one native app. No account, no analytics.">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
   <meta name="author" content="bezelye404">
   <link rel="alternate" hreflang="en" href="https://bezelye404.github.io/Versoline/">
@@ -88,6 +88,11 @@
             "@type": "Question",
             "name": "Does Versoline need an account?",
             "acceptedAnswer": { "@type": "Answer", "text": "No. There are no accounts, no analytics and no crash reporting. Your data is stored on your Mac." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I install Versoline with Homebrew?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes: brew install --cask bezelye404/versoline/versoline. Update with brew upgrade --cask versoline." }
           },
           {
             "@type": "Question",
@@ -181,6 +186,18 @@
             <h3>Backup and nearby sync</h3>
             <p>Back up the whole library as one file. If you want, your own Macs can sync over the local network after you pair them with a code. There is no server in between.</p>
           </article>
+          <article class="card">
+            <h3>Calendar</h3>
+            <p>A month view that shows how many articles arrived each day and which days have bookmarks. Pick a day to see what came in, or only what you saved.</p>
+          </article>
+          <article class="card">
+            <h3>Widget</h3>
+            <p>The unread count and the newest headlines on your desktop, top stories first, in three sizes. It follows the app's colors or any of the ten palettes, and it uses no network.</p>
+          </article>
+          <article class="card">
+            <h3>English and Turkish</h3>
+            <p>The interface is available in both languages. Pick one in Settings, or follow the system.</p>
+          </article>
         </div>
       </div>
     </section>
@@ -209,7 +226,7 @@
     <section id="privacy">
       <div class="wrap">
         <h2>Privacy and data</h2>
-        <p class="intro">Versoline has no accounts, no analytics and no crash reporting. Everything it stores lives in <code>~/Library/Application Support/Versoline</code>. Its network requests go straight from your Mac, and each one has a reason.</p>
+        <p class="intro">Versoline has no accounts, no analytics and no crash reporting. Everything it stores lives in <code>~/Library/Application Support/Versoline</code>. Its network requests go straight from your Mac, and each one has a reason. The only data kept outside that folder is the widget's snapshot, one small file with the unread count and a few headlines, in the app group container.</p>
         <div class="table-scroll">
           <table>
             <thead><tr><th scope="col">Request</th><th scope="col">To whom</th><th scope="col">When</th></tr></thead>
@@ -233,6 +250,9 @@
         <div class="cols">
           <div>
             <h2>Install</h2>
+            <p>With Homebrew:</p>
+            <pre><code>brew install --cask bezelye404/versoline/versoline</code></pre>
+            <p>The cask clears the quarantine flag, so the first-launch note below does not apply. Or download it by hand:</p>
             <ol class="steps">
               <li>Download the <code>.dmg</code> from the <a href="https://github.com/bezelye404/Versoline/releases/latest">latest release</a>.</li>
               <li>Open it and drag <strong>Versoline</strong> to <strong>Applications</strong>.</li>
@@ -287,6 +307,14 @@ xcodebuild -project Versoline.xcodeproj \
         <details>
           <summary>Which languages does the app support?</summary>
           <p>English and Turkish. You can pick one in Settings &gt; General.</p>
+        </details>
+        <details>
+          <summary>How do I add the widget?</summary>
+          <p>Open Versoline once, then right-click the desktop, choose Edit Widgets and look for Versoline. It shows what the app last wrote, so it stays as it was while the app is closed.</p>
+        </details>
+        <details>
+          <summary>Can I install it with Homebrew?</summary>
+          <p>Yes: <code>brew install --cask bezelye404/versoline/versoline</code>. Update with <code>brew upgrade --cask versoline</code>.</p>
         </details>
         <details>
           <summary>Is it free?</summary>

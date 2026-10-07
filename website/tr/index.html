@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Versoline: Mac için RSS okuyucu ve podcast oynatıcı</title>
-  <meta name="description" content="Versoline, Mac için ücretsiz ve açık kaynaklı bir RSS okuyucu ve podcast oynatıcıdır. RSS ve Atom akışlarını okuyun, podcast dinleyin, YouTube ve Reddit'i tek uygulamadan takip edin. Hesap yok, analiz yok.">
+  <meta name="description" content="Versoline, Mac için ücretsiz ve açık kaynaklı, takvimli ve masaüstü widget'lı bir RSS okuyucu ve podcast oynatıcıdır. RSS ve Atom akışlarını okuyun, podcast dinleyin, YouTube ve Reddit'i tek uygulamadan takip edin. Hesap yok, analiz yok.">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
   <meta name="author" content="bezelye404">
   <link rel="canonical" href="https://bezelye404.github.io/Versoline/tr/">
@@ -129,6 +129,18 @@
             <h3>Yedekleme ve yakındaki senkron</h3>
             <p>Tüm kütüphaneyi tek dosya olarak yedekleyin. İsterseniz kendi Mac'lerinizi bir kodla eşleştirip yerel ağ üzerinden senkronlayabilirsiniz; arada sunucu yok.</p>
           </article>
+          <article class="card">
+            <h3>Takvim</h3>
+            <p>Hangi gün kaç makale geldiğini ve hangi günlerde yer imi olduğunu gösteren bir ay görünümü. Bir gün seçin, o gün gelenleri ya da yalnızca kaydettiklerinizi görün.</p>
+          </article>
+          <article class="card">
+            <h3>Widget</h3>
+            <p>Okunmamış sayısı ve en yeni başlıklar masaüstünüzde, öne çıkanlar önce, üç boyutta. Uygulamanın renklerini izler ya da on paletten birini seçersiniz; ağ kullanmaz.</p>
+          </article>
+          <article class="card">
+            <h3>İngilizce ve Türkçe</h3>
+            <p>Arayüz iki dilde de var. Ayarlardan birini seçin ya da sistemi izleyin.</p>
+          </article>
         </div>
       </div>
     </section>
@@ -136,7 +148,7 @@
     <section id="gizlilik">
       <div class="wrap">
         <h2>Gizlilik ve veri</h2>
-        <p class="intro">Versoline'da hesap, analiz ve çökme raporlama yok. Sakladığı her şey <code>~/Library/Application Support/Versoline</code> altında durur. Ağ istekleri doğrudan Mac'inizden çıkar ve her birinin bir nedeni vardır.</p>
+        <p class="intro">Versoline'da hesap, analiz ve çökme raporlama yok. Sakladığı her şey <code>~/Library/Application Support/Versoline</code> altında durur. Ağ istekleri doğrudan Mac'inizden çıkar ve her birinin bir nedeni vardır. Bu klasörün dışında tutulan tek veri widget'ın özetidir: okunmamış sayısı ve birkaç başlık içeren tek küçük bir dosya, uygulama grubu klasöründe.</p>
         <div class="table-scroll">
           <table>
             <thead><tr><th scope="col">İstek</th><th scope="col">Kime</th><th scope="col">Ne zaman</th></tr></thead>
@@ -160,6 +172,9 @@
         <div class="cols">
           <div>
             <h2>Kurulum</h2>
+            <p>Homebrew ile:</p>
+            <pre><code>brew install --cask bezelye404/versoline/versoline</code></pre>
+            <p>Cask karantina bayrağını temizler, bu yüzden aşağıdaki ilk açılış notu geçerli olmaz. Ya da elle indirin:</p>
             <ol class="steps">
               <li><a href="https://github.com/bezelye404/Versoline/releases/latest">Son sürümden</a> <code>.dmg</code> dosyasını indirin.</li>
               <li>Açın ve <strong>Versoline</strong>'ı <strong>Uygulamalar</strong>'a sürükleyin.</li>
@@ -214,6 +229,14 @@ xcodebuild -project Versoline.xcodeproj \
         <details>
           <summary>Hangi dilleri destekliyor?</summary>
           <p>İngilizce ve Türkçe. Dil, Ayarlar &gt; Genel bölümünden seçilebilir.</p>
+        </details>
+        <details>
+          <summary>Widget'ı nasıl eklerim?</summary>
+          <p>Versoline'ı bir kez açın, sonra masaüstüne sağ tıklayıp Widget'ları Düzenle'yi seçin ve Versoline'ı bulun. Uygulamanın en son yazdığını gösterir; uygulama kapalıyken olduğu gibi kalır.</p>
+        </details>
+        <details>
+          <summary>Homebrew ile kurabilir miyim?</summary>
+          <p>Evet: <code>brew install --cask bezelye404/versoline/versoline</code>. Güncellemek için <code>brew upgrade --cask versoline</code>.</p>
         </details>
         <details>
           <summary>Ücretsiz mi?</summary>

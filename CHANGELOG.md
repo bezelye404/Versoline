@@ -7,12 +7,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-07
+
 ### Added
 - **Calendar.** A month view that shows how many articles arrived on each day, with a marker for days that have bookmarks. Pick a day to see its articles, or only its bookmarks.
 - **Widget.** A Notification Center and desktop widget (small, medium and large) with the unread count and the newest headlines, top stories first. It reads one small file the app writes into its app group container; it never uses the network. It follows the app's color palette, or any of the ten palettes can be chosen per widget (Edit Widget). Tapping a headline opens the article in Versoline.
 - **Language setting.** Settings > General can pin the app to English or Turkish, or follow the system.
+- **Homebrew.** `brew install --cask bezelye404/versoline/versoline`, from the `homebrew-versoline` tap, which updates itself when a release is published.
 
 ### Changed
+- The calendar reads the library in place and keeps only the month's results; the first version held a sorted copy of every article while it was open (about 2.5 to 8.7 MB for 10,000 articles).
 - The release script signs the app and the widget again after the build to add the app group entitlement, which Xcode does not accept without a provisioning profile (`scripts/sign-app-groups.sh`).
 
 ## [0.4.1] - 2026-10-07

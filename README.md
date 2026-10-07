@@ -37,7 +37,9 @@ Versoline is a native macOS app for reading RSS and Atom feeds, listening to pod
 - **Smart streams** by topic and by reading time, **muted keywords**, and **rules** that mark new articles read or bookmark them.
 - **Mark older articles as read** by hand or automatically, so the Unread list stays about what is new.
 - **Bookmarks** (also searchable in Spotlight, if you turn that on), a Highlights list, and an unread count on the Dock icon (optional).
+- **Calendar:** a month view that shows how many articles arrived on each day and which days have bookmarks; pick a day to see its articles. It covers the articles still stored on your Mac.
 - **Shortcuts actions** to refresh the feeds and read the unread count.
+- **Widget** (small, medium and large) with the unread count and the newest headlines, top stories first. It follows the app's colour palette, or you can pick one of the ten palettes for each widget. It updates when the app does and uses no network.
 
 ### Podcasts and video
 
@@ -49,7 +51,7 @@ Versoline is a native macOS app for reading RSS and Atom feeds, listening to pod
 - **Backup and restore** of the whole library and your preferences as one file.
 - **Command palette** (⌘K) to jump to any list, folder or feed, and **Focus Mode** (⇧⌘F) to read without the sidebar.
 - Optional **nearby sync** between your own Macs (see below).
-- Interface in English and Turkish.
+- Interface in English and Turkish, selectable in Settings > General.
 
 ---
 
@@ -72,7 +74,7 @@ Versoline is a native macOS app for reading RSS and Atom feeds, listening to pod
 
 ## Privacy and data
 
-Versoline has no account system, no analytics and no crash reporting. Everything it stores lives in `~/Library/Application Support/Versoline`, inside the app's sandbox container.
+Versoline has no account system, no analytics and no crash reporting. Everything it stores lives in `~/Library/Application Support/Versoline`, inside the app's sandbox container. The one exception is the widget's snapshot: a single small file (the unread count and a few headlines) in the app group container, `~/Library/Group Containers/group.com.bezelye.Versoline`, because a widget cannot read the app's own folder.
 
 The network requests it makes are all made from your Mac, and each has a reason:
 
@@ -96,6 +98,16 @@ Translation itself, story grouping, Spotlight indexing, highlights and notes all
 ---
 
 ## Install
+
+**With Homebrew:**
+
+```bash
+brew install --cask bezelye404/versoline/versoline
+```
+
+The cask comes from the [homebrew-versoline](https://github.com/bezelye404/homebrew-versoline) tap and clears the quarantine flag, so the Gatekeeper note below does not apply. Update with `brew upgrade --cask versoline`.
+
+**Or by hand:**
 
 1. Download the `.dmg` from the [latest release](https://github.com/bezelye404/Versoline/releases/latest).
 2. Open it and drag **Versoline** to **Applications**.
@@ -128,6 +140,8 @@ xcodebuild test -project Versoline.xcodeproj -scheme Versoline -destination 'pla
 python3 scripts/check-localization.py
 ```
 
+The widget needs an app group entitlement that Xcode only accepts with a provisioning profile, so `scripts/sign-app-groups.sh` adds it after the build (the scripts below run it). A plain `xcodebuild` build works, but its widget stays empty; see [docs/widget.md](docs/widget.md).
+
 `scripts/run-dev.sh` builds and launches a separate "Versoline Dev" app with its own data, and `scripts/benchmark.sh` measures memory use while reading (see [docs/benchmark.md](docs/benchmark.md)). `scripts/build-dmg.sh` packages a release; the steps are in [docs/RELEASING.md](docs/RELEASING.md).
 
 ---
@@ -142,7 +156,9 @@ python3 scripts/check-localization.py
 
 **Can I follow a site that has no visible RSS link?** Paste the site address in Add Feed. If the site advertises a feed, or uses a common feed path, Versoline finds it.
 
-**Which languages does the app support?** English and Turkish.
+**Which languages does the app support?** English and Turkish. Choose one in Settings > General, or follow the system.
+
+**Why is the widget empty?** It shows what the app last wrote, so open Versoline once. If you built the app yourself without `scripts/sign-app-groups.sh`, the widget has no access to the app's data.
 
 ---
 
