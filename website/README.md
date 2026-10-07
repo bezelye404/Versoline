@@ -14,7 +14,3 @@ The site is served at `https://bezelye404.github.io/Versoline/`. If you later us
 - Add the site to Google Search Console and Bing Webmaster Tools and submit `sitemap.xml`.
 - Add screenshots to `assets/` and uncomment the screenshots section in `index.html`.
 - Update `lastmod` in `sitemap.xml` when the content changes.
-
-## Extras
-
-`dino/` is a small standalone game (one page, no dependencies, scores kept in the browser), served at `/Versoline/dino/`. It is not linked from the main pages and not in the sitemap.
