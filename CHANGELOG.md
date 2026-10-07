@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 - **Calendar.** A month view that shows how many articles arrived on each day, with a marker for days that have bookmarks. Pick a day to see its articles, or only its bookmarks.
-- **Widget.** A Notification Center and desktop widget (small, medium and large) with the unread count and the newest headlines, top stories first. It reads one small file the app writes into its app group container; it never uses the network. Tapping a headline opens the article in Versoline.
+- **Widget.** A Notification Center and desktop widget (small, medium and large) with the unread count and the newest headlines, top stories first. It reads one small file the app writes into its app group container; it never uses the network. It follows the app's color palette, or any of the ten palettes can be chosen per widget (Edit Widget). Tapping a headline opens the article in Versoline.
 - **Language setting.** Settings > General can pin the app to English or Turkish, or follow the system.
 
 ### Changed

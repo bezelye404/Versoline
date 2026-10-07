@@ -26,6 +26,7 @@
 		1F2F2872BEC73903388BF88D /* hurriyet.html in Resources */ = {isa = PBXBuildFile; fileRef = C0D5272D333EDF2741243FE5 /* hurriyet.html */; };
 		2022E77965227BB4BC7F7AA6 /* FeedStore+OPML.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F41177A5909AB96A3254E5F /* FeedStore+OPML.swift */; };
 		219A25117EEA8C3A2F947E71 /* SyncModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B76558FDC690837CFA9D9296 /* SyncModels.swift */; };
+		22F967478D0C7F7B0011564E /* WidgetPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9694520FC9563E55180571A0 /* WidgetPalette.swift */; };
 		247931C2C37C2DB9358197F8 /* FeedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA50AB3CBAEC3AB16053E65 /* FeedStore.swift */; };
 		2822235390CB55B71F1C311A /* FeedStorePersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6AADA107F645C1AA673835B /* FeedStorePersistenceTests.swift */; };
 		28D9EC0765C4BD39C9FE1E85 /* VersolineWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AAE806AE167E4DFFA283D48C /* VersolineWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -123,6 +124,7 @@
 		A0D7FA5C85380A7664D60F6C /* AppInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 139315C3DB98104904EAA1B6 /* AppInfoTests.swift */; };
 		A24DF881FD81F8B26B7AA3DB /* ItemStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93F6AD04356B10EA753BC567 /* ItemStream.swift */; };
 		A5982263D68F95A3478F061F /* FeedStore+Counts.swift in Sources */ = {isa = PBXBuildFile; fileRef = E65BBA4DAB2D05647FBD5668 /* FeedStore+Counts.swift */; };
+		A75C224AD6F070EBABD6BB5D /* WidgetPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9694520FC9563E55180571A0 /* WidgetPalette.swift */; };
 		A8296E6D6F46D96EE449B707 /* FeedStore+Feeds.swift in Sources */ = {isa = PBXBuildFile; fileRef = A57F86A88ED909FE6237FCC1 /* FeedStore+Feeds.swift */; };
 		AAE5972461D57F525A4D1BFD /* MiniPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B72BAC0E0E0360E7F984EB69 /* MiniPlayerView.swift */; };
 		AB535382CCCD9290B63F9A90 /* PeerHandshake.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4031B66F261AEBF054766D7 /* PeerHandshake.swift */; };
@@ -316,6 +318,7 @@
 		9463750395D6312D73ECBA2D /* RefreshBackoffTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshBackoffTests.swift; sourceTree = "<group>"; };
 		94CD8CBEA6352BC5F1265F16 /* RulesSettingsTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RulesSettingsTab.swift; sourceTree = "<group>"; };
 		94F2A882E1B980CE1F91CD97 /* trt.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = trt.html; sourceTree = "<group>"; };
+		9694520FC9563E55180571A0 /* WidgetPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetPalette.swift; sourceTree = "<group>"; };
 		97832AD18ABF51BFA56EB57F /* FeedStore+Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FeedStore+Persistence.swift"; sourceTree = "<group>"; };
 		97F8CC467046B59E188ADC90 /* AppInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInfo.swift; sourceTree = "<group>"; };
 		9862AA5FDF27CEFED798CCC8 /* Annotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Annotation.swift; sourceTree = "<group>"; };
@@ -579,6 +582,7 @@
 				115CBF3B1548AC38EB03EC95 /* SidebarItem.swift */,
 				D6F68587745514868AC2F484 /* SmartCategory.swift */,
 				B76558FDC690837CFA9D9296 /* SyncModels.swift */,
+				9694520FC9563E55180571A0 /* WidgetPalette.swift */,
 				4C79010DEC62D09D5F68B939 /* WidgetSnapshot.swift */,
 			);
 			name = Models;
@@ -1026,6 +1030,7 @@
 				90ED9FCEF6C5A328C9328659 /* VideoPlayerService.swift in Sources */,
 				75E4C7C89881F64EAC55BD6F /* WebView.swift in Sources */,
 				CC5572F29416ABF8A964710A /* WelcomeView.swift in Sources */,
+				A75C224AD6F070EBABD6BB5D /* WidgetPalette.swift in Sources */,
 				C5FF0490EB233261732728A5 /* WidgetSnapshot.swift in Sources */,
 				3B07F13FB678FB3E8B2702E3 /* WidgetUpdater.swift in Sources */,
 				657CC07A7DE9337BE28A2910 /* YouTubePlayerView.swift in Sources */,
@@ -1037,6 +1042,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D7F15AD315D92964F9CDCBA7 /* VersolineWidget.swift in Sources */,
+				22F967478D0C7F7B0011564E /* WidgetPalette.swift in Sources */,
 				C63EFDB0B87114BD837FF1DA /* WidgetSnapshot.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

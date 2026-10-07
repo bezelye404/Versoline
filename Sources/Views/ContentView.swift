@@ -30,6 +30,13 @@ struct ContentView: View {
         return playing.id == selected.id
     }
 
+    @AppStorage(AppSettingsKeys.mutedKeywords) private var mutedKeywordsRaw = ""
+
+    private var widgetState: WidgetState {
+        WidgetState(unread: store.totalUnreadCount(), items: store.cachedTotalItemCount, stories: store.storyRefs.count,
+                    palette: appColorPaletteRaw, muted: mutedKeywordsRaw)
+    }
+
     private var currentTheme: AppColorPalette {
         AppColorPalette(rawValue: appColorPaletteRaw) ?? .slate
     }
@@ -275,10 +282,17 @@ struct ContentView: View {
             DockBadge.update(unreadCount: store.totalUnreadCount(), enabled: showDockBadge)
         }
         .task { FeedStore.current = store }
-        .task(id: WidgetState(unread: store.totalUnreadCount(), items: store.cachedTotalItemCount)) {
-            // A short pause, so a refresh that changes many counts in a row writes the snapshot once.
-            try? await Task.sleep(for: .seconds(2))
+        .task(id: widgetState) {
+            // A pause, so a refresh or a run of "mark as read" writes the snapshot once, not for every change.
+            try? await Task.sleep(for: .seconds(5))
             guard !Task.isCancelled else { return }
+            WidgetUpdater.update(store: store)
+        }
+        // Leaving the app must not strand the widget up to five seconds behind.
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didResignActiveNotification)) { _ in
+            WidgetUpdater.update(store: store)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
             WidgetUpdater.update(store: store)
         }
         .task {
@@ -480,9 +494,13 @@ struct ContentView: View {
     }
 }
 
+/// What the widget shows depends on these; any change schedules a snapshot update.
 private struct WidgetState: Hashable {
     let unread: Int
     let items: Int
+    let stories: Int
+    let palette: String
+    let muted: String
 }
 
 private struct DockBadgeState: Hashable {

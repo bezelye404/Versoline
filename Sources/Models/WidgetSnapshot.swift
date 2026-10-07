@@ -19,9 +19,28 @@ struct WidgetSnapshot: Codable, Equatable {
     static let urlScheme = "versoline"
     private static let fileName = "widget-snapshot.json"
 
+    /// When the content last changed; unchanged content is not rewritten, so this is not "last checked".
     var generatedAt: Date
     var unreadCount: Int
     var headlines: [Headline]
+    /// The app's color palette (`AppColorPalette` raw value) when the snapshot was written.
+    var palette: String
+
+    init(generatedAt: Date, unreadCount: Int, headlines: [Headline], palette: String = "slate") {
+        self.generatedAt = generatedAt
+        self.unreadCount = unreadCount
+        self.headlines = headlines
+        self.palette = palette
+    }
+
+    /// Files written by an earlier version have no palette; they still load.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        generatedAt = try container.decode(Date.self, forKey: .generatedAt)
+        unreadCount = try container.decode(Int.self, forKey: .unreadCount)
+        headlines = try container.decode([Headline].self, forKey: .headlines)
+        palette = try container.decodeIfPresent(String.self, forKey: .palette) ?? "slate"
+    }
 
     static let placeholder = WidgetSnapshot(
         generatedAt: Date(),
@@ -64,7 +83,7 @@ struct WidgetSnapshot: Codable, Equatable {
     }
 
     func sameContent(as other: WidgetSnapshot) -> Bool {
-        unreadCount == other.unreadCount && headlines == other.headlines
+        unreadCount == other.unreadCount && headlines == other.headlines && palette == other.palette
     }
 
     // MARK: Links

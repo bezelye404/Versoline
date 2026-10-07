@@ -31,6 +31,7 @@ targets:
         excludes:
           - "VersolineWidget.entitlements"
       - path: Sources/Models/WidgetSnapshot.swift
+      - path: Sources/Models/WidgetPalette.swift
     info:
       path: Widget/Info.plist
       properties:

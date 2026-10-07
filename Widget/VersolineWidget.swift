@@ -1,49 +1,92 @@
+import AppIntents
 import SwiftUI
 import WidgetKit
+
+// MARK: Configuration
+
+/// Which colors the widget uses: the app's current palette, or one of the app's palettes fixed for this widget.
+enum PaletteChoice: String, AppEnum {
+    case followApp
+    case slate, sepia, sage, dusk, monochrome, nordic, espresso, matcha, bordeaux, solarized
+
+    static let typeDisplayRepresentation: TypeDisplayRepresentation = "Palette"
+
+    static let caseDisplayRepresentations: [PaletteChoice: DisplayRepresentation] = [
+        .followApp: "Same as the app",
+        .slate: "Slate",
+        .sepia: "Sepia",
+        .sage: "Sage",
+        .dusk: "Dusk",
+        .monochrome: "Monochrome",
+        .nordic: "Nordic Frost",
+        .espresso: "Espresso Amber",
+        .matcha: "Matcha & Moss",
+        .bordeaux: "Bordeaux Plum",
+        .solarized: "Solarized Paper",
+    ]
+}
+
+struct PaletteIntent: WidgetConfigurationIntent {
+    static let title: LocalizedStringResource = "Colors"
+    static let description = IntentDescription("Choose the colors of this widget.")
+
+    @Parameter(title: "Palette", default: .followApp)
+    var palette: PaletteChoice
+}
 
 // MARK: Timeline
 
 struct SnapshotEntry: TimelineEntry {
     let date: Date
     let snapshot: WidgetSnapshot
+    let palette: WidgetPalette
     let isPlaceholder: Bool
 }
 
-struct SnapshotProvider: TimelineProvider {
+struct SnapshotProvider: AppIntentTimelineProvider {
+
+    private func entry(for configuration: PaletteIntent, snapshot: WidgetSnapshot?, isPlaceholder: Bool = false) -> SnapshotEntry {
+        let snapshot = snapshot ?? WidgetSnapshot(generatedAt: Date(), unreadCount: 0, headlines: [])
+        let name = configuration.palette == .followApp ? snapshot.palette : configuration.palette.rawValue
+        return SnapshotEntry(date: Date(), snapshot: snapshot, palette: .named(name), isPlaceholder: isPlaceholder)
+    }
 
     func placeholder(in context: Context) -> SnapshotEntry {
-        SnapshotEntry(date: Date(), snapshot: .placeholder, isPlaceholder: true)
+        entry(for: PaletteIntent(), snapshot: .placeholder, isPlaceholder: true)
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (SnapshotEntry) -> Void) {
-        if context.isPreview {
-            completion(placeholder(in: context))
-        } else {
-            completion(SnapshotEntry(date: Date(), snapshot: WidgetSnapshot.load() ?? WidgetSnapshot(generatedAt: Date(), unreadCount: 0, headlines: []), isPlaceholder: false))
-        }
+    func snapshot(for configuration: PaletteIntent, in context: Context) async -> SnapshotEntry {
+        context.isPreview
+            ? entry(for: configuration, snapshot: .placeholder, isPlaceholder: true)
+            : entry(for: configuration, snapshot: WidgetSnapshot.load())
     }
 
-    /// One entry. The app asks for a reload whenever the counts change; the widget never polls on its own.
-    func getTimeline(in context: Context, completion: @escaping (Timeline<SnapshotEntry>) -> Void) {
-        let snapshot = WidgetSnapshot.load() ?? WidgetSnapshot(generatedAt: Date(), unreadCount: 0, headlines: [])
-        completion(Timeline(entries: [SnapshotEntry(date: Date(), snapshot: snapshot, isPlaceholder: false)], policy: .never))
+    /// One entry. The app asks for a reload whenever what the widget shows changes; the widget never polls.
+    func timeline(for configuration: PaletteIntent, in context: Context) async -> Timeline<SnapshotEntry> {
+        Timeline(entries: [entry(for: configuration, snapshot: WidgetSnapshot.load())], policy: .never)
     }
 }
 
-// MARK: Colors (the app's Slate palette)
+// MARK: Colors
 
-private extension Color {
-    static let widgetAccent = Color(red: 0.30, green: 0.46, blue: 0.62)
-    static let widgetAmber = Color(red: 0.80, green: 0.58, blue: 0.26)
+private extension WidgetPalette.RGB {
+    var color: Color { Color(red: red, green: green, blue: blue) }
+}
+
+private extension WidgetPalette.Pair {
+    func color(_ scheme: ColorScheme) -> Color { (scheme == .dark ? dark : light).color }
 }
 
 // MARK: Views
 
 struct VersolineWidgetView: View {
     @Environment(\.widgetFamily) private var family
+    @Environment(\.colorScheme) private var scheme
     let entry: SnapshotEntry
 
     private var snapshot: WidgetSnapshot { entry.snapshot }
+    private var accent: Color { entry.palette.accent.color(scheme) }
+    private var bookmark: Color { entry.palette.bookmark.color(scheme) }
 
     private var headlineLimit: Int {
         switch family {
@@ -62,7 +105,7 @@ struct VersolineWidgetView: View {
                 list
             }
         }
-        .containerBackground(.background, for: .widget)
+        .containerBackground(for: .widget) { entry.palette.background.color(scheme) }
     }
 
     private var small: some View {
@@ -74,7 +117,7 @@ struct VersolineWidgetView: View {
             Text("\(snapshot.unreadCount)")
                 .font(.system(size: 44, weight: .semibold, design: .rounded))
                 .minimumScaleFactor(0.6)
-                .foregroundStyle(Color.widgetAccent)
+                .foregroundStyle(accent)
             Text(LocalizedStringKey(snapshot.unreadCount == 1 ? "article" : "articles"))
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -92,7 +135,7 @@ struct VersolineWidgetView: View {
                 Spacer()
                 Text("\(snapshot.unreadCount)")
                     .font(.system(.title3, design: .rounded).weight(.semibold))
-                    .foregroundStyle(Color.widgetAccent)
+                    .foregroundStyle(accent)
             }
 
             if snapshot.headlines.isEmpty {
@@ -121,7 +164,7 @@ struct VersolineWidgetView: View {
                 if headline.isTopStory {
                     Image(systemName: "square.stack.3d.up.fill")
                         .font(.system(size: 9))
-                        .foregroundStyle(Color.widgetAmber)
+                        .foregroundStyle(bookmark)
                 }
                 Text(headline.feedTitle)
                     .lineLimit(1)
@@ -145,7 +188,7 @@ struct VersolineWidget: Widget {
     let kind = "VersolineUnreadWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: SnapshotProvider()) { entry in
+        AppIntentConfiguration(kind: kind, intent: PaletteIntent.self, provider: SnapshotProvider()) { entry in
             VersolineWidgetView(entry: entry)
         }
         .configurationDisplayName("Unread")
