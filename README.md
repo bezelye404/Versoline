@@ -45,6 +45,7 @@ brew install --cask bezelye404/versoline/versoline
 - **Bookmarks** (also searchable in Spotlight, if you turn that on), a Highlights list, and an unread count on the Dock icon (optional).
 - **Calendar:** a month view that shows how many articles arrived on each day and which days have bookmarks; pick a day to see its articles. It covers the articles still stored on your Mac.
 - **Shortcuts actions** to refresh the feeds and read the unread count.
+- **Permissions & Access reset** (Settings > Storage): turns off every optional integration (Dock badge, menu bar icon, Spotlight, widget data, nearby sync) and forgets paired Macs in one step.
 - **Widget** (small, medium and large) with the unread count and the newest headlines, top stories first. It follows the app's colour palette, or you can pick one of the ten palettes for each widget. It updates when the app does and uses no network.
 
 ### Podcasts and video
@@ -80,7 +81,7 @@ brew install --cask bezelye404/versoline/versoline
 
 ## Privacy and data
 
-Versoline has no account system, no analytics and no crash reporting. Everything it stores lives in `~/Library/Application Support/Versoline`, inside the app's sandbox container. The one exception is the widget's snapshot: a single small file (the unread count and a few headlines) in the app group container, `~/Library/Group Containers/group.com.bezelye.Versoline`, because a widget cannot read the app's own folder.
+Versoline has no account system, no analytics and no crash reporting. Everything it stores lives in `~/Library/Application Support/Versoline`, inside the app's sandbox container. The one exception is the widget's snapshot: a single small file (the unread count and a few headlines) in `~/Library/Application Support/Versoline Widget`, outside the sandbox container, because a widget cannot read the app's own folder.
 
 The network requests it makes are all made from your Mac, and each has a reason:
 
@@ -146,7 +147,7 @@ xcodebuild test -project Versoline.xcodeproj -scheme Versoline -destination 'pla
 python3 scripts/check-localization.py
 ```
 
-The widget needs an app group entitlement that Xcode only accepts with a provisioning profile, so `scripts/sign-app-groups.sh` adds it after the build (the scripts below run it). A plain `xcodebuild` build works, but its widget stays empty; see [docs/widget.md](docs/widget.md).
+The widget reads its data from a small folder the app writes to; both are allowed to reach it through a sandbox entitlement, so a plain `xcodebuild` build works the same as a release. See [docs/widget.md](docs/widget.md).
 
 `scripts/run-dev.sh` builds and launches a separate "Versoline Dev" app with its own data, and `scripts/benchmark.sh` measures memory use while reading (see [docs/benchmark.md](docs/benchmark.md)). `scripts/build-dmg.sh` packages a release; the steps are in [docs/RELEASING.md](docs/RELEASING.md).
 
@@ -164,7 +165,7 @@ The widget needs an app group entitlement that Xcode only accepts with a provisi
 
 **Which languages does the app support?** English and Turkish. Choose one in Settings > General, or follow the system.
 
-**Why is the widget empty?** It shows what the app last wrote, so open Versoline once. If you built the app yourself without `scripts/sign-app-groups.sh`, the widget has no access to the app's data.
+**Why is the widget empty?** It shows what the app last wrote, so open Versoline once.
 
 ---
 

@@ -8,8 +8,8 @@ options:
 settings:
   base:
     # The app and the widget share one version; the release scripts read it from here.
-    MARKETING_VERSION: 0.5.0
-    CURRENT_PROJECT_VERSION: 10
+    MARKETING_VERSION: 0.5.1
+    CURRENT_PROJECT_VERSION: 11
     SWIFT_VERSION: "6.0"
     MACOSX_DEPLOYMENT_TARGET: "15.0"
   configs:

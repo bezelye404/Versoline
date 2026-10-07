@@ -7,6 +7,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-10-07
+
+### Added
+- **Reset Permissions & Access** (Settings > Storage). One button turns off the Dock badge, menu bar icon, Spotlight bookmarks, widget data and nearby sync, and forgets the paired Macs; feeds, articles and other settings stay. macOS keeps its own record of permissions such as local network access and an app cannot clear it from inside the sandbox, so the same section opens Privacy & Security and copies the `tccutil` command.
+- **Show Articles in the Widget** (Settings > General). Turning it off deletes the widget's data file; the widget then asks you to open Versoline.
+
+### Fixed
+- The widget no longer makes macOS ask "Versoline wants to access data from other apps" every time the app opens. It shared data through an app group, which macOS questions on every launch for an ad hoc signed app. The app now writes the snapshot to `~/Library/Application Support/Versoline Widget`, a single folder it and the widget are allowed to reach, and the release script no longer needs to sign the app a second time.
+
 ## [0.5.0] - 2026-10-07
 
 ### Added
