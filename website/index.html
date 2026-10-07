@@ -7,14 +7,14 @@
   <meta name="description" content="Versoline is a free, open-source RSS reader and podcast player for Mac, with a calendar and a desktop widget. Read RSS and Atom feeds, listen to podcasts and follow YouTube and Reddit in one native app. No account, no analytics.">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
   <meta name="author" content="bezelye404">
+  <link rel="canonical" href="https://bezelye404.github.io/Versoline/">
   <link rel="alternate" hreflang="en" href="https://bezelye404.github.io/Versoline/">
   <link rel="alternate" hreflang="tr" href="https://bezelye404.github.io/Versoline/tr/">
   <link rel="alternate" hreflang="x-default" href="https://bezelye404.github.io/Versoline/">
-  <link rel="canonical" href="https://bezelye404.github.io/Versoline/">
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#f2f5f7" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#1c1f24" media="(prefers-color-scheme: dark)">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; script-src 'self'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
 
   <link rel="icon" type="image/png" href="assets/favicon.png">
@@ -106,19 +106,38 @@
   </script>
 </head>
 <body>
+  <svg class="sprite" width="0" height="0" aria-hidden="true" focusable="false">
+    <symbol id="i-rss" viewBox="0 0 24 24"><path d="M5 5a14 14 0 0 1 14 14M5 11a8 8 0 0 1 8 8"/><circle cx="6" cy="18" r="1.4"/></symbol>
+    <symbol id="i-reader" viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="17" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h5"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 4l8 4-8 4-8-4 8-4z"/><path d="M4 12l8 4 8-4M4 16l8 4 8-4"/></symbol>
+    <symbol id="i-type" viewBox="0 0 24 24"><path d="M3.5 18L8.5 6l5 12M5.5 14h6M16 18v-5.5a2 2 0 1 1 4 0V18M16 15.5h4"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c3 3 3 14 0 17M12 3.5c-3 3-3 14 0 17"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M5 19l3.5-1 9-9a2 2 0 0 0-2.8-2.8l-9 9L5 19z"/><path d="M13.5 7.5l3 3"/></symbol>
+    <symbol id="i-headphones" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3.5" y="14" width="4" height="6" rx="1.5"/><rect x="16.5" y="14" width="4" height="6" rx="1.5"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="2" fill="var(--surface)"/><circle cx="15" cy="12" r="2" fill="var(--surface)"/><circle cx="8" cy="17" r="2" fill="var(--surface)"/></symbol>
+    <symbol id="i-sync" viewBox="0 0 24 24"><path d="M5 9a7 7 0 0 1 12-3l2 2M19 15a7 7 0 0 1-12 3l-2-2"/><path d="M19 4v4h-4M5 20v-4h4"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></symbol>
+    <symbol id="i-widget" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7.5" height="7.5" rx="2"/><rect x="13" y="3.5" width="7.5" height="7.5" rx="2"/><rect x="3.5" y="13" width="17" height="7.5" rx="2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 6h14a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19 17h-7l-4 3v-3H5a1.5 1.5 0 0 1-1.5-1.5v-8A1.5 1.5 0 0 1 5 6z"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5v-2a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M7.5 9.5l3 2.5-3 2.5M13 15h4"/></symbol>
+    <symbol id="i-github" viewBox="0 0 24 24"><path d="M9 19c-4 1.2-4-2-6-2.5M15 21v-3.2a2.8 2.8 0 0 0-.8-2.2c2.7-.3 5.5-1.3 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.3 4.3 0 0 0-.1-3.2s-1-.3-3.4 1.3a11.600 11.600 0 0 0-6 0C6.500 3.900 5.500 4.200 5.500 4.200a4.300 4.300 0 0 0-.1 3.200A4.600 4.600 0 0 0 4.100 10.600c0 4.600 2.800 5.700 5.500 6A2.800 2.800 0 0 0 8.800 18.800V21"/></symbol>
+  </svg>
   <a class="skip" href="#main">Skip to content</a>
 
   <header class="site">
     <div class="wrap">
-      <a class="brand" href="#top"><img src="assets/favicon.png" alt="" width="32" height="32"> Versoline</a>
+      <a class="brand" href="#top"><img src="assets/favicon.png" alt="" width="30" height="30"> Versoline</a>
       <nav class="site" aria-label="Main">
         <ul>
           <li><a href="#features">Features</a></li>
-          <li><a href="#privacy">Privacy</a></li>
+          <li class="hide-small"><a href="#palettes">Colors</a></li>
+          <li class="hide-small"><a href="#privacy">Privacy</a></li>
           <li><a href="#install">Install</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#faq">FAQ</a></li>
-          <li><a href="https://github.com/bezelye404/Versoline">GitHub</a></li>
+          <li class="hide-small"><a href="#faq">FAQ</a></li>
+          <li><a class="pill" href="https://github.com/bezelye404/Versoline">GitHub</a></li>
         </ul>
       </nav>
     </div>
@@ -127,23 +146,42 @@
   <main id="main">
     <div class="hero" id="top">
       <div class="wrap">
-        <img class="hero-icon" src="assets/icon-512.png" alt="Versoline app icon" width="96" height="96">
-        <h1>Versoline: an RSS reader and podcast player for Mac</h1>
-        <p class="lead">Versoline brings your RSS and Atom feeds, podcasts, YouTube channels and Reddit communities into one Mac app. It's written in Swift and SwiftUI, uses only Apple's frameworks, and keeps your data on your Mac.</p>
-        <div class="actions">
-          <a class="btn" href="https://github.com/bezelye404/Versoline/releases/latest">Download for macOS</a>
-          <a class="btn secondary" href="https://github.com/bezelye404/Versoline">View source on GitHub</a>
+        <div>
+          <span class="eyebrow">Free and open source · macOS 15+</span>
+          <h1>Versoline: an RSS reader and podcast player for Mac</h1>
+          <p class="lead">Versoline brings your RSS and Atom feeds, podcasts, YouTube channels and Reddit communities into one Mac app. It's written in Swift and SwiftUI, uses only Apple's frameworks, and keeps your data on your Mac.</p>
+          <div class="actions">
+            <a class="btn" href="https://github.com/bezelye404/Versoline/releases/latest"><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>Download for macOS</a>
+            <a class="btn secondary" href="https://github.com/bezelye404/Versoline"><svg class="icon" aria-hidden="true"><use href="#i-github"/></svg>View on GitHub</a>
+          </div>
+          <div>
+            <p class="or">Or install with Homebrew</p>
+            <div class="term"><span class="prompt">$</span><code>brew install --cask bezelye404/versoline/versoline</code><button class="copy" type="button" aria-label="Copy the install command"><span class="idle"><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg>Copy</span><span class="done" aria-live="polite"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Copied</span></button></div>
+          </div>
+          <p class="meta">MIT license · macOS 15 Sequoia or later · Apple silicon and Intel</p>
         </div>
-        <p class="meta">Free and open source (MIT) · macOS 15 Sequoia or later · Apple silicon and Intel</p>
+        <div class="mock" role="img" aria-label="An illustration of the app: a sidebar, a list of articles and the reading view">
+          <div class="mock-bar"><i></i><i></i><i></i></div>
+          <div class="mock-body" aria-hidden="true">
+            <div class="mock-col mock-side">
+              <div class="group">Library</div><div class="on"><b></b>Unread</div><div><b></b>Today</div><div><b></b>Calendar</div><div><b></b>Top Stories</div><div><b></b>Bookmarks</div><div><b></b>All Articles</div><div><b></b>Podcasts</div><div class="group">Smart Streams</div><div class="group">Feeds</div>
+            </div>
+            <div class="mock-col mock-list">
+              <div class="mock-row"><span class="dot"></span><div class="lines"><span class="bar strong w90"></span><span class="bar w60"></span><span class="bar w30"></span></div></div>
+<div class="mock-row"><span class="dot"></span><div class="lines"><span class="bar strong w75"></span><span class="bar w90"></span><span class="bar w40"></span></div></div>
+<div class="mock-row"><span class="dot"></span><div class="lines"><span class="bar strong w90"></span><span class="bar w75"></span><span class="bar w30"></span></div></div>
+<div class="mock-row"><span class="dot"></span><div class="lines"><span class="bar strong w60"></span><span class="bar w90"></span><span class="bar w40"></span></div></div>
+            </div>
+            <div class="mock-col mock-read">
+              <h4></h4>
+              <span class="bar w90"></span><span class="bar w75"></span><span class="bar w90"></span>
+              <div class="quote"><span class="bar w75"></span><span class="bar w60"></span></div>
+              <span class="bar w90"></span><span class="bar w60"></span><span class="bar w75"></span><span class="bar w40"></span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-
-    <!-- Screenshots go here once they exist, for example:
-    <section id="screenshots"><div class="wrap">
-      <h2>Screenshots</h2>
-      <img src="assets/reader.png" alt="The reader view" width="1200" height="750">
-    </div></section>
-    -->
 
     <section id="features">
       <div class="wrap">
@@ -151,54 +189,86 @@
         <p class="intro">Your feeds, articles, podcasts and videos in one window, with reading at the centre.</p>
         <div class="grid">
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-rss"/></svg>
             <h3>Feeds and sources</h3>
             <p>RSS 2.0 and Atom, YouTube channels and playlists, Reddit subreddits and users. Paste a site address and Versoline finds the feed for you. OPML import and export keep your folders.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-reader"/></svg>
             <h3>A reader that isn't a web page</h3>
             <p>Articles are set in native SwiftUI text: headings, lists, quotes, code, tables and images with captions. Menus, share bars and ads are left out, and the original page is one click away.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-layers"/></svg>
             <h3>Same story, once</h3>
             <p>When several of your feeds cover the same news, the list shows one row with the number of sources. Top Stories collects what three or more feeds are talking about. The grouping happens on your Mac, and you can turn it off.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-type"/></svg>
             <h3>Typography and themes</h3>
             <p>System, serif, sans-serif and monospaced fonts, adjustable size and line height, ten colour palettes and Bionic Reading.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-globe"/></svg>
             <h3>Translate on your Mac</h3>
             <p>Articles in another language are translated with Apple's Translation framework, so the text stays on your Mac.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-pen"/></svg>
             <h3>Highlights, notes and search</h3>
             <p>Find in Article, highlights and notes on paragraphs, and Versoline remembers where you stopped in long articles. Bookmarks can show up in Spotlight if you want them to.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-headphones"/></svg>
             <h3>Podcasts and video</h3>
             <p>Search the Apple Podcasts directory, stream or download episodes, and use a queue, a sleep timer and speeds from 0.75x to 2x. Videos play in an embedded player or in your browser.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg>
             <h3>Rules and muted keywords</h3>
             <p>Mark new articles as read, bookmark them automatically, or hide topics you don't want to see. Feed Health shows feeds that fail or have gone quiet.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-sync"/></svg>
             <h3>Backup and nearby sync</h3>
             <p>Back up the whole library as one file. If you want, your own Macs can sync over the local network after you pair them with a code. There is no server in between.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-calendar"/></svg>
             <h3>Calendar</h3>
             <p>A month view that shows how many articles arrived each day and which days have bookmarks. Pick a day to see what came in, or only what you saved.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-widget"/></svg>
             <h3>Widget</h3>
             <p>The unread count and the newest headlines on your desktop, top stories first, in three sizes. It follows the app's colors or any of the ten palettes, and it uses no network.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-chat"/></svg>
             <h3>English and Turkish</h3>
             <p>The interface is available in both languages. Pick one in Settings, or follow the system.</p>
           </article>
         </div>
+      </div>
+    </section>
+
+    <section id="palettes">
+      <div class="wrap">
+        <h2>Ten color palettes</h2>
+        <p class="intro">Flat, matte colors, from warm paper to cool slate. Try them on this page; the app and its widget use the same ones.</p>
+        <div class="swatches" role="group" aria-label="Ten color palettes">
+          <button class="swatch p-slate" type="button" data-palette="slate" data-name="Slate" aria-pressed="true" aria-label="Slate"></button>
+          <button class="swatch p-sepia" type="button" data-palette="sepia" data-name="Sepia" aria-pressed="false" aria-label="Sepia"></button>
+          <button class="swatch p-sage" type="button" data-palette="sage" data-name="Sage" aria-pressed="false" aria-label="Sage"></button>
+          <button class="swatch p-dusk" type="button" data-palette="dusk" data-name="Dusk" aria-pressed="false" aria-label="Dusk"></button>
+          <button class="swatch p-monochrome" type="button" data-palette="monochrome" data-name="Monochrome" aria-pressed="false" aria-label="Monochrome"></button>
+          <button class="swatch p-nordic" type="button" data-palette="nordic" data-name="Nordic Frost" aria-pressed="false" aria-label="Nordic Frost"></button>
+          <button class="swatch p-espresso" type="button" data-palette="espresso" data-name="Espresso Amber" aria-pressed="false" aria-label="Espresso Amber"></button>
+          <button class="swatch p-matcha" type="button" data-palette="matcha" data-name="Matcha & Moss" aria-pressed="false" aria-label="Matcha & Moss"></button>
+          <button class="swatch p-bordeaux" type="button" data-palette="bordeaux" data-name="Bordeaux Plum" aria-pressed="false" aria-label="Bordeaux Plum"></button>
+          <button class="swatch p-solarized" type="button" data-palette="solarized" data-name="Solarized Paper" aria-pressed="false" aria-label="Solarized Paper"></button>
+        </div>
+        <p class="swatch-name" id="swatch-name" aria-live="polite">Slate</p>
       </div>
     </section>
 
@@ -241,35 +311,37 @@
             </tbody>
           </table>
         </div>
-        <p style="margin-top:1.25rem">Story grouping, translation, Spotlight indexing, highlights and notes all happen on your Mac. The app has no third-party dependencies, and the source is public, so you can check any of this yourself.</p>
+        <p class="privacy-note">Story grouping, translation, Spotlight indexing, highlights and notes all happen on your Mac. The app has no third-party dependencies, and the source is public, so you can check any of this yourself.</p>
       </div>
     </section>
 
     <section id="install">
       <div class="wrap">
-        <div class="cols">
-          <div>
-            <h2>Install</h2>
-            <p>With Homebrew:</p>
-            <pre><code>brew install --cask bezelye404/versoline/versoline</code></pre>
-            <p>The cask clears the quarantine flag, so the first-launch note below does not apply. Or download it by hand:</p>
-            <ol class="steps">
-              <li>Download the <code>.dmg</code> from the <a href="https://github.com/bezelye404/Versoline/releases/latest">latest release</a>.</li>
-              <li>Open it and drag <strong>Versoline</strong> to <strong>Applications</strong>.</li>
-            </ol>
-            <p>Versoline is signed ad hoc, without a paid Apple Developer certificate, so macOS may tell you it can't verify the developer the first time. Right-click the app and choose <strong>Open</strong>, or run:</p>
-            <pre><code>xattr -cr /Applications/Versoline.app</code></pre>
-            <p>If you used it under its earlier name, <strong>easyRSS</strong>, Versoline imports that data on first launch and leaves the old folder alone.</p>
+        <h2>Install</h2>
+        <p class="intro">Two ways. Homebrew is the shorter one.</p>
+        <div class="install-grid">
+          <div class="install-card">
+            <h3><svg class="icon" aria-hidden="true"><use href="#i-terminal"/></svg>Homebrew<span class="tag">Recommended</span></h3>
+            <div class="term"><span class="prompt">$</span><code>brew install --cask bezelye404/versoline/versoline</code><button class="copy" type="button" aria-label="Copy the install command"><span class="idle"><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg>Copy</span><span class="done" aria-live="polite"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Copied</span></button></div>
+            <p>One command, and updates come with <code>brew upgrade --cask versoline</code>. The cask clears the quarantine flag, so macOS does not warn on first launch.</p>
           </div>
-          <div>
-            <h2>Build from source</h2>
-            <p>You need macOS 15 or later, Xcode 16 or later and <a href="https://github.com/yonaskolb/XcodeGen">XcodeGen</a>.</p>
+          <div class="install-card">
+            <h3><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>Disk image</h3>
+            <p>Open it and drag Versoline to Applications.</p>
+            <a class="btn" href="https://github.com/bezelye404/Versoline/releases/latest"><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>Download the .dmg</a>
+            <p class="small">Versoline is signed ad hoc, without a paid Apple Developer certificate, so macOS may say it can't verify the developer. Right-click the app and choose <strong>Open</strong>, or run <code>xattr -cr /Applications/Versoline.app</code>.</p>
+          </div>
+        </div>
+        <p class="privacy-note">If you used it under its earlier name, <strong>easyRSS</strong>, Versoline imports that data on first launch and leaves the old folder alone.</p>
+
+        <div class="build">
+          <h3>Build from source</h3>
+          <p>You need macOS 15 or later, Xcode 16 or later and <a href="https://github.com/yonaskolb/XcodeGen">XcodeGen</a>.</p>
 <pre><code>git clone https://github.com/bezelye404/Versoline.git
 cd Versoline
 xcodegen generate
 xcodebuild -project Versoline.xcodeproj \
   -scheme Versoline -configuration Release build</code></pre>
-          </div>
         </div>
       </div>
     </section>
@@ -333,8 +405,9 @@ xcodebuild -project Versoline.xcodeproj \
         <li><a href="https://github.com/bezelye404/Versoline/issues">Report an issue</a></li>
         <li><a href="https://github.com/bezelye404/Versoline/blob/main/LICENSE">MIT license</a></li>
       </ul>
-      <p>Versoline, formerly easyRSS. English · <a href="tr/" hreflang="tr" lang="tr">Türkçe</a>. This site loads no scripts, fonts or trackers.</p>
+      <p>Versoline, formerly easyRSS. This site has no trackers and loads nothing from other servers. English · <a href="tr/" hreflang="tr" lang="tr">Türkçe</a></p>
     </div>
   </footer>
+  <script src="site.js"></script>
 </body>
 </html>

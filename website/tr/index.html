@@ -14,7 +14,7 @@
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#f2f5f7" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#1c1f24" media="(prefers-color-scheme: dark)">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; script-src 'self'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
 
   <link rel="icon" type="image/png" href="../assets/favicon.png">
@@ -33,6 +33,9 @@
   <meta property="og:image:height" content="512">
   <meta property="og:image:alt" content="Versoline uygulama simgesi: koyu mavi zemin üzerinde amber RSS simgesi">
   <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Versoline: Mac için RSS okuyucu ve podcast oynatıcı">
+  <meta name="twitter:description" content="Mac için ücretsiz ve açık kaynaklı RSS okuyucu ve podcast oynatıcı. Hesap yok, analiz yok.">
+  <meta name="twitter:image" content="https://bezelye404.github.io/Versoline/assets/icon-512.png">
 
   <script type="application/ld+json">
   {
@@ -57,18 +60,38 @@
   </script>
 </head>
 <body>
+  <svg class="sprite" width="0" height="0" aria-hidden="true" focusable="false">
+    <symbol id="i-rss" viewBox="0 0 24 24"><path d="M5 5a14 14 0 0 1 14 14M5 11a8 8 0 0 1 8 8"/><circle cx="6" cy="18" r="1.4"/></symbol>
+    <symbol id="i-reader" viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="17" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h5"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 4l8 4-8 4-8-4 8-4z"/><path d="M4 12l8 4 8-4M4 16l8 4 8-4"/></symbol>
+    <symbol id="i-type" viewBox="0 0 24 24"><path d="M3.5 18L8.5 6l5 12M5.5 14h6M16 18v-5.5a2 2 0 1 1 4 0V18M16 15.5h4"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c3 3 3 14 0 17M12 3.5c-3 3-3 14 0 17"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M5 19l3.5-1 9-9a2 2 0 0 0-2.8-2.8l-9 9L5 19z"/><path d="M13.5 7.5l3 3"/></symbol>
+    <symbol id="i-headphones" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3.5" y="14" width="4" height="6" rx="1.5"/><rect x="16.5" y="14" width="4" height="6" rx="1.5"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="2" fill="var(--surface)"/><circle cx="15" cy="12" r="2" fill="var(--surface)"/><circle cx="8" cy="17" r="2" fill="var(--surface)"/></symbol>
+    <symbol id="i-sync" viewBox="0 0 24 24"><path d="M5 9a7 7 0 0 1 12-3l2 2M19 15a7 7 0 0 1-12 3l-2-2"/><path d="M19 4v4h-4M5 20v-4h4"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></symbol>
+    <symbol id="i-widget" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7.5" height="7.5" rx="2"/><rect x="13" y="3.5" width="7.5" height="7.5" rx="2"/><rect x="3.5" y="13" width="17" height="7.5" rx="2"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 6h14a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19 17h-7l-4 3v-3H5a1.5 1.5 0 0 1-1.5-1.5v-8A1.5 1.5 0 0 1 5 6z"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5v-2a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M7.5 9.5l3 2.5-3 2.5M13 15h4"/></symbol>
+    <symbol id="i-github" viewBox="0 0 24 24"><path d="M9 19c-4 1.2-4-2-6-2.5M15 21v-3.2a2.8 2.8 0 0 0-.8-2.2c2.7-.3 5.5-1.3 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.3 4.3 0 0 0-.1-3.2s-1-.3-3.4 1.3a11.600 11.600 0 0 0-6 0C6.500 3.900 5.500 4.200 5.500 4.200a4.300 4.300 0 0 0-.1 3.200A4.600 4.600 0 0 0 4.100 10.600c0 4.600 2.800 5.700 5.500 6A2.800 2.800 0 0 0 8.800 18.800V21"/></symbol>
+  </svg>
   <a class="skip" href="#main">İçeriğe geç</a>
 
   <header class="site">
     <div class="wrap">
-      <a class="brand" href="#top"><img src="../assets/favicon.png" alt="" width="32" height="32"> Versoline</a>
+      <a class="brand" href="#top"><img src="../assets/favicon.png" alt="" width="30" height="30"> Versoline</a>
       <nav class="site" aria-label="Ana menü">
         <ul>
           <li><a href="#ozellikler">Özellikler</a></li>
-          <li><a href="#gizlilik">Gizlilik</a></li>
+          <li class="hide-small"><a href="#paletler">Renkler</a></li>
+          <li class="hide-small"><a href="#gizlilik">Gizlilik</a></li>
           <li><a href="#kurulum">Kurulum</a></li>
-          <li><a href="#sss">SSS</a></li>
-          <li><a href="https://github.com/bezelye404/Versoline">GitHub</a></li>
+          <li class="hide-small"><a href="#sss">SSS</a></li>
+          <li><a class="pill" href="https://github.com/bezelye404/Versoline">GitHub</a></li>
         </ul>
       </nav>
     </div>
@@ -77,14 +100,40 @@
   <main id="main">
     <div class="hero" id="top">
       <div class="wrap">
-        <img class="hero-icon" src="../assets/icon-512.png" alt="Versoline uygulama simgesi" width="96" height="96">
-        <h1>Versoline: Mac için RSS okuyucu ve podcast oynatıcı</h1>
-        <p class="lead">Versoline; RSS ve Atom akışlarınızı, podcast'lerinizi, YouTube kanallarınızı ve Reddit topluluklarınızı tek bir Mac uygulamasında toplar. Swift ve SwiftUI ile yazıldı, yalnızca Apple'ın çerçevelerini kullanır ve verilerinizi Mac'inizde tutar.</p>
-        <div class="actions">
-          <a class="btn" href="https://github.com/bezelye404/Versoline/releases/latest">macOS için indir</a>
-          <a class="btn secondary" href="https://github.com/bezelye404/Versoline">Kaynak kodu GitHub'da</a>
+        <div>
+          <span class="eyebrow">Ücretsiz ve açık kaynak · macOS 15+</span>
+          <h1>Versoline: Mac için RSS okuyucu ve podcast oynatıcı</h1>
+          <p class="lead">Versoline; RSS ve Atom akışlarınızı, podcast'lerinizi, YouTube kanallarınızı ve Reddit topluluklarınızı tek bir Mac uygulamasında toplar. Swift ve SwiftUI ile yazıldı, yalnızca Apple'ın çerçevelerini kullanır ve verilerinizi Mac'inizde tutar.</p>
+          <div class="actions">
+            <a class="btn" href="https://github.com/bezelye404/Versoline/releases/latest"><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>macOS için indir</a>
+            <a class="btn secondary" href="https://github.com/bezelye404/Versoline"><svg class="icon" aria-hidden="true"><use href="#i-github"/></svg>GitHub'da görüntüle</a>
+          </div>
+          <div>
+            <p class="or">Ya da Homebrew ile kurun</p>
+            <div class="term"><span class="prompt">$</span><code>brew install --cask bezelye404/versoline/versoline</code><button class="copy" type="button" aria-label="Kurulum komutunu kopyala"><span class="idle"><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg>Kopyala</span><span class="done" aria-live="polite"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Kopyalandı</span></button></div>
+          </div>
+          <p class="meta">MIT lisansı · macOS 15 Sequoia veya üzeri · Apple silikon ve Intel</p>
         </div>
-        <p class="meta">Ücretsiz ve açık kaynak (MIT) · macOS 15 Sequoia veya üzeri · Apple silikon ve Intel · Arayüz İngilizce ve Türkçe</p>
+        <div class="mock" role="img" aria-label="Uygulamanın çizimi: kenar çubuğu, makale listesi ve okuma görünümü">
+          <div class="mock-bar"><i></i><i></i><i></i></div>
+          <div class="mock-body" aria-hidden="true">
+            <div class="mock-col mock-side">
+              <div class="group">Kütüphane</div><div class="on"><b></b>Okunmamış</div><div><b></b>Bugün</div><div><b></b>Takvim</div><div><b></b>Öne Çıkanlar</div><div><b></b>Favoriler</div><div><b></b>Tüm Makaleler</div><div><b></b>Podcast'ler</div><div class="group">Akıllı Akışlar</div><div class="group">Feed'ler</div>
+            </div>
+            <div class="mock-col mock-list">
+              <div class="mock-row"><span class="dot"></span><div class="lines"><span class="bar strong w90"></span><span class="bar w60"></span><span class="bar w30"></span></div></div>
+<div class="mock-row"><span class="dot"></span><div class="lines"><span class="bar strong w75"></span><span class="bar w90"></span><span class="bar w40"></span></div></div>
+<div class="mock-row"><span class="dot"></span><div class="lines"><span class="bar strong w90"></span><span class="bar w75"></span><span class="bar w30"></span></div></div>
+<div class="mock-row"><span class="dot"></span><div class="lines"><span class="bar strong w60"></span><span class="bar w90"></span><span class="bar w40"></span></div></div>
+            </div>
+            <div class="mock-col mock-read">
+              <h4></h4>
+              <span class="bar w90"></span><span class="bar w75"></span><span class="bar w90"></span>
+              <div class="quote"><span class="bar w75"></span><span class="bar w60"></span></div>
+              <span class="bar w90"></span><span class="bar w60"></span><span class="bar w75"></span><span class="bar w40"></span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -94,53 +143,106 @@
         <p class="intro">Akışlarınız, makaleleriniz, podcast'leriniz ve videolarınız tek pencerede; merkezde okuma var.</p>
         <div class="grid">
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-rss"/></svg>
             <h3>Akışlar ve kaynaklar</h3>
             <p>RSS 2.0 ve Atom, YouTube kanalları ve oynatma listeleri, Reddit toplulukları ve kullanıcıları. Bir site adresi yapıştırın, akışı Versoline bulur. OPML içe ve dışa aktarma klasörlerinizi korur.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-reader"/></svg>
             <h3>Web sayfası olmayan bir okuyucu</h3>
             <p>Makaleler yerel SwiftUI metniyle dizilir: başlıklar, listeler, alıntılar, kod, tablolar ve altyazılı görseller. Menüler, paylaşım çubukları ve reklamlar dışarıda kalır; özgün sayfa tek tıkla açılır.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-layers"/></svg>
             <h3>Aynı haber, bir kez</h3>
             <p>Birkaç akışınız aynı haberi verdiğinde liste, kaynak sayısıyla tek satır gösterir. Öne Çıkanlar, en az üç akışın konuştuğu haberleri toplar. Gruplama Mac'inizde yapılır, istemezseniz kapatabilirsiniz.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-type"/></svg>
             <h3>Yazı tipi ve temalar</h3>
             <p>Sistem, serif, sans-serif ve eş aralıklı yazı tipleri, ayarlanabilir boyut ve satır aralığı, on renk paleti ve Bionic Reading.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-globe"/></svg>
             <h3>Mac'inizde çeviri</h3>
             <p>Başka dildeki makaleler Apple'ın Translation çerçevesiyle çevrilir, metin Mac'inizde kalır.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-pen"/></svg>
             <h3>Vurgular, notlar ve arama</h3>
             <p>Makalede bul, paragraflara vurgu ve not. Uzun yazılarda nerede kaldığınızı Versoline hatırlar. İsterseniz yer imleriniz Spotlight'ta da çıkar.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-headphones"/></svg>
             <h3>Podcast ve video</h3>
             <p>Apple Podcasts dizininde arayın, bölümleri dinleyin ya da indirin; kuyruk, uyku zamanlayıcısı ve 0,75x–2x hız hazır. Videolar gömülü oynatıcıda ya da tarayıcınızda açılır.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg>
             <h3>Kurallar ve sessize alınan kelimeler</h3>
             <p>Yeni makaleleri otomatik okundu yapın, yer imine ekleyin ya da görmek istemediğiniz konuları gizleyin. Akış Sağlığı, hata veren ya da sessizleşen akışları gösterir.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-sync"/></svg>
             <h3>Yedekleme ve yakındaki senkron</h3>
             <p>Tüm kütüphaneyi tek dosya olarak yedekleyin. İsterseniz kendi Mac'lerinizi bir kodla eşleştirip yerel ağ üzerinden senkronlayabilirsiniz; arada sunucu yok.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-calendar"/></svg>
             <h3>Takvim</h3>
             <p>Hangi gün kaç makale geldiğini ve hangi günlerde yer imi olduğunu gösteren bir ay görünümü. Bir gün seçin, o gün gelenleri ya da yalnızca kaydettiklerinizi görün.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-widget"/></svg>
             <h3>Widget</h3>
             <p>Okunmamış sayısı ve en yeni başlıklar masaüstünüzde, öne çıkanlar önce, üç boyutta. Uygulamanın renklerini izler ya da on paletten birini seçersiniz; ağ kullanmaz.</p>
           </article>
           <article class="card">
+            <svg class="icon" aria-hidden="true"><use href="#i-chat"/></svg>
             <h3>İngilizce ve Türkçe</h3>
             <p>Arayüz iki dilde de var. Ayarlardan birini seçin ya da sistemi izleyin.</p>
           </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="paletler">
+      <div class="wrap">
+        <h2>On renk paleti</h2>
+        <p class="intro">Düz, mat renkler; sıcak kâğıttan soğuk arduvaza. Bu sayfada deneyin; uygulama ve widget'ı aynılarını kullanır.</p>
+        <div class="swatches" role="group" aria-label="On renk paleti">
+          <button class="swatch p-slate" type="button" data-palette="slate" data-name="Slate" aria-pressed="true" aria-label="Slate"></button>
+          <button class="swatch p-sepia" type="button" data-palette="sepia" data-name="Sepya" aria-pressed="false" aria-label="Sepya"></button>
+          <button class="swatch p-sage" type="button" data-palette="sage" data-name="Sage" aria-pressed="false" aria-label="Sage"></button>
+          <button class="swatch p-dusk" type="button" data-palette="dusk" data-name="Dusk" aria-pressed="false" aria-label="Dusk"></button>
+          <button class="swatch p-monochrome" type="button" data-palette="monochrome" data-name="Monochrome" aria-pressed="false" aria-label="Monochrome"></button>
+          <button class="swatch p-nordic" type="button" data-palette="nordic" data-name="Nordic Frost" aria-pressed="false" aria-label="Nordic Frost"></button>
+          <button class="swatch p-espresso" type="button" data-palette="espresso" data-name="Espresso Amber" aria-pressed="false" aria-label="Espresso Amber"></button>
+          <button class="swatch p-matcha" type="button" data-palette="matcha" data-name="Matcha & Moss" aria-pressed="false" aria-label="Matcha & Moss"></button>
+          <button class="swatch p-bordeaux" type="button" data-palette="bordeaux" data-name="Bordeaux Plum" aria-pressed="false" aria-label="Bordeaux Plum"></button>
+          <button class="swatch p-solarized" type="button" data-palette="solarized" data-name="Solarized Paper" aria-pressed="false" aria-label="Solarized Paper"></button>
+        </div>
+        <p class="swatch-name" id="swatch-name" aria-live="polite">Slate</p>
+      </div>
+    </section>
+
+    <section id="shortcuts">
+      <div class="wrap">
+        <h2>Klavye kısayolları</h2>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th scope="col">Tuş</th><th scope="col">İşlem</th></tr></thead>
+            <tbody>
+              <tr><td><kbd>J</kbd> / <kbd>K</kbd></td><td>Sonraki / önceki makale</td></tr>
+              <tr><td><kbd>M</kbd></td><td>Okundu durumunu değiştir</td></tr>
+              <tr><td><kbd>S</kbd></td><td>Yer imini değiştir</td></tr>
+              <tr><td><kbd>O</kbd></td><td>Makaleyi tarayıcıda aç</td></tr>
+              <tr><td><kbd>⌘</kbd><kbd>R</kbd></td><td>Tüm akışları yenile</td></tr>
+              <tr><td><kbd>⌘</kbd><kbd>K</kbd></td><td>Komut paleti</td></tr>
+              <tr><td><kbd>⌥</kbd><kbd>⌘</kbd><kbd>F</kbd></td><td>Makalede bul</td></tr>
+              <tr><td><kbd>⇧</kbd><kbd>⌘</kbd><kbd>F</kbd></td><td>Odak Modu</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -163,40 +265,42 @@
             </tbody>
           </table>
         </div>
-        <p style="margin-top:1.25rem">Haber gruplama, çeviri, Spotlight dizinleme, vurgular ve notlar Mac'inizde olur. Uygulamanın üçüncü taraf bağımlılığı yok; kaynak kod açık, bunların hepsini kendiniz de kontrol edebilirsiniz.</p>
+        <p class="privacy-note">Haber gruplama, çeviri, Spotlight dizinleme, vurgular ve notlar Mac'inizde olur. Uygulamanın üçüncü taraf bağımlılığı yok; kaynak kod açık, bunların hepsini kendiniz de kontrol edebilirsiniz.</p>
       </div>
     </section>
 
     <section id="kurulum">
       <div class="wrap">
-        <div class="cols">
-          <div>
-            <h2>Kurulum</h2>
-            <p>Homebrew ile:</p>
-            <pre><code>brew install --cask bezelye404/versoline/versoline</code></pre>
-            <p>Cask karantina bayrağını temizler, bu yüzden aşağıdaki ilk açılış notu geçerli olmaz. Ya da elle indirin:</p>
-            <ol class="steps">
-              <li><a href="https://github.com/bezelye404/Versoline/releases/latest">Son sürümden</a> <code>.dmg</code> dosyasını indirin.</li>
-              <li>Açın ve <strong>Versoline</strong>'ı <strong>Uygulamalar</strong>'a sürükleyin.</li>
-            </ol>
-            <p>Versoline, ücretli bir Apple Developer sertifikası olmadan ad hoc imzalıdır; bu yüzden macOS ilk açılışta geliştiriciyi doğrulayamadığını söyleyebilir. Uygulamaya sağ tıklayıp <strong>Aç</strong>'ı seçin ya da şunu çalıştırın:</p>
-            <pre><code>xattr -cr /Applications/Versoline.app</code></pre>
-            <p>Uygulamayı eski adıyla, <strong>easyRSS</strong> olarak kullandıysanız Versoline ilk açılışta o verileri alır, eski klasöre dokunmaz.</p>
+        <h2>Kurulum</h2>
+        <p class="intro">İki yol var. Homebrew daha kısası.</p>
+        <div class="install-grid">
+          <div class="install-card">
+            <h3><svg class="icon" aria-hidden="true"><use href="#i-terminal"/></svg>Homebrew<span class="tag">Önerilen</span></h3>
+            <div class="term"><span class="prompt">$</span><code>brew install --cask bezelye404/versoline/versoline</code><button class="copy" type="button" aria-label="Kurulum komutunu kopyala"><span class="idle"><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg>Kopyala</span><span class="done" aria-live="polite"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>Kopyalandı</span></button></div>
+            <p>Tek komut; güncellemeler <code>brew upgrade --cask versoline</code> ile gelir. Cask karantina bayrağını temizler, bu yüzden macOS ilk açılışta uyarı vermez.</p>
           </div>
-          <div>
-            <h2>Kaynaktan derleme</h2>
-            <p>macOS 15 veya üzeri, Xcode 16 veya üzeri ve <a href="https://github.com/yonaskolb/XcodeGen">XcodeGen</a> gerekir.</p>
+          <div class="install-card">
+            <h3><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>Disk görüntüsü</h3>
+            <p>Açın ve Versoline'ı Uygulamalar'a sürükleyin.</p>
+            <a class="btn" href="https://github.com/bezelye404/Versoline/releases/latest"><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>.dmg dosyasını indir</a>
+            <p class="small">Versoline, ücretli bir Apple Developer sertifikası olmadan ad hoc imzalıdır; bu yüzden macOS geliştiriciyi doğrulayamadığını söyleyebilir. Uygulamaya sağ tıklayıp <strong>Aç</strong>'ı seçin ya da <code>xattr -cr /Applications/Versoline.app</code> çalıştırın.</p>
+          </div>
+        </div>
+        <p class="privacy-note">Uygulamayı eski adıyla, <strong>easyRSS</strong> olarak kullandıysanız Versoline ilk açılışta o verileri alır, eski klasöre dokunmaz.</p>
+
+        <div class="build">
+          <h3>Kaynaktan derleme</h3>
+          <p>macOS 15 veya üzeri, Xcode 16 veya üzeri ve <a href="https://github.com/yonaskolb/XcodeGen">XcodeGen</a> gerekir.</p>
 <pre><code>git clone https://github.com/bezelye404/Versoline.git
 cd Versoline
 xcodegen generate
 xcodebuild -project Versoline.xcodeproj \
   -scheme Versoline -configuration Release build</code></pre>
-          </div>
         </div>
       </div>
     </section>
 
-    <section id="isim">
+    <section id="about">
       <div class="wrap">
         <h2>İsim hakkında</h2>
         <p class="intro"><em>Verso</em>, açık bir kitabın çevirdiğiniz sol sayfasıdır. <em>Line</em> ise haber akışı ve okuduğunuz satırlardır. Versoline, akış okumak için yazılmış bağımsız ve açık kaynaklı bir Mac uygulamasıdır. 0.3 sürümüne kadar <strong>easyRSS</strong> adını taşıyordu ve benzer adlı şirket ya da ürünlerle bağlantısı yoktur.</p>
@@ -255,8 +359,9 @@ xcodebuild -project Versoline.xcodeproj \
         <li><a href="https://github.com/bezelye404/Versoline/issues">Sorun bildir</a></li>
         <li><a href="https://github.com/bezelye404/Versoline/blob/main/LICENSE">MIT lisansı</a></li>
       </ul>
-      <p>Versoline, eski adıyla easyRSS. <a href="../" hreflang="en" lang="en">English</a> · Türkçe. Bu site betik, yazı tipi veya izleyici yüklemez.</p>
+      <p>Versoline, eski adıyla easyRSS. Bu sitede izleyici yok ve başka sunuculardan hiçbir şey yüklenmez. Türkçe · <a href="../" hreflang="en" lang="en">English</a></p>
     </div>
   </footer>
+  <script src="../site.js"></script>
 </body>
 </html>

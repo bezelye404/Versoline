@@ -8,9 +8,14 @@ set -euo pipefail
 # container and settings, so it never touches your real library and can run next to the installed
 # Versoline. Release uses the real identity and therefore the real data.
 #
-# The app is built into build/DerivedData (ignored by git), so repeated runs are incremental.
+# The app is built into ~/Library/Caches/Versoline/DerivedData (VERSOLINE_DERIVED_DATA overrides it), so repeated
+# runs are incremental.
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+# Built outside the project folder: when the project sits on the Desktop or in Documents, macOS asks for access to
+# those folders each time a freshly built copy of the app starts from there.
+DERIVED_DATA="${VERSOLINE_DERIVED_DATA:-$HOME/Library/Caches/Versoline/DerivedData}"
 
 CONFIG="${1:-Debug}"
 export DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}"
@@ -21,9 +26,9 @@ xcodegen generate >/dev/null
 
 echo "==> Building ($CONFIG)..."
 xcodebuild -project Versoline.xcodeproj -scheme Versoline -configuration "$CONFIG" \
-  -derivedDataPath build/DerivedData -quiet build
+  -derivedDataPath "$DERIVED_DATA" -quiet build
 
-APP="build/DerivedData/Build/Products/$CONFIG/Versoline.app"
+APP="$DERIVED_DATA/Build/Products/$CONFIG/Versoline.app"
 [ -d "$APP" ] || { echo "Build output not found: $APP" >&2; exit 1; }
 scripts/sign-app-groups.sh "$APP"
 

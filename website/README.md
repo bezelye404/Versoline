@@ -1,6 +1,6 @@
 # Versoline website
 
-A static one-page site for GitHub Pages: plain HTML and CSS, no scripts, no external fonts, no trackers.
+A static site for GitHub Pages (English at `/`, Turkish at `/tr/`): plain HTML and CSS plus one small script (`site.js`) for the copy buttons and the palette preview. No external fonts, no trackers, nothing loaded from other servers; the Content-Security-Policy in each page allows only its own files.
 
 ## Publish
 

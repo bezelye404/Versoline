@@ -16,8 +16,6 @@ Or with Homebrew:
 brew install --cask bezelye404/versoline/versoline
 ```
 
-Website: [bezelye404.github.io/Versoline](https://bezelye404.github.io/Versoline/)
-
 ---
 
 ## Features
@@ -66,7 +64,7 @@ Website: [bezelye404.github.io/Versoline](https://bezelye404.github.io/Versoline
 ## Keyboard shortcuts
 
 | Key | Action |
-|---|---|
+| --- | --- |
 | J / K | Next / previous article |
 | M | Toggle read |
 | S | Toggle bookmark |
@@ -87,7 +85,7 @@ Versoline has no account system, no analytics and no crash reporting. Everything
 The network requests it makes are all made from your Mac, and each has a reason:
 
 | Request | To whom | When |
-|---|---|---|
+| --- | --- | --- |
 | Feed updates | The sites whose feeds you follow | On refresh |
 | Article pages | The site of an article | When you open it in the reader or the web view |
 | Site icons | The site itself (`/favicon.ico` or the icon its home page names) | When a feed is shown |

@@ -11,6 +11,10 @@ set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
+# Built outside the project folder: when the project sits on the Desktop or in Documents, macOS asks for access to
+# those folders each time a freshly built copy of the app starts from there.
+DERIVED_DATA="${VERSOLINE_DERIVED_DATA:-$HOME/Library/Caches/Versoline/DerivedData}"
+
 CONFIG="${1:-Release}"
 COUNT="${2:-12}"
 SECONDS_EACH="${3:-3}"
@@ -21,9 +25,9 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 echo "==> Building ($CONFIG)..."
 xcodegen generate >/dev/null
 xcodebuild -project Versoline.xcodeproj -scheme Versoline -configuration "$CONFIG" \
-  -derivedDataPath build/DerivedData -quiet build
+  -derivedDataPath "$DERIVED_DATA" -quiet build
 
-APP="build/DerivedData/Build/Products/$CONFIG/Versoline.app"
+APP="$DERIVED_DATA/Build/Products/$CONFIG/Versoline.app"
 BUNDLE_ID="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Contents/Info.plist")"
 BINARY="$(pwd)/$APP/Contents/MacOS/Versoline"
 RESULT="$HOME/Library/Containers/$BUNDLE_ID/Data/tmp/benchmark.json"
