@@ -10,6 +10,14 @@ Versoline is a native macOS app for reading RSS and Atom feeds, listening to pod
 
 **[Download Versoline for macOS](https://github.com/bezelye404/Versoline/releases/latest)** · requires macOS 15 (Sequoia) or later · Apple silicon and Intel
 
+Or with Homebrew:
+
+```bash
+brew install --cask bezelye404/versoline/versoline
+```
+
+Website: [bezelye404.github.io/Versoline](https://bezelye404.github.io/Versoline/)
+
 ---
 
 ## Features
