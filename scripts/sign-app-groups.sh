@@ -25,7 +25,7 @@ sign() {
 }
 
 for appex in "$APP"/Contents/PlugIns/*.appex; do
-  [ -d "$appex" ] && sign "$appex" "$(basename "$appex" .appex)"
+  if [ -d "$appex" ]; then sign "$appex" "$(basename "$appex" .appex)"; fi
 done
 sign "$APP" app
 codesign --verify --deep --strict "$APP"

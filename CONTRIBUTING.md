@@ -8,7 +8,7 @@ Thank you for your interest in contributing to **Versoline**! We welcome contrib
 
 1. **Zero Third-Party Dependencies:** Never add Swift Package Manager packages, CocoaPods, or binary frameworks. All functionality must be built using native Apple system frameworks (for example `SwiftUI`, `WebKit`, `AVFoundation`, `MediaPlayer`, `Network`, `Charts`, `CryptoKit`, `MultipeerConnectivity`, `NaturalLanguage`, `Translation`, `CoreSpotlight`, `AppIntents`, `WidgetKit`).
 2. **Privacy-First & Offline-First:** No telemetry, tracking SDKs, cloud accounts, or third-party proxy servers. Network requests go from the user's Mac to the sites the user reads (feed hosts, article pages, their icons and images); no third-party service may learn which sites someone follows.
-3. **Local-Only Storage:** User data is persisted exclusively under `~/Library/Application Support/Versoline`.
+3. **Local-Only Storage:** User data is persisted exclusively under `~/Library/Application Support/Versoline`, with one exception: the widget's snapshot (unread count and a few headlines) is a single small file in the app group container (`~/Library/Group Containers/group.com.bezelye.Versoline`), because a widget cannot read the app's own folder.
 4. **Lightweight Resource Usage:** Prioritize efficient memory management, downsampled caching, and minimal CPU footprint.
 
 ---

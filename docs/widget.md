@@ -29,7 +29,7 @@ Measured on a library of 10,000 articles (Debug test build, so a Release build i
 |---|---|
 | Building a snapshot | about 11 ms, two passes over the articles, no copy of them; 100 updates left the footprint unchanged (+0.05 MB) |
 | Snapshot file | a few KB |
-| Widget extension process | 4 to 10 MB footprint (Activity Monitor, one process per placed widget family) |
+| Widget extension process | 4 to 10 MB footprint, measured with `footprint` on the running extension (one placed widget) |
 
 ## Colors
 

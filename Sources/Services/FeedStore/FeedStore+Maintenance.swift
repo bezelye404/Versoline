@@ -94,6 +94,9 @@ extension FeedStore {
             UserDefaults.standard.removePersistentDomain(forName: bundleID)
         }
 
+        // The widget must not keep showing headlines from a library that no longer exists.
+        WidgetUpdater.update(store: self)
+
         AppLogger.shared.log("Factory reset complete: all feeds, articles, downloads and settings removed", level: .info, category: .storage)
     }
 }
