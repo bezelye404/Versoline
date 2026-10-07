@@ -746,3 +746,16 @@
 "%@, %d articles, %d bookmarked" = "%@, %d articles, %d bookmarked";
 "No bookmarks on this day" = "No bookmarks on this day";
 "No articles on this day" = "No articles on this day";
+"Show Articles in the Widget" = "Show Articles in the Widget";
+"Writes the unread count and a few headlines to one small file that the widget reads. Turn it off to delete that file and leave the widget empty." = "Writes the unread count and a few headlines to one small file that the widget reads. Turn it off to delete that file and leave the widget empty.";
+"Permissions & Access" = "Permissions & Access";
+"Reset Permissions & Access..." = "Reset Permissions & Access...";
+"Turns off the Dock badge, menu bar icon, Spotlight bookmarks, widget data and nearby sync, and forgets your paired Macs. Your feeds and articles stay." = "Turns off the Dock badge, menu bar icon, Spotlight bookmarks, widget data and nearby sync, and forgets your paired Macs. Your feeds and articles stay.";
+"Access has been reset. Everything optional is off; turn on what you want in Settings." = "Access has been reset. Everything optional is off; turn on what you want in Settings.";
+"macOS keeps its own record of what you allowed (for example local network access), and an app cannot clear that itself. Open Privacy & Security, or paste the command into Terminal." = "macOS keeps its own record of what you allowed (for example local network access), and an app cannot clear that itself. Open Privacy & Security, or paste the command into Terminal.";
+"Open Privacy & Security" = "Open Privacy & Security";
+"Copy Terminal Command" = "Copy Terminal Command";
+"Copied" = "Copied";
+"Reset Permissions and Access?" = "Reset Permissions and Access?";
+"Reset Access" = "Reset Access";
+"The Dock badge, menu bar icon, Spotlight bookmarks, widget data and nearby sync are turned off, and your paired Macs are forgotten. Your feeds, articles and other settings are kept." = "The Dock badge, menu bar icon, Spotlight bookmarks, widget data and nearby sync are turned off, and your paired Macs are forgotten. Your feeds, articles and other settings are kept.";

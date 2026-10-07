@@ -41,14 +41,17 @@ struct SnapshotEntry: TimelineEntry {
     let snapshot: WidgetSnapshot
     let palette: WidgetPalette
     let isPlaceholder: Bool
+    /// False when the app has not written anything (or sharing is switched off).
+    let hasData: Bool
 }
 
 struct SnapshotProvider: AppIntentTimelineProvider {
 
     private func entry(for configuration: PaletteIntent, snapshot: WidgetSnapshot?, isPlaceholder: Bool = false) -> SnapshotEntry {
+        let hasData = snapshot != nil
         let snapshot = snapshot ?? WidgetSnapshot(generatedAt: Date(), unreadCount: 0, headlines: [])
         let name = configuration.palette == .followApp ? snapshot.palette : configuration.palette.rawValue
-        return SnapshotEntry(date: Date(), snapshot: snapshot, palette: .named(name), isPlaceholder: isPlaceholder)
+        return SnapshotEntry(date: Date(), snapshot: snapshot, palette: .named(name), isPlaceholder: isPlaceholder, hasData: hasData || isPlaceholder)
     }
 
     func placeholder(in context: Context) -> SnapshotEntry {
@@ -98,14 +101,28 @@ struct VersolineWidgetView: View {
 
     var body: some View {
         Group {
-            switch family {
-            case .systemSmall:
+            if !entry.hasData {
+                noData
+            } else if family == .systemSmall {
                 small
-            default:
+            } else {
                 list
             }
         }
         .containerBackground(for: .widget) { entry.palette.background.color(scheme) }
+    }
+
+    private var noData: some View {
+        VStack(spacing: 6) {
+            Image(systemName: "envelope.badge")
+                .font(.title2)
+                .foregroundStyle(accent)
+            Text("Open Versoline to see your articles here.")
+                .font(.subheadline)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var small: some View {

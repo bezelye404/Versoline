@@ -745,3 +745,16 @@
 "%@, %d articles, %d bookmarked" = "%@, %d makale, %d favori";
 "No bookmarks on this day" = "Bu günde favori yok";
 "No articles on this day" = "Bu günde makale yok";
+"Show Articles in the Widget" = "Makaleleri Widget'ta Göster";
+"Writes the unread count and a few headlines to one small file that the widget reads. Turn it off to delete that file and leave the widget empty." = "Okunmamış sayısını ve birkaç başlığı widget'ın okuduğu tek küçük bir dosyaya yazar. Kapatırsan bu dosya silinir ve widget boş kalır.";
+"Permissions & Access" = "İzinler ve Erişim";
+"Reset Permissions & Access..." = "İzinleri ve Erişimi Sıfırla...";
+"Turns off the Dock badge, menu bar icon, Spotlight bookmarks, widget data and nearby sync, and forgets your paired Macs. Your feeds and articles stay." = "Dock rozetini, menü çubuğu simgesini, Spotlight yer imlerini, widget verisini ve yakındaki senkronu kapatır, eşleştirdiğin Mac'leri unutturur. Feed'lerin ve makalelerin kalır.";
+"Access has been reset. Everything optional is off; turn on what you want in Settings." = "Erişim sıfırlandı. İsteğe bağlı her şey kapalı; istediklerini Ayarlar'dan yeniden aç.";
+"macOS keeps its own record of what you allowed (for example local network access), and an app cannot clear that itself. Open Privacy & Security, or paste the command into Terminal." = "macOS, izin verdiklerinin kendi kaydını tutar (örneğin yerel ağ erişimi) ve bir uygulama bunu kendi başına silemez. Gizlilik ve Güvenlik'i aç ya da komutu Terminal'e yapıştır.";
+"Open Privacy & Security" = "Gizlilik ve Güvenlik'i Aç";
+"Copy Terminal Command" = "Terminal Komutunu Kopyala";
+"Copied" = "Kopyalandı";
+"Reset Permissions and Access?" = "İzinler ve Erişim Sıfırlansın mı?";
+"Reset Access" = "Erişimi Sıfırla";
+"The Dock badge, menu bar icon, Spotlight bookmarks, widget data and nearby sync are turned off, and your paired Macs are forgotten. Your feeds, articles and other settings are kept." = "Dock rozeti, menü çubuğu simgesi, Spotlight yer imleri, widget verisi ve yakındaki senkron kapatılır, eşleştirdiğin Mac'ler unutulur. Feed'lerin, makalelerin ve diğer ayarların kalır.";

@@ -54,14 +54,27 @@ struct WidgetSnapshot: Codable, Equatable {
 
     // MARK: Storage
 
-    /// The group both the app and the widget belong to; set per build in each Info.plist.
-    static var groupIdentifier: String? {
-        Bundle.main.object(forInfoDictionaryKey: "AppGroupIdentifier") as? String
+    /// The folder the app writes to and the widget reads from. It sits in the user's real Library, next to (not
+    /// inside) the app's sandbox container, and both targets are allowed to reach it by a sandbox entitlement named
+    /// after it. An app group would do the same, but macOS asks about group containers every time an ad hoc signed
+    /// app opens one. The folder's name comes from each target's Info.plist (it differs for the dev build).
+    static var sharedDirectory: URL? {
+        guard let name = Bundle.main.object(forInfoDictionaryKey: "WidgetDataDirectory") as? String,
+              let entry = getpwuid(getuid()), let home = entry.pointee.pw_dir
+        else { return nil }
+        return URL(fileURLWithPath: String(cString: home), isDirectory: true)
+            .appendingPathComponent("Library/Application Support/\(name)", isDirectory: true)
     }
 
     static func fileURL(directory: URL? = nil) -> URL? {
-        let base = directory ?? groupIdentifier.flatMap { FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: $0) }
-        return base?.appendingPathComponent(fileName)
+        (directory ?? sharedDirectory)?.appendingPathComponent(fileName)
+    }
+
+    /// Deletes the snapshot file; true when there was one.
+    @discardableResult
+    static func remove(directory: URL? = nil) -> Bool {
+        guard let url = fileURL(directory: directory), FileManager.default.fileExists(atPath: url.path(percentEncoded: false)) else { return false }
+        return (try? FileManager.default.removeItem(at: url)) != nil
     }
 
     static func load(directory: URL? = nil) -> WidgetSnapshot? {
@@ -75,6 +88,7 @@ struct WidgetSnapshot: Codable, Equatable {
     @discardableResult
     func write(directory: URL? = nil) -> Bool {
         guard let url = Self.fileURL(directory: directory) else { return false }
+        try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         if let existing = Self.load(directory: directory), existing.sameContent(as: self) { return false }
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601

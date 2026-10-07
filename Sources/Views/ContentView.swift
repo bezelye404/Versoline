@@ -31,10 +31,11 @@ struct ContentView: View {
     }
 
     @AppStorage(AppSettingsKeys.mutedKeywords) private var mutedKeywordsRaw = ""
+    @AppStorage(AppSettingsKeys.shareWithWidget) private var shareWithWidget = true
 
     private var widgetState: WidgetState {
         WidgetState(unread: store.totalUnreadCount(), items: store.cachedTotalItemCount, stories: store.storyRefs.count,
-                    palette: appColorPaletteRaw, muted: mutedKeywordsRaw)
+                    palette: appColorPaletteRaw, muted: mutedKeywordsRaw, shared: shareWithWidget)
     }
 
     private var currentTheme: AppColorPalette {
@@ -501,6 +502,7 @@ private struct WidgetState: Hashable {
     let stories: Int
     let palette: String
     let muted: String
+    let shared: Bool
 }
 
 private struct DockBadgeState: Hashable {

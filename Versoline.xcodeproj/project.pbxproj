@@ -29,6 +29,7 @@
 		22F967478D0C7F7B0011564E /* WidgetPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9694520FC9563E55180571A0 /* WidgetPalette.swift */; };
 		247931C2C37C2DB9358197F8 /* FeedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA50AB3CBAEC3AB16053E65 /* FeedStore.swift */; };
 		2822235390CB55B71F1C311A /* FeedStorePersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6AADA107F645C1AA673835B /* FeedStorePersistenceTests.swift */; };
+		283C280A653B8B1B9B842222 /* PermissionsResetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC55CEDE2638104CD2C63821 /* PermissionsResetTests.swift */; };
 		28D9EC0765C4BD39C9FE1E85 /* VersolineWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AAE806AE167E4DFFA283D48C /* VersolineWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2A45BD10C889651D86C08C0F /* MemoryRelief.swift in Sources */ = {isa = PBXBuildFile; fileRef = A287CC2D23E0C21EE3376F09 /* MemoryRelief.swift */; };
 		2AC2FDDAF68FDBE0655EBA8B /* LogRedactorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E9F0FEB5CA6F3CB49B584EC /* LogRedactorTests.swift */; };
@@ -117,6 +118,7 @@
 		99CA9980F3CC66C0D1D6067A /* FolderManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 529A66CF0706218F9FCD443C /* FolderManagementView.swift */; };
 		9A540FD3633797011E2ADAFC /* SharedVideoCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E815D6D61A4F18EF137D6CB /* SharedVideoCanvasView.swift */; };
 		9BE98E274243DA0108A45257 /* ArticleParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A87E2D7EFCEF163991CA132 /* ArticleParser.swift */; };
+		9C02A2CA23C83199620AF55F /* PermissionsReset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BB033C992BDFDB94217AC5F /* PermissionsReset.swift */; };
 		9C2750AAC3D983B167A178CB /* SocialFeedsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21176B4CEDA3BDE8C939B6B4 /* SocialFeedsView.swift */; };
 		9D92EE1A81A132CFA2DEF3FE /* aa.html in Resources */ = {isa = PBXBuildFile; fileRef = A5EEC242A0DFB16168D871C7 /* aa.html */; };
 		9FD6C55B66E633256C7A15AA /* bbc.html in Resources */ = {isa = PBXBuildFile; fileRef = 18B9364D3261C29B42A42713 /* bbc.html */; };
@@ -255,6 +257,7 @@
 		36E1644E21AC31B154AA1699 /* AnnotationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationTests.swift; sourceTree = "<group>"; };
 		374A0237B0BE4542CEB8CB7F /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		3B93733FFD8B0C7DF890D5AE /* SyncCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncCoordinator.swift; sourceTree = "<group>"; };
+		3BB033C992BDFDB94217AC5F /* PermissionsReset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsReset.swift; sourceTree = "<group>"; };
 		3C706AC2E89717CED63DBCC5 /* NativePlayerScrubber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativePlayerScrubber.swift; sourceTree = "<group>"; };
 		3C7E0A7DCCF4301C00085C2E /* NoNumericTextTransitionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoNumericTextTransitionTests.swift; sourceTree = "<group>"; };
 		3CE61036D7FF9820011B3794 /* ArticleParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleParserTests.swift; sourceTree = "<group>"; };
@@ -387,6 +390,7 @@
 		E7D88D6EFAD0DE566B0D676D /* StoryClustererTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryClustererTests.swift; sourceTree = "<group>"; };
 		E8DD4602529B00933F2530DB /* FeedStore+Maintenance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FeedStore+Maintenance.swift"; sourceTree = "<group>"; };
 		EC433A26DDADD6DE9BEC6D15 /* MotionSafe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionSafe.swift; sourceTree = "<group>"; };
+		EC55CEDE2638104CD2C63821 /* PermissionsResetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsResetTests.swift; sourceTree = "<group>"; };
 		EC62A4DF5A5647175F991B34 /* BionicReading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BionicReading.swift; sourceTree = "<group>"; };
 		EDA152BA57D1B93A4771268F /* AppShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShortcuts.swift; sourceTree = "<group>"; };
 		EE3BE53437271D78C8F76E32 /* DockBadgeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DockBadgeTests.swift; sourceTree = "<group>"; };
@@ -465,6 +469,7 @@
 				3C7E0A7DCCF4301C00085C2E /* NoNumericTextTransitionTests.swift */,
 				7A88C510813FFC523974C03E /* OPMLManagerTests.swift */,
 				76332F3D60EBBE5859E28A9F /* PeerHandshakeTests.swift */,
+				EC55CEDE2638104CD2C63821 /* PermissionsResetTests.swift */,
 				1284D4F02E4C4B4953454AAE /* ReaderFindTests.swift */,
 				8181D9FFC88827EC10CDB462 /* ReaderFixtureTests.swift */,
 				4C1F531E31C5418B37BDEB3F /* ReadingPositionsTests.swift */,
@@ -675,6 +680,7 @@
 				A287CC2D23E0C21EE3376F09 /* MemoryRelief.swift */,
 				7240E37BB4C740D5CF11C268 /* NetworkMonitor.swift */,
 				E4CE756922485ED1735619D8 /* OPMLManager.swift */,
+				3BB033C992BDFDB94217AC5F /* PermissionsReset.swift */,
 				116DA537996365CE0A61DE90 /* PodcastDownloadService.swift */,
 				30275417DC2A49D523352757 /* PodcastSearchService.swift */,
 				CAF5200E25F88125B820F66A /* ReaderModeExtractor.swift */,
@@ -897,6 +903,7 @@
 				B342AA0A0BE825D8A60789CF /* NoNumericTextTransitionTests.swift in Sources */,
 				8CC7F58920B6487C52829D55 /* OPMLManagerTests.swift in Sources */,
 				89A95F7CEED825F22D7E2C32 /* PeerHandshakeTests.swift in Sources */,
+				283C280A653B8B1B9B842222 /* PermissionsResetTests.swift in Sources */,
 				BC1A703C6D678772FC45CC2E /* RSSParserRetentionTests.swift in Sources */,
 				61EC4CD8A4FFCDC77014A2D9 /* RSSParserTests.swift in Sources */,
 				8CF7B7904B2DD3B11650A451 /* ReaderFindTests.swift in Sources */,
@@ -995,6 +1002,7 @@
 				65C4D53293825BB077E4055B /* OPMLManager.swift in Sources */,
 				AB535382CCCD9290B63F9A90 /* PeerHandshake.swift in Sources */,
 				CB60E4104D19AEE65B15FE1E /* PeerTrustStore.swift in Sources */,
+				9C02A2CA23C83199620AF55F /* PermissionsReset.swift in Sources */,
 				6C555A4A9914B94E01A341AF /* PodcastChapter.swift in Sources */,
 				D2BED8F0213A53A2A48E206F /* PodcastDownloadService.swift in Sources */,
 				74E0A878C1C104947FEA8191 /* PodcastSearchResult.swift in Sources */,
@@ -1087,12 +1095,10 @@
 		4D0A47F274BD9E8D0ADDF110 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				APP_GROUP_ID = group.com.bezelye.Versoline.dev;
 				CODE_SIGN_ENTITLEMENTS = Widget/VersolineWidget.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				ENABLE_DEBUG_DYLIB = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Widget/Info.plist;
@@ -1106,6 +1112,7 @@
 				PRODUCT_NAME = VersolineWidget;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				WIDGET_DATA_DIR = "Versoline Dev Widget";
 				WIDGET_DISPLAY_NAME = "Versoline Dev";
 			};
 			name = Debug;
@@ -1178,13 +1185,11 @@
 		8CBD52772CC13FA48A3176AD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				APP_GROUP_ID = group.com.bezelye.Versoline.dev;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Sources/Resources/Versoline.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				ENABLE_DEBUG_DYLIB = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Sources/Resources/Info.plist;
@@ -1200,13 +1205,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.bezelye.Versoline.dev;
 				PRODUCT_NAME = Versoline;
 				SDKROOT = macosx;
+				WIDGET_DATA_DIR = "Versoline Dev Widget";
 			};
 			name = Debug;
 		};
 		A1B25362496E46D0B4EC7FAC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				APP_GROUP_ID = group.com.bezelye.Versoline;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Sources/Resources/Versoline.entitlements;
 				CODE_SIGN_IDENTITY = "-";
@@ -1226,13 +1231,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.bezelye.Versoline;
 				PRODUCT_NAME = Versoline;
 				SDKROOT = macosx;
+				WIDGET_DATA_DIR = "Versoline Widget";
 			};
 			name = Release;
 		};
 		BF71111A947F486710C72EB0 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				APP_GROUP_ID = group.com.bezelye.Versoline;
 				CODE_SIGN_ENTITLEMENTS = Widget/VersolineWidget.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
@@ -1250,6 +1255,7 @@
 				PRODUCT_NAME = VersolineWidget;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				WIDGET_DATA_DIR = "Versoline Widget";
 				WIDGET_DISPLAY_NAME = Versoline;
 			};
 			name = Release;

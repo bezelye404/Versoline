@@ -470,6 +470,7 @@ struct AppSettingsKeys {
     static let showFavicons = "showFavicons"
     static let enableSingleKeyShortcuts = "enableSingleKeyShortcuts"
     static let showMenuBarIcon = "showMenuBarIcon"
+    static let shareWithWidget = "shareWithWidget"
     static let autoReaderMode = "autoReaderMode"
     static let autoCleanupDays = "autoCleanupDays"
     static let mutedKeywords = "mutedKeywords"

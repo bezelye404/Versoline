@@ -35,9 +35,6 @@ if [ ! -d "$BUILT_APP" ]; then
     exit 1
 fi
 
-echo "==> Adding the app group (widget data) and signing..."
-"$PROJECT_ROOT/scripts/sign-app-groups.sh" "$BUILT_APP"
-
 # A build left on disk shows up as a second "Versoline" in Edit Widgets; the DMG is what people install.
 pluginkit -r "$BUILT_APP/Contents/PlugIns/VersolineWidget.appex" 2>/dev/null || true
 

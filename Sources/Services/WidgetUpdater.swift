@@ -74,6 +74,11 @@ enum WidgetUpdater {
     static func update(store: FeedStore) {
         // A library that failed to load looks empty; keep what the widget shows instead of writing "all caught up".
         guard !store.loadFailed else { return }
+        // With sharing off the file is removed and nothing is written; the widget then asks the user to open the app.
+        guard UserDefaults.standard.object(forKey: AppSettingsKeys.shareWithWidget) as? Bool ?? true else {
+            if WidgetSnapshot.remove() { WidgetCenter.shared.reloadAllTimelines() }
+            return
+        }
         let muted = (UserDefaults.standard.string(forKey: AppSettingsKeys.mutedKeywords) ?? "")
             .components(separatedBy: ",")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }

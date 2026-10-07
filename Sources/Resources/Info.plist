@@ -27,8 +27,8 @@
             </array>
         </dict>
     </array>
-    <key>AppGroupIdentifier</key>
-    <string>$(APP_GROUP_ID)</string>
+    <key>WidgetDataDirectory</key>
+    <string>$(WIDGET_DATA_DIR)</string>
     <key>CFBundleDocumentTypes</key>
     <array>
         <dict>

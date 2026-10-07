@@ -39,14 +39,14 @@ targets:
       path: Widget/Info.plist
       properties:
         CFBundleDisplayName: $(WIDGET_DISPLAY_NAME)
-        AppGroupIdentifier: $(APP_GROUP_ID)
+        WidgetDataDirectory: $(WIDGET_DATA_DIR)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
     settings:
       base:
         PRODUCT_NAME: VersolineWidget
         PRODUCT_BUNDLE_IDENTIFIER: com.bezelye.Versoline.Widget
-        APP_GROUP_ID: group.com.bezelye.Versoline
+        WIDGET_DATA_DIR: Versoline Widget
         WIDGET_DISPLAY_NAME: Versoline
         GENERATE_INFOPLIST_FILE: YES
         SKIP_INSTALL: YES
@@ -57,9 +57,8 @@ targets:
       configs:
         Debug:
           PRODUCT_BUNDLE_IDENTIFIER: com.bezelye.Versoline.dev.Widget
-          APP_GROUP_ID: group.com.bezelye.Versoline.dev
+          WIDGET_DATA_DIR: Versoline Dev Widget
           WIDGET_DISPLAY_NAME: Versoline Dev
-          ENABLE_DEBUG_DYLIB: NO
 
   Versoline:
     type: application
@@ -79,7 +78,7 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: Versoline
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.news
         INFOPLIST_KEY_NSHumanReadableCopyright: "Copyright © 2026 bezelye404. All rights reserved."
-        APP_GROUP_ID: group.com.bezelye.Versoline
+        WIDGET_DATA_DIR: Versoline Widget
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CODE_SIGN_ENTITLEMENTS: Sources/Resources/Versoline.entitlements
         CODE_SIGN_IDENTITY: "-"
@@ -92,8 +91,7 @@ targets:
           PRODUCT_BUNDLE_IDENTIFIER: com.bezelye.Versoline.dev
           INFOPLIST_KEY_CFBundleDisplayName: Versoline Dev
           INFOPLIST_KEY_CFBundleName: Versoline Dev
-          APP_GROUP_ID: group.com.bezelye.Versoline.dev
-          ENABLE_DEBUG_DYLIB: NO
+          WIDGET_DATA_DIR: Versoline Dev Widget
     dependencies:
       - target: VersolineWidget
         embed: true
