@@ -47,21 +47,26 @@
         "@id": "https://bezelye404.github.io/Versoline/#website",
         "url": "https://bezelye404.github.io/Versoline/",
         "name": "Versoline",
-        "alternateName": ["Versoline RSS reader", "Versoline for Mac"],
-        "inLanguage": ["en", "tr"],
-        "publisher": { "@id": "https://bezelye404.github.io/Versoline/#author" }
-      },
-      {
-        "@type": "Person",
-        "@id": "https://bezelye404.github.io/Versoline/#author",
-        "name": "bezelye404",
-        "url": "https://github.com/bezelye404"
+        "alternateName": [
+          "Versoline RSS reader",
+          "Versoline for Mac"
+        ],
+        "inLanguage": [
+          "en",
+          "tr"
+        ],
+        "publisher": {
+          "@id": "https://bezelye404.github.io/#person"
+        }
       },
       {
         "@type": "SoftwareApplication",
         "@id": "https://bezelye404.github.io/Versoline/#app",
         "name": "Versoline",
-        "alternateName": ["Versoline RSS reader", "easyRSS"],
+        "alternateName": [
+          "Versoline RSS reader",
+          "easyRSS"
+        ],
         "applicationCategory": "NewsApplication",
         "operatingSystem": "macOS 15 or later",
         "description": "A free, open-source RSS reader and podcast player for Mac. Reads RSS and Atom feeds, plays podcasts and follows YouTube channels and Reddit communities. No account, no analytics.",
@@ -69,13 +74,24 @@
         "downloadUrl": "https://github.com/bezelye404/Versoline/releases/latest",
         "installUrl": "https://github.com/bezelye404/Versoline/releases/latest",
         "codeRepository": "https://github.com/bezelye404/Versoline",
-        "sameAs": ["https://github.com/bezelye404/Versoline"],
+        "sameAs": [
+          "https://github.com/bezelye404/Versoline"
+        ],
         "license": "https://opensource.org/licenses/MIT",
         "isAccessibleForFree": true,
-        "author": { "@id": "https://bezelye404.github.io/Versoline/#author" },
+        "author": {
+          "@id": "https://bezelye404.github.io/#person"
+        },
         "image": "https://bezelye404.github.io/Versoline/assets/icon-512.png",
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-        "inLanguage": ["en", "tr"]
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "inLanguage": [
+          "en",
+          "tr"
+        ]
       },
       {
         "@type": "FAQPage",
@@ -83,22 +99,51 @@
           {
             "@type": "Question",
             "name": "What is Versoline?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Versoline is a free, open-source RSS reader and podcast player for Mac, written in Swift and SwiftUI. It was previously called easyRSS." }
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Versoline is a free, open-source RSS reader and podcast player for Mac, written in Swift and SwiftUI. It was previously called easyRSS."
+            }
           },
           {
             "@type": "Question",
             "name": "Does Versoline need an account?",
-            "acceptedAnswer": { "@type": "Answer", "text": "No. There are no accounts, no analytics and no crash reporting. Your data is stored on your Mac." }
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. There are no accounts, no analytics and no crash reporting. Your data is stored on your Mac."
+            }
           },
           {
             "@type": "Question",
             "name": "Can I install Versoline with Homebrew?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Yes: brew install --cask bezelye404/versoline/versoline. Update with brew upgrade --cask versoline." }
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes: brew install --cask bezelye404/versoline/versoline. Update with brew upgrade --cask versoline."
+            }
           },
           {
             "@type": "Question",
             "name": "Which macOS versions does Versoline support?",
-            "acceptedAnswer": { "@type": "Answer", "text": "macOS 15 (Sequoia) or later, on Apple silicon and Intel Macs." }
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "macOS 15 (Sequoia) or later, on Apple silicon and Intel Macs."
+            }
+          }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "bezelye404",
+            "item": "https://bezelye404.github.io/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Versoline",
+            "item": "https://bezelye404.github.io/Versoline/"
           }
         ]
       }
@@ -406,7 +451,7 @@ xcodebuild -project Versoline.xcodeproj \
         <li><a href="https://github.com/bezelye404/Versoline/issues">Report an issue</a></li>
         <li><a href="https://github.com/bezelye404/Versoline/blob/main/LICENSE">MIT license</a></li>
       </ul>
-      <p>Versoline, formerly easyRSS. This site has no trackers and loads nothing from other servers. English · <a href="tr/" hreflang="tr" lang="tr">Türkçe</a></p>
+      <p>Versoline, formerly easyRSS, is a project by <a href="https://bezelye404.github.io/">bezelye404</a>. This site has no trackers and loads nothing from other servers. English · <a href="tr/" hreflang="tr" lang="tr">Türkçe</a></p>
     </div>
   </footer>
   <script src="site.js"></script>
